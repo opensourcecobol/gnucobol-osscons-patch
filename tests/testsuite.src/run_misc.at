@@ -3605,6 +3605,111 @@ AT_CHECK([$COBCRUN_DIRECT ./prog2], [0], [], [])
 
 AT_CLEANUP
 
+AT_SETUP([SORT: use EXTSM])
+AT_KEYWORDS([runmisc])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  OPCODE              PIC X(2).
+       78  SD-init         value X"FA01".
+       78  SD-release      value X"FAF3".
+       78  SD-inp-end      value X"FA10".
+       78  SD-return       value X"FAF5".
+       78  SD-term         value X"FA88".
+       01  FCD.
+           COPY "xfhfcd3.cpy".
+       01  EX-FILENAME         PIC X(260) VALUE "STEST".
+       01  EX-INDEX-NAME       PIC X(100).
+       01  EX-RECORD-BUFFER    PIC X(6).
+       78  max-sort-key-num       value 20.
+      *>   Sort-key information area
+       01  sort-key-info.
+           05 Global-Information-Area.                                  *> - 14
+              10 SKey-Def-Area-leng        pic 9(04)  comp-x.
+              10 Filler                        pic x(04).
+              10 sort-key-count            pic 9(04)  comp-x.
+              10 Filler                        pic x(06).
+           05 sort-key-Def-Area.                                        *> - 16
+              10 sort-key-num              pic 9(04)  comp-x.
+              10 offset-to-component       pic 9(04)  comp-x.
+              10 skey-Flags                pic 9(02)  comp-x.
+              10 skey-Compression          pic 9(02)  comp-x.
+              10 sparse-Character          pic x(01).
+              10 filler                        pic x(09).
+           05 Component-Def-Area.           
+              10 sort-key            occurs max-sort-key-num.
+                 15 skey-ascending         pic x(01).
+                 15 skey-type              pic x(01).
+                 15 skey-offset            pic 9(09)  comp-x.
+                 15 skey-size              pic 9(09)  comp-x.
+       PROCEDURE        DIVISION.
+       MAIN-RTN.
+      *    INIT
+           MOVE LOW-VALUES TO FCD.
+           MOVE LOW-VALUES TO sort-key-info.
+           MOVE FCD--VERSION-NUMBER   TO FCD-VERSION
+           SET  FCD-FILENAME-ADDRESS  TO ADDRESS OF EX-FILENAME.
+           MOVE 80                    TO FCD-NAME-LENGTH.
+           SET FCD-KEY-DEF-ADDRESS TO
+                             ADDRESS OF sort-key-info.
+           MOVE SD-init               TO OPCODE.
+           SET FCD-RECORD-ADDRESS     TO ADDRESS OF EX-RECORD-BUFFER.
+           MOVE 10                    TO FCD-CURRENT-REC-LEN.
+           MOVE 10                    TO FCD-MIN-REC-LENGTH.
+           MOVE 10                    TO FCD-MAX-REC-LENGTH.
+           MOVE 1                     TO sort-key-num.
+           move 1                     TO sort-key-count.
+           MOVE 0                     TO skey-offset(1).
+           MOVE 3                     TO skey-size(1).
+           move 30                    TO offset-to-component.
+           move X"80"                 TO skey-ascending(1).
+           move X"00"                 TO skey-type(1).
+      *>   "INIT".
+           CALL "EXTSM" USING OPCODE, FCD.
+      *>   "RELEASE".
+           MOVE SD-release TO OPCODE.
+           MOVE "BBB111" TO EX-RECORD-BUFFER.
+           CALL "EXTSM" USING OPCODE, FCD.
+
+           MOVE "CCC333" TO EX-RECORD-BUFFER.
+           CALL "EXTSM" USING OPCODE, FCD.
+
+           MOVE "AAA222" TO EX-RECORD-BUFFER.
+           CALL "EXTSM" USING OPCODE, FCD.
+      *>   "INPUT END".
+           MOVE SD-inp-end TO OPCODE.
+           CALL "EXTSM" USING OPCODE, FCD.
+
+      *>   "RETURN".
+           MOVE SD-return TO OPCODE.
+           CALL "EXTSM" USING OPCODE, FCD.
+           DISPLAY EX-RECORD-BUFFER.
+
+           CALL "EXTSM" USING OPCODE, FCD.
+           DISPLAY EX-RECORD-BUFFER.
+
+           CALL "EXTSM" USING OPCODE, FCD.
+           DISPLAY EX-RECORD-BUFFER.
+
+      *>   "TERM".
+           MOVE SD-term TO OPCODE.
+           CALL "EXTSM" USING OPCODE, FCD.
+       MAIN-EXT.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -std=mf prog.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
+[AAA222
+BBB111
+CCC333
+], [])
+
+AT_CLEANUP
+
 
 AT_SETUP([Alphanum comparison with default COLLATING SEQUENCE])
 AT_KEYWORDS([runmisc EBCDIC ASCII default-colseq])
