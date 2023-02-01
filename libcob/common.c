@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <langinfo.h>
 
 #include <math.h>
 #ifdef HAVE_FINITE_IEEEFP_H
@@ -5942,6 +5943,63 @@ cob_sys_justify (void *p1, ...)
 		memset (data, ' ', datalen - movelen);
 		break;
 	}
+	return 0;
+}
+
+int cob_sys_get_os_info(unsigned char* param_block)
+{
+	int char_coding = 0;
+	int rts_capabilities;
+	int product;
+
+	COB_CHK_PARMS (CBL_GET_OS_INFO, 1);
+
+//cblte-osi-os-type
+#if	(defined(_WIN32) || defined(__CYGWIN__)) && !defined(__clang__)
+	memcpy (param_block+2, "131 ", 4);
+#else
+	memcpy (param_block+2, "128 ", 4);
+//cblte-osi-char-coding
+	char* locale;
+	locale =  nl_langinfo (CODESET);
+		if (strcmp (locale, "ANSI_X3.4-1968") == 0 || strcmp (locale, "ANSI_X3.110-1983") == 0){
+			char_coding = 0;
+		} else if (strcmp (locale, "SHIFT_JIS") == 0 || strcmp (locale, "SHIFT_JIS0213") == 0){
+			char_coding = 1;
+		} else if (strcmp (locale, "EUC-JP") == 0 || strcmp (locale, "EUC-JP-MS") == 0){
+			char_coding = 2;
+		} else if (strcmp (locale, "BIG5") == 0 || strcmp (locale, "BIG5-HKSCS") == 0){
+			char_coding = 3;
+		}else if (strcmp (locale, "GB18030") == 0 || strcmp (locale, "GB2312") == 0 || strcmp (locale, "GBK") == 0
+		|| strcmp (locale, "GB_1988-80") == 0){
+			char_coding = 5;
+		} else if (strcmp (locale, "KSC5636") == 0){
+			char_coding = 6;
+		} else if (strcmp (locale, "EUC-TW") == 0){
+			char_coding = 8;
+		} else if (strcmp (locale, "EUC-JISX0213") == 0 || strcmp (locale, "EUC-JP") == 0 ||
+		strcmp (locale, "EUC-JP-MS") == 0 || strcmp (locale, "EUC-KR") == 0){
+			char_coding = 9;
+		}
+#endif
+
+//cblte-osi-rts-capabilities
+#if INTPTR_MAX == INT32_MAX
+	rts_capabilities = 0;
+#elif INTPTR_MAX == INT64_MAX
+	rts_capabilities = 4;
+#else
+#error "Environment not 32 or 64-bit."
+#endif
+
+	//osi-product
+	product = 11;
+
+	rts_capabilities = COB_BSWAP_32 (rts_capabilities);
+	product = COB_BSWAP_16 (product);
+	param_block[11] = (unsigned char) char_coding;
+	memcpy (param_block+17, &rts_capabilities, (size_t) 4);
+	memcpy (param_block+21, &product, (size_t) 2);
 	return 0;
 }
 
