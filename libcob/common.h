@@ -1575,6 +1575,7 @@ typedef struct __cob_global {
 
 /* File I/O function pointer structure */
 struct cob_fileio_funcs {
+	int	(*getinfo)	(cob_file *, char *);
 	int	(*open)		(cob_file *, char *, const int, const int);
 	int	(*close)	(cob_file *, const int);
 	int	(*start)	(cob_file *, const int, cob_field *);
@@ -2412,6 +2413,7 @@ COB_EXPIMP void	cob_file_free   (cob_file **, cob_file_key **);
 
 COB_EXPIMP int	cob_findkey (cob_file *, cob_field *, int *, int *);
 
+COB_EXPIMP void cob_getinfo	(cob_file *, cob_field *);
 COB_EXPIMP void cob_open	(cob_file *, const int, const int, cob_field *);
 COB_EXPIMP void cob_close	(cob_file *, cob_field *, const int, const int);
 COB_EXPIMP void cob_read	(cob_file *, cob_field *, cob_field *, const int);

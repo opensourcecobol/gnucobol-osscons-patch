@@ -498,6 +498,9 @@ static const int	status_exception[] = {
 static const char	* const prefix[] = { "DD_", "dd_", "" };
 #define NUM_PREFIX	sizeof (prefix) / sizeof (char *)
 
+static const cob_field_attr alnum_attr = {COB_TYPE_ALPHANUMERIC, 0, 0, 0, NULL};
+
+static int dummy_getinfo	(cob_file *, char *);
 static int dummy_delete		(cob_file *);
 static int dummy_rnxt_rewrite	(cob_file *, const int);
 static int dummy_read		(cob_file *, cob_field *, const int);
@@ -520,6 +523,7 @@ static int relative_write	(cob_file *, const int);
 static int relative_rewrite	(cob_file *, const int);
 static int relative_delete	(cob_file *);
 
+static int indexed_getinfo	(cob_file *, char *);
 static int indexed_open		(cob_file *, char *, const int, const int);
 static int indexed_close	(cob_file *, const int);
 static int indexed_start	(cob_file *, const int, cob_field *);
@@ -530,6 +534,7 @@ static int indexed_delete	(cob_file *);
 static int indexed_rewrite	(cob_file *, const int);
 
 static const struct cob_fileio_funcs indexed_funcs = {
+	indexed_getinfo,
 	indexed_open,
 	indexed_close,
 	indexed_start,
@@ -541,6 +546,7 @@ static const struct cob_fileio_funcs indexed_funcs = {
 };
 
 static const struct cob_fileio_funcs sequential_funcs = {
+	dummy_getinfo,
 	cob_file_open,
 	cob_file_close,
 	dummy_start,
@@ -552,6 +558,7 @@ static const struct cob_fileio_funcs sequential_funcs = {
 };
 
 static const struct cob_fileio_funcs lineseq_funcs = {
+	dummy_getinfo,
 	cob_file_open,
 	cob_file_close,
 	dummy_start,
@@ -563,6 +570,7 @@ static const struct cob_fileio_funcs lineseq_funcs = {
 };
 
 static const struct cob_fileio_funcs relative_funcs = {
+	dummy_getinfo,
 	cob_file_open,
 	cob_file_close,
 	relative_start,
@@ -828,6 +836,15 @@ bdb_suppresskey (cob_file *f, int idx)
 
 
 /* Local functions */
+
+static int
+dummy_getinfo (cob_file *f, char *filename)
+{
+	COB_UNUSED (f);
+	COB_UNUSED (filename);
+
+	return COB_STATUS_91_NOT_AVAILABLE;
+}
 
 static int
 dummy_delete (cob_file *f)
@@ -3388,6 +3405,106 @@ indexed_file_delete (cob_file *f, const char *filename)
 #endif
 }
 
+/* GETINFO INDEXED file */
+
+static int
+indexed_getinfo (cob_file *f, char *filename)
+{
+	/* Note only vbisam index file */
+	size_t			k;
+	int			omode;
+	int			lmode;
+	int			vmode;
+	int			isfd;
+	int			checkvalue;
+	int			part;
+	struct keydesc		kd;
+	struct dictinfo		di;		/* Defined in (c|d|vb)isam.h */
+
+	checkvalue = R_OK;
+	snprintf (file_open_buff, (size_t)COB_FILE_MAX, "%s.idx", filename);
+	file_open_buff[COB_FILE_MAX] = 0;
+	errno = 0;
+	if (access (file_open_buff, checkvalue)) {
+		switch (errno) {
+		case ENOENT:
+			return COB_STATUS_35_NOT_EXISTS;
+		case EACCES:
+			return COB_STATUS_37_PERMISSION_DENIED;
+		default:
+			return COB_STATUS_30_PERMANENT_ERROR;
+		}
+	}
+
+	snprintf (file_open_buff, (size_t)COB_FILE_MAX, "%s.dat", filename);
+	file_open_buff[COB_FILE_MAX] = 0;
+	errno = 0;
+	if (access (file_open_buff, checkvalue)) {
+		switch (errno) {
+		case ENOENT:
+			return COB_STATUS_35_NOT_EXISTS;
+		case EACCES:
+			return COB_STATUS_37_PERMISSION_DENIED;
+		default:
+			return COB_STATUS_30_PERMANENT_ERROR;
+		}
+	}
+	isfd = -1;
+	omode = ISINPUT;
+	lmode = 0;
+	vmode = 0;
+	isfd = isopen ((void *)filename, omode | lmode | vmode);
+	if (isfd < 0) {
+		if (ISERRNO == EFLOCKED) {
+			return COB_STATUS_61_FILE_SHARING;
+		} else {
+			return fisretsts (COB_STATUS_30_PERMANENT_ERROR);;
+		}
+	}
+	memset(&di, 0, sizeof (di));
+	isindexinfo (isfd, (void *)&di, 0);
+	f->nkeys = di.di_nkeys & 0x7F;
+	f->record_max = di.di_recsize;
+	f->record_min = di.di_recsize;
+	if (f->record->size <= 0) {
+		f->record->size = f->record_max;
+	}
+	if (f->keys){
+		cob_free (f->keys);
+	}
+	f->keys = cob_malloc (sizeof(cob_file_key) * f->nkeys);
+	for (k = 0; k < f->nkeys; ++k) {
+		memset(&kd, 0, sizeof (kd));
+		isindexinfo (isfd, (void *)&kd, (int)(k+1));
+		if (kd.k_flags & ISDUPS) {
+			f->keys[k].tf_duplicates = 1;
+		}
+		f->keys[k].count_components = kd.k_nparts;
+		f->keys[k].field = cob_malloc(sizeof(cob_field));
+		f->keys[k].field->data = f->record->data + kd.k_start;
+		f->keys[k].field->attr = &alnum_attr;
+		f->keys[k].field->size = kd.k_leng;
+		f->keys[k].offset = kd.k_start;
+		/* multi- and single field key as component */
+		/* LCOV_EXCL_START */
+		if (f->keys[k].count_components > COB_MAX_KEYCOMP) {
+			/* not translated as this is safety guard unlikely to be ever triggered */
+			cob_runtime_warning ("module specifies %d key components, "
+				"this runtime ignores all parts greater than %d",
+				f->keys[k].count_components, COB_MAX_KEYCOMP);
+			f->keys[k].count_components = COB_MAX_KEYCOMP;
+		}
+		for (part=0; part < f->keys[k].count_components; part++) {
+			f->keys[k].component[part] = cob_malloc(sizeof (cob_field));
+			f->keys[k].component[part]->data = f->record->data + kd.k_part[part].kp_start;
+			f->keys[k].component[part]->size = kd.k_part[part].kp_leng;
+			f->keys[k].component[part]->attr = &alnum_attr;
+		}
+	}
+	isclose (isfd);
+	return COB_STATUS_00_SUCCESS;
+}
+
 /* OPEN INDEXED file */
 
 static int
@@ -5271,6 +5388,36 @@ cob_file_free (cob_file **pfl, cob_file_key **pky)
 	}
 }
 
+void
+cob_getinfo (cob_file *f, cob_field *fnstatus)
+{
+	if (f->assign == NULL) {
+		/* CHECKME: that _seems_ to be a codegen error, but may also happen with EXTFH */
+		cob_runtime_error (_("ERROR FILE %s has ASSIGN field is NULL"),
+							f->select_name);
+		save_status (f, fnstatus, COB_STATUS_31_INCONSISTENT_FILENAME);
+		return;
+	}
+	if (f->assign->data == NULL) {
+#if 0 /* we don't raise an error in other places and a similar error is raised in cob_fatal_error */
+		cob_runtime_error ("file %s has ASSIGN field with NULL address",
+			f->select_name);
+#endif
+		save_status (f, fnstatus, COB_STATUS_31_INCONSISTENT_FILENAME);
+		return;
+	}
+
+	/* Obtain the file name */
+	cob_field_to_string (f->assign, file_open_name, (size_t)COB_FILE_MAX);
+	if (file_open_name[0] == 0) {
+		save_status (f, fnstatus, COB_STATUS_31_INCONSISTENT_FILENAME);
+		return;
+	}
+
+	/* Open the file */
+	save_status (f, fnstatus,
+		     fileio_funcs[(int)f->organization]->getinfo (f, file_open_name));
+}
 
 void
 cob_unlock_file (cob_file *f, cob_field *fnstatus)
@@ -7535,7 +7682,6 @@ static struct fcd_file {
 	int			sts;
 	int			free_fcd;
 } *fcd_file_list = NULL;
-static const cob_field_attr alnum_attr = {COB_TYPE_ALPHANUMERIC, 0, 0, 0, NULL};
 
 /*
  * Update FCD from cob_file
@@ -8610,7 +8756,9 @@ org_handling:
 		update_file_to_fcd(f,fcd,fnstatus);
 		break;
 
-	case OP_GETINFO:			/* Nothing needed here */
+	case OP_GETINFO:
+		cob_getinfo(f, fs);
+		update_file_to_fcd(f,fcd,fnstatus);
 		break;
 
 
