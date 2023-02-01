@@ -6641,6 +6641,190 @@ cob_sys_file_delete (unsigned char *file_name, unsigned char *file_type)
 	return ret;
 }
 
+/* entry point and processing for library routine CBL_SPLIT_FILENAME */
+int
+cob_sys_split_file(unsigned char *sj_param, unsigned char *split_buffer)
+{
+	int flag1;
+	int flag2 = 0;
+	int path_offset = 0;
+	int path_len = 0;
+	int base_offset = 0;
+	int base_len = 0;
+	int extension_offset = 0;
+	int extension_len = 0;
+	int total_len;
+	int split_buf_len;
+	int first_len = 0;
+	int status_code = 0;
+	int i, j;
+
+//input parameters
+	flag1 = (int) sj_param[2];
+	int flag1_1 = flag1/10;
+	int flag1_0 = flag1%10;
+
+	unsigned char split_buf_len_char[2];
+	split_buf_len_char[0] = sj_param[18];
+	split_buf_len_char[1] = sj_param[19];
+	split_buf_len = LDCOMPX2 (split_buf_len_char);
+
+//cblte-sj-total-length
+	unsigned char *file_name = NULL;
+	char split_buffer2[split_buf_len];
+	for (i = 0; i < split_buf_len; i++) {
+		split_buffer2[i] = (char) split_buffer[i];
+	}
+	int file_name_len = 0;
+
+	if (flag1_1 == 0) {
+		for(i = 0; i < split_buf_len; i++) {
+			if (split_buffer2[i] == ' ') {
+				file_name_len = i;
+				file_name = (unsigned char *) strtok(split_buffer2, " ");
+				break;
+			}
+		}
+	} else {
+		file_name = (unsigned char *) split_buffer2;
+		file_name_len = split_buf_len;
+	}
+
+//status-code
+	if (file_name == NULL ) {
+		status_code = 4;
+	} else {
+		for(i = 0; i < file_name_len; i++) {
+			if (file_name[i] == ':') {
+				if (i == 1 && 'A' <= file_name[i-1] && file_name[i-1] <= 'Z') {
+					continue;
+				} else {
+					status_code = 4;
+					break;
+				}
+			}
+		}
+	}
+
+//split-buffer
+	if (flag1_0 == 1) {
+		for (i = 0; i < split_buf_len; i++) {
+			split_buffer[i] = toupper(split_buffer[i]);
+		}
+	}
+	if (flag1_1 == 0) {
+		while (i < split_buf_len) {
+			if (split_buffer[i] == '\"') {
+				if (i == split_buf_len-1) {
+					split_buffer[i] = ' ';
+				} else {
+					for (j = i; j < split_buf_len -1; j++) {
+						split_buffer[j] = split_buffer[j+1];
+					}
+				}
+			}
+			i++;
+		}
+	}
+
+
+//cblte-sj-basename-offset
+	for (i = 0; i < file_name_len; i++) {
+		if ( file_name[i] != '\0') {
+			path_offset = i+1;
+			break;
+		}
+	}
+
+
+//cblte-sj-extension-offset
+	int last_sla = 0;
+	int last_dot = 0;
+	for (i = 0; i < file_name_len; i++) {
+		if (file_name[i] == '/' || file_name[i] == '\\') {
+			last_sla = i+1;
+		}
+		if (file_name[i] == '.') {
+			last_dot = i + 1;
+			if (last_dot == file_name_len) {
+				extension_offset = i+1;
+			} else {
+				extension_offset = i+2;
+			}
+		}
+	}
+//cblte-sj-basename-offset
+		base_offset = last_sla + 1;
+
+//cblte-sj-extension-len
+		if (extension_offset == 0) {
+			extension_offset = file_name_len + 1;
+			last_dot = extension_offset ;
+			extension_len = 0;
+		} else {
+			extension_len = file_name_len - (extension_offset - 1 );
+		}
+
+//cblte-sj-path-length
+	if (last_sla > 0) {
+		path_len = last_sla;
+	}
+
+//cblte-sj-basename-length
+	if (file_name[last_sla] != '\0') {
+		base_len = last_dot - path_len -1;
+	}
+
+//cblte-sj-split-join-flag2
+	int flag2_0 = 0, flag2_1 = 0, flag2_2 = 0;
+	for (i = 0; i < file_name_len; i++) {
+		if (file_name[i] == ' ') {
+			flag2_2 = 1;
+			break;
+		} else if (file_name[i] == '*') {
+			if (i < last_sla) {
+				flag2_1 = 1;
+				break;
+			} else {
+				flag2_0 = 1;
+				break;
+			}
+		}
+	}
+	flag2 = flag2_2 * 4 + flag2_1 * 2 + flag2_0;
+
+//cblte-sj-first-component-length
+	for (i = 1; i < file_name_len; i++) {
+		if (split_buffer[i] == '/' || split_buffer[i] == ':' || split_buffer[i] == '\\' ) {
+			first_len = i+1;
+			break;
+		}
+	}
+
+//output parameters
+	sj_param[3] = (char) flag2 ;
+	path_offset = COB_BSWAP_16 (path_offset);
+	path_len = COB_BSWAP_16 (path_len);
+	base_offset = COB_BSWAP_16 (base_offset);
+	base_len = COB_BSWAP_16 (base_len);
+	extension_offset = COB_BSWAP_16 (extension_offset);
+	extension_len = COB_BSWAP_16 (extension_len);
+	total_len = COB_BSWAP_16 (file_name_len);
+	first_len = COB_BSWAP_16 (first_len);
+
+	memcpy (sj_param+3, &flag2, (size_t)2);
+	memcpy (sj_param+4, &path_offset, (size_t)2);
+	memcpy (sj_param+6, &path_len, (size_t)2);
+	memcpy (sj_param+8, &base_offset, (size_t)2);
+	memcpy (sj_param+10, &base_len, (size_t)2);
+	memcpy (sj_param+12, &extension_offset, (size_t)2);
+	memcpy (sj_param+14, &extension_len, (size_t)2);
+	memcpy (sj_param+16, &total_len, (size_t)2);
+	memcpy (sj_param+22, &first_len, (size_t)2);
+
+	return status_code;
+}
+
 /* SORT */
 
 static int
