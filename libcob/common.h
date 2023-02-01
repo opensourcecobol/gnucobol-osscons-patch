@@ -2637,6 +2637,7 @@ COB_EXPIMP int cob_sys_copyfile		(unsigned char *, unsigned char *,
 					 unsigned char *);
 COB_EXPIMP int cob_sys_file_info	(unsigned char *, unsigned char *);
 COB_EXPIMP int cob_sys_file_delete	(unsigned char *, unsigned char *);
+COB_EXPIMP int	cob_sys_split_file	(unsigned char *, unsigned char *);
 
 /* functions in fileio.c for the MF style EXTSM interface */
 COB_EXPIMP int	EXTSM		(unsigned char *opcode, FCD3 *fcd);
