@@ -1745,6 +1745,7 @@ COB_EXPIMP int	cob_sys_justify		(void *, ...);
 COB_EXPIMP int	cob_sys_printable	(void *, ...);
 
 COB_EXPIMP int	cob_sys_extfh		(const void *, void *);
+COB_EXPIMP int	cob_sys_extsm		(const void *, void *);
 
 /* Utilities */
 
@@ -2390,6 +2391,19 @@ typedef struct {
 #define OP_COMMIT			0xFADC
 #define OP_ROLLBACK			0xFADD
 
+/*************************/
+/* EXTSM operation codes */
+/*************************/
+
+#define OP_SORT_INIT		0xFA01
+#define OP_SORT_RELEASE		0xFAF3
+#define OP_SORT_INPUT_END	0xFA10
+#define OP_SORT_RETURN		0xFAF5
+#define OP_SORT_TERM		0xFA88
+
+#define EXTSM_ASCENDING		0x80
+#define EXTSM_DESCENDING	0xC0
+
 /*******************************/
 /* Functions in termio.c */
 
@@ -2480,6 +2494,9 @@ COB_EXPIMP int cob_sys_copyfile		(unsigned char *, unsigned char *,
 					 unsigned char *);
 COB_EXPIMP int cob_sys_file_info	(unsigned char *, unsigned char *);
 COB_EXPIMP int cob_sys_file_delete	(unsigned char *, unsigned char *);
+
+/* functions in fileio.c for the MF style EXTSM interface */
+COB_EXPIMP int	EXTSM		(unsigned char *opcode, FCD3 *fcd);
 
 /* SORT routines */
 COB_EXPIMP void	cob_file_sort_init	(cob_file *, const unsigned int,
