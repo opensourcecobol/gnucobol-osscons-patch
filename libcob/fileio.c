@@ -7813,9 +7813,15 @@ copy_fcd_to_file (FCD3* fcd, cob_file *f)
 		f->record->data = fcd->recPtr;
 		f->record->size = LDCOMPX4(fcd->curRecLen);
 		f->record->attr = &alnum_attr;
-		f->record_min = LDCOMPX4(fcd->minRecLen);
-		f->record_max = LDCOMPX4(fcd->maxRecLen);
 	}
+
+	f->record_min = LDCOMPX4(fcd->minRecLen);
+	f->record_max = LDCOMPX4(fcd->maxRecLen);
+	//if record size changes
+	if (f->record->size == 0 || f->record->size > f->record_max || f->record->size < f->record_min) {
+		f->record->size = f->record_max;
+	}
+
 	if (f->file_status == NULL) {
 		f->file_status = cob_malloc( 6 );
 	}
@@ -7921,6 +7927,7 @@ find_file (FCD3 *fcd)
 	struct fcd_file	*ff;
 	for(ff = fcd_file_list; ff; ff=ff->next) {
 		if(ff->fcd == fcd) {
+			copy_fcd_to_file(fcd, ff->f);
 			return ff->f;
 		}
 	}
