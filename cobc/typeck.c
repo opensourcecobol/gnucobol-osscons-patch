@@ -9213,6 +9213,16 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 			/* Alphanumeric literal */
 
 			/* Value check */
+			if (CB_TREE_CATEGORY (src) == CB_CATEGORY_NATIONAL) {
+				switch(CB_TREE_CATEGORY (dst)) {
+				case CB_CATEGORY_ALPHABETIC:
+				case CB_CATEGORY_NUMERIC:
+				case CB_CATEGORY_NUMERIC_EDITED:
+					goto invalid;
+				default:
+					break;
+				}
+			}
 			switch (CB_TREE_CATEGORY (dst)) {
 			case CB_CATEGORY_ALPHABETIC:
 				for (i = 0; i < l->size; i++) {
@@ -9409,6 +9419,26 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 				break;
 			}
 			break;
+		case CB_CATEGORY_NATIONAL:
+			switch (CB_TREE_CATEGORY (dst)) {
+			case CB_CATEGORY_ALPHABETIC:
+			case CB_CATEGORY_NUMERIC:
+			case CB_CATEGORY_NUMERIC_EDITED:
+				goto invalid;
+			case CB_CATEGORY_ALPHANUMERIC_EDITED:
+			case CB_CATEGORY_NATIONAL_EDITED:
+				if (size >
+				    count_pic_alphanumeric_edited (fdst)) {
+					goto size_overflow_1;
+				}
+				break;
+			default:
+				if (size > fdst->size) {
+					goto size_overflow_1;
+				}
+				break;
+			}
+			break;
 		case CB_CATEGORY_ALPHABETIC:
 		case CB_CATEGORY_ALPHANUMERIC_EDITED:
 			switch (CB_TREE_CATEGORY (dst)) {
@@ -9428,6 +9458,25 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 				if (dst_size_mod == FIELD_SIZE_UNKNOWN) {
 					break;
 				}
+				if (size > fdst->size) {
+					goto size_overflow_1;
+				}
+				break;
+			}
+			break;
+		case CB_CATEGORY_NATIONAL_EDITED:
+			switch (CB_TREE_CATEGORY (dst)) {
+			case CB_CATEGORY_ALPHABETIC:
+			case CB_CATEGORY_NUMERIC:
+			case CB_CATEGORY_NUMERIC_EDITED:
+				goto invalid;
+			case CB_CATEGORY_ALPHANUMERIC_EDITED:
+				if (size >
+				    count_pic_alphanumeric_edited (fdst)) {
+					goto size_overflow_1;
+				}
+				break;
+			default:
 				if (size > fdst->size) {
 					goto size_overflow_1;
 				}
@@ -9468,6 +9517,11 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 					goto size_overflow_1;
 				}
 				break;
+			case CB_CATEGORY_NATIONAL_EDITED:
+			case CB_CATEGORY_NATIONAL:
+				if (fdst->pic->scale > 0) {
+					goto invalid;
+				}
 			default:
 				if (!fsrc->pic) {
 					return -1;
@@ -9554,6 +9608,11 @@ expect_numeric:
 expect_alphanumeric:
 	move_warning (src, dst, is_value, cb_warn_strict_typing, 0,
 		    _("alphanumeric value is expected"));
+	return 0;
+
+expect_national:
+	move_warning (src, dst, is_value, cb_warn_strict_typing, 0,
+			   _("National value is expected"));
 	return 0;
 
 value_mismatch:
