@@ -2483,6 +2483,7 @@ COB_EXPIMP int cob_sys_copyfile		(unsigned char *, unsigned char *,
 					 unsigned char *);
 COB_EXPIMP int cob_sys_file_info	(unsigned char *, unsigned char *);
 COB_EXPIMP int cob_sys_file_delete	(unsigned char *, unsigned char *);
+COB_EXPIMP int	cob_sys_split_file	(unsigned char *, unsigned char *);
 
 /* SORT routines */
 COB_EXPIMP void	cob_file_sort_init	(cob_file *, const unsigned int,
