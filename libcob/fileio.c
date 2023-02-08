@@ -9140,6 +9140,7 @@ static struct fcd_file {
 	int			free_select;
 } *fcd_file_list = NULL;
 static const cob_field_attr compx_attr = {COB_TYPE_NUMERIC_BINARY, 0, 0, 0, NULL};
+static const cob_field_attr num_attr = {COB_TYPE_NUMERIC_BINARY, 8, 0, 0x0020, NULL};
 
 static void copy_keys_fcd_to_file (FCD3 *fcd, cob_file *f, int doall);
 static int	EXTFH3 (unsigned char *opcode, FCD3 *fcd);
@@ -9705,6 +9706,11 @@ copy_fcd_to_file (FCD3* fcd, cob_file *f, struct fcd_file *fcd_list_entry)
 		        && fcd->kdbPtr != NULL
 		        && LDCOMPX2(fcd->kdbPtr->nkeys) >= (int)f->nkeys) {
 			copy_keys_fcd_to_file (fcd, f, 0);
+			//create reletive key
+			f->keys[0].field = cob_malloc(sizeof(cob_field));
+			f->keys[0].field->size = 8;
+			f->keys[0].field->data = cob_malloc(8);
+			f->keys[0].field->attr = &num_attr;
 		}
 	}
 	update_fcd_to_file (fcd, f, NULL, 0);
