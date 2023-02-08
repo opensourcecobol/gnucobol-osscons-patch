@@ -1,21 +1,21 @@
 GnuCOBOL with OSS Consortium patch
 ============
 
-[GnuCOBOL with OSS Consortium patch](https://github.com/opensourcecobol/gnucobol-osscons-patch)��
-��OSS�R���\�[�V�A���ɂ���Ă�GnuCOBOL�ɓ��{��@�\���̋@�\�g�����s���Ă��܂��B
+[GnuCOBOL with OSS Consortium patch](https://github.com/opensourcecobol/gnucobol-osscons-patch)は
+はOSSコンソーシアムによってｍGnuCOBOLに日本語機能等の機能拡張を行っています。
 
-�T�v
+概要
 ============
 
-OSS�R���\�[�V�A���ł�opensource COBOL��ʂ��āA���{������OSS��COBOL�̕��y�ɓw�߂Ă��܂����B
-����A���{�����ł�GnuCOBOL�ɑ΂���j�[�Y�̍��܂���󂯁Aopensoure COBOL�ōs���Ă����悤�ȓ��{��@�\��
-�����̃v���W�F�N�g�ɂĊJ���������ʂ�{���|�W�g���ɂČ��J���Ă����܂��B
+OSSコンソーシアムではopensource COBOLを通して、日本国内でOSSのCOBOLの普及に努めてきました。
+今回、日本国内でのGnuCOBOLに対するニーズの高まりを受け、opensoure COBOLで行っていたような日本語機能や
+国内のプロジェクトにて開発した成果を本リポジトリにて公開していきます。
 
-���S��GnuCOBOL�̃t�H�[�N�ł͂Ȃ��A��{�I�ɂ̓p�b�`�g���̌��J�ƂȂ��Ă����܂��B
-���̂��߁A�{��GnuCOBOL�̃o�[�W�����A�b�v�ɂ͓s�x�Ή����Ă����\��ł��B
+完全なGnuCOBOLのフォークではなく、基本的にはパッチ拡張の公開となっていきます。
+このため、本家GnuCOBOLのバージョンアップには都度対応していく予定です。
 
-GnuCOBOL��README
+GnuCOBOLのREADME
 ============
 
-�ڍׂ�GnuCOBOL�̓��e�ɂ��ẮA�I���W�i����[README.md](./README.gnu.md)�A[README](./README)���Q�Ƃ��Ă��������B
+詳細なGnuCOBOLの内容については、オリジナルの[README.md](./README.gnu.md)、[README](./README)を参照してください。
 

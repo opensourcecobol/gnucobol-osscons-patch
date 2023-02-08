@@ -4,7 +4,7 @@ GnuCOBOL with OSS Consortium patch
 [GnuCOBOL with OSS Consortium patch](https://github.com/opensourcecobol/gnucobol-osscons-patch)
  is an extension of GnuCOBOL by the OSS consortium.
 
-[“ú–{Œê‚ÌREADME‚Í‚±‚¿‚ç](./README_JP.md)
+[æ—¥æœ¬èªã®READMEã¯ã“ã¡ã‚‰](./README_JP.md)
 
 Overview
 ============
