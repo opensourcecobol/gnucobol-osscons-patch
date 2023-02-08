@@ -84,6 +84,7 @@ COB_SYSTEM_GEN ("C$TOLOWER",		2, 2, cob_sys_tolower)
 COB_SYSTEM_GEN ("C$TOUPPER",		2, 2, cob_sys_toupper)
 
 COB_SYSTEM_GEN ("EXTFH",		2, 2, cob_sys_extfh)
+COB_SYSTEM_GEN ("EXTSM",		2, 2, cob_sys_extsm)
 
 COB_SYSTEM_GEN ("\x91",			3, 3, cob_sys_x91)
 COB_SYSTEM_GEN ("\xE4",			0, 0, cob_sys_clear_screen)

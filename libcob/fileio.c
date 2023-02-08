@@ -8971,3 +8971,299 @@ org_handling:
 	}
 	return sts;
 }
+
+/*******************************************************************************/
+/* Following routines are for the External Sort Module interface commonly used */
+/*******************************************************************************/
+/*
+ * Copy 'FCD' to 'cob_file(sort)' key information
+ */
+static void
+copy_fcd_to_sort_key (FCD3* fcd, cob_file *f)
+{
+	int k, count, pos, off, desc;
+	EXTKEY *key;
+	cob_field *field;
+	cob_field_attr *attr;
+
+	count = LDCOMPX2(fcd->kdbPtr->key[0].count);
+
+	cob_file_sort_init (f, count, fcd->colPtr, NULL, NULL);
+
+	off = LDCOMPX2(fcd->kdbPtr->key[0].offset);
+	for (k=0; k < count; k++) {
+		key   = (EXTKEY*) ((char*)(fcd->kdbPtr) + off + (sizeof(EXTKEY) * k));
+		pos = LDCOMPX4(key->pos);
+		field = cob_malloc (sizeof(cob_field));
+		field->data = f->record->data + pos;
+		field->size = LDCOMPX4(key->len);
+		attr = cob_malloc (sizeof(cob_field_attr));
+		switch (key->type) {
+		case 0x51: //binary
+			attr->type = COB_TYPE_NUMERIC_BINARY;
+			attr->flags = COB_FLAG_HAVE_SIGN | COB_FLAG_BINARY_SWAP;
+			attr->digits = 8;
+			attr->scale = 0;
+			break;
+		case 0x80: //PIC 9
+			attr->type = COB_TYPE_NUMERIC_DISPLAY;
+			attr->flags = 0;
+			attr->digits = field->size;
+			attr->scale = 0;
+			break;
+		case 0xC0: //PIC S9
+			attr->type = COB_TYPE_NUMERIC_DISPLAY;
+			attr->flags = COB_FLAG_HAVE_SIGN;
+			attr->digits = field->size;
+			attr->scale = 0;
+			break;
+		case 0xE0: //binary
+			attr->type = COB_TYPE_NUMERIC_BINARY;
+			attr->flags = COB_FLAG_HAVE_SIGN | COB_FLAG_BINARY_SWAP;
+			attr->digits = 8;
+			attr->scale = 0;
+			break;		
+		case 0xE1: //PIC S9 COMP-3
+			attr->type = COB_TYPE_NUMERIC_PACKED;
+			attr->flags = COB_FLAG_HAVE_SIGN;
+			attr->digits = 9;
+			attr->scale = 0;
+			break;
+		case 0xE4: //float
+			attr->type = COB_TYPE_NUMERIC_FLOAT;
+			attr->flags = COB_FLAG_HAVE_SIGN | COB_FLAG_IS_FP;
+			attr->digits = 15;
+			attr->scale = 8;
+			break;
+		case 0x00: //PIC X
+		default:
+			attr->type = COB_TYPE_ALPHANUMERIC;
+			attr->flags = 0;
+			attr->digits = 0;
+			attr->scale = 0;
+			break;
+		}
+		attr->pic = NULL; 
+		field->attr = attr;
+		
+		if (key->desc == EXTSM_ASCENDING) {
+			desc = COB_ASCENDING;
+		} else if (key->desc == EXTSM_DESCENDING) {
+			desc = COB_DESCENDING;
+		} else {
+			desc = key->desc;
+		}
+		cob_file_sort_init_key(f, field, desc, pos);
+	}
+}
+
+/*
+ * Copy 'FCD' to 'cob_file(sort)' based information
+ */
+static void
+copy_fcd_to_sort_file (FCD3* fcd, cob_file *f)
+{
+	int		k;
+
+	f->variable_record = NULL;
+	f->nkeys = 0;
+	f->keys = NULL;
+	f->file = NULL;
+	f->fd = -1;
+	f->organization = COB_ORG_SORT;
+	f->access_mode = COB_ACCESS_SEQUENTIAL;
+	f->lock_mode = 0;
+	f->open_mode = 0;
+	f->flag_optional = 0;
+	f->flag_line_adv = 0;
+	f->flag_select_features = 1;
+
+	/* Allocate cob_file fields as needed and copy from FCD */
+	if (f->record == NULL) {
+		f->record = cob_malloc(sizeof(cob_field));
+		f->record->data = fcd->recPtr;
+		f->record->attr = &alnum_attr;
+	}
+	if (LDCOMPX4(fcd->curRecLen) > 0) {
+		f->record->size = LDCOMPX4(fcd->curRecLen);
+	} else if (LDCOMPX4(fcd->maxRecLen) > 0) {
+		f->record->size = LDCOMPX4(fcd->maxRecLen);
+	} else if (LDCOMPX4(fcd->minRecLen) > 0) {
+		f->record->size = LDCOMPX4(fcd->minRecLen);
+	} else {
+		f->record->size = 0;
+	}
+	f->record_min = LDCOMPX4(fcd->minRecLen);
+	f->record_max = LDCOMPX4(fcd->maxRecLen);
+	if (f->file_status == NULL) {
+		f->file_status = cob_malloc( 6 );
+	}
+	if (f->assign == NULL) {
+		f->assign = cob_malloc(sizeof(cob_field));
+		f->assign->data = (unsigned char*)fcd->fnamePtr;
+		f->assign->size = LDCOMPX2(fcd->fnameLen);
+		f->assign->attr = &alnum_attr;
+	}
+	if (f->select_name == NULL) {
+		char	fdname[49];
+		f->select_name = (char*)f->assign->data;
+		for (k=0; k < f->assign->size; k++) {
+			if (f->assign->data[k] == '/') {
+				f->select_name = (char*)&f->assign->data[k+1];
+			}
+		}
+		for (k=0; f->select_name[k] > ' ' && k < 48; k++) {
+			fdname[k] = toupper(f->select_name[k]);
+		}
+		fdname[k] = 0;
+		f->select_name = cob_strdup (fdname);
+	}
+	update_fcd_to_file (fcd, f, NULL, 0);
+}
+
+
+/*
+ * Construct cob_file (sort) based on information from 'FCD'
+ */
+static cob_file *
+find_sort_file (int opcd, FCD3 *fcd)
+{
+	cob_file	*f;
+	struct fcd_file	*ff;
+	for(ff = fcd_file_list; ff; ff=ff->next) {
+		if(ff->fcd == fcd) {
+			if (opcd == OP_SORT_INIT){
+				copy_fcd_to_sort_file(fcd, ff->f);
+			}
+			return ff->f;
+		}
+	}
+	//f = cob_malloc(sizeof(cob_file));
+	cob_file_malloc (&f, NULL, 0, 0);
+	f->file_version = COB_FILE_VERSION;
+	copy_fcd_to_sort_file(fcd, f);
+	ff = cob_malloc(sizeof(struct fcd_file));
+	ff->next = fcd_file_list;
+	ff->fcd = fcd;
+	ff->f = f;
+	ff->free_fcd = 0;
+	fcd_file_list = ff;
+	return f;
+}
+
+/* COBOL wrapper for EXTSM call to prevent warnings about FCD3 structure
+   with additional checks */
+int
+cob_sys_extsm (const void *opcode_ptr, void *fcd_ptr)
+{
+	FCD3 *fcd = (FCD3 *) fcd_ptr;
+
+	COB_CHK_PARMS (EXTSM, 2);
+
+	if (cobglobptr->cob_call_params < 2
+	 || !COB_MODULE_PTR->cob_procedure_params[0]
+	 || !COB_MODULE_PTR->cob_procedure_params[1]
+	 || COB_MODULE_PTR->cob_procedure_params[1]->size < 5) {
+		cob_set_exception (COB_EC_PROGRAM_ARG_MISMATCH);
+		return 0;	/* correct? */
+	}
+	if (COB_MODULE_PTR->cob_procedure_params[1]->size < sizeof(FCD3)) {
+		fcd->fileStatus[0] = '9';
+		fcd->fileStatus[1] = 161;
+		if (fcd->fcdVer != FCD_VER_64Bit) {
+#if 1
+			cob_runtime_warning (_("ERROR: EXTSM called with FCD version %d"), fcd->fcdVer);
+#else
+			cob_set_exception (COB_EC_PROGRAM_ARG_MISMATCH);
+			cob_runtime_error (_("ERROR: EXTFH called with FCD version %d"), fcd->fcdVer);
+			exit(-1);
+#endif
+		}
+		return 0;
+	}
+
+	return EXTSM ((unsigned char *)opcode_ptr, fcd);
+}
+
+/*
+ * EXTSM: maybe called by user own COBOL program
+ *        to call normal sort routine in fileio.c
+ */
+int
+EXTSM (unsigned char *opcode, FCD3 *fcd)
+{
+	int	opcd,sts,opts;
+	unsigned char	fnstatus[2];
+	cob_field fs[1];
+	cob_field rec[1];
+	cob_file *f;
+
+	if (fcd->fcdVer != FCD_VER_64Bit) {
+#if 1
+		fcd->fileStatus[0] = '9';
+		fcd->fileStatus[1] = 161;
+		cob_runtime_warning (_("ERROR: EXTFH called with FCD version %d"), fcd->fcdVer);
+		return 0;
+#else
+		cob_runtime_error (_("ERROR: EXTFH called with FCD version %d"), fcd->fcdVer);
+		exit(-1);
+#endif
+	}
+	sts = opts = 0;
+	fs->data = fnstatus;
+	fs->size = sizeof(fnstatus);
+	fs->attr = &alnum_attr;
+	memcpy (fnstatus, "00", 2);
+	memcpy (fcd->fileStatus, "00", 2);
+
+	if (cobglobptr == NULL) {	/* Auto Init GnuCOBOL runtime */
+		cob_init (0, NULL);
+		/* COB_MODULE_PTR (part of cobglobptr structure) was not set,
+		   add to allow tracing and to get better messages on fileio errors */
+		COB_MODULE_PTR = cob_malloc( sizeof(cob_module) );
+		COB_MODULE_PTR->module_name = "GnuCOBOL-sortio";
+		COB_MODULE_PTR->module_source = "GnuCOBOL-sortio";
+		COB_MODULE_PTR->module_formatted_date = "2022/08/01 12:00:00";
+	}
+
+	if (*opcode == 0xFA) {
+		opcd = 0xFA00 + opcode[1];
+	} else {
+		opcd = opcode[1];
+	}
+
+	/* Look for fcd in table and if found use associated 'cob_file' after copying values over */
+	/* If fcd is not found, then 'callfh' created it, so create a new 'cob_file' and table that */
+	f = find_sort_file (opcd, fcd);
+
+	rec->data = fcd->recPtr;
+	rec->size = LDCOMPX4(fcd->curRecLen);
+	rec->attr = &alnum_attr;
+
+	switch (opcd) {
+	case OP_SORT_INIT:
+		copy_fcd_to_sort_key (fcd,f);
+		update_file_to_fcd (f,fcd,fnstatus);
+		break;
+	case OP_SORT_RELEASE:
+		cob_file_release (f);
+		update_file_to_fcd (f,fcd,fnstatus);
+		break;
+	case OP_SORT_INPUT_END:
+		/* Nothing needed here */
+		break;
+	case OP_SORT_RETURN:
+		cob_file_return (f);
+		update_file_to_fcd (f,fcd,fnstatus);
+		break;
+	case OP_SORT_TERM:
+		cob_file_sort_close (f);
+		update_file_to_fcd (f,fcd,fnstatus);
+		break;
+	/* Similar for other possible 'opcode' values */
+	default:
+		/* Some sort of error message */
+		break;
+	}
+	return sts;
+}
