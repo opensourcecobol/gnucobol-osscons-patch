@@ -10907,6 +10907,16 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 
 			/* Value check */
 			switch (CB_TREE_CATEGORY (dst)) {
+			case CB_CATEGORY_NATIONAL:
+			case CB_CATEGORY_NATIONAL_EDITED:
+				if (is_value) {
+					goto expect_national;
+				}
+
+				if (l->scale == 0) {
+					goto expect_national;
+				}
+				goto non_integer_move;
 			case CB_CATEGORY_ALPHANUMERIC:
 			case CB_CATEGORY_ALPHANUMERIC_EDITED:
 				if (is_value
