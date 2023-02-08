@@ -589,12 +589,12 @@ MFLAGS=
 MAKEFLAGS=
 
 # Identity of this package.
-PACKAGE_NAME='GnuCOBOL'
+PACKAGE_NAME='GnuCOBOL OSS Consortium patch'
 PACKAGE_TARNAME='gnucobol'
-PACKAGE_VERSION='3.1.2'
-PACKAGE_STRING='GnuCOBOL 3.1.2'
-PACKAGE_BUGREPORT='bug-gnucobol@gnu.org'
-PACKAGE_URL='https://www.gnu.org/software/gnucobol/'
+PACKAGE_VERSION='3.1.2 patch1'
+PACKAGE_STRING='GnuCOBOL 3.1.2 patch1'
+PACKAGE_BUGREPORT='ws-opensource-cobol-contact@osscons.jp'
+PACKAGE_URL='https://github.com/opensourcecobol/gnucobol-osscons-patch'
 
 ac_unique_file="libcob.h"
 # Factoring default headers for most tests.

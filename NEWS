@@ -1,8 +1,42 @@
 NEWS - user visible changes				-*- outline -*-
 
+ GnuCOBOL 3.1.2 patch1 released  (20230208) by OSS Consortium.
  GnuCOBOL 3.1.2 released (20201223)
  GnuCOBOL 3.1.1 released (20201208) containing INITIALIZE bug #694
  GnuCOBOL 3.1 released   (20201111) had build issues that were fixed
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GnuCOBOL 3.1.2 patch1
+
+* New GnuCOBOL features
+
+** sort handling: include support for a callable EXTSM interface also provided
+   by several compilers including Micro Focus
+
+** GET_FILE_INFO for isam files, use from EXTFH.
+   Scan and get key infomation from isam files.
+
+* New functions
+
+** CBL_GET_OS_INFO from Micro Focus.
+   Get OS information like Linux or Windows.
+
+** CBL_SPLIT_FILE_NAME from Micro Focus.
+   Split Filename into path and extension.
+
+* EXTFH improvements
+
+** Fix using multiple files by same FCD.
+** Fix could not be defined key information when using a RELETIVE file.
+
+* Other improvements
+
+** Fix an error when using National item at compile.
+** Fix RENAME FILE function return code when file not found.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 * New GnuCOBOL features
 
