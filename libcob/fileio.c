@@ -6379,7 +6379,12 @@ cob_sys_rename_file (unsigned char *fname1, unsigned char *fname2)
 
 	ret = rename (localbuff, file_open_name);
 	if (ret) {
-		return 128;
+		switch (errno) {
+		case ENOENT:
+			return 14605; //MicroFocus file status 9-013
+		default:
+			return 128;
+		}
 	}
 	return 0;
 }
