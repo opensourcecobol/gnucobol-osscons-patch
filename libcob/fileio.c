@@ -7536,6 +7536,7 @@ static struct fcd_file {
 	int			free_fcd;
 } *fcd_file_list = NULL;
 static const cob_field_attr alnum_attr = {COB_TYPE_ALPHANUMERIC, 0, 0, 0, NULL};
+static const cob_field_attr num_attr = {COB_TYPE_NUMERIC_BINARY, 8, 0, 0x0020, NULL};
 
 /*
  * Update FCD from cob_file
@@ -7889,6 +7890,11 @@ copy_fcd_to_file (FCD3* fcd, cob_file *f)
 			}
 		} else {
 			f->keys = cob_malloc(sizeof(cob_file_key));
+			//create reletive key
+			f->keys[0].field = cob_malloc(sizeof(cob_field));
+			f->keys[0].field->size = 8;
+			f->keys[0].field->data = cob_malloc(8);
+			f->keys[0].field->attr = &num_attr;
 		}
 	}
 	update_fcd_to_file (fcd, f, NULL, 0);
