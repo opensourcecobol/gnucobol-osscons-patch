@@ -499,6 +499,7 @@ static const char	* const prefix[] = { "DD_", "dd_", "" };
 #define NUM_PREFIX	sizeof (prefix) / sizeof (char *)
 
 static const cob_field_attr alnum_attr = {COB_TYPE_ALPHANUMERIC, 0, 0, 0, NULL};
+static const cob_field_attr num_attr = {COB_TYPE_NUMERIC_BINARY, 8, 0, 0x0020, NULL};
 
 static int dummy_getinfo	(cob_file *, char *);
 static int dummy_delete		(cob_file *);
@@ -6526,7 +6527,12 @@ cob_sys_rename_file (unsigned char *fname1, unsigned char *fname2)
 
 	ret = rename (localbuff, file_open_name);
 	if (ret) {
-		return 128;
+		switch (errno) {
+		case ENOENT:
+			return 14605; //MicroFocus file status 9-013
+		default:
+			return 128;
+		}
 	}
 	return 0;
 }
@@ -7959,9 +7965,15 @@ copy_fcd_to_file (FCD3* fcd, cob_file *f)
 		f->record->data = fcd->recPtr;
 		f->record->size = LDCOMPX4(fcd->curRecLen);
 		f->record->attr = &alnum_attr;
-		f->record_min = LDCOMPX4(fcd->minRecLen);
-		f->record_max = LDCOMPX4(fcd->maxRecLen);
 	}
+
+	f->record_min = LDCOMPX4(fcd->minRecLen);
+	f->record_max = LDCOMPX4(fcd->maxRecLen);
+	//if record size changes
+	if (f->record->size == 0 || f->record->size > f->record_max || f->record->size < f->record_min) {
+		f->record->size = f->record_max;
+	}
+
 	if (f->file_status == NULL) {
 		f->file_status = cob_malloc( 6 );
 	}
@@ -8029,6 +8041,11 @@ copy_fcd_to_file (FCD3* fcd, cob_file *f)
 			}
 		} else {
 			f->keys = cob_malloc(sizeof(cob_file_key));
+			//create reletive key
+			f->keys[0].field = cob_malloc(sizeof(cob_field));
+			f->keys[0].field->size = 8;
+			f->keys[0].field->data = cob_malloc(8);
+			f->keys[0].field->attr = &num_attr;
 		}
 	}
 	update_fcd_to_file (fcd, f, NULL, 0);
@@ -8067,6 +8084,7 @@ find_file (FCD3 *fcd)
 	struct fcd_file	*ff;
 	for(ff = fcd_file_list; ff; ff=ff->next) {
 		if(ff->fcd == fcd) {
+			copy_fcd_to_file(fcd, ff->f);
 			return ff->f;
 		}
 	}
