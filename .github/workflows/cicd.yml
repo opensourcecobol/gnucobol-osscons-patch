@@ -1,23 +1,21 @@
-name: C/C++ CI
-
+name: test
 on:
   push:
-    branches: [ $default-branch ]
   pull_request:
-    branches: [ $default-branch ]
-
+    types: [opened, reopened, review_requested, synchronize]
+    
 jobs:
-  build:
-
+  run-tests:
+    strategy:
+      matrix:
+        os: ["ubuntu:22.04"]
     runs-on: ubuntu-latest
-
+    container:
+      image: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+        
+      - name: Install dependencies on Ubuntu 22.04
+        if: matrix.os == 'ubuntu:22.04'
+        run: |
+          apt update -y
+          apt install -y default-jdk build-essential bison flex gettext texinfo automake autoconf
