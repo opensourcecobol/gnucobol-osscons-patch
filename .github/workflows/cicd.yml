@@ -23,5 +23,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps: 
+
       - name: make
         run: make
+  
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+
+      -name: Install splint
+        run: sudo apt-get install splint
