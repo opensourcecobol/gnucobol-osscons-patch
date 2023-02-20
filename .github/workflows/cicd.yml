@@ -21,11 +21,9 @@ jobs:
           apt install -y default-jdk build-essential bison flex gettext texinfo automake autoconf
 
   build:
-
     runs-on: ubuntu-latest
-
     steps: 
-      - uses: actions/checkout@3
+      - uses: actions/checkout@2
       - name: configure
         run: ./configure
       - name: make
