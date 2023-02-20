@@ -24,6 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
 
+      - name: configure
+        run: ./configure
+
       - name: make
         run: make
   
@@ -31,6 +34,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      -name: Install splint
-        run: |
-          sudo apt-get install splint
+      - name: Install splint
+        run: sudo apt-get install splint
