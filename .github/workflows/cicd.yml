@@ -16,9 +16,16 @@ jobs:
         
       - name: Install dependencies on Ubuntu 22.04
         if: matrix.os == 'ubuntu:22.04'
+        run: apt update -y
+
+      - name: Install Gnu COBOL Ver 3.1.2
+        run: apt install GnuCOBOL3
+
+      - name: Install prerequisite softwares
         run: |
-          apt update -y
-          apt install -y default-jdk build-essential bison flex gettext texinfo automake autoconf
+          apt-get install -y build-essential
+          apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev
+          apt-get install -y libdb
 
   build:
     runs-on: ubuntu-latest
@@ -41,4 +48,4 @@ jobs:
     steps:
 
       - name: Install splint
-        run: sudo apt-get install splint
+        run: apt-get install splint
