@@ -24,7 +24,7 @@ jobs:
           apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev
 
       - name: Install Berkeley DB
-        run: apt-get install -y libdb
+        run: apt-get install -y libdb-dev
 
   build:
     runs-on: ubuntu-latest
