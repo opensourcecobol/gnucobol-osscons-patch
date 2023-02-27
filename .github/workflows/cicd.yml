@@ -18,15 +18,13 @@ jobs:
         if: matrix.os == 'ubuntu:22.04'
         run: apt update -y
 
-      - name: Install prerequisite softwares
-        run: |
-          apt-get install -y build-essential
-          apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev
+      - name: Install Gnu COBOL Ver3.1.2
+        run: apt install -y GnuCOBOL3
 
   build:
     runs-on: ubuntu-latest
     steps: 
-    
+
       - name: Install Berkeley DB
         run: sudo apt-get install -y libdb-dev
 
