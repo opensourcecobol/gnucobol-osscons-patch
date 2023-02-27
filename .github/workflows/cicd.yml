@@ -25,6 +25,15 @@ jobs:
 
       - name: Install Berkeley DB
         run: apt-get install -y libdb-dev
+      
+      - name: Install Berleley DB test
+        run: |
+          wget http://download.oracle.com/berkeley-db/db-18.1.40.tar.gz
+          tar xvfz db-18.1.40.tar.gz
+          cd db-18.1.40/build_unix
+          ../dist/configure --prefix=/usr/local/berkeleydb/18_1_40
+          make
+          make install
 
   build:
     runs-on: ubuntu-latest
