@@ -18,9 +18,6 @@ jobs:
         if: matrix.os == 'ubuntu:22.04'
         run: apt update -y
 
-      - name: Install Gnu COBOL Ver 3.1.2
-        run: apt install GnuCOBOL3
-
       - name: Install prerequisite softwares
         run: |
           apt-get install -y build-essential
