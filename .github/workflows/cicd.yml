@@ -19,7 +19,7 @@ jobs:
         run: apt update -y
 
       - name: Install Gnu COBOL Ver3.1.2
-        run: apt install GnuCOBOL3
+        run: sudo apt install GnuCOBOL3
 
   build:
     runs-on: ubuntu-latest
