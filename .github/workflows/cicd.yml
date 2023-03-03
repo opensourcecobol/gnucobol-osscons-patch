@@ -31,7 +31,7 @@ jobs:
       - name: configure vbisam
         run: |
           cd vbisam
-          ./configure --prefix=usr/
+          ./configure --prefix=/usr/
           make
           make install
           cd ..
