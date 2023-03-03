@@ -28,16 +28,22 @@ jobs:
         run: apt-get install -y libdb-dev
 
       - uses: actions/checkout@v2
-      - name: configure vbisam
+      - name: Install vbisam
         run: |
           cd vbisam
-          ./configure
+          ./configure --prefix=../usr/
           make
           make install
           cd ..
 
+      - name: Set vbisam
+        run: |
+          export CPPFLAGS="-I/usr/include"
+          export LDFLAGS="-L/usr/lib"
+          export LD_LAIBRARY_PATH="/usr/lib"
+
       - name: configure
-        run: ./configure --with-vbisam
+        run: ./configure --with-vbisam --prefix=/usr/
 
       - name: make
         run: make
