@@ -24,16 +24,21 @@ jobs:
       - name: Install prerequisite softwares
         run: apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev
 
-  build:
-    runs-on: ubuntu-latest
-    steps: 
-
       - name: Install Berkeley DB
         run: sudo apt-get install -y libdb-dev
 
       - uses: actions/checkout@v2
+      - name: configure vbisam
+        run: |
+          cd vbisam
+          ./configure
+          make
+          sudo make install
+          cd ..
+
+      - uses: actions/checkout@v2
       - name: configure
-        run: ./configure
+        run: ./configure --with-vbisam
 
       - name: make
         run: make

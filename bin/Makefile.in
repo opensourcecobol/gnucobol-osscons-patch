@@ -36,7 +36,7 @@
 # along with GnuCOBOL.  If not, see <https://www.gnu.org/licenses/>.
 
 # aminclude_static.am generated automatically by Autoconf
-# from AX_AM_MACROS_STATIC on Mon Feb 27 14:55:36 JST 2023
+# from AX_AM_MACROS_STATIC on Mon Feb 27 14:55:37 JST 2023
 
 
 VPATH = @srcdir@
