@@ -64,3 +64,10 @@ jobs:
         env:
          GITHUB_TOKEN: $ {{ secrets.GITHUB_TOKEN }}
          BRANCH_NAME: 'origin develop'
+  
+   linting: 
+    name: cppcheck
+    runs-on: ubuntu-latest
+    steps: 
+      - name: c-linter
+        uses: tonybaloney/cppcheck-action@master
