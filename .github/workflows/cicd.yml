@@ -45,8 +45,8 @@ jobs:
           make
           make install
       
-      - name: Check version
-        run: cobc --version
+      - name: Check information
+        run: cobc -i
 
   static-analysis:
     runs-on: ubuntu-latest
