@@ -32,7 +32,7 @@ jobs:
         run: |
           cd vbisam
           ./configure
-          sudo make
+          make
           make install
           cd ..
 
