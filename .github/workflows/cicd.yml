@@ -31,12 +31,12 @@ jobs:
       - name: Install vbisam
         run: |
           cd vbisam
-          ./configure --prefix=../usr/
+          ./configure --prefix=/usr/
           make
           make install
           cd ..
 
-      - name: Set vbisam
+      - name: Set vbisam path
         run: |
           export CPPFLAGS="-I/usr/include"
           export LDFLAGS="-L/usr/lib"
