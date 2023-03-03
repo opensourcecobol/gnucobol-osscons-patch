@@ -611,9 +611,9 @@ configure:19745: $? = 0
 configure:19757: result: yes
 configure:19764: checking for _doprnt
 configure:19821: gcc -o conftest -g -O2   conftest.c  >&5
-/usr/bin/ld: /tmp/ccxaCdIb.o: in function `main':
+/usr/bin/ld: /tmp/ccdQfxWg.o: in function `main':
 /home/tekuemon/gnucobol-osscons-patch/vbisam/conftest.c:77: undefined reference to `_doprnt'
-/usr/bin/ld: /tmp/ccxaCdIb.o:/home/tekuemon/gnucobol-osscons-patch/vbisam/conftest.c:68: undefined reference to `_doprnt'
+/usr/bin/ld: /tmp/ccdQfxWg.o:/home/tekuemon/gnucobol-osscons-patch/vbisam/conftest.c:68: undefined reference to `_doprnt'
 collect2: error: ld returned 1 exit status
 configure:19827: $? = 1
 configure: failed program was:
@@ -838,6 +838,7 @@ config.status:721: creating bin/Makefile
 config.status:721: creating tests/atlocal
 config.status:721: creating tests/Makefile
 config.status:825: creating config.h
+config.status:999: config.h is unchanged
 config.status:1179: executing tests/atconfig commands
 config.status:1179: executing depfiles commands
 

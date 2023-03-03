@@ -27,14 +27,14 @@ jobs:
       - name: Install Berkeley DB
         run: apt-get install -y libdb-dev
 
-      - uses: actions/checkout@v2
-      - name: configure vbisam
-        run: |
-          cd vbisam
-          ./configure
-          make
-          make install
-          cd ..
+#      - uses: actions/checkout@v2
+#      - name: configure vbisam
+#        run: |
+#          cd vbisam
+#          ./configure
+#          make
+#          make install
+#          cd ..
 
       - uses: actions/checkout@v2
       - name: configure
