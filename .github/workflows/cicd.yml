@@ -17,9 +17,6 @@ jobs:
       - name: Install dependencies on Ubuntu 22.04
         if: matrix.os == 'ubuntu:22.04'
         run: apt update -y
-
-      - name: Install GnuCOBOL3
-        run: apt install -y gnucobol3
       
       - name: Install prerequisite softwares
         run: apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential
@@ -42,24 +39,18 @@ jobs:
           export LDFLAGS="-L/usr/lib"
           export LD_LAIBRARY_PATH="/usr/lib"
 
-      - name: configure
-        run: ./configure --with-vbisam --prefix=/usr/ --with-xml2 --with-cjson
-
-      - name: make
-        run: make
+      - name: Install GnuCOBOL
+        run: | 
+          ./configure --with-vbisam --prefix=/usr/ --with-xml2 --with-cjson
+          make
+          make install
       
-      - name: make check
-        run: make check
-
-      - name: make test
-        run: make test
-
-      - name: make install
-        run: make install
+      - name: Check version
+        run: cobc --version
 
   static-analysis:
     runs-on: ubuntu-latest
     steps:
 
       - name: Install splint
-        run: sudo apt-get install splint
+        run: apt-get install -y splint
