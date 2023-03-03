@@ -22,7 +22,7 @@ jobs:
         run: apt install -y gnucobol3
       
       - name: Install prerequisite softwares
-        run: apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev
+        run: apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential
 
       - name: Install Berkeley DB
         run: apt-get install -y libdb-dev
@@ -36,7 +36,6 @@ jobs:
           make install
           cd ..
 
-#      - uses: actions/checkout@v2
       - name: configure
         run: ./configure --with-vbisam
 
