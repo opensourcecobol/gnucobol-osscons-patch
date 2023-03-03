@@ -31,14 +31,14 @@ jobs:
       - name: configure vbisam
         run: |
           cd vbisam
-          ./configure
+          ./configure --prefix=usr/
           make
           make install
           cd ..
 
       - uses: actions/checkout@v2
       - name: configure
-        run: ./configure --with-vbisam
+        run: ./configure --with-vbisam --prefix=/usr/
 
       - name: make
         run: make
