@@ -43,16 +43,16 @@ jobs:
           export LD_LAIBRARY_PATH="/usr/lib"
 
       - name: configure
-        run: ./configure --with-vbisam --prefix=/usr/
+        run: ./configure --with-vbisam --prefix=/usr/ --with-xml2 --with-cjson
 
       - name: make
         run: make
       
-#      - name: make check
-#        run: make check
-#
-#      - name: make test
-#        run: make test
+      - name: make check
+        run: make check
+
+      - name: make test
+        run: make test
 
       - name: make install
         run: make install
