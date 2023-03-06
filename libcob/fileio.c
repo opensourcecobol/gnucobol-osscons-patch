@@ -8677,6 +8677,9 @@ EXTFH (unsigned char *opcode, FCD3 *fcd)
 org_handling:
 	switch (fcd->fileOrg) {
 	case ORG_INDEXED:
+		if (opcd == OP_GETINFO) {
+			break;
+		}
 		k = LDCOMPX2(fcd->refKey);
 		if (k >= 0 && k <= f->nkeys) {
 			if (f->keys[k].count_components <= 1) {
