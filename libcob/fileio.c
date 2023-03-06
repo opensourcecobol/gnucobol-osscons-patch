@@ -10577,6 +10577,9 @@ EXTFH3 (unsigned char *opcode, FCD3 *fcd)
 org_handling:
 	switch (fcd->fileOrg) {
 	case ORG_INDEXED:
+		if (opcd == OP_GETINFO) {
+			break;
+		}
 		f->organization = COB_ORG_INDEXED;
 		break;
 	case ORG_RELATIVE:
