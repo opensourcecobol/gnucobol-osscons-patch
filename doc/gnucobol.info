@@ -1,4 +1,4 @@
-This is gnucobol.info, produced by makeinfo version 6.5 from
+This is gnucobol.info, produced by makeinfo version 6.8 from
 gnucobol.texi.
 
 Permission is granted to make and distribute verbatim copies of this
@@ -327,7 +327,7 @@ compiler:
 
 '-m'
      Compile, assemble, and build a dynamically loadable module (i.e., a
-     shared library).  The output is saved in file '*.so'.  (1) This is
+     shared library).  The output is saved in file '*.so'.  (1)  This is
      the default behaviour.
 
 '-b'
@@ -438,6 +438,7 @@ kinds of diagnostics produced by 'cobc'.
      This option causes the compiler to abort compilation on the first
      error occurred rather than trying to keep going and printing
      further error messages.
+
 
 
    You can request many specific warnings with options beginning with
@@ -1027,11 +1028,11 @@ command line arguments to COBOL.
 
    You can compile your C program as follows:
 
-     cc -c `cob-config --cflags` main.c
+     cc -c ̀cob-config --cflags̀ main.c
 
    The compiled object must be linked with libcob as follows:
 
-     cc -o main main.o `cob-config --libs`
+     cc -o main main.o ̀cob-config --libs̀
 
 
 File: gnucobol.info,  Node: Static C to COBOL,  Next: Dynamic C to COBOL,  Prev: Main C program,  Up: C interface
@@ -2925,7 +2926,7 @@ A.4 Compiler dialect configuration options
      missing statement (e.g.  empty 'IF' / 'PERFORM')
 
 '-fzero-length-literals=SUPPORT'
-     zero-length literals, e.g.  " and ""
+     zero-length literals, e.g.  "  and ""
 
 '-fxml-generate-extra-phrases=SUPPORT'
      'XML' 'GENERATE''s phrases other than 'COUNT' 'IN'
@@ -5442,60 +5443,65 @@ Node: Compiler options6525
 Node: Help options7269
 Ref: Help options-Footnote-18966
 Node: Build target9010
-Ref: Build target-Footnote-111517
-Node: Source format11570
-Ref: Source format-Footnote-112357
-Node: Warning options12431
-Node: Configuration options16699
-Node: Listing options19794
-Node: Debug switches24586
-Node: Miscellaneous25651
-Node: Multiple sources26761
-Node: Static linking27401
-Node: Dynamic linking28876
-Ref: Dynamic linking-Footnote-130486
-Ref: Dynamic linking-Footnote-230547
-Node: Building library30608
-Node: Using library30991
-Node: C interface31562
-Node: Main C program31936
-Node: Static C to COBOL33093
-Node: Dynamic C to COBOL34800
-Node: Static COBOL to C36323
-Node: Dynamic COBOL to C37759
-Node: Interface functions for C38202
-Node: Customize39732
-Node: Customizing compiler39956
-Node: Customizing library40524
-Node: Optimize41284
-Node: Optimize options41587
-Node: Optimize call42117
-Node: Optimize binary42497
-Node: Debug43073
-Node: Debug options43229
-Node: Extensions43558
-Node: SELECT44150
-Node: Indexed44901
-Node: Extended ACCEPT45081
-Node: ACCEPT special49264
-Node: Extended DISPLAY51790
-Node: FUNCTION CONTENT-LENGTH54300
-Node: FUNCTION CONTENT-OF54969
-Node: System Routines55838
-Node: CBL_GC_GETOPT56371
-Node: CBL_GC_HOSTED60467
-Node: CBL_GC_NANOSLEEP64996
-Node: CBL_GC_FORK65520
-Node: CBL_GC_WAITPID68544
-Node: Appendices69201
-Node: Appendix A69771
-Node: Appendix B88480
-Node: Appendix C127434
-Node: Appendix D133073
-Node: Appendix E135478
-Node: Appendix F136702
-Node: Appendix G145221
-Node: Appendix H146220
-Node: Appendix I162882
+Ref: Build target-Footnote-111518
+Node: Source format11571
+Ref: Source format-Footnote-112358
+Node: Warning options12432
+Node: Configuration options16701
+Node: Listing options19796
+Node: Debug switches24588
+Node: Miscellaneous25653
+Node: Multiple sources26763
+Node: Static linking27403
+Node: Dynamic linking28878
+Ref: Dynamic linking-Footnote-130488
+Ref: Dynamic linking-Footnote-230549
+Node: Building library30610
+Node: Using library30993
+Node: C interface31564
+Node: Main C program31938
+Node: Static C to COBOL33099
+Node: Dynamic C to COBOL34806
+Node: Static COBOL to C36329
+Node: Dynamic COBOL to C37765
+Node: Interface functions for C38208
+Node: Customize39738
+Node: Customizing compiler39962
+Node: Customizing library40530
+Node: Optimize41290
+Node: Optimize options41593
+Node: Optimize call42123
+Node: Optimize binary42503
+Node: Debug43079
+Node: Debug options43235
+Node: Extensions43564
+Node: SELECT44156
+Node: Indexed44907
+Node: Extended ACCEPT45087
+Node: ACCEPT special49270
+Node: Extended DISPLAY51796
+Node: FUNCTION CONTENT-LENGTH54306
+Node: FUNCTION CONTENT-OF54975
+Node: System Routines55844
+Node: CBL_GC_GETOPT56377
+Node: CBL_GC_HOSTED60473
+Node: CBL_GC_NANOSLEEP65002
+Node: CBL_GC_FORK65526
+Node: CBL_GC_WAITPID68550
+Node: Appendices69207
+Node: Appendix A69777
+Node: Appendix B88487
+Node: Appendix C127441
+Node: Appendix D133080
+Node: Appendix E135485
+Node: Appendix F136709
+Node: Appendix G145228
+Node: Appendix H146227
+Node: Appendix I162889
 
 End Tag Table
+
+
+Local Variables:
+coding: utf-8
+End:

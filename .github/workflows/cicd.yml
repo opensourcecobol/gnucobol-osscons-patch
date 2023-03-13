@@ -48,19 +48,53 @@ jobs:
       - name: Check information
         run: cobc -i
 
-  static-analysis:
+  run-tests-with-test:
+    strategy:
+      matrix:
+        os: ["ubuntu:22.04"]
     runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-
-      - name: cppcheck
-        uses: deep5050/cppcheck-action@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
+        
+      - name: Install dependencies on Ubuntu 22.04
+        if: matrix.os == 'ubuntu:22.04'
+        run: apt update -y
       
-      - name: publish report
-        uses: mikeal/publish-to-github-action@master
-        env:
-         GITHUB_TOKEN: $ {{ secrets.GITHUB_TOKEN }}
-         BRANCH_NAME: 'develop'
+      - name: Install prerequisite softwares
+        run: apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential
+
+      - name: Install Berkeley DB
+        run: apt-get install -y libdb-dev
+
+      - uses: actions/checkout@v2
+      - name: Install vbisam
+        run: |
+          cd vbisam
+          ./configure --prefix=/usr/
+          make
+          make install
+          cd ..
+
+      - name: Set vbisam path
+        run: |
+          export CPPFLAGS="-I/usr/include"
+          export LDFLAGS="-L/usr/lib"
+          export LD_LAIBRARY_PATH="/usr/lib"
+
+      - name: configure and make GnuCOBOL
+        run: | 
+          ./configure --with-vbisam --prefix=/usr/ --with-xml2 --with-cjson
+          make
+        
+      - name: make check
+        run: make check
+
+      - name: make test
+        run: make test
+
+      - name: make install
+        run: make install
+      
+      - name: Check information
+        run: cobc -i
