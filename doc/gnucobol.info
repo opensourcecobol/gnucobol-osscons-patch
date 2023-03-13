@@ -4116,6 +4116,7 @@ System routine                Parameters
 'CBL_FLUSH_FILE'              1
 'CBL_GET_CSR_POS'             1
 'CBL_GET_CURRENT_DIR'         3
+'CBL_GET_OS_INFO'             1
 'CBL_GET_SCR_SIZE'            2
 'CBL_IMP'                     3
 'CBL_NIMP'                    3
@@ -4127,6 +4128,7 @@ System routine                Parameters
 'CBL_READ_KBD_CHAR'           1
 'CBL_RENAME_FILE'             2
 'CBL_SET_CSR_POS'             1
+'CBL_SPLIT_FILENAME'          2
 'CBL_TOLOWER'                 2
 'CBL_TOUPPER'                 2
 'CBL_WRITE_FILE'              5
@@ -4155,6 +4157,7 @@ System routine                Parameters
 'C$TOLOWER'                   2
 'C$TOUPPER'                   2
 'EXTFH'                       2
+'EXTSM'                       2
 'X"91"'                       3
 'X"E4"'                       0
 'X"E5"'                       0
@@ -5493,11 +5496,11 @@ Node: Appendix A69777
 Node: Appendix B88487
 Node: Appendix C127441
 Node: Appendix D133080
-Node: Appendix E135485
-Node: Appendix F136709
-Node: Appendix G145228
-Node: Appendix H146227
-Node: Appendix I162889
+Node: Appendix E135581
+Node: Appendix F136805
+Node: Appendix G145324
+Node: Appendix H146323
+Node: Appendix I162985
 
 End Tag Table
 

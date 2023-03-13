@@ -98,7 +98,7 @@ CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2 -finline-functions -fsigned-char -Wall -Wwrite-strings -Wmissing-prototypes -Wno-format-y2k
 CPP = gcc -E
-CPPFLAGS = 
+CPPFLAGS = -I/usr/include
 CXXCPP = 
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
@@ -114,7 +114,7 @@ INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = ${SHELL} $(install_sh) -c -s
-LDFLAGS = 
+LDFLAGS = -L/usr/lib
 LIBOBJS = 
 LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool

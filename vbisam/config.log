@@ -93,7 +93,7 @@ gcc: fatal error: no input files
 compilation terminated.
 configure:2399: $? = 1
 configure:2422: checking for C compiler default output file name
-configure:2425: gcc    conftest.c  >&5
+configure:2425: gcc  -I/usr/include -L/usr/lib conftest.c  >&5
 configure:2428: $? = 0
 configure:2474: result: a.out
 configure:2479: checking whether the C compiler works
@@ -103,15 +103,15 @@ configure:2505: result: yes
 configure:2512: checking whether we are cross compiling
 configure:2514: result: no
 configure:2517: checking for suffix of executables
-configure:2519: gcc -o conftest    conftest.c  >&5
+configure:2519: gcc -o conftest  -I/usr/include -L/usr/lib conftest.c  >&5
 configure:2522: $? = 0
 configure:2547: result: 
 configure:2553: checking for suffix of object files
-configure:2574: gcc -c   conftest.c >&5
+configure:2574: gcc -c  -I/usr/include conftest.c >&5
 configure:2577: $? = 0
 configure:2599: result: o
 configure:2603: checking whether we are using the GNU C compiler
-configure:2627: gcc -c   conftest.c >&5
+configure:2627: gcc -c  -I/usr/include conftest.c >&5
 configure:2633: $? = 0
 configure:2637: test -z 
 			 || test ! -s conftest.err
@@ -120,7 +120,7 @@ configure:2643: test -s conftest.o
 configure:2646: $? = 0
 configure:2659: result: yes
 configure:2665: checking whether gcc accepts -g
-configure:2686: gcc -c -g  conftest.c >&5
+configure:2686: gcc -c -g -I/usr/include conftest.c >&5
 configure:2692: $? = 0
 configure:2696: test -z 
 			 || test ! -s conftest.err
@@ -129,7 +129,7 @@ configure:2702: test -s conftest.o
 configure:2705: $? = 0
 configure:2716: result: yes
 configure:2733: checking for gcc option to accept ANSI C
-configure:2803: gcc  -c -g -O2  conftest.c >&5
+configure:2803: gcc  -c -g -O2 -I/usr/include conftest.c >&5
 configure:2809: $? = 0
 configure:2813: test -z 
 			 || test ! -s conftest.err
@@ -137,7 +137,7 @@ configure:2816: $? = 0
 configure:2819: test -s conftest.o
 configure:2822: $? = 0
 configure:2840: result: none needed
-configure:2858: gcc -c -g -O2  conftest.c >&5
+configure:2858: gcc -c -g -O2 -I/usr/include conftest.c >&5
 conftest.c:2:3: error: unknown type name 'choke'
     2 |   choke me
       |   ^~~~~
@@ -173,12 +173,12 @@ configure:3599: checking for BSD-compatible nm
 configure:3648: result: /usr/bin/nm -B
 configure:3652: checking how to recognize dependent libraries
 configure:3838: result: pass_all
-configure:3927: gcc -c -g -O2  conftest.c >&5
+configure:3927: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:3930: $? = 0
 configure:4324: checking how to run the C preprocessor
-configure:4359: gcc -E  conftest.c
+configure:4359: gcc -E -I/usr/include conftest.c
 configure:4365: $? = 0
-configure:4397: gcc -E  conftest.c
+configure:4397: gcc -E -I/usr/include conftest.c
 conftest.c:15:10: fatal error: ac_nonexistent.h: No such file or directory
    15 | #include <ac_nonexistent.h>
       |          ^~~~~~~~~~~~~~~~~~
@@ -201,9 +201,9 @@ configure: failed program was:
 | /* end confdefs.h.  */
 | #include <ac_nonexistent.h>
 configure:4442: result: gcc -E
-configure:4466: gcc -E  conftest.c
+configure:4466: gcc -E -I/usr/include conftest.c
 configure:4472: $? = 0
-configure:4504: gcc -E  conftest.c
+configure:4504: gcc -E -I/usr/include conftest.c
 conftest.c:15:10: fatal error: ac_nonexistent.h: No such file or directory
    15 | #include <ac_nonexistent.h>
       |          ^~~~~~~~~~~~~~~~~~
@@ -226,14 +226,14 @@ configure: failed program was:
 | /* end confdefs.h.  */
 | #include <ac_nonexistent.h>
 configure:4554: checking for ANSI C header files
-configure:4579: gcc -c -g -O2  conftest.c >&5
+configure:4579: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4585: $? = 0
 configure:4589: test -z 
 			 || test ! -s conftest.err
 configure:4592: $? = 0
 configure:4595: test -s conftest.o
 configure:4598: $? = 0
-configure:4687: gcc -o conftest -g -O2   conftest.c  >&5
+configure:4687: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 conftest.c: In function 'main':
 conftest.c:32:7: warning: implicit declaration of function 'exit' [-Wimplicit-function-declaration]
    32 |       exit(2);
@@ -255,7 +255,7 @@ configure:4692: ./conftest
 configure:4695: $? = 0
 configure:4710: result: yes
 configure:4734: checking for sys/types.h
-configure:4750: gcc -c -g -O2  conftest.c >&5
+configure:4750: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4756: $? = 0
 configure:4760: test -z 
 			 || test ! -s conftest.err
@@ -264,7 +264,7 @@ configure:4766: test -s conftest.o
 configure:4769: $? = 0
 configure:4780: result: yes
 configure:4734: checking for sys/stat.h
-configure:4750: gcc -c -g -O2  conftest.c >&5
+configure:4750: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4756: $? = 0
 configure:4760: test -z 
 			 || test ! -s conftest.err
@@ -273,7 +273,7 @@ configure:4766: test -s conftest.o
 configure:4769: $? = 0
 configure:4780: result: yes
 configure:4734: checking for stdlib.h
-configure:4750: gcc -c -g -O2  conftest.c >&5
+configure:4750: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4756: $? = 0
 configure:4760: test -z 
 			 || test ! -s conftest.err
@@ -282,7 +282,7 @@ configure:4766: test -s conftest.o
 configure:4769: $? = 0
 configure:4780: result: yes
 configure:4734: checking for string.h
-configure:4750: gcc -c -g -O2  conftest.c >&5
+configure:4750: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4756: $? = 0
 configure:4760: test -z 
 			 || test ! -s conftest.err
@@ -291,7 +291,7 @@ configure:4766: test -s conftest.o
 configure:4769: $? = 0
 configure:4780: result: yes
 configure:4734: checking for memory.h
-configure:4750: gcc -c -g -O2  conftest.c >&5
+configure:4750: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4756: $? = 0
 configure:4760: test -z 
 			 || test ! -s conftest.err
@@ -300,7 +300,7 @@ configure:4766: test -s conftest.o
 configure:4769: $? = 0
 configure:4780: result: yes
 configure:4734: checking for strings.h
-configure:4750: gcc -c -g -O2  conftest.c >&5
+configure:4750: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4756: $? = 0
 configure:4760: test -z 
 			 || test ! -s conftest.err
@@ -309,7 +309,7 @@ configure:4766: test -s conftest.o
 configure:4769: $? = 0
 configure:4780: result: yes
 configure:4734: checking for inttypes.h
-configure:4750: gcc -c -g -O2  conftest.c >&5
+configure:4750: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4756: $? = 0
 configure:4760: test -z 
 			 || test ! -s conftest.err
@@ -318,7 +318,7 @@ configure:4766: test -s conftest.o
 configure:4769: $? = 0
 configure:4780: result: yes
 configure:4734: checking for stdint.h
-configure:4750: gcc -c -g -O2  conftest.c >&5
+configure:4750: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4756: $? = 0
 configure:4760: test -z 
 			 || test ! -s conftest.err
@@ -327,7 +327,7 @@ configure:4766: test -s conftest.o
 configure:4769: $? = 0
 configure:4780: result: yes
 configure:4734: checking for unistd.h
-configure:4750: gcc -c -g -O2  conftest.c >&5
+configure:4750: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4756: $? = 0
 configure:4760: test -z 
 			 || test ! -s conftest.err
@@ -336,7 +336,7 @@ configure:4766: test -s conftest.o
 configure:4769: $? = 0
 configure:4780: result: yes
 configure:4806: checking dlfcn.h usability
-configure:4818: gcc -c -g -O2  conftest.c >&5
+configure:4818: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:4824: $? = 0
 configure:4828: test -z 
 			 || test ! -s conftest.err
@@ -345,7 +345,7 @@ configure:4834: test -s conftest.o
 configure:4837: $? = 0
 configure:4847: result: yes
 configure:4851: checking dlfcn.h presence
-configure:4861: gcc -E  conftest.c
+configure:4861: gcc -E -I/usr/include conftest.c
 configure:4867: $? = 0
 configure:4887: result: yes
 configure:4922: checking for dlfcn.h
@@ -353,11 +353,11 @@ configure:4929: result: yes
 configure:5185: checking the maximum length of command line arguments
 configure:5297: result: 1572864
 configure:5309: checking command to parse /usr/bin/nm -B output from gcc object
-configure:5414: gcc -c -g -O2  conftest.c >&5
+configure:5414: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:5417: $? = 0
 configure:5421: /usr/bin/nm -B conftest.o \| sed -n -e 's/^.*[ 	]\([ABCDGIRSTW][ABCDGIRSTW]*\)[ 	][ 	]*\([_A-Za-z][_A-Za-z0-9]*\)$/\1 \2 \2/p' \> conftest.nm
 configure:5424: $? = 0
-configure:5476: gcc -o conftest -g -O2   conftest.c conftstm.o >&5
+configure:5476: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c conftstm.o >&5
 configure:5479: $? = 0
 configure:5517: result: ok
 configure:5521: checking for objdir
@@ -372,26 +372,26 @@ configure:5786: checking for strip
 configure:5802: found /usr/bin/strip
 configure:5813: result: strip
 configure:6085: checking if gcc supports -fno-rtti -fno-exceptions
-configure:6103: gcc -c -g -O2  -fno-rtti -fno-exceptions conftest.c >&5
+configure:6103: gcc -c -g -O2 -I/usr/include -fno-rtti -fno-exceptions conftest.c >&5
 cc1: warning: command-line option '-fno-rtti' is valid for C++/D/ObjC++ but not for C
 configure:6107: $? = 0
 configure:6120: result: no
 configure:6135: checking for gcc option to produce PIC
 configure:6367: result: -fPIC
 configure:6375: checking if gcc PIC flag -fPIC works
-configure:6393: gcc -c -g -O2  -fPIC -DPIC conftest.c >&5
+configure:6393: gcc -c -g -O2 -I/usr/include -fPIC -DPIC conftest.c >&5
 configure:6397: $? = 0
 configure:6410: result: yes
 configure:6438: checking if gcc static flag -static works
 configure:6466: result: yes
 configure:6476: checking if gcc supports -c -o file.o
-configure:6497: gcc -c -g -O2  -o out/conftest2.o conftest.c >&5
+configure:6497: gcc -c -g -O2 -I/usr/include -o out/conftest2.o conftest.c >&5
 configure:6501: $? = 0
 configure:6523: result: yes
 configure:6549: checking whether the gcc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries
 configure:7533: result: yes
 configure:7554: checking whether -lc should be explicitly linked in
-configure:7559: gcc -c -g -O2  conftest.c >&5
+configure:7559: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:7562: $? = 0
 configure:7577: gcc -shared conftest.o  -v -Wl,-soname -Wl,conftest -o conftest 2\>\&1 \| grep  -lc  \>/dev/null 2\>\&1
 configure:7580: $? = 0
@@ -418,7 +418,7 @@ configure:18632: result: yes
 configure:18627: checking for sys/types.h
 configure:18632: result: yes
 configure:18636: checking fcntl.h usability
-configure:18648: gcc -c -g -O2  conftest.c >&5
+configure:18648: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:18654: $? = 0
 configure:18658: test -z 
 			 || test ! -s conftest.err
@@ -427,13 +427,13 @@ configure:18664: test -s conftest.o
 configure:18667: $? = 0
 configure:18677: result: yes
 configure:18681: checking fcntl.h presence
-configure:18691: gcc -E  conftest.c
+configure:18691: gcc -E -I/usr/include conftest.c
 configure:18697: $? = 0
 configure:18717: result: yes
 configure:18752: checking for fcntl.h
 configure:18759: result: yes
 configure:18636: checking malloc.h usability
-configure:18648: gcc -c -g -O2  conftest.c >&5
+configure:18648: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:18654: $? = 0
 configure:18658: test -z 
 			 || test ! -s conftest.err
@@ -442,13 +442,13 @@ configure:18664: test -s conftest.o
 configure:18667: $? = 0
 configure:18677: result: yes
 configure:18681: checking malloc.h presence
-configure:18691: gcc -E  conftest.c
+configure:18691: gcc -E -I/usr/include conftest.c
 configure:18697: $? = 0
 configure:18717: result: yes
 configure:18752: checking for malloc.h
 configure:18759: result: yes
 configure:18636: checking stddef.h usability
-configure:18648: gcc -c -g -O2  conftest.c >&5
+configure:18648: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:18654: $? = 0
 configure:18658: test -z 
 			 || test ! -s conftest.err
@@ -457,13 +457,13 @@ configure:18664: test -s conftest.o
 configure:18667: $? = 0
 configure:18677: result: yes
 configure:18681: checking stddef.h presence
-configure:18691: gcc -E  conftest.c
+configure:18691: gcc -E -I/usr/include conftest.c
 configure:18697: $? = 0
 configure:18717: result: yes
 configure:18752: checking for stddef.h
 configure:18759: result: yes
 configure:18636: checking wchar.h usability
-configure:18648: gcc -c -g -O2  conftest.c >&5
+configure:18648: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:18654: $? = 0
 configure:18658: test -z 
 			 || test ! -s conftest.err
@@ -472,13 +472,13 @@ configure:18664: test -s conftest.o
 configure:18667: $? = 0
 configure:18677: result: yes
 configure:18681: checking wchar.h presence
-configure:18691: gcc -E  conftest.c
+configure:18691: gcc -E -I/usr/include conftest.c
 configure:18697: $? = 0
 configure:18717: result: yes
 configure:18752: checking for wchar.h
 configure:18759: result: yes
 configure:18774: checking for an ANSI C-conforming const
-configure:18841: gcc -c -g -O2  conftest.c >&5
+configure:18841: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:18847: $? = 0
 configure:18851: test -z 
 			 || test ! -s conftest.err
@@ -487,14 +487,14 @@ configure:18857: test -s conftest.o
 configure:18860: $? = 0
 configure:18871: result: yes
 configure:18881: checking whether byte ordering is bigendian
-configure:18908: gcc -c -g -O2  conftest.c >&5
+configure:18908: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:18914: $? = 0
 configure:18918: test -z 
 			 || test ! -s conftest.err
 configure:18921: $? = 0
 configure:18924: test -s conftest.o
 configure:18927: $? = 0
-configure:18951: gcc -c -g -O2  conftest.c >&5
+configure:18951: gcc -c -g -O2 -I/usr/include conftest.c >&5
 conftest.c: In function 'main':
 conftest.c:40:2: error: unknown type name 'not'; did you mean 'ino_t'?
    40 |  not big endian
@@ -552,7 +552,7 @@ configure: failed program was:
 | }
 configure:19092: result: no
 configure:19111: checking for size_t
-configure:19135: gcc -c -g -O2  conftest.c >&5
+configure:19135: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:19141: $? = 0
 configure:19145: test -z 
 			 || test ! -s conftest.err
@@ -561,7 +561,7 @@ configure:19151: test -s conftest.o
 configure:19154: $? = 0
 configure:19165: result: yes
 configure:19178: checking for long long
-configure:19200: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19200: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 configure:19206: $? = 0
 configure:19210: test -z 
 			 || test ! -s conftest.err
@@ -570,7 +570,7 @@ configure:19216: test -s conftest
 configure:19219: $? = 0
 configure:19231: result: yes
 configure:19241: checking whether struct tm is in sys/time.h or time.h
-configure:19264: gcc -c -g -O2  conftest.c >&5
+configure:19264: gcc -c -g -O2 -I/usr/include conftest.c >&5
 configure:19270: $? = 0
 configure:19274: test -z 
 			 || test ! -s conftest.err
@@ -579,7 +579,7 @@ configure:19280: test -s conftest.o
 configure:19283: $? = 0
 configure:19294: result: time.h
 configure:19308: checking for working alloca.h
-configure:19329: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19329: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 configure:19335: $? = 0
 configure:19339: test -z 
 			 || test ! -s conftest.err
@@ -588,7 +588,7 @@ configure:19345: test -s conftest
 configure:19348: $? = 0
 configure:19360: result: yes
 configure:19370: checking for alloca
-configure:19411: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19411: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 configure:19417: $? = 0
 configure:19421: test -z 
 			 || test ! -s conftest.err
@@ -597,7 +597,7 @@ configure:19427: test -s conftest
 configure:19430: $? = 0
 configure:19442: result: yes
 configure:19669: checking for vprintf
-configure:19726: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19726: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 conftest.c:60:6: warning: conflicting types for built-in function 'vprintf'; expected 'int(const char *, __va_list_tag *)' [-Wbuiltin-declaration-mismatch]
    60 | char vprintf ();
       |      ^~~~~~~
@@ -612,10 +612,10 @@ configure:19742: test -s conftest
 configure:19745: $? = 0
 configure:19757: result: yes
 configure:19764: checking for _doprnt
-configure:19821: gcc -o conftest -g -O2   conftest.c  >&5
-/usr/bin/ld: /tmp/ccu4wMtW.o: in function `main':
+configure:19821: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
+/usr/bin/ld: /tmp/cc4TS3O4.o: in function `main':
 /home/tekuemon/gnucobol-osscons-patch/vbisam/conftest.c:77: undefined reference to `_doprnt'
-/usr/bin/ld: /tmp/ccu4wMtW.o:/home/tekuemon/gnucobol-osscons-patch/vbisam/conftest.c:68: undefined reference to `_doprnt'
+/usr/bin/ld: /tmp/cc4TS3O4.o:/home/tekuemon/gnucobol-osscons-patch/vbisam/conftest.c:68: undefined reference to `_doprnt'
 collect2: error: ld returned 1 exit status
 configure:19827: $? = 1
 configure: failed program was:
@@ -701,7 +701,7 @@ configure: failed program was:
 | }
 configure:19852: result: no
 configure:19879: checking for memmove
-configure:19936: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19936: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 conftest.c:61:6: warning: conflicting types for built-in function 'memmove'; expected 'void *(void *, const void *, long unsigned int)' [-Wbuiltin-declaration-mismatch]
    61 | char memmove ();
       |      ^~~~~~~
@@ -716,7 +716,7 @@ configure:19952: test -s conftest
 configure:19955: $? = 0
 configure:19967: result: yes
 configure:19879: checking for memset
-configure:19936: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19936: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 conftest.c:62:6: warning: conflicting types for built-in function 'memset'; expected 'void *(void *, int,  long unsigned int)' [-Wbuiltin-declaration-mismatch]
    62 | char memset ();
       |      ^~~~~~
@@ -731,7 +731,7 @@ configure:19952: test -s conftest
 configure:19955: $? = 0
 configure:19967: result: yes
 configure:19879: checking for fcntl
-configure:19936: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19936: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 configure:19942: $? = 0
 configure:19946: test -z 
 			 || test ! -s conftest.err
@@ -740,7 +740,7 @@ configure:19952: test -s conftest
 configure:19955: $? = 0
 configure:19967: result: yes
 configure:19879: checking for strcasecmp
-configure:19936: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19936: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 conftest.c:64:6: warning: conflicting types for built-in function 'strcasecmp'; expected 'int(const char *, const char *)' [-Wbuiltin-declaration-mismatch]
    64 | char strcasecmp ();
       |      ^~~~~~~~~~
@@ -752,7 +752,7 @@ configure:19952: test -s conftest
 configure:19955: $? = 0
 configure:19967: result: yes
 configure:19879: checking for strchr
-configure:19936: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19936: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 conftest.c:65:6: warning: conflicting types for built-in function 'strchr'; expected 'char *(const char *, int)' [-Wbuiltin-declaration-mismatch]
    65 | char strchr ();
       |      ^~~~~~
@@ -767,7 +767,7 @@ configure:19952: test -s conftest
 configure:19955: $? = 0
 configure:19967: result: yes
 configure:19879: checking for strrchr
-configure:19936: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19936: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 conftest.c:66:6: warning: conflicting types for built-in function 'strrchr'; expected 'char *(const char *, int)' [-Wbuiltin-declaration-mismatch]
    66 | char strrchr ();
       |      ^~~~~~~
@@ -782,7 +782,7 @@ configure:19952: test -s conftest
 configure:19955: $? = 0
 configure:19967: result: yes
 configure:19879: checking for strdup
-configure:19936: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19936: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 conftest.c:67:6: warning: conflicting types for built-in function 'strdup'; expected 'char *(const char *)' [-Wbuiltin-declaration-mismatch]
    67 | char strdup ();
       |      ^~~~~~
@@ -794,7 +794,7 @@ configure:19952: test -s conftest
 configure:19955: $? = 0
 configure:19967: result: yes
 configure:19879: checking for strstr
-configure:19936: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19936: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 conftest.c:68:6: warning: conflicting types for built-in function 'strstr'; expected 'char *(const char *, const char *)' [-Wbuiltin-declaration-mismatch]
    68 | char strstr ();
       |      ^~~~~~
@@ -809,7 +809,7 @@ configure:19952: test -s conftest
 configure:19955: $? = 0
 configure:19967: result: yes
 configure:19879: checking for strtol
-configure:19936: gcc -o conftest -g -O2   conftest.c  >&5
+configure:19936: gcc -o conftest -g -O2 -I/usr/include -L/usr/lib conftest.c  >&5
 configure:19942: $? = 0
 configure:19946: test -z 
 			 || test ! -s conftest.err
@@ -857,14 +857,14 @@ ac_cv_env_CC_set=
 ac_cv_env_CC_value=
 ac_cv_env_CFLAGS_set=
 ac_cv_env_CFLAGS_value=
-ac_cv_env_CPPFLAGS_set=
-ac_cv_env_CPPFLAGS_value=
+ac_cv_env_CPPFLAGS_set=set
+ac_cv_env_CPPFLAGS_value=-I/usr/include
 ac_cv_env_CPP_set=
 ac_cv_env_CPP_value=
 ac_cv_env_CXXCPP_set=
 ac_cv_env_CXXCPP_value=
-ac_cv_env_LDFLAGS_set=
-ac_cv_env_LDFLAGS_value=
+ac_cv_env_LDFLAGS_set=set
+ac_cv_env_LDFLAGS_value=-L/usr/lib
 ac_cv_env_build_alias_set=
 ac_cv_env_build_alias_value=
 ac_cv_env_host_alias_set=
@@ -958,7 +958,7 @@ CC='gcc'
 CCDEPMODE='depmode=gcc3'
 CFLAGS='-g -O2 -finline-functions -fsigned-char -Wall -Wwrite-strings -Wmissing-prototypes -Wno-format-y2k'
 CPP='gcc -E'
-CPPFLAGS=''
+CPPFLAGS='-I/usr/include'
 CXXCPP=''
 CYGPATH_W='echo'
 DEFS='-DHAVE_CONFIG_H'
@@ -974,7 +974,7 @@ INSTALL_DATA='${INSTALL} -m 644'
 INSTALL_PROGRAM='${INSTALL}'
 INSTALL_SCRIPT='${INSTALL}'
 INSTALL_STRIP_PROGRAM='${SHELL} $(install_sh) -c -s'
-LDFLAGS=''
+LDFLAGS='-L/usr/lib'
 LIBOBJS=''
 LIBS=''
 LIBTOOL='$(SHELL) $(top_builddir)/libtool'
