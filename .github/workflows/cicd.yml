@@ -27,8 +27,6 @@ jobs:
           cd vbisam
           ./configure --prefix=/usr/
           make
-          make check -i
-          make test
           make install
           cd ..
 
@@ -42,6 +40,8 @@ jobs:
         run: | 
           ./configure --with-vbisam --prefix=/usr/ --with-xml2 --with-cjson
           make
+          make check -i
+          make test
           make install
       
       - name: Check information
