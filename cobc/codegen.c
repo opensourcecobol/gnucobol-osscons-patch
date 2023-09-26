@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2003-2023 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch,
-   Edward Hart
+   Edward Hart, OSS Consortium
 
    This file is part of GnuCOBOL.
 
