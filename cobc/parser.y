@@ -19679,10 +19679,29 @@ subref:
 refmod:
   TOK_OPEN_PAREN exp TOK_COLON TOK_CLOSE_PAREN
   {
+	if (cb_ref ($0) != cb_error_node) {
+		if (cb_tree_category ($0) == CB_CATEGORY_NATIONAL ||
+			cb_tree_category ($0) == CB_CATEGORY_NATIONAL_EDITED) {
+			$2 = cb_build_binary_op ($2, '*', cb_int2);
+			$2 = cb_build_binary_op ($2, '-', cb_int1);
+		} else {
+			CB_TREE ($0)->category = CB_CATEGORY_ALPHANUMERIC;
+		}
+	}
 	CB_REFERENCE ($0)->offset = $2;
   }
 | TOK_OPEN_PAREN exp TOK_COLON exp TOK_CLOSE_PAREN
   {
+	if (cb_ref ($0) != cb_error_node) {
+		if (cb_tree_category ($0) == CB_CATEGORY_NATIONAL ||
+			cb_tree_category ($0) == CB_CATEGORY_NATIONAL_EDITED) {
+				$2 = cb_build_binary_op ($2, '*', cb_int2);
+				$2 = cb_build_binary_op ($2, '-', cb_int1);
+				$4 = cb_build_binary_op ($4, '*', cb_int2);
+		} else {
+			CB_TREE ($0)->category = CB_CATEGORY_ALPHANUMERIC;
+		}
+	}
 	CB_REFERENCE ($0)->offset = $2;
 	CB_REFERENCE ($0)->length = $4;
   }
