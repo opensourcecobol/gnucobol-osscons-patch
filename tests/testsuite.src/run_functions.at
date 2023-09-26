@@ -201,9 +201,7 @@ AT_DATA([prog.cob], [
            STOP RUN.
 ])
 
-AT_CHECK([$COMPILE prog.cob], [0], [],
-[prog.cob:7: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-])
+AT_CHECK([$COMPILE prog.cob], [0])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
 
 AT_CLEANUP
@@ -1611,10 +1609,7 @@ AT_DATA([prog.cob], [
            STOP RUN.
 ])
 
-AT_CHECK([$COMPILE prog.cob], [0], [],
-[prog.cob:7: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:48: warning: handling of national literal is unfinished; implementation is likely to be changed
-])
+AT_CHECK([$COMPILE prog.cob], [0])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
 
 AT_CLEANUP

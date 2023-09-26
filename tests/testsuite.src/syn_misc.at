@@ -3371,16 +3371,7 @@ AT_DATA([prog.cob], [
                    NC'0123456789ABCDEF'.
 ])
 
-AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
-[prog.cob:5: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:6: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:7: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:8: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:9: warning: national-character literal used
-prog.cob:9: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:10: warning: national-character literal used
-prog.cob:10: warning: handling of national literal is unfinished; implementation is likely to be changed
-])
+AT_CHECK([$COMPILE_ONLY prog.cob], [0])
 
 AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [1], [],
 [prog.cob:5: error: national literal does not conform to COBOL 85
@@ -3411,13 +3402,9 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:6: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:7: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:10: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:10: error: invalid NX literal: 'GH'
+[prog.cob:10: error: invalid NX literal: 'GH'
 prog.cob:10: error: literal contains invalid character 'G'
 prog.cob:10: error: literal contains invalid character 'H'
-prog.cob:11: warning: handling of national literal is unfinished; implementation is likely to be changed
 prog.cob:11: error: invalid NX literal: '1'
 prog.cob:11: error: literal does not have an even number of digits
 ])
@@ -6248,9 +6235,7 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:9: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:18: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:13: error: 'invalid-1' ANY LENGTH must be PIC X, PIC N or PIC 1
+[prog.cob:13: error: 'invalid-1' ANY LENGTH must be PIC X, PIC N or PIC 1
 prog.cob:14: error: 'invalid-2' ANY LENGTH must be PIC X, PIC N or PIC 1
 prog.cob:15: error: 'invalid-3' ANY LENGTH must be PIC X, PIC N or PIC 1
 prog.cob:16: error: 'invalid-4' ANY NUMERIC must be PIC 9
@@ -6457,8 +6442,7 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:8: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:12: warning: hexadecimal literal has zero length; X'00' will be assumed
+[prog.cob:12: warning: hexadecimal literal has zero length; X'00' will be assumed
 prog.cob:13: error: H literals must contain at least one character
 prog.cob:14: error: invalid Z literal: ''
 prog.cob:14: error: Z literals must contain at least one character
@@ -6471,8 +6455,7 @@ prog.cob:18: warning: Boolean literal has zero length; B'0' will be assumed
 prog.cob:19: warning: hexadecimal literal has zero length; X'00' will be assumed
 ])
 AT_CHECK([$COMPILE_ONLY -fzero-length-literals=error prog.cob], [1], [],
-[prog.cob:8: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:12: error: zero-length literal used
+[prog.cob:12: error: zero-length literal used
 prog.cob:12: warning: hexadecimal literal has zero length; X'00' will be assumed
 prog.cob:13: error: H literals must contain at least one character
 prog.cob:14: error: invalid Z literal: ''
