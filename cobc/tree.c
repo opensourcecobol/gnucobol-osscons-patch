@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2001-2020 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch, Ron Norman,
-   Edward Hart
+   Edward Hart, OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -3255,7 +3255,6 @@ repeat:
 		case 'N':
 			if (!(category & PIC_NATIONAL)) {
 				category |= PIC_NATIONAL;
-				CB_UNFINISHED ("USAGE NATIONAL");
 			}
 			x_digits += n;
 			break;

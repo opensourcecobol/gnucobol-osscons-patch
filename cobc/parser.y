@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2001-2012, 2014-2020 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch,
-   Edward Hart
+   Edward Hart, OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -7417,7 +7417,6 @@ usage:
 | NATIONAL
   {
 	check_repeated ("USAGE", SYN_CLAUSE_5, &check_pic_duplicate);
-	CB_UNFINISHED ("USAGE NATIONAL");
   }
 ;
 
