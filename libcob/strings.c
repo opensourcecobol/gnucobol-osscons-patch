@@ -1,6 +1,7 @@
 /*
    Copyright (C) 2002-2014, 2016-2020, 2022-2023 Free Software Foundation, Inc.
-   Written by Keisuke Nishida, Roger While, Edward Hart, Simon Sobisch
+   Written by Keisuke Nishida, Roger While, Edward Hart, Simon Sobisch,
+   OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -754,6 +755,10 @@ cob_string_init (cob_field *dst, cob_field *ptr)
 		 || string_offset >= (int)string_dst->size) {
 			cob_set_exception (COB_EC_OVERFLOW_STRING);
 		}
+	}
+	if (COB_FIELD_TYPE (string_dst) == COB_TYPE_NATIONAL ||
+		COB_FIELD_TYPE (string_dst) == COB_TYPE_NATIONAL_EDITED) {
+		string_offset *= 2;
 	}
 }
 
