@@ -1537,8 +1537,7 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY -fodoslide prog.cob], [1], [],
-[prog.cob:57: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:18: error: 'non-existent' is not defined
+[prog.cob:18: error: 'non-existent' is not defined
 prog.cob:9: warning: FILE STATUS 'gs' is a numeric field, but I-O status codes are not numeric in general
 prog.cob:10: error: FILE STATUS 'hs' must be in WORKING-STORAGE, LOCAL-STORAGE or LINKAGE
 prog.cob:11: error: FILE STATUS 'js' must be an alphanumeric or numeric field

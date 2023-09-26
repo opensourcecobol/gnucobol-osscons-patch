@@ -1225,8 +1225,7 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
-[prog.cob:6: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:8: warning: BY CONTENT assumed for national item 'N'
+[prog.cob:8: warning: BY CONTENT assumed for national item 'N'
 ])
 
 AT_CLEANUP
@@ -1635,9 +1634,7 @@ prog.cob:37: error: a trailing +/- sign cannot follow a floating +/- string whic
 prog.cob:37: error: a trailing +/- sign may only occur once in a PICTURE string
 prog.cob:38: error: a Z or * which is before the decimal point cannot follow a floating currency symbol string which is before the decimal point
 prog.cob:39: error: a Z or * which is before the decimal point cannot follow a floating currency symbol string which is before the decimal point
-prog.cob:40: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
 prog.cob:40: error: A or X cannot follow N
-prog.cob:41: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
 prog.cob:41: error: N cannot follow A or X
 prog.cob:42: error: a Z or * which is before the decimal point cannot follow A or X
 prog.cob:43: error: A or X cannot follow .
@@ -1713,9 +1710,7 @@ prog.cob:37: error: a trailing +/- sign cannot follow a floating +/- string whic
 prog.cob:37: error: a trailing +/- sign may only occur once in a PICTURE string
 prog.cob:38: error: a Z or * which is before the decimal point cannot follow a floating currency symbol string which is before the decimal point
 prog.cob:39: error: a Z or * which is before the decimal point cannot follow a floating currency symbol string which is before the decimal point
-prog.cob:40: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
 prog.cob:40: error: A or X cannot follow N
-prog.cob:41: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
 prog.cob:41: error: N cannot follow A or X
 prog.cob:42: error: a Z or * which is before the decimal point cannot follow A or X
 prog.cob:43: error: A or X cannot follow .
