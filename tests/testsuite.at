@@ -81,3 +81,8 @@ m4_include([data_binary.at])		# USAGE BINARY
 m4_include([data_display.at])		# USAGE DISPLAY
 m4_include([data_packed.at])		# USAGE PACKED-DECIMAL
 m4_include([data_pointer.at])		# USAGE POINTER
+
+## NATIONAL Support
+AT_BANNER([NATIONAL Support])
+
+m4_include([i18n_sjis_pic-n.at])		# PIC N Support
