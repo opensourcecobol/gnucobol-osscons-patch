@@ -4685,6 +4685,7 @@ initialize_uniform_char (const struct cb_field *f,
 		case COB_TYPE_NUMERIC_DISPLAY:
 			return '0';
 		case COB_TYPE_ALPHANUMERIC:
+		case COB_TYPE_NATIONAL:
 			return ' ';
 		default:
 			return -1;
