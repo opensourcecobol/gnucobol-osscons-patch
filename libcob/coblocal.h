@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2007-2012, 2014-2023 Free Software Foundation, Inc.
-   Written by Roger While, Simon Sobisch, Ron Norman
+   Written by Roger While, Simon Sobisch, Ron Norman, OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -405,6 +405,20 @@ struct config_tbl {
 
 #define SETPOS(member)	offsetof(cob_settings,member),sizeof(cobsetptr->member),0,0
 
+/* I18N_UTF8: Full-width char(s) (sjis version). */
+#define COB_SJZERO	"\x82\x4f"
+#define COB_SJSPC	"\x81\x40"
+#define COB_SJBLK	"\x81\x40"
+#define COB_SJQUOT	"\x81\x68"
+#define COB_SJSLAS	"\x81\x5e"
+#define COB_SJCSIZ	2
+
+#define COB_ZENZERO	COB_SJZERO
+#define COB_ZENSPC	COB_SJSPC
+#define COB_ZENBLK	COB_SJBLK
+#define COB_ZENQUOT	COB_SJQUOT
+#define COB_ZENSLAS	COB_SJSLAS
+#define COB_ZENCSIZ	COB_SJCSIZ
 /* max sizes */
 
 /* Maximum bytes in a single/group field and for OCCURS,
