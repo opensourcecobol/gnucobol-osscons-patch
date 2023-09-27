@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2002-2012, 2014-2020 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch, Ron Norman,
-   Edwart Hard
+   Edwart Hard, OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -1106,6 +1106,355 @@ cob_move_alphanum_to_edited (cob_field *f1, cob_field *f2)
 	COB_PUT_SIGN (f1, sign);
 }
 
+static void
+cob_move_alphanum_to_national (cob_field *f1, cob_field *f2)
+{
+	/* I18N_UTF8: Use UTF-8 3bytes/char SPC for padding. */
+	unsigned char	*data1;
+	unsigned char	*data2;
+	size_t		size1;
+	size_t		size2;
+#ifndef	I18N_UTF8
+	int		i;
+#endif /*I18N_UTF8*/
+	int		len;
+
+	data1 = f1->data;
+	size1 = f1->size;
+	data2 = f2->data;
+	size2 = f2->size;
+	len = size2 - size1;
+	if (size1 >= size2) {
+		/* move string with truncation */
+		if (COB_FIELD_JUSTIFIED (f2)) {
+			memcpy (data2, data1+size1-size2, size2);
+		} else {
+			memcpy (data2, data1, size2);
+		}
+	} else {
+		/* move string with padding */
+		memset (data2, ' ', size2);
+		if (COB_FIELD_JUSTIFIED (f2)) {
+#ifndef	I18N_UTF8
+			for (i = 0; i < len; i += COB_ZENCSIZ) {
+				if (len-i >= COB_ZENCSIZ) {
+					memcpy (data2+i, COB_ZENBLK, COB_ZENCSIZ);
+				}
+			}
+#endif /*I18N_UTF8*/
+			memcpy (data2+len, data1, size1);
+		} else {
+#ifndef	I18N_UTF8
+			for (i = 0; i < len; i += COB_ZENCSIZ) {
+				if (len-i >= COB_ZENCSIZ) {
+					memcpy (data2+size1+i, COB_ZENBLK, COB_ZENCSIZ);
+				}
+			}
+#endif /*I18N_UTF8*/
+			memcpy (data2, data1, size1);
+		}
+	}
+}
+
+static void
+cob_move_alphanum_to_national_edited (cob_field *f1, cob_field *f2)
+{
+	const cob_pic_symbol	*p;
+	unsigned char	*max, *src, *dst;
+	int		repeat;
+	unsigned char	c;
+
+	src = COB_FIELD_DATA (f1);
+	max = src + COB_FIELD_SIZE (f1);
+	dst = f2->data;
+
+	/* move string with padding */
+	memset (dst, ' ', f2->size);
+
+	for (p = COB_FIELD_PIC (f2); p->symbol; ++p) {
+		c = p->symbol;
+		repeat = p->times_repeated;
+		for (; repeat > 0; --repeat) {
+			switch (c) {
+			case 'N':
+				if (src < max) {
+					*dst++ = *src++;
+					*dst++ = *src++;
+				} else {
+					memcpy (dst, COB_ZENBLK, COB_ZENCSIZ);
+					dst += COB_ZENCSIZ;
+				}
+				break;
+			case '/':
+				memcpy (dst, COB_ZENSLAS, COB_ZENCSIZ);
+				dst += COB_ZENCSIZ;
+				break;
+			case 'B':
+				memcpy (dst, COB_ZENSPC, COB_ZENCSIZ);
+				dst += COB_ZENCSIZ;
+				break;
+			case '0':
+				memcpy (dst, COB_ZENZERO, COB_ZENCSIZ);
+				dst += COB_ZENCSIZ;
+				break;
+			default:
+				*dst++ = '?';	/* invalid PIC */
+			}
+		}
+	}
+}
+
+static char *
+han2zen (char *str, int size, int *retsize)
+{
+	char		*buf, *p, *ptr;
+	unsigned char	c, d = '\0';
+	int		i;
+
+	p = str;
+	for (i = size-1; *p != '\0' && i >= 0; i--);
+
+	if (i >= 0) {
+		size = i;
+	}
+
+	buf = (char *)calloc (size*2+1, sizeof (char));
+
+	for (i = 0, ptr = str, p = buf; i < size; ptr++, i++) {
+		c = (unsigned char) *ptr;
+		switch (c) {
+		case    0x20: strcpy(p, "\x81\x40");p+=2;break;
+		case    0x21: strcpy(p, "\x81\x49");p+=2;break;
+		case    0x22: strcpy(p, "\x81\x68");p+=2;break;
+		case    0x23: strcpy(p, "\x81\x94");p+=2;break;
+		case    0x24: strcpy(p, "\x81\x90");p+=2;break;
+		case    0x25: strcpy(p, "\x81\x93");p+=2;break;
+		case    0x26: strcpy(p, "\x81\x95");p+=2;break;
+		case    0x27: strcpy(p, "\x81\x66");p+=2;break;
+		case    0x28: strcpy(p, "\x81\x69");p+=2;break;
+		case    0x29: strcpy(p, "\x81\x6A");p+=2;break;
+		case    0x2A: strcpy(p, "\x81\x96");p+=2;break;
+		case    0x2B: strcpy(p, "\x81\x7B");p+=2;break;
+		case    0x2C: strcpy(p, "\x81\x43");p+=2;break;
+		case    0x2D: strcpy(p, "\x81\x7C");p+=2;break;
+		case    0x2E: strcpy(p, "\x81\x44");p+=2;break;
+		case    0x2F: strcpy(p, "\x81\x5E");p+=2;break;
+		case    0x30: strcpy(p, "\x82\x4F");p+=2;break;
+		case    0x31: strcpy(p, "\x82\x50");p+=2;break;
+		case    0x32: strcpy(p, "\x82\x51");p+=2;break;
+		case    0x33: strcpy(p, "\x82\x52");p+=2;break;
+		case    0x34: strcpy(p, "\x82\x53");p+=2;break;
+		case    0x35: strcpy(p, "\x82\x54");p+=2;break;
+		case    0x36: strcpy(p, "\x82\x55");p+=2;break;
+		case    0x37: strcpy(p, "\x82\x56");p+=2;break;
+		case    0x38: strcpy(p, "\x82\x57");p+=2;break;
+		case    0x39: strcpy(p, "\x82\x58");p+=2;break;
+		case    0x3A: strcpy(p, "\x81\x46");p+=2;break;
+		case    0x3B: strcpy(p, "\x81\x47");p+=2;break;
+		case    0x3C: strcpy(p, "\x81\x83");p+=2;break;
+		case    0x3D: strcpy(p, "\x81\x81");p+=2;break;
+		case    0x3E: strcpy(p, "\x81\x84");p+=2;break;
+		case    0x3F: strcpy(p, "\x81\x48");p+=2;break;
+		case    0x40: strcpy(p, "\x81\x97");p+=2;break;
+		case    0x41: strcpy(p, "\x82\x60");p+=2;break;
+		case    0x42: strcpy(p, "\x82\x61");p+=2;break;
+		case    0x43: strcpy(p, "\x82\x62");p+=2;break;
+		case    0x44: strcpy(p, "\x82\x63");p+=2;break;
+		case    0x45: strcpy(p, "\x82\x64");p+=2;break;
+		case    0x46: strcpy(p, "\x82\x65");p+=2;break;
+		case    0x47: strcpy(p, "\x82\x66");p+=2;break;
+		case    0x48: strcpy(p, "\x82\x67");p+=2;break;
+		case    0x49: strcpy(p, "\x82\x68");p+=2;break;
+		case    0x4A: strcpy(p, "\x82\x69");p+=2;break;
+		case    0x4B: strcpy(p, "\x82\x6A");p+=2;break;
+		case    0x4C: strcpy(p, "\x82\x6B");p+=2;break;
+		case    0x4D: strcpy(p, "\x82\x6C");p+=2;break;
+		case    0x4E: strcpy(p, "\x82\x6D");p+=2;break;
+		case    0x4F: strcpy(p, "\x82\x6E");p+=2;break;
+		case    0x50: strcpy(p, "\x82\x6F");p+=2;break;
+		case    0x51: strcpy(p, "\x82\x70");p+=2;break;
+		case    0x52: strcpy(p, "\x82\x71");p+=2;break;
+		case    0x53: strcpy(p, "\x82\x72");p+=2;break;
+		case    0x54: strcpy(p, "\x82\x73");p+=2;break;
+		case    0x55: strcpy(p, "\x82\x74");p+=2;break;
+		case    0x56: strcpy(p, "\x82\x75");p+=2;break;
+		case    0x57: strcpy(p, "\x82\x76");p+=2;break;
+		case    0x58: strcpy(p, "\x82\x77");p+=2;break;
+		case    0x59: strcpy(p, "\x82\x78");p+=2;break;
+		case    0x5A: strcpy(p, "\x82\x79");p+=2;break;
+		case    0x5B: strcpy(p, "\x81\x6D");p+=2;break;
+		case    0x5C: strcpy(p, "\x81\x8F");p+=2;break;
+		case    0x5D: strcpy(p, "\x81\x6E");p+=2;break;
+		case    0x5E: strcpy(p, "\x81\x4F");p+=2;break;
+		case    0x5F: strcpy(p, "\x81\x51");p+=2;break;
+		case    0x60: strcpy(p, "\x81\x65");p+=2;break;
+		case    0x61: strcpy(p, "\x82\x81");p+=2;break;
+		case    0x62: strcpy(p, "\x82\x82");p+=2;break;
+		case    0x63: strcpy(p, "\x82\x83");p+=2;break;
+		case    0x64: strcpy(p, "\x82\x84");p+=2;break;
+		case    0x65: strcpy(p, "\x82\x85");p+=2;break;
+		case    0x66: strcpy(p, "\x82\x86");p+=2;break;
+		case    0x67: strcpy(p, "\x82\x87");p+=2;break;
+		case    0x68: strcpy(p, "\x82\x88");p+=2;break;
+		case    0x69: strcpy(p, "\x82\x89");p+=2;break;
+		case    0x6A: strcpy(p, "\x82\x8A");p+=2;break;
+		case    0x6B: strcpy(p, "\x82\x8B");p+=2;break;
+		case    0x6C: strcpy(p, "\x82\x8C");p+=2;break;
+		case    0x6D: strcpy(p, "\x82\x8D");p+=2;break;
+		case    0x6E: strcpy(p, "\x82\x8E");p+=2;break;
+		case    0x6F: strcpy(p, "\x82\x8F");p+=2;break;
+		case    0x70: strcpy(p, "\x82\x90");p+=2;break;
+		case    0x71: strcpy(p, "\x82\x91");p+=2;break;
+		case    0x72: strcpy(p, "\x82\x92");p+=2;break;
+		case    0x73: strcpy(p, "\x82\x93");p+=2;break;
+		case    0x74: strcpy(p, "\x82\x94");p+=2;break;
+		case    0x75: strcpy(p, "\x82\x95");p+=2;break;
+		case    0x76: strcpy(p, "\x82\x96");p+=2;break;
+		case    0x77: strcpy(p, "\x82\x97");p+=2;break;
+		case    0x78: strcpy(p, "\x82\x98");p+=2;break;
+		case    0x79: strcpy(p, "\x82\x99");p+=2;break;
+		case    0x7A: strcpy(p, "\x82\x9A");p+=2;break;
+		case    0x7B: strcpy(p, "\x81\x6F");p+=2;break;
+		case    0x7C: strcpy(p, "\x81\x62");p+=2;break;
+		case    0x7D: strcpy(p, "\x81\x70");p+=2;break;
+		case    0x7E: strcpy(p, "\x81\x60");p+=2;break;
+		case    0xA1: strcpy(p, "\x81\x42");p+=2;break;
+		case    0xA2: strcpy(p, "\x81\x75");p+=2;break;
+		case    0xA3: strcpy(p, "\x81\x76");p+=2;break;
+		case    0xA4: strcpy(p, "\x81\x41");p+=2;break;
+		case    0xA5: strcpy(p, "\x81\x45");p+=2;break;
+		case    0xA6: strcpy(p, "\x83\x92");p+=2;break;
+		case    0xA7: strcpy(p, "\x83\x40");p+=2;break;
+		case    0xA8: strcpy(p, "\x83\x42");p+=2;break;
+		case    0xA9: strcpy(p, "\x83\x44");p+=2;break;
+		case    0xAA: strcpy(p, "\x83\x46");p+=2;break;
+		case    0xAB: strcpy(p, "\x83\x48");p+=2;break;
+		case    0xAC: strcpy(p, "\x83\x83");p+=2;break;
+		case    0xAD: strcpy(p, "\x83\x85");p+=2;break;
+		case    0xAE: strcpy(p, "\x83\x87");p+=2;break;
+		case    0xAF: strcpy(p, "\x83\x62");p+=2;break;
+		case    0xB0: strcpy(p, "\x81\x5B");p+=2;break;
+		case    0xB1: strcpy(p, "\x83\x41");p+=2;break;
+		case    0xB2: strcpy(p, "\x83\x43");p+=2;break;
+		case    0xB3: strcpy(p, "\x83\x45");p+=2;break;
+		case    0xB4: strcpy(p, "\x83\x47");p+=2;break;
+		case    0xB5: strcpy(p, "\x83\x49");p+=2;break;
+		case    0xB6: strcpy(p, "\x83\x4A");p+=2;break;
+		case    0xB7: strcpy(p, "\x83\x4C");p+=2;break;
+		case    0xB8: strcpy(p, "\x83\x4E");p+=2;break;
+		case    0xB9: strcpy(p, "\x83\x50");p+=2;break;
+		case    0xBA: strcpy(p, "\x83\x52");p+=2;break;
+		case    0xBB: strcpy(p, "\x83\x54");p+=2;break;
+		case    0xBC: strcpy(p, "\x83\x56");p+=2;break;
+		case    0xBD: strcpy(p, "\x83\x58");p+=2;break;
+		case    0xBE: strcpy(p, "\x83\x5A");p+=2;break;
+		case    0xBF: strcpy(p, "\x83\x5C");p+=2;break;
+		case    0xC0: strcpy(p, "\x83\x5E");p+=2;break;
+		case    0xC1: strcpy(p, "\x83\x60");p+=2;break;
+		case    0xC2: strcpy(p, "\x83\x63");p+=2;break;
+		case    0xC3: strcpy(p, "\x83\x65");p+=2;break;
+		case    0xC4: strcpy(p, "\x83\x67");p+=2;break;
+		case    0xC5: strcpy(p, "\x83\x69");p+=2;break;
+		case    0xC6: strcpy(p, "\x83\x6A");p+=2;break;
+		case    0xC7: strcpy(p, "\x83\x6B");p+=2;break;
+		case    0xC8: strcpy(p, "\x83\x6C");p+=2;break;
+		case    0xC9: strcpy(p, "\x83\x6D");p+=2;break;
+		case    0xCA: strcpy(p, "\x83\x6E");p+=2;break;
+		case    0xCB: strcpy(p, "\x83\x71");p+=2;break;
+		case    0xCC: strcpy(p, "\x83\x74");p+=2;break;
+		case    0xCD: strcpy(p, "\x83\x77");p+=2;break;
+		case    0xCE: strcpy(p, "\x83\x7A");p+=2;break;
+		case    0xCF: strcpy(p, "\x83\x7D");p+=2;break;
+		case    0xD0: strcpy(p, "\x83\x7E");p+=2;break;
+		case    0xD1: strcpy(p, "\x83\x80");p+=2;break;
+		case    0xD2: strcpy(p, "\x83\x81");p+=2;break;
+		case    0xD3: strcpy(p, "\x83\x82");p+=2;break;
+		case    0xD4: strcpy(p, "\x83\x84");p+=2;break;
+		case    0xD5: strcpy(p, "\x83\x86");p+=2;break;
+		case    0xD6: strcpy(p, "\x83\x88");p+=2;break;
+		case    0xD7: strcpy(p, "\x83\x89");p+=2;break;
+		case    0xD8: strcpy(p, "\x83\x8A");p+=2;break;
+		case    0xD9: strcpy(p, "\x83\x8B");p+=2;break;
+		case    0xDA: strcpy(p, "\x83\x8C");p+=2;break;
+		case    0xDB: strcpy(p, "\x83\x8D");p+=2;break;
+		case    0xDC: strcpy(p, "\x83\x8F");p+=2;break;
+		case    0xDD: strcpy(p, "\x83\x93");p+=2;break;
+		case    0xDE:
+			/* Dakuten */
+			if ((d >= 0xB6 && d <= 0xC4) ||
+			    (d >= 0xCA && d <= 0xCE)) {
+				p--;
+				(*p)++;
+				p++;
+			} else if (d == 0xB3) {
+				p--;
+				*p = 0x94;
+				p++;
+			} else {
+				strcpy (p, "\x81\x4A");
+				p+=2;
+			}
+			break;
+		case    0xDF:
+			/* Han-dakuten */
+			if (d >= 0xCA && d <= 0xCE) {
+				p--;
+				(*p)+=2;
+				p++;
+			} else {
+				strcpy (p, "\x81\x4B");
+				p+=2;
+			}
+			break;
+		case     0:
+		case    255:
+			*p = *ptr;
+			p++;
+			*p = *ptr;
+			p++;
+			if (i+1 < size) {
+				if (*(ptr+1) == *ptr) {
+					ptr++;
+					i++;
+				}
+			}
+			break;
+		default:
+			if (0 < c && c < 0x20) {
+				strcpy (p, COB_SJSPC);
+				p += 2;
+			} else {
+				*p = *ptr;
+				p++;
+				ptr++;
+				*p = *ptr;
+				p++;
+				i++;
+			}
+			break;
+		}
+		d = c;
+	}
+	*p = '\0';
+	*retsize = p-buf;
+	return buf;
+}
+
+static char *
+judge_hankakujpn_exist (cob_field *src, cob_field *dst, int *size)
+{
+	char	*tmp_zenjpn_word = NULL;
+
+	if (src->size <= 0) {
+		return NULL;
+	}
+	if (strlen ((char*)src->data) > 0) {
+		tmp_zenjpn_word = han2zen ((char*)src->data, src->size, size);
+	}
+	return tmp_zenjpn_word;
+}
+
+
 /* MOVE dispatcher */
 
 static void
@@ -1132,6 +1481,32 @@ cob_move_all (cob_field *src, cob_field *dst)
 	unsigned char		*p;
 	size_t			digcount;
 	cob_field		temp;
+	cob_field_attr		attr;
+	char			*pTmp = NULL;
+	cob_field		tmpSrc;
+	int				size;
+	int				x_to_n = 0;
+	size_t			i;
+
+	if ((!(COB_FIELD_TYPE (src) == COB_TYPE_NATIONAL ||
+	       COB_FIELD_TYPE (src) == COB_TYPE_NATIONAL_EDITED)) &&
+	    (COB_FIELD_TYPE (dst) == COB_TYPE_NATIONAL ||
+	     COB_FIELD_TYPE (dst) == COB_TYPE_NATIONAL_EDITED)) {
+			pTmp = judge_hankakujpn_exist (src, dst, &size);
+					if (pTmp != NULL) {
+			tmpSrc.data = (unsigned char *)pTmp;
+			tmpSrc.size = size;
+		} else {
+			tmpSrc.size = 0;
+		}
+		x_to_n = 1;
+	}
+
+	if (x_to_n == 1) {
+		COB_ATTR_INIT (COB_TYPE_NATIONAL, 0, 0, 0, NULL);
+	} else {
+		COB_ATTR_INIT (COB_TYPE_ALPHANUMERIC, 0, 0, 0, NULL);
+	}
 
 	if (likely(COB_FIELD_IS_ALNUM(dst))) {
 		if (likely(src->size == 1)) {
@@ -1159,12 +1534,19 @@ cob_move_all (cob_field *src, cob_field *dst)
 	p = cob_malloc (digcount);
 	temp.size = digcount;
 	temp.data = p;
-	if (likely(src->size == 1)) {
-		memset (p, src->data[0], digcount);
-	} else {
-		size_t			i;
+	if ( x_to_n == 1 && tmpSrc.size > 1) {
+		temp.attr = &attr;
 		for (i = 0; i < digcount; ++i) {
-			p[i] = src->data[i % src->size];
+			p[i] = tmpSrc.data[i % tmpSrc.size];
+		}
+	} else {
+		if (likely(src->size == 1)) {
+			memset (p, src->data[0], digcount);
+		} else {
+			size_t			i;
+			for (i = 0; i < digcount; ++i) {
+				p[i] = src->data[i % src->size];
+			}
 		}
 	}
 
@@ -1213,29 +1595,50 @@ cob_init_table (void *tbl, const size_t len, const size_t occ)
 }
 
 void
-cob_move (cob_field *src, cob_field *dst)
+cob_move (cob_field *src_in, cob_field *dst)
 {
+	char	*pTmp = NULL;
+	int		size;
 	int		opt;
 	cob_field	temp;
 	unsigned char	data[4];
+	cob_field	srcfeild;
+	cob_field	*src;
 
-	if (src == dst) {
+	if (src_in == dst) {
 		return;
 	}
 	if (dst->size == 0) {
 		return;
 	}
-	if (unlikely (src->size == 0)) {
+	if (unlikely (src_in->size == 0)) {
 		temp.size = 1;
 		temp.data = data;
 		temp.attr = &const_alpha_attr;
 		data[0] = ' ';
 		data[1] = 0;
-		src = &temp;
+		src_in = &temp;
 	}
+
+	memcpy (&srcfeild, src_in, sizeof (cob_field));
+	src = &srcfeild;
+
 	if (COB_FIELD_TYPE (src) == COB_TYPE_ALPHANUMERIC_ALL) {
 		cob_move_all (src, dst);
 		return;
+	}
+
+	if (COB_FIELD_TYPE (src) != COB_TYPE_GROUP) {
+		if ((!(COB_FIELD_TYPE (src) == COB_TYPE_NATIONAL ||
+		       COB_FIELD_TYPE (src) == COB_TYPE_NATIONAL_EDITED)) &&
+		    (COB_FIELD_TYPE (dst) == COB_TYPE_NATIONAL ||
+		     COB_FIELD_TYPE (dst) == COB_TYPE_NATIONAL_EDITED)) {
+			pTmp = judge_hankakujpn_exist (src, dst, &size);
+			if (pTmp != NULL) {
+				src->data = (unsigned char *)pTmp;
+				src->size = size;
+			}
+		}
 	}
 
 	/* Non-elementary move */
@@ -1292,6 +1695,12 @@ cob_move (cob_field *src, cob_field *dst)
 				cob_move_alphanum_to_edited (src, dst);
 				return;
 			}
+		case COB_TYPE_NATIONAL:
+			cob_move_alphanum_to_national (src, dst);
+			break;
+		case COB_TYPE_NATIONAL_EDITED:
+			cob_move_alphanum_to_national_edited (src, dst);
+			break;
 		default:
 			cob_move_display_to_alphanum (src, dst);
 			return;
@@ -1515,6 +1924,12 @@ cob_move (cob_field *src, cob_field *dst)
 		case COB_TYPE_ALPHANUMERIC_EDITED:
 			cob_move_alphanum_to_edited (src, dst);
 			return;
+		case COB_TYPE_NATIONAL_EDITED:
+			cob_move_alphanum_to_national_edited (src, dst);
+			break;
+		case COB_TYPE_NATIONAL:
+			cob_move_alphanum_to_national (src, dst);
+			break;
 		default:
 			cob_move_alphanum_to_alphanum (src, dst);
 			return;

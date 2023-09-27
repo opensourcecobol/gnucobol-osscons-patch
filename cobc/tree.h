@@ -1,6 +1,7 @@
 /*
    Copyright (C) 2001-2012, 2014-2020 Free Software Foundation, Inc.
-   Written by Keisuke Nishida, Roger While, Simon Sobisch, Ron Norman
+   Written by Keisuke Nishida, Roger While, Simon Sobisch, Ron Norman,
+   OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -1955,6 +1956,7 @@ extern cb_tree		cb_build_ml_tree (struct cb_field *, const int,
 					   const int, cb_tree, cb_tree,
 					   cb_tree);
 extern cb_tree		cb_build_ml_suppress_checks (struct cb_ml_generate_tree *);
+extern char			*cb_get_hexword(char *name);
 
 
 /* parser.y */

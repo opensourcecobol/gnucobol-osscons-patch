@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2003-2020 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch,
-   Edward Hart
+   Edward Hart, OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -4551,6 +4551,7 @@ initialize_uniform_char (const struct cb_field *f,
 		case COB_TYPE_NUMERIC_DISPLAY:
 			return '0';
 		case COB_TYPE_ALPHANUMERIC:
+		case COB_TYPE_NATIONAL:
 			return ' ';
 		default:
 			return -1;

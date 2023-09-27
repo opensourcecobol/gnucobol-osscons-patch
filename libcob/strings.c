@@ -1,6 +1,7 @@
 /*
    Copyright (C) 2002-2014, 2016-2020 Free Software Foundation, Inc.
-   Written by Keisuke Nishida, Roger While, Edward Hart, Simon Sobisch
+   Written by Keisuke Nishida, Roger While, Edward Hart, Simon Sobisch,
+   OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -70,6 +71,7 @@ static size_t			inspect_size;
 static cob_u32_t		inspect_replacing;
 static int			inspect_sign;
 static cob_field		inspect_var_copy;
+static int			inspect_national;
 
 static cob_field		*string_dst;
 static cob_field		*string_ptr;
@@ -119,6 +121,8 @@ alloc_figurative (const cob_field *f1, const cob_field *f2)
 	size_t			size1;
 	size_t			size2;
 	size_t			n;
+	unsigned char		c1;
+	unsigned char		c2;			
 
 	size2 = f2->size;
 	if (size2 > figurative_size) {
@@ -130,11 +134,29 @@ alloc_figurative (const cob_field *f1, const cob_field *f2)
 	}
 	size1 = 0;
 	s = figurative_ptr;
-	for (n = 0; n < size2; ++n, ++s) {
-		*s = f1->data[size1];
-		size1++;
-		if (size1 >= f1->size) {
-			size1 = 0;
+	if (inspect_national) {
+		if (f1->data[size1] == '0') {
+			//ZEN ZERO
+			c1 = 0x82;
+			c2 = 0x4f;
+		} else if (f1->data[size1] == ' ') {
+			//ZEN SPACE
+			c1 = 0x82;
+			c2 = 0x40;
+		}
+		for (n = 0; n < size2; n = n + 2) {
+			*s = c1;
+			s++;
+			*s = c2;
+			s++;
+		}
+	} else {
+		for (n = 0; n < size2; ++n, ++s) {
+			*s = f1->data[size1];
+			size1++;
+			if (size1 >= f1->size) {
+				size1 = 0;
+			}
 		}
 	}
 	alpha_fld.size = size2;
@@ -284,6 +306,12 @@ cob_inspect_init (cob_field *var, const cob_u32_t replacing)
 	inspect_replacing = replacing;
 	inspect_start = NULL;
 	inspect_end = NULL;
+	if (COB_FIELD_TYPE (var) == COB_TYPE_NATIONAL ||
+	    COB_FIELD_TYPE (var) == COB_TYPE_NATIONAL_EDITED) {
+			inspect_national = 1;
+	} else {
+			inspect_national = 0;
+	}
 
 	digcount = inspect_size * sizeof (char);
 
@@ -477,6 +505,10 @@ cob_string_init (cob_field *dst, cob_field *ptr)
 		 || string_offset >= (int)string_dst->size) {
 			cob_set_exception (COB_EC_OVERFLOW_STRING);
 		}
+	}
+	if (COB_FIELD_TYPE (string_dst) == COB_TYPE_NATIONAL ||
+		COB_FIELD_TYPE (string_dst) == COB_TYPE_NATIONAL_EDITED) {
+		string_offset *= 2;
 	}
 }
 

@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2001-2020 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch, Ron Norman,
-   Edward Hart
+   Edward Hart, OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -3255,7 +3255,6 @@ repeat:
 		case 'N':
 			if (!(category & PIC_NATIONAL)) {
 				category |= PIC_NATIONAL;
-				CB_UNFINISHED ("USAGE NATIONAL");
 			}
 			x_digits += n;
 			break;
@@ -3454,7 +3453,7 @@ repeat:
 		if (c == 'C' || c == 'D') {
 			size += n;
 		}
-		if (c == 'N') {
+		if (c == 'N' || (category == PIC_NATIONAL_EDITED && (c == '0' || c == 'B' || c == '/'))) {
 			size += n * (COB_NATIONAL_SIZE - 1);
 		}
 
@@ -6618,4 +6617,37 @@ cb_build_ml_suppress_checks (struct cb_ml_generate_tree *tree)
 			     sizeof (struct cb_ml_suppress_checks));
 	check->tree = tree;
 	return CB_TREE (check);
+}
+
+
+char *
+cb_get_hexword (char *name)
+{
+	unsigned char	*p;
+	int		non_ascii = 0;
+	char		*rt = NULL, *p2;
+
+	for (p = (unsigned char *)name; *p; p++) {
+		if (0x80 & *p) {
+			non_ascii = 1;
+			break;
+		}
+	}
+	if (!non_ascii) {
+		rt = strdup (name);
+	} else {
+		rt = cobc_malloc (strlen (name) * 2 + 7);
+		p = (unsigned char *)name;
+		p2 = rt;
+		memcpy (p2, "___", 3);
+		p2 += 3;
+		while (*p) {
+			sprintf (p2, "%02X", *p++);
+			p2 += 2;
+		}
+		memcpy (p2, "___", 3);
+		p2 += 3;
+		*p2 = '\0';
+	}
+	return rt;
 }

@@ -1,7 +1,7 @@
 /*
    Copyright (C) 2001-2012, 2014-2020 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch, Edwart Hart,
-   Ron Norman
+   Ron Norman, OSS Consortium
 
    This file is part of GnuCOBOL.
 
@@ -175,6 +175,8 @@ static void *	copy_literal (cb_tree l);
 
 %s DECIMAL_IS_PERIOD DECIMAL_IS_COMMA
 %x PICTURE_STATE FUNCTION_STATE
+
+JPNWORD [\xA0-\xDF]|([\x81-\x9F\xE0-\xFC][\x40-\x7E\x80-\xFC])
 
 %%
 
@@ -867,7 +869,7 @@ H#[0-9A-Za-z]+ {
 	RETURN_TOK (LENGTH_OF);
 }
 
-[A-Z0-9\x80-\xFF]([_A-Z0-9\x80-\xFF-]*[A-Z0-9\x80-\xFF]+)? {
+([A-Z0-9\x80-\xFF]|{JPNWORD})(([_A-Z0-9\x80-\xFF-]|{JPNWORD})*([A-Z0-9\x80-\xFF]|{JPNWORD})+)? {
 	struct cb_level_78		*p78;
 	struct cb_intrinsic_table	*cbp;
 	struct cobc_reserved		*resptr;
@@ -877,6 +879,8 @@ H#[0-9A-Za-z]+ {
 	struct cb_program		*program;
 
 	cb_check_word_length ((unsigned int)yyleng, yytext);
+
+	yytext = cb_get_hexword (yytext);
 
 	/* Check Intrinsic FUNCTION name without keyword */
 	if ((cobc_in_procedure && (functions_are_all || cb_intrinsic_list ||
@@ -1292,17 +1296,26 @@ read_literal (const char mark, const char *type)
 	/* build literal with given size */
 	plex_buff[i] = 0;
 	if (type[0] != 'N') {
-		yylval = cb_build_alphanumeric_literal (plex_buff, i);
-	} else {
-		if (type[1] != 'C') {
-			if (cb_verify (cb_national_literals, _("national literal"))) {
-				CB_UNFINISHED (_("national literal"));
+		if(i % 2 == 0){
+			int j;
+			for (j = 0; j < i; j += 2) {
+				if ((0x81 <= plex_buff[j] && plex_buff[j] <= 0x9F) ||
+				(0xE0 <= plex_buff[j] && plex_buff[j] <= 0xFC)) {
+					if(!((0x40 <= plex_buff[j + 1] && plex_buff[j + 1] <= 0x7E) ||
+					(0x80 <= plex_buff[j + 1] && plex_buff[j + 1] <= 0xFC))) {
+						break;
+					}
+				} else {
+					break;
+				}
 			}
-		} else {
-			if (cb_verify (cb_nationalc_literals, _("national-character literal"))) {
-				CB_UNFINISHED (_("national literal"));
+			if(i != 0 && j == i){
+				yylval = cb_build_national_literal (plex_buff, j);
+				return;
 			}
 		}
+		yylval = cb_build_alphanumeric_literal (plex_buff, i);
+	} else {
 		yylval = cb_build_national_literal (plex_buff, i);
 	}
 }
@@ -1367,7 +1380,6 @@ scan_x (const char *text, const char *type)
 		if (!cb_verify (cb_national_hex_literals, _("hexadecimal-national literal"))) {
 			goto error; /* early exit possible as complete literal is consumed */
 		}
-		CB_UNFINISHED (_("national literal"));
 		result_len = curr_len / (2 * COB_NATIONAL_SIZE); /* national characters */
 	}
 	if (unlikely (result_len > cb_lit_length)) {
