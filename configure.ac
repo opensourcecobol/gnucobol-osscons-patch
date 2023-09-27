@@ -23,11 +23,11 @@
 
 AC_PREREQ([2.64])
 
-AC_INIT([GnuCOBOL],
-	[3.1.2],
-	[bug-gnucobol@gnu.org],
+AC_INIT([GnuCOBOL OSS Consortium patch],
+	[3.1.2 patch2],
+	[ws-opensource-cobol-contact@osscons.jp],
 	[gnucobol],
-	[https://www.gnu.org/software/gnucobol/])
+	[https://github.com/opensourcecobol/gnucobol-osscons-patch])
 AC_REVISION([GnuCOBOL snapshot $Revision: 4106 $])
 AC_CONFIG_SRCDIR([libcob.h])
 AC_CONFIG_HEADERS([config.h])
