@@ -1,5 +1,25 @@
 NEWS - user visible changes				-*- outline -*-
 
+ GnuCOBOL 3.1.2 patch1 released  (20230929) by OSS Consortium.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Support for NATIONAL item
+
+** Support for constants (including SPACE, ZERO, and QUATE), data, section, and variable names in Japanese (Shift-JIS encoded) NATIONAL items.
+
+** Support to convert strings to double-byte characters when moving data items from "X" to "N" PICTURE symbols.
+
+** Support for the reference modification at NATIONAL item.
+
+** Support for the use of NATIONAL item in STRING and INSPECT statements.
+
+* TODO
+
+** We plan to release a patch compatible with GnuCOBOL3.2.0 in 2023.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
  GnuCOBOL 3.1.2 patch1 released  (20230208) by OSS Consortium.
  GnuCOBOL 3.1.2 released (20201223)
  GnuCOBOL 3.1.1 released (20201208) containing INITIALIZE bug #694
