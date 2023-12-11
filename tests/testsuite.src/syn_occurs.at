@@ -1,4 +1,4 @@
-## Copyright (C) 2003-2012, 2015-2019 Free Software Foundation, Inc.
+## Copyright (C) 2003-2012, 2015-2019,2021-2023 Free Software Foundation, Inc.
 ## Written by Keisuke Nishida, Roger While, Simon Sobisch, Edward Hart
 ##
 ## This file is part of GnuCOBOL.
@@ -43,9 +43,9 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY -std=cobol2014 prog.cob], [1], [],
-[prog.cob:6: error: level 01 item 'X-01' cannot have a OCCURS clause
-prog.cob:7: error: level 01 item 'G' cannot have a OCCURS clause
-prog.cob:11: error: level 77 item 'X-77' cannot have a OCCURS clause
+[prog.cob:6: error: 01/77 OCCURS does not conform to COBOL 2014
+prog.cob:7: error: 01/77 OCCURS does not conform to COBOL 2014
+prog.cob:11: error: 01/77 OCCURS does not conform to COBOL 2014
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
@@ -94,7 +94,7 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:7: error: syntax error, unexpected OCCURS, expecting .
+[prog.cob:7: error: syntax error, unexpected OCCURS
 ])
 
 AT_CLEANUP
@@ -112,7 +112,7 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:6: error: syntax error, unexpected OCCURS, expecting .
+[prog.cob:6: error: syntax error, unexpected OCCURS
 ])
 
 AT_CLEANUP
@@ -130,8 +130,10 @@ AT_DATA([prog.cob], [
            88  y VALUE "a" OCCURS 10.
 ])
 
+# note: the message is from level-88 content-validation entry format,
+#       which is mixed in the parser (as it may be used as) condition format
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:7: error: syntax error, unexpected OCCURS, expecting .
+[prog.cob:7: error: syntax error, unexpected OCCURS
 ])
 
 AT_CLEANUP
@@ -139,7 +141,7 @@ AT_CLEANUP
 # 1b) with ODO below (allowed with IBM extension)
 
 AT_SETUP([OCCURS with variable-occurrence data item])
-AT_KEYWORDS([nested depending extensions odo])
+AT_KEYWORDS([nested depending extensions odo odoslide directive])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
@@ -169,8 +171,49 @@ AT_DATA([prog2.cob], [
 
 ])
 
+AT_DATA([prog3.cob], [
+       $SET ODOSLIDE
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G-1.
+         02 G-2         OCCURS 10.
+           03 X         PIC X(10) OCCURS 1 TO 4 DEPENDING ON I.
+       77 I             PIC 9.
+])
+
+AT_DATA([prog4.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G-1.
+         02 G-2         OCCURS 10.
+           03 X         PIC X(10) OCCURS 1 TO 4 DEPENDING ON I.
+       77 I             PIC X.
+])
+
+AT_DATA([prog5.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G-1.
+         05 G-1-F1      PIC  X(002).
+         05 G-2.
+          07 G-3
+            OCCURS 1 TO 99999
+            DEPENDING ON     G-3-ELEMENTS
+            ASCENDING KEY IS G-4-KEY
+            INDEXED BY       IND.
+           10 G-4.
+             15 N       PIC  9(001).
+      *
+])
+
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:7: error: 'G-2' cannot have the OCCURS clause due to 'X'
+[prog.cob:7: error: 'G-2' cannot have an OCCURS clause due to 'X'
 ])
 
 AT_CHECK([$COMPILE_ONLY -fcomplex-odo prog.cob], [0], [], [])
@@ -180,6 +223,133 @@ AT_CHECK([$COMPILE_ONLY -fcomplex-odo prog2.cob], [1], [],
 ])
 
 AT_CHECK([$COMPILE_ONLY -fodoslide prog2.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY prog3.cob prog2.cob], [1], [],
+[prog2.cob:7: error: 'G-2' cannot have an OCCURS clause due to 'X'
+prog2.cob:8: error: 'X' cannot have nested OCCURS DEPENDING
+])
+
+AT_CHECK([$COMPILE_ONLY prog4.cob], [1], [],
+[prog4.cob:7: error: 'G-2' cannot have an OCCURS clause due to 'X'
+prog4.cob:8: error: 'I' is not numeric
+])
+
+AT_CHECK([$COMPILE_ONLY -fcomplex-odo prog4.cob], [1], [],
+[prog4.cob:8: error: 'I' is not numeric
+])
+
+AT_CHECK([$COMPILE_ONLY prog5.cob], [1], [],
+[prog5.cob:11: error: 'G-3-ELEMENTS' is not defined
+prog5.cob:12: error: 'G-4-KEY IN G-2 IN G-1' is not defined
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([OCCURS UNBOUNDED])
+#AT_KEYWORDS([ibm])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       LINKAGE  SECTION.
+       01 G-1.
+          07 G-2-ELEMENTS   PIC 9(08).
+          07 G-2
+            OCCURS UNBOUNDED
+            DEPENDING ON    G-2-ELEMENTS.
+           10 X             PIC X.
+        PROCEDURE DIVISION USING G-1.
+           DISPLAY G-1.
+           GOBACK.
+])
+
+AT_DATA([prog2.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       LINKAGE  SECTION.
+       01 G-1.
+         05 G-1-F1          PIC X(22).
+         05 G-1-F2          PIC X(12).
+         05 G-2.
+          07 G-3-ELEMENTS   PIC 9(08).
+          07 G-3
+            OCCURS UNBOUNDED
+            DEPENDING ON    G-3-ELEMENTS.
+           10 G-4.
+             15 X           PIC  9(22).
+        PROCEDURE DIVISION USING G-1.
+           DISPLAY G-1.
+           GOBACK.
+])
+
+AT_DATA([bad.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G-1.
+          07 G-2-ELEMENTS   PIC 9(08).
+          07 G-2
+            OCCURS UNBOUNDED
+            DEPENDING ON    G-2-ELEMENTS.
+           10 X             PIC X.
+])
+
+AT_DATA([bad2.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G-1.
+         05 G-1-F1          PIC X(22).
+         05 G-2.
+          07 G-3-ELEMENTS   PIC 9(08).
+          07 G-3
+             OCCURS UNBOUNDED.
+           10 G-4.
+             15 X           PIC  9(22).
+])
+
+AT_DATA([bad3.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 G-1.
+         05 G-1-F1          PIC X(22).
+         05 G-1-F2          PIC X(12).
+         05 G-2.
+          07 G-3
+            OCCURS UNBOUNDED
+            DEPENDING ON    G-3-ELEMENTS.
+           10 G-4.
+             15 X           PIC  9(22).
+])
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -std=ibm-strict prog.cob], [0], [], [])
+
+# TODO: opt to a different path, if UNBOUNDED is not reserved
+AT_CHECK([$COMPILE_ONLY -std=cobol2014  prog.cob], [1], [],
+[prog.cob:9: error: syntax error, unexpected Identifier, expecting UNBOUNDED
+])
+
+AT_CHECK([$COMPILE_ONLY prog2.cob], [0], [], [])
+
+AT_CHECK([$COMPILE_ONLY bad.cob], [1], [],
+[bad.cob:8: error: 'G-2' is not in LINKAGE SECTION
+])
+
+AT_CHECK([$COMPILE_ONLY bad2.cob], [1], [],
+[bad2.cob:11: error: syntax error, unexpected ., expecting DEPENDING
+])
+
+AT_CHECK([$COMPILE_ONLY bad3.cob], [1], [],
+[bad3.cob:10: error: 'G-3' is not in LINKAGE SECTION
+bad3.cob:12: error: 'G-3-ELEMENTS' is not defined
+])
 
 AT_CLEANUP
 
@@ -194,7 +364,7 @@ AT_DATA([prog.cob], [
        PROGRAM-ID. prog.
        DATA  DIVISION.
        WORKING-STORAGE SECTION.
-       01  TAB.
+       01  . *> the "filler" explicit checks bugs #699 and #776
            05  TAB-ENTRY1
                   OCCURS 5 TIMES
                   ASCENDING KEY IS X1
@@ -377,7 +547,7 @@ prog.cob:12: error: 'MISSING' is not defined
 AT_CHECK([$COMPILE_ONLY -frelax-syntax prog.cob], [1], [],
 [prog.cob:8: warning: OCCURS DEPENDING ON without TO phrase used
 prog.cob:10: warning: TO phrase without DEPENDING phrase
-prog.cob:10: warning: maximum number of occurrences assumed to be exact number
+prog.cob:10: note: maximum number of occurrences assumed to be exact number
 prog.cob:12: error: 'MISSING' is not defined
 ])
 

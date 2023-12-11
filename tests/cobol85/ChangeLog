@@ -1,4 +1,55 @@
 
+2023-06-02  Simon Sobisch <simonsobisch@gnu.org>
+
+	* report.pl: place stderr from test runs into .out file
+
+2023-04-07  Simon Sobisch <simonsobisch@gnu.org>
+
+	* report.pl: check "cobc_flags" also for building lib;
+	  ignore GO TO section for IC115A
+	* report.pl: move "cobol_default_flags" into separate variable and always
+	  include --debug in there; drop the "no_debug" array in favor of setting
+	  reasonable cobc_flags with specific suppression check
+	* Makefile.module.in: doc/todo notes
+
+2023-01-05  Simon Sobisch <simonsobisch@gnu.org>
+
+	* Makefile.am: pass appropriate flags to cobc for compiling
+
+2022-12-22  Simon Sobisch <simonsobisch@gnu.org>
+
+	* Makefile.am: ensure to not create half-baked module directories,
+	  added "modules" to .PHONY target; always set COB_UNIX_LF for
+	  executing EXEC85 to be identical to the later testsuite run
+
+2022-12-12  Simon Sobisch <simonsobisch@gnu.org>
+
+	* Makefile.am, Makefile.module.in: use PERL via variable,
+	  default is substituted from configure
+	* Makefile.am: adjusted URL_NEWCOB_TAR_GZ as old value (SF download area)
+	  uses javascript-forwarding which does not work with command line tools
+
+2022-10-11  Simon Sobisch <simonsobisch@gnu.org>
+
+	* Makefile.module.in: added and adjusted clean targets
+
+2022-10-04  Simon Sobisch <simonsobisch@gnu.org>
+
+	* Makefile.am, Makefile.module.in: added targets test-local (compile + run
+	  with installed/active installation) and test-local-compat (compile with
+	  installed/active installation, run with version in top_builddir)
+
+2022-04-11  Simon Sobisch <simonsobisch@gnu.org>
+
+	* report.pl: add COBOL_FLAGS from environment to cobc command line
+	  as done for the internal testsuite
+
+2021-12-30  Simon Sobisch <simonsobisch@gnu.org>
+
+	* report.pl: check for SIGINT also unmasked (as seen on AIX)
+	* Makefile.am: improved support for make implementations without the
+	  POSIX 2001 special target .PHONY; always use $(RM)
+
 2020-11-30  Simon Sobisch <simonsobisch@gnu.org>
 
 	* Makefile.am: (newcob.val.Z, newcob.val.tar.gz): raise error message
@@ -18,7 +69,7 @@
 
 	* Makefile.am: ensure that the all target comes first as .PHONY is
 	  not mandated by POSIX; renamed "lib" target to "libs" to cater for
-	  make implementations without .PHONY support;
+	  make implementations without .PHONY support
 	* report.pl: fixed warnings when running single test (open LOG_TIME)
 	* report.pl: adjusted log output to include stdin redirect
 
@@ -345,7 +396,7 @@
 	* SQ.txt, summary.txt : We now pass the LINAGE tests
 
 
-Copyright 2005-2010,2015-2020 Free Software Foundation, Inc.
+Copyright 2005-2010,2015-2020,2022-2023 Free Software Foundation, Inc.
 
 Copying and distribution of this file, with or without modification, are
 permitted provided the copyright notice and this notice are preserved.

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2001-2020 Free Software Foundation, Inc.
+   Copyright (C) 2001-2023 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch, Ron Norman,
    Edward Hart
 
@@ -20,28 +20,36 @@
 */
 
 
-#include <config.h>
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+#ifdef	HAVE_STRINGS_H
+#include <strings.h>
+#endif
 #include <ctype.h>
 #include <limits.h>
 
 #include "cobc.h"
 #include "tree.h"
+#include "../libcob/coblocal.h"
 
 /* sanity checks */
-#if COB_MAX_FIELD_SIZE > INT_MAX
+#if COB_MAX_FIELD_SIZE >= INT_MAX
 #error COB_MAX_FIELD_SIZE is too big, must be less than INT_MAX
 #endif
-#if COB_MAX_UNBOUNDED_SIZE > INT_MAX
+#if COB_MAX_FIELD_SIZE_LINKAGE >= INT_MAX
+#error COB_MAX_FIELD_SIZE_LINKAGE is too big, must be less than INT_MAX
+#endif
+#if COB_MAX_UNBOUNDED_SIZE >= INT_MAX
 #error COB_MAX_UNBOUNDED_SIZE is too big, must be less than INT_MAX
 #endif
 
 /* Function prototypes */
 static unsigned int	validate_field_1 (struct cb_field *f);
+static unsigned int validate_multi_value (const struct cb_field * const f);
 
 /* Global variables */
 
@@ -60,7 +68,7 @@ static char			op_prec	[CB_MAX_OPS+1];
 static cob_s64_t	op_val	[CB_MAX_OPS+1];
 static int			op_scale[CB_MAX_OPS+1];
 
-/* Is list of values really an expression */
+/* Is constant expression list in value really an expression? */
 static int
 cb_is_expr (cb_tree ch)
 {
@@ -68,7 +76,7 @@ cb_is_expr (cb_tree ch)
 	int				num;
 
 	if (op_pos >= 0) {
-		for (num=0; num < CB_MAX_OPS; num++) {
+		for (num = 0; num < CB_MAX_OPS; num++) {
 			op_type [num] = ' ';
 			op_prec [num] = 0;
 			op_val	[num] = 0;
@@ -369,7 +377,7 @@ cb_get_level (cb_tree x)
 		if (!isdigit ((int)(*p))) {
 			goto level_error;
 		}
-		level = level * 10 + (*p - '0');
+		level = level * 10 + (COB_D2I(*p));
 		if (level > 88) {
 			goto level_error;
 		}
@@ -398,7 +406,7 @@ level_error:
 }
 
 cb_tree
-cb_build_field_tree (cb_tree level, cb_tree name, struct cb_field *last_field,
+cb_build_field_tree (const int level, cb_tree name, struct cb_field *last_field,
 		     enum cb_storage storage, struct cb_file *fn,
 		     const int expl_level)
 {
@@ -418,7 +426,7 @@ cb_build_field_tree (cb_tree level, cb_tree name, struct cb_field *last_field,
 			return cb_error_node;
 		}
 		/* Check the level number */
-		lv = cb_get_level (level);
+		lv = level;
 #if 0 /*level is always valid --> 01 thru 49, 77, 66, 78, 88 */
 		if (!lv) {
 			return cb_error_node;
@@ -450,26 +458,27 @@ cb_build_field_tree (cb_tree level, cb_tree name, struct cb_field *last_field,
 		}
 	}
 	if (last_field) {
-		if (last_field->level == 77 && f->level != 01 &&
-			f->level != 77 && f->level != 66 && f->level != 88) {
+		if (last_field->level == 77 && f->level != 01
+		 && f->level != 77 && f->level != 66 && f->level != 88) {
 			cb_error_x (name, _("level number must begin with 01 or 77"));
 			return cb_error_node;
 		}
 	}
 
 	/* Checks for redefinition */
-	if (cb_warn_opt_val[cb_warn_redefinition]
+	if (get_warn_opt_value (cb_warn_redefinition)
 	 && r->word->count > 1 && !r->flag_filler_ref) {
 		if (f->level == 01 || f->level == 77) {
 			redefinition_warning (name, NULL);
 		} else {
 			for (l = r->word->items; l; l = CB_CHAIN (l)) {
 				x = CB_VALUE (l);
-				if (!CB_FIELD_P (x) ||
-				    CB_FIELD (x)->level == 01 ||
-				    CB_FIELD (x)->level == 77 ||
-				    (last_field && f->level == last_field->level &&
-				     CB_FIELD (x)->parent == last_field->parent)) {
+				if (!CB_FIELD_P (x)
+				 || CB_FIELD (x)->level == 01
+				 || CB_FIELD (x)->level == 77
+				 || ( last_field
+				   && f->level == last_field->level
+				   && CB_FIELD (x)->parent == last_field->parent)) {
 					redefinition_warning (name, x);
 					break;
 				}
@@ -530,13 +539,11 @@ same_level:
 				break;
 			}
 		}
-		if (cb_relax_level_hierarchy
-		 && p /* <- silence warnings */) {
+		/* always generate dummy filler field to prevent
+		   parsing of follow-on fields to fail the same way */
+		if (p) /* <- silence warnings */ {
 			dummy_fill = cb_build_filler ();
 			field_fill = CB_FIELD (cb_build_field (dummy_fill));
-			cb_warning_x (COBC_WARN_FILLER, name,
-				      _("no previous data item of level %02d"),
-				      f->level);
 			field_fill->level = f->level;
 			field_fill->flag_filler = 1;
 			field_fill->storage = storage;
@@ -549,11 +556,15 @@ same_level:
 			field_fill->sister = f;
 			f->parent = field_fill->parent;
 			/* last_field = field_fill; */
+		}
+		if (cb_relax_level_hierarchy) {
+			cb_warning_x (COBC_WARN_FILLER, name,
+				_("no previous data item of level %02d"),
+				f->level);
 		} else {
 			cb_error_x (name,
-				    _("no previous data item of level %02d"),
-				    f->level);
-			return cb_error_node;
+				_("no previous data item of level %02d"),
+				f->level);
 		}
 	}
 
@@ -568,6 +579,13 @@ same_level:
 		if (f->level <= 66) {
 			f->flag_volatile = parent->flag_volatile;
 		}
+		if (f->storage == CB_STORAGE_SCREEN) {
+			f->screen_foreg   = parent->screen_foreg;
+			f->screen_backg   = parent->screen_backg;
+			f->screen_prompt  = parent->screen_prompt;
+			f->screen_control = parent->screen_control;
+			f->screen_color   = parent->screen_color;
+		}
 	}
 
 	return CB_TREE (f);
@@ -578,18 +596,17 @@ cb_build_full_field_reference (struct cb_field* field)
 {
 	cb_tree ret = NULL;
 	cb_tree ref = NULL;
-	cb_tree rchain = NULL;
 
-	while (field) {
-		if (field->flag_filler) continue;
-		rchain = cb_build_reference (field->name);
-		if (ref) {
-			CB_REFERENCE (ref)->chain = rchain;
-		} else {
-			ret = rchain;
+	for (; field; field = field->parent) {
+		if (!field->flag_filler) {
+			cb_tree rchain = cb_build_reference (field->name);
+			if (ref) {
+				CB_REFERENCE (ref)->chain = rchain;
+			} else {
+				ret = rchain;
+			}
+			ref = rchain;
 		}
-		ref = rchain;
-		field = field->parent;
 	}
 
 	return ret;
@@ -602,7 +619,7 @@ cb_resolve_redefines (struct cb_field *field, cb_tree redefines)
 	struct cb_reference	*r;
 	const char		*name;
 	cb_tree			x;
-	cb_tree			candidate;
+	cb_tree			candidate = NULL;
 	cb_tree			items;
 
 	r = CB_REFERENCE (redefines);
@@ -621,31 +638,32 @@ cb_resolve_redefines (struct cb_field *field, cb_tree redefines)
 		return NULL;
 	}
 
-	/* Resolve the name in the current group (if any) */
-	if (field->parent && field->parent->children) {
-		for (f = field->parent->children; f; f = f->sister) {
-			if (strcasecmp (f->name, name) == 0) {
-				break;
-			}
+	/* Get last defined name */
+	/* note: chaining over these are much faster than chaining over the complete
+	         parent using strcasecmp */
+	for (items = r->word->items; items; items = CB_CHAIN (items)) {
+		const cb_tree value = CB_VALUE (items);
+		if (value != x && CB_FIELD_P (value)) {
+			candidate = value;
+			/* we want to get the last, so no "break" here */
 		}
-		if (f == NULL) {
-			cb_error_x (x, _("'%s' is not defined in '%s'"), name, field->parent->name);
-			return NULL;
-		}
-	} else {
-		/* Get last defined name */
-		candidate = NULL;
-		items = r->word->items;
-		for (; items; items = CB_CHAIN (items)) {
-			if (CB_FIELD_P (CB_VALUE (items))) {
-				candidate = CB_VALUE (items);
-			}
-		}
-		if (!candidate) {
+	}
+	if (!candidate) {
+		if (field->parent) {
+			cb_error_x (x, _("'%s' is not defined in '%s'"),
+				name, field->parent->name);
+		} else {
 			undefined_error (redefines);
-			return NULL;
 		}
-		f = CB_FIELD_PTR (candidate);
+		return NULL;
+	}
+	f = CB_FIELD_PTR (candidate);
+
+	/* Check if candidate is in the current group (if any) */
+	if (field->parent && field->parent != f->parent) {
+		cb_error_x (x, _ ("'%s' is not defined in '%s'"),
+			name, field->parent->name);
+		return NULL;
 	}
 
 	/* Check level number */
@@ -669,16 +687,62 @@ cb_resolve_redefines (struct cb_field *field, cb_tree redefines)
 static void copy_into_field_recursive (struct cb_field *, struct cb_field *, const int);
 
 static void
+copy_duplicated_field_into_field (struct cb_field *field, struct cb_field *target,
+	const int level, const int outer_indexes, const enum cb_storage storage)
+{
+	cb_tree	x;
+	if (!field->flag_filler && field->name) {
+		x = cb_build_field_tree (0, cb_build_reference (field->name),
+			target, storage, NULL, level);
+	} else {
+		x = cb_build_field_tree (0, cb_build_filler (),
+			target, storage, NULL, level);
+	}
+	if (x == cb_error_node) {
+		return;
+	}
+	copy_into_field_recursive (field, CB_FIELD (x), outer_indexes);
+}
+
+static void
+copy_validation (struct cb_field *source, struct cb_field *target)
+{
+	struct cb_field *val, *last_val;
+#if 0 /* in case we want to allow combining condition-names of typedef and field */
+	for (last_val = target->validation; last_val; last_val = last_val->sister) {
+		/* get to the last validation entry*/
+		if (!last_val->sister) {
+			break;
+		}
+	}
+#else
+	if (target->validation) {
+		(void) cb_syntax_check_x (CB_TREE (target->validation), _("duplicate %s"), "level  88");
+	}
+#endif
+	for (val = source->validation; val; val = val->sister) {
+		/* create content-name and link into the reference list */
+		cb_tree x = cb_build_field_tree (88, cb_build_reference (val->name),
+			target, target->storage, target->file, 0);
+		last_val = CB_FIELD (x);
+		/* directly assign the typef's value + false (no need for copy) */
+		last_val->values = val->values;
+		last_val->false_88 = val->false_88;
+	}
+}
+
+static void
 copy_children (struct cb_field *child, struct cb_field *target,
 	const int level, const int outer_indexes, const enum cb_storage storage)
 {
 	int level_child;
-	cb_tree n, x;
 
 	if (child->level > level) {
 		level_child = child->level;
 	} else {
 		level_child = level + 1;
+		/* ensure that we don't set the "virtual level number" to one of
+		   the "special" level numbers */
 		if (level_child == 66 || level_child == 78 || level_child == 88) {
 			level_child++;
 		} else if (level_child == 77) {
@@ -686,15 +750,8 @@ copy_children (struct cb_field *child, struct cb_field *target,
 		}
 	}
 
-	if (child->name) {
-		n = cb_build_reference (child->name);
-	} else {
-		n = cb_build_filler ();
-	}
-	x = cb_build_field_tree (NULL, n, target, storage, NULL, level_child);
-	if (x != cb_error_node) {
-		copy_into_field_recursive (child, CB_FIELD (x), outer_indexes);
-	}
+	copy_duplicated_field_into_field (child, target, level_child,
+		outer_indexes, storage);
 }
 
 #define field_attribute_copy(attribute)	\
@@ -708,10 +765,10 @@ copy_into_field_recursive (struct cb_field *source, struct cb_field *target,
 {
 	field_attribute_override (usage);
 
-	/* checkme: how to handle DEPENDING and INDICES here ? */
 	field_attribute_override (occurs_min);
 	field_attribute_override (occurs_max);
 	field_attribute_override (flag_occurs);
+
 	if (CB_VALID_TREE (source->depending)) {
 #if 0	/* TODO: check if DEPENDING field is part of the original TYPEDEF,
 		   if yes then full-qualify the reference */
@@ -735,18 +792,16 @@ copy_into_field_recursive (struct cb_field *source, struct cb_field *target,
 	}
 	field_attribute_override (nkeys);
 	if (source->keys) {
-		cb_tree ref = NULL;
-		cb_tree rchain = NULL;
 		int	i;
 
-		/* create reference chaing all the way up
+		/* create reference chain all the way up
 		   as later fields may have same name */
-		rchain = cb_build_full_field_reference (target);
+		const cb_tree rchain = cb_build_full_field_reference (target);
 
 		target->keys = cobc_parse_malloc (sizeof (struct cb_key) * target->nkeys);
 		for (i = 0; i < target->nkeys; i++) {
 			const struct cb_reference* r = CB_REFERENCE (source->keys[i].key);
-			ref = cb_build_reference (r->word->name);
+			const cb_tree ref = cb_build_reference (r->word->name);
 			CB_REFERENCE (ref)->chain = rchain;
 			target->keys[i].key = ref;
 			CB_ADD_TO_CHAIN (ref, current_program->reference_list);
@@ -775,34 +830,40 @@ copy_into_field_recursive (struct cb_field *source, struct cb_field *target,
 	field_attribute_override (flag_sign_leading);
 	field_attribute_override (flag_sign_separate);
 	field_attribute_override (flag_synchronized);
-	field_attribute_override (flag_item_based);
+	field_attribute_override (flag_sync_right);
+	field_attribute_override (flag_sync_left);
 	field_attribute_override (flag_any_length);
 	field_attribute_override (flag_any_numeric);
 	field_attribute_override (flag_invalid);
+	field_attribute_override (flag_item_based);
+	field_attribute_override (flag_is_pointer);
+	/* Note: attributes must be handled both here and in copy_into_field */
+
+	/* TODO: add copying of align clause and other boolean/bit stuff once added */
 
 	if (CB_VALID_TREE (source->redefines)) {
 		cb_tree ref = cb_build_reference (source->redefines->name);
 		target->redefines = cb_resolve_redefines (target, ref);
 	}
 
+	/* copy all level 88 */
+	if (source->validation) {
+		copy_validation (source, target);
+	}
+
 	if (source->children) {
 		copy_children (source->children, target, target->level, outer_indexes, target->storage);
 	} else if (source->pic){
-		target->pic = CB_PICTURE (cb_build_picture (source->pic->orig));
+		/* take over internal PICTURE representation as-is, no use in re-building
+		   that from scratch and handle calculated ->pic special */
+		target->pic = cobc_parse_malloc (sizeof (struct cb_picture));
+		memcpy (target->pic, source->pic, sizeof (struct cb_picture));
 	}
 
 	if (source->sister) {
 		/* for children: all sister entries need to be copied */
-		cb_tree n, x;
-		if (source->sister->name) {
-			n = cb_build_reference (source->sister->name);
-		} else {
-			n = cb_build_filler ();
-		}
-		x = cb_build_field_tree (NULL, n, target, target->storage, NULL, target->level);
-		if (x != cb_error_node) {
-			copy_into_field_recursive (source->sister, CB_FIELD (x), outer_indexes);
-		}
+		copy_duplicated_field_into_field (source->sister,
+			target, target->level, outer_indexes, target->storage);
 	}
 	/* special case: normally incremented during parse */
 	target->indexes = source->indexes + outer_indexes;
@@ -811,18 +872,10 @@ copy_into_field_recursive (struct cb_field *source, struct cb_field *target,
 
 
 /* note: same message in parser.y */
-static int
+static void
 duplicate_clause_message (cb_tree x, const char *clause)
 {
-	/* FIXME: replace by a new warning level that is set
-	   to warn/error depending on cb_relaxed_syntax_checks */
-	if (cb_relaxed_syntax_checks) {
-		cb_warning_x (COBC_WARN_FILLER, x, _("duplicate %s clause"), clause);
-		return 0;
-	}
-
-	cb_error_x (x, _("duplicate %s clause"), clause);
-	return 1;
+	(void) cb_syntax_check_x (x, _("duplicate %s clause"), clause);
 }
 
 void
@@ -832,12 +885,26 @@ copy_into_field (struct cb_field *source, struct cb_field *target)
 	cb_tree	external_definition = target->external_definition;
 #endif
 
-	/* note: EXTERNAL is always applied from the typedef (if level (1/77),
-			 but may be specified on the field */
+	/* note: EXTERNAL is always applied from the typedef (if level 1/77),
+			 but may be specified on the field;
+	   note: MF has different syntax rules and _only_ allows it on the field */
 	if (target->level == 1 || target->level == 77) {
 		field_attribute_copy (flag_external);
+		if (target->flag_external
+		 && !target->ename) {
+#if 1	/* CHECKME: Which one to use? Possibly depending on AS clause? */
+			target->ename = source->ename;
+#else
+			target->ename = cb_to_cname (target->name);
+#endif
+		}
 	}
 	target->usage = source->usage;
+	target->common.category = source->common.category;
+
+	/* Note: The attributes GLOBAL and SELECT WHEN are never included;
+	         SAME AS does not include EXTERNAL, but the TYPEDEF  */
+
 	if (source->values) {
 		if (target->values) {
 			duplicate_clause_message (target->values, "VALUE");
@@ -850,21 +917,37 @@ copy_into_field (struct cb_field *source, struct cb_field *target)
 	field_attribute_copy (flag_sign_clause);
 	field_attribute_copy (flag_sign_leading);
 	field_attribute_copy (flag_sign_separate);
-	field_attribute_copy (flag_synchronized);
-	field_attribute_copy (flag_item_based);
+	if (source->flag_synchronized
+	 && !target->flag_synchronized) {
+		target->flag_synchronized = source->flag_synchronized;
+		target->flag_sync_right = source->flag_sync_right;
+		target->flag_sync_left = source->flag_sync_left;
+	}	
 	field_attribute_override (flag_any_length);
 	field_attribute_override (flag_any_numeric);
+	field_attribute_override (flag_invalid);
+	field_attribute_copy (flag_item_based);
+	field_attribute_override (flag_is_pointer);
+	/* Note: attributes must be handled both here and in copy_into_field_recursive */
+
+	/* copy all level 88 */
+	if (source->validation) {
+		copy_validation (source, target);
+	}
 
 	if (unlikely (!target->like_modifier)) {
 		if (source->children) {
 			copy_children (source->children, target, target->level, target->indexes, target->storage);
 		} else if (source->pic) {
-			target->pic = CB_PICTURE (cb_build_picture (source->pic->orig));
+			/* take over internal PICTURE representation as-is, no use in re-building
+			   that from scratch and in handling calculated ->pic special */
+			target->pic = cobc_parse_malloc (sizeof (struct cb_picture));
+			memcpy (target->pic, source->pic, sizeof (struct cb_picture));
 		}
 	} else {
-		struct cb_picture* new_pic = NULL;
+		struct cb_picture *new_pic = NULL;
 		int modifier = cb_get_int (target->like_modifier);
-		if (modifier) {			
+		if (modifier) {
 			switch (target->usage) {
 
 			case CB_USAGE_COMP_X:
@@ -877,12 +960,12 @@ copy_into_field (struct cb_field *source, struct cb_field *target)
 					} else {
 						newsize = pic_digits[target->pic->size - 1];
 					}
-					newsize += modifier;
+					newsize += (unsigned char)modifier;
 					if (newsize > 36) {
 						newsize = 36;
 					}
 					sprintf (pic, "9(%u)", newsize);
-					new_pic = CB_PICTURE (cb_build_picture (pic));
+					new_pic = cb_build_picture (pic);
 					break;
 				}
 
@@ -897,7 +980,7 @@ copy_into_field (struct cb_field *source, struct cb_field *target)
 					if (modifier > 0) {
 						sprintf (pic, "9(%d)", modifier);
 						strcat (pic, target->pic->orig);
-						new_pic = CB_PICTURE (cb_build_picture (pic));
+						new_pic = cb_build_picture (pic);
 					} else {
 						CB_PENDING_X (CB_TREE (target), "LIKE ... negative-integer");
 					}
@@ -917,20 +1000,21 @@ copy_into_field (struct cb_field *source, struct cb_field *target)
 					"LIKE", cb_get_usage_string (target->usage));
 				target->flag_invalid = 1;
 			}
- 
+
 #if 0		/* TODO, also syntax-check for usage here */
 			if (target->cat is_numeric) {
 				sprintf (pic, "9(%d)", size_implied);
 			} else {
 				sprintf (pic, "X(%d)", size_implied);
 			}
-			new_pic = CB_PICTURE (cb_build_picture (pic));
+			new_pic = cb_build_picture (pic);
 #endif
 		}
 		if (new_pic) {
 			target->pic = new_pic;
 		} else if (target->pic) {
-			target->pic = CB_PICTURE (cb_build_picture (target->pic->orig));
+			/* CHECKME: is there any use in re-building the PIC? */
+			target->pic = cb_build_picture (target->pic->orig);
 		}
 	}
 
@@ -967,13 +1051,31 @@ is_numeric_usage (const enum cb_usage usage)
 	}
 }
 
+static cb_tree
+get_first_value (const struct cb_field * const f)
+{
+	cb_tree x = f->values;
+	if (CB_INVALID_TREE (x))
+		return NULL;	/* no value / error */
+
+	if (!CB_LIST_P (x))
+		return x;		/* simple VALUE */
+
+	x = CB_VALUE (x);
+	if (CB_TAB_VALS_P (x)) {
+		x = CB_TAB_VALS (x)->values;
+		x = CB_VALUE (x);
+	}
+	return x;
+}
+
 /* create an implicit picture for items that miss it but need one,
    return 1 if not possible */
 static unsigned int
 create_implicit_picture (struct cb_field *f)
 {
+	cb_tree first_value = get_first_value (f);
 	cb_tree			x = CB_TREE (f);
-	cb_tree			first_value;
 	char			*pp;
 	struct cb_literal	*lp;
 	int			size_implied = 1;
@@ -981,25 +1083,21 @@ create_implicit_picture (struct cb_field *f)
 	int			ret;
 	char			pic[24];
 
-	if (f->values) {
-		first_value = CB_VALUE (f->values);
-		if (first_value == cb_error_node) {
-			first_value = NULL;
-		} else {
-			if (CB_LITERAL_P (first_value)) {
-				size_implied = (int)CB_LITERAL (first_value)->size;
-				is_numeric = CB_NUMERIC_LITERAL_P (first_value);
-			} else if (CB_CONST_P (first_value)) {
-				size_implied = 1;
-				if (first_value == cb_zero) {
-					is_numeric = 1;
-				} else {
-					is_numeric = 0;
-				}
+	if (first_value) {
+		if (CB_LITERAL_P (first_value)) {
+			size_implied = (int)CB_LITERAL (first_value)->size;
+			is_numeric = CB_NUMERIC_LITERAL_P (first_value);
+		} else if (CB_CONST_P (first_value)) {
+			size_implied = 1;
+			if (first_value == cb_zero) {
+				is_numeric = 1;
 			} else {
-				cobc_err_msg (_("unexpected tree tag: %d"), (int)CB_TREE_TAG (x));
-				COBC_ABORT ();	/* LCOV_EXCL_LINE */
+				is_numeric = 0;
 			}
+		/* LCOV_EXCL_START */
+		} else {
+			CB_TREE_TAG_UNEXPECTED_ABORT (x);
+		/* LCOV_EXCL_STOP */
 		}
 	} else {
 		first_value = NULL;
@@ -1018,26 +1116,30 @@ create_implicit_picture (struct cb_field *f)
 		cb_tree impl_tree = f->screen_from ? f->screen_from : f->screen_to ? f->screen_to : NULL;
 		if (impl_tree) {
 			if (impl_tree == cb_error_node) {
-				return 1;
+				size_implied = 1;	/* go on to allow further checks */
 			}
-			if (!CB_CONST_P (impl_tree)) {
-				size_implied = cb_field_size (impl_tree);
-				is_numeric = CB_TREE_CATEGORY (impl_tree) == CB_CATEGORY_NUMERIC;
-			} else {
+			if (CB_INTRINSIC_P (impl_tree) || CB_CONST_P (impl_tree)) {
 				size_implied = FIELD_SIZE_UNKNOWN;
+			} else {
+				if (CB_INTRINSIC_P (impl_tree) || CB_CONST_P (impl_tree)) {
+					size_implied = FIELD_SIZE_UNKNOWN;
+				} else {
+					size_implied = cb_field_size (impl_tree);
+					is_numeric = CB_TREE_CATEGORY (impl_tree) == CB_CATEGORY_NUMERIC;
+				}
 			}
 		} else if (first_value) {
 			/* done later*/
 		} else {
 			f->flag_no_field = 1;
-			f->pic = CB_PICTURE (cb_build_picture ("X"));
+			f->pic = cb_build_picture ("X");
 			return 0;
 		}
 
 		if (size_implied == FIELD_SIZE_UNKNOWN) {
 			cb_error_x (x, _("PICTURE clause required for '%s'"),
 				    cb_name (x));
-			return 1;
+			size_implied = 1;	/* go on to allow further checks */
 		}
 
 		if (is_numeric) {
@@ -1045,20 +1147,40 @@ create_implicit_picture (struct cb_field *f)
 		} else {
 			sprintf (pic, "X(%d)", size_implied);
 		}
-		f->pic = CB_PICTURE (cb_build_picture (pic));
+		f->pic = cb_build_picture (pic);
+		if (f->size < size_implied) {
+			f->size = size_implied;
+		}
 		return 0;
 	}
 
 	if (f->storage == CB_STORAGE_REPORT) {
+		if (f->report_source || f->report_sum_counter) {
+			cb_error_x (x, _("PICTURE clause required for '%s'"),
+				cb_name (x));
+		}
 		if (first_value) {
+			sprintf (pic, "X(%d)", size_implied);
+		} else if (f->report_source) {
+			size_implied = 1;
+			if (CB_LITERAL_P (f->report_source)) {
+				size_implied = (int)CB_LITERAL(f->report_source)->size;
+			} else if (CB_FIELD_P (f->report_source)) {
+				/* CHECKME: A source of type BINARY may need a different size */
+				size_implied = (int)CB_FIELD(f->report_source)->size;
+			}
 			sprintf (pic, "X(%d)", size_implied);
 		} else {
 			/* CHECKME: Where do we want to generate a not-field in the C code?
 			            instead of raising an error here? */
 			f->flag_no_field = 1;
+			size_implied = 1;
 			strcpy (pic, "X");
 		}
-		f->pic = CB_PICTURE (cb_build_picture (pic));
+		f->pic = cb_build_picture (pic);
+		if (f->size < size_implied) {
+			f->size = size_implied;
+		}
 		return 0;
 	}
 
@@ -1082,16 +1204,19 @@ create_implicit_picture (struct cb_field *f)
 			}
 			if (lp->size < 10) {
 				f->usage = CB_USAGE_COMP_5;
+				f->size = lp->size;	/* CHECKME: that seems wrong */
 			} else {
 				f->usage = CB_USAGE_DISPLAY;
+				f->size = lp->size;
 			}
-			f->pic = CB_PICTURE (cb_build_picture (pic));
+			f->pic = cb_build_picture (pic);
 			f->pic->category = CB_CATEGORY_NUMERIC;
 		} else {
 			sprintf (pic, "X(%d)", (int)lp->size);
-			f->pic = CB_PICTURE (cb_build_picture (pic));
+			f->pic = cb_build_picture (pic);
 			f->pic->category = CB_CATEGORY_ALPHANUMERIC;
 			f->usage = CB_USAGE_DISPLAY;
+			f->size = lp->size;
 		}
 		return 0;
 	}
@@ -1115,10 +1240,11 @@ create_implicit_picture (struct cb_field *f)
 			ret = 1;
 		}
 	}
-	
-	/* Checkme: should we raise an error for !cb_relaxed_syntax_checks? */
+
+	/* CHECKME: should we raise an error for !cb_relaxed_syntax_checks? */
 	if (!ret) {
-		cb_warning_x (cb_warn_additional, x, _("defining implicit picture size %d for '%s'"),
+		cb_warning_x (cb_warn_additional, x,
+			    _("defining implicit picture size %d for '%s'"),
 			    size_implied, cb_name (x));
 	}
 	if (is_numeric) {
@@ -1126,12 +1252,16 @@ create_implicit_picture (struct cb_field *f)
 	} else {
 		sprintf (pic, "X(%d)", size_implied);
 	}
-	f->pic = CB_PICTURE (cb_build_picture (pic));
+	f->pic = cb_build_picture (pic);
 	f->pic->category = CB_CATEGORY_ALPHANUMERIC;
 	f->usage = CB_USAGE_DISPLAY;
+	if (f->size < size_implied) {
+		f->size = size_implied;
+	}
 	return ret;
 }
 
+/* note: this also adjusts the field! */
 static unsigned int
 validate_any_length_item (struct cb_field *f)
 {
@@ -1149,18 +1279,18 @@ validate_any_length_item (struct cb_field *f)
 		cb_error_x (x, _("'%s' ANY LENGTH cannot be BASED/EXTERNAL"), cb_name (x));
 		return 1;
 	}
-	if (f->flag_occurs || f->depending ||
-	    f->children || f->values || f->flag_blank_zero) {
+	if (f->flag_occurs || f->depending || f->children || f->values || f->flag_blank_zero) {
 		cb_error_x (x, _("'%s' ANY LENGTH has invalid definition"), cb_name (x));
 		return 1;
 	}
+
 	if (!f->pic) {
-		if (f->flag_any_numeric) {
-			f->pic = CB_PICTURE (cb_build_picture ("9"));
-		} else {
-			f->pic = CB_PICTURE (cb_build_picture ("X"));
-		}
-	} else if (f->flag_any_numeric) {
+		const char *pic = f->flag_any_numeric ? "9" : "X";
+		f->pic = cb_build_picture (pic);
+		return 0;
+	}
+	
+	if (f->flag_any_numeric) {
 		if (f->pic->category != CB_CATEGORY_NUMERIC) {
 			cb_error_x (x, _("'%s' ANY NUMERIC must be PIC 9"),
 				  f->name);
@@ -1168,11 +1298,11 @@ validate_any_length_item (struct cb_field *f)
 	} else if (f->pic->category != CB_CATEGORY_ALPHANUMERIC
 			&& f->pic->category != CB_CATEGORY_NATIONAL
 			&& f->pic->category != CB_CATEGORY_BOOLEAN) {
-		cb_error_x (x, _("'%s' ANY LENGTH must be PIC X, PIC N or PIC 1"),
+		cb_error_x (x, _("'%s' ANY LENGTH must be PIC X, PIC U, PIC N or PIC 1"),
 			  f->name);
 	}
 	/*
-	  TO-DO: Replace pic->category check with f->usage == CB_USAGE_NATIONAL.
+	  TODO: Replace pic->category check with f->usage == CB_USAGE_NATIONAL.
 	  Currently NATIONAL items are marked as having USAGE DISPLAY.
 	*/
 	if (!((f->pic->size == 1 && f->usage == CB_USAGE_DISPLAY)
@@ -1185,11 +1315,6 @@ validate_any_length_item (struct cb_field *f)
 		return 1;
 	}
 
-	/* CHECKME: Why do we increase the reference counter here
-	            (to ensure the field is generated)?
-	            Better would be to add the check for 'f->count != 0' to the place
-	            where it possibly is missing... */
-	f->count++;
 	return 0;
 }
 
@@ -1238,24 +1363,24 @@ validate_occurs (const struct cb_field * const f)
 	const cb_tree		x = CB_TREE (f);
 	const struct cb_field	*p;
 
-	if ((f->level == 01 || f->level == 77)
-	 && !cb_verify_x (x, cb_top_level_occurs_clause, "01/77 OCCURS")) {
-		cb_error_x (x, _("level %02d item '%s' cannot have a %s clause"),
-			f->level, cb_name (x), "OCCURS");
+	if (f->level == 01 || f->level == 77) {
+		cb_verify_x (x, cb_top_level_occurs_clause, "01/77 OCCURS");
 	}
 
 	/* Validate OCCURS DEPENDING */
 	if (f->depending) {
-		/* Cache field for later checking */
+		/* Cache field for later checking as the depending field may not be
+		   available until the program is completely parsed */
 		cb_depend_check = cb_list_add (cb_depend_check, x);
 
-		if (!cb_complex_odo) {
+		if (!cb_odoslide && !cb_complex_odo) {
 			/* The data item that contains a OCCURS DEPENDING clause shall not
 			   be subordinate to a data item that has an OCCURS clause */
 			for (p = f->parent; p; p = p->parent) {
+				if (p->flag_picture_l) continue;
 				if (p->flag_occurs) {
 					cb_error_x (CB_TREE (p),
-						    _("'%s' cannot have the OCCURS clause due to '%s'"),
+						    _("'%s' cannot have an OCCURS clause due to '%s'"),
 						    cb_name (CB_TREE (p)),
 						    cb_name (x));
 					break;
@@ -1274,7 +1399,13 @@ validate_redefines (const struct cb_field * const f)
 	/* Check OCCURS */
 	if (f->redefines->flag_occurs) {
 		cb_warning_x (COBC_WARN_FILLER, x,
-			      _("the original definition '%s' should not have OCCURS clause"),
+			      _("the original definition '%s' should not have an OCCURS clause"),
+			      f->redefines->name);
+	}
+	/* Check ANY LENGTH */
+	if (f->redefines->flag_any_length) {
+		cb_error_x (x,
+			      _("the original definition '%s' should not have an ANY LENGTH clause"),
 			      f->redefines->name);
 	}
 
@@ -1287,10 +1418,11 @@ validate_redefines (const struct cb_field * const f)
 	}
 
 	/* Check variable occurrence */
-	if (f->depending || cb_field_variable_size (f)) {
+	if (f->depending
+	 || (!f->flag_picture_l && cb_field_variable_size (f))) {
 		cb_error_x (x, _("'%s' cannot be variable length"), f->name);
 	}
-	if (cb_field_variable_size (f->redefines)) {
+	if (!f->redefines->flag_picture_l && cb_field_variable_size (f->redefines)) {
 		cb_error_x (x, _("the original definition '%s' cannot be variable length"),
 			    f->redefines->name);
 	}
@@ -1307,17 +1439,31 @@ validate_group (struct cb_field *f)
 		group_error (x, "PICTURE");
 	}
 	if (f->flag_justified) {
-		group_error (x, "JUSTIFIED RIGHT");
+		if (!f->flag_picture_l) {
+			group_error (x, "JUSTIFIED RIGHT");
+		} else {
+			cb_error_x (x, _("'%s' cannot have JUSTIFIED RIGHT clause"),
+				    cb_name (x));
+		}
 	}
 	if (f->flag_blank_zero) {
-		group_error (x, "BLANK WHEN ZERO");
+		if (!f->flag_picture_l) {
+			group_error (x, "BLANK WHEN ZERO");
+		} else {
+			cb_error_x (x, _("'%s' cannot have BLANK WHEN ZERO clause"),
+				    cb_name (x));
+		}
 	}
 
-	if (f->storage == CB_STORAGE_SCREEN &&
-	    (f->screen_from || f->screen_to || f->values || f->pic)) {
+	if (f->storage == CB_STORAGE_SCREEN
+	 && (f->screen_from || f->screen_to || f->values || f->pic)) {
 		cb_error_x (x, _("SCREEN group item '%s' has invalid clause"),
 			    cb_name (x));
 		ret = 1;
+	}
+	
+	if (f->values && CB_LIST_P (f->values)) {
+		ret |= validate_multi_value (f);
 	}
 
 	for (f = f->children; f; f = f->sister) {
@@ -1377,12 +1523,105 @@ validate_pic (struct cb_field *f)
 		if (create_implicit_picture (f)) {
 			return 1;
 		}
+		if (f->pic
+		 && f->pic->size > f->size)
+			f->size = f->pic->size;
 	}
 
 	/* ACUCOBOL/RM-COBOL-style COMP-1 ignores the PICTURE clause. */
 	if (f->flag_comp_1 && cb_binary_comp_1) {
 		return 0;
 	}
+
+#if 0 /* CHECKME - come back later to this (possible 4.x only feature) */
+	/* Check for Group attributes to be carried to elementary field */
+	if (!f->flag_validated
+	 && cb_nonnumeric_with_numeric_group_usage == CB_OK
+	 && f->parent
+	 && !f->children) {
+		struct cb_field *p;
+		if (f->flag_usage_defined
+		 && is_numeric_field (f)) {
+			for (p = f->parent; p; p = p->parent) {
+				if (p->usage != CB_USAGE_DISPLAY
+				 && f->usage != p->usage) {
+					cb_error_x (x, _("%s USAGE %s incompatible with %s USAGE %s"),
+							p->flag_filler?"FILLER":p->name, cb_get_usage_string (p->usage),
+							f->flag_filler?"FILLER":f->name, cb_get_usage_string (f->usage));
+					break;
+				}
+			}
+		}
+		if (!f->flag_usage_defined
+		 && is_numeric_field (f)) {
+			for (p = f->parent; p; p = p->parent) {
+				if (p->usage != CB_USAGE_DISPLAY) {
+					f->usage = p->usage;
+					break;
+				}
+			}
+		}
+		/* TODO: handle this "per dialect", some disallow this (per ANSI85) or ignore it */
+		if (!f->flag_synchronized
+		 && f->parent
+		 && (f->usage == CB_USAGE_BINARY
+		  || f->usage == CB_USAGE_FLOAT
+		  || f->usage == CB_USAGE_DOUBLE
+		  || f->usage == CB_USAGE_LONG_DOUBLE
+		  || f->usage == CB_USAGE_UNSIGNED_SHORT
+		  || f->usage == CB_USAGE_SIGNED_SHORT
+		  || f->usage == CB_USAGE_UNSIGNED_INT
+		  || f->usage == CB_USAGE_SIGNED_INT
+		  || f->usage == CB_USAGE_UNSIGNED_LONG
+		  || f->usage == CB_USAGE_SIGNED_LONG
+		  || f->usage == CB_USAGE_COMP_5
+		  || f->usage == CB_USAGE_COMP_6
+		  || f->usage == CB_USAGE_FP_DEC64
+		  || f->usage == CB_USAGE_FP_DEC128
+		  || f->usage == CB_USAGE_FP_BIN32
+		  || f->usage == CB_USAGE_FP_BIN64
+		  || f->usage == CB_USAGE_FP_BIN128
+		  || f->usage == CB_USAGE_LONG_DOUBLE)) {
+			struct cb_field *p;
+			for (p = f->parent; p; p = p->parent) {
+				if (p->flag_synchronized) {
+					f->flag_synchronized = 1;
+					break;
+				}
+			}
+		}
+		/* ignore sync for binary items */
+		if (f->flag_synchronized
+		 && cb_binary_sync_clause == CB_IGNORE) {
+			switch (f->usage) {
+			case CB_USAGE_SIGNED_SHORT:
+			case CB_USAGE_UNSIGNED_SHORT:
+			case CB_USAGE_SIGNED_INT:
+			case CB_USAGE_UNSIGNED_INT:
+			case CB_USAGE_SIGNED_LONG:
+			case CB_USAGE_UNSIGNED_LONG:
+				f->flag_synchronized = 0;
+				break;
+			default:
+				break;
+			}
+		}
+		if (f->pic
+		 && f->pic->category == CB_CATEGORY_NUMERIC
+		 && f->flag_sign_separate == 0
+		 && f->flag_sign_leading == 0) {
+			for (p = f->parent; p; p = p->parent) {
+				if (p->flag_sign_separate
+				 || p->flag_sign_leading) {
+					f->flag_sign_separate = p->flag_sign_separate;
+					f->flag_sign_leading  = p->flag_sign_leading;
+					break;
+				}
+			}
+		}
+	}
+	f->flag_validated = 1;
+#endif
 
 	/* if picture is not needed it is an error to specify it
 	   note: we may have set the picture internal */
@@ -1399,15 +1638,8 @@ validate_usage (struct cb_field * const f)
 {
 	cb_tree	x = CB_TREE (f);
 
-	if ((f->storage == CB_STORAGE_SCREEN
-	  || f->storage == CB_STORAGE_REPORT)
-	 &&  f->usage   != CB_USAGE_DISPLAY
-	 &&  f->usage   != CB_USAGE_NATIONAL) {
-		cb_error_x (CB_TREE(f),
-			_("%s item '%s' should be USAGE DISPLAY"),
-			enum_explain_storage (f->storage), cb_name (x));
-		return 1;
-	}
+	/* note: we check for "only accaptable USAGE" for SCREEN and REPORT SECTION
+	   indirectly in the parser (we used to check for DISPLAY here) */
 
 	switch (f->usage) {
 	case CB_USAGE_BINARY:
@@ -1465,15 +1697,15 @@ validate_justified_right (const struct cb_field * const f)
 {
 	const cb_tree	x = CB_TREE (f);
 
-	/* TO-DO: Error if no PIC? */
+	/* TODO: Error if no PIC? */
 
 	if (f->flag_justified
-	    && f->pic
-	    && f->pic->category != CB_CATEGORY_ALPHABETIC
-	    && f->pic->category != CB_CATEGORY_ALPHANUMERIC
-	    && f->pic->category != CB_CATEGORY_BOOLEAN
-	    && f->pic->category != CB_CATEGORY_NATIONAL) {
-		cb_error_x (x, _("'%s' cannot have JUSTIFIED RIGHT"), cb_name (x));
+	 && f->pic
+	 && f->pic->category != CB_CATEGORY_ALPHABETIC
+	 && f->pic->category != CB_CATEGORY_ALPHANUMERIC
+	 && f->pic->category != CB_CATEGORY_BOOLEAN
+	 && f->pic->category != CB_CATEGORY_NATIONAL) {
+		cb_error_x (x, _("'%s' cannot have JUSTIFIED RIGHT clause"), cb_name (x));
 	}
 }
 
@@ -1481,11 +1713,10 @@ static void
 validate_blank_when_zero (const struct cb_field * const f)
 {
 	const cb_tree	x = CB_TREE (f);
-	int		i;
 
 	if (f->pic
-	    && f->pic->have_sign
-	    && f->pic->category != CB_CATEGORY_NUMERIC_EDITED) {
+	 && f->pic->have_sign
+	 && f->pic->category != CB_CATEGORY_NUMERIC_EDITED) {
 		cb_error_x (x, _("'%s' cannot have S in PICTURE string and BLANK WHEN ZERO"),
 			    cb_name (x));
 	}
@@ -1496,11 +1727,12 @@ validate_blank_when_zero (const struct cb_field * const f)
 	}
 
 	if (f->pic) {
+		int		i;
 		switch (f->pic->category) {
 		case CB_CATEGORY_NUMERIC:
 			break;
 		case CB_CATEGORY_NUMERIC_EDITED:
-			for (i = 0; f->pic->str[i].symbol != '\0'; ++i) {
+			for (i = 0; i < f->pic->lenstr; ++i) {
 				if (f->pic->str[i].symbol == '*') {
 					cb_error_x (x, _("'%s' cannot have * in PICTURE string and BLANK WHEN ZERO"),
 						    cb_name (x));
@@ -1515,18 +1747,89 @@ validate_blank_when_zero (const struct cb_field * const f)
 	}
 }
 
-static void
-validate_elem_value (const struct cb_field * const f)
+/* Validate multiple VALUEs */
+static unsigned int
+validate_multi_value (const struct cb_field * const f)
 {
-	const cb_tree		x = CB_TREE (f);
-	const struct cb_field	*p;
 
-	if (CB_PAIR_P (CB_VALUE (f->values)) || CB_CHAIN (f->values)) {
-		cb_error_x (x, _("only level 88 items may have multiple values"));
+	int num_of_values = 0;
+	int	total_occurs, k;
+
+	if (!CB_TAB_VALS_P (CB_VALUE (f->values))) {
+		/* simple option: list of literals */
+		num_of_values = cb_list_length (f->values);
+	} else {
+		cb_tree vals;
+		int repeated_to_end = 0;
+		for (vals = f->values; vals; vals = CB_CHAIN (vals)) {
+			/* FIXME: this is wrong, works only if "FROM" is 1
+						and there is REPEATED TO END / TO ... */
+			const struct cb_table_values *val_entries = CB_TAB_VALS (CB_VALUE (vals));
+			int entries_in_this_list = cb_list_length (val_entries->values);
+			cb_tree repeated = val_entries->repeat_times;
+			if (repeated == cb_null) {
+				if (repeated_to_end++) {
+					/* TODO: check exact syntax, may only be specified once */
+				}
+				repeated = NULL;
+			}
+			if (repeated) {
+				entries_in_this_list *= cb_get_int (repeated);
+			}
+			/* TODO: Check that there is no overlapping */
+			num_of_values += entries_in_this_list;
+		}
+	}
+
+	{
+		const struct cb_field	*p = f;
+		total_occurs = 1;
+		do {
+			if (p->flag_occurs
+			 && p->occurs_max > 1) {
+				total_occurs *= p->occurs_max;
+			}
+			p = p->parent;
+		} while (p);
+	}
+	k = num_of_values - total_occurs;
+	if (k > 0) {
+		cb_error_x (CB_TREE (f),
+			_("elements in VALUE clause for '%s' (%d) exceed max amount (%d)"),
+			f->name, num_of_values, total_occurs);
+		return 1;
+	}
+	return 0;
+}
+
+static void
+validate_elem_value (struct cb_field * const f)
+{
+	/* check for table format VALUES [ARE] in non-occurs field */
+	if (CB_LIST_P (f->values) && CB_TAB_VALS_P (CB_LIST (f->values)->value)) {
+		const struct cb_field	*p = f;
+		do {
+			if (p->flag_occurs) {
+				break;
+			}
+			p = p->parent;
+		} while (p);
+		if (!p) {
+			const cb_tree		x = CB_TREE (f);
+			const cb_tree		first_tabval = CB_LIST (f->values)->value;
+			const struct cb_table_values *vals = CB_TAB_VALS (first_tabval);
+			cb_error_x (x,
+				_("unexpected VALUES ARE for elementary item"));
+			/* ensure to have an expected "direct" value entry, relying
+			   on now unreferenced parse trees to be freed later on */
+			f->values = CB_LIST (vals->values)->value;
+		}
 	}
 
 	/* ISO+IEC+1989-2002: 13.16.42.2-10 */
-	if (cb_warn_opt_val[cb_warn_ignored_initial_val] != COBC_WARN_DISABLED) {
+	if (get_warn_opt_value (cb_warn_ignored_initial_val) != COBC_WARN_DISABLED) {
+		const cb_tree		x = CB_TREE (f);
+		const struct cb_field	*p;
 		for (p = f; p; p = p->parent) {
 			if (p->flag_external) {
 				cb_warning_x (cb_warn_ignored_initial_val, x,
@@ -1545,37 +1848,40 @@ static void
 warn_full_on_numeric_items_is_useless (const struct cb_field * const f)
 {
 	if ((f->screen_flag & COB_SCREEN_FULL)
-	    && f->pic && f->pic->category == CB_CATEGORY_NUMERIC) {
+	 && f->pic && f->pic->category == CB_CATEGORY_NUMERIC) {
 		cb_warning_x (cb_warn_additional, CB_TREE (f),
-			      _("FULL has no effect on numeric items; you may want REQUIRED or PIC Z"));
+			_("FULL has no effect on numeric items; you may want REQUIRED or PIC Z"));
 	}
 }
 
 static int
 has_std_needed_screen_clause (const struct cb_field * const f)
 {
-	return (f->pic && (f->screen_from
-			   || f->screen_to
-			   || (f->values && CB_NUMERIC_LITERAL_P (CB_VALUE (f->values)))))
-		|| (f->values
-		    && (CB_LITERAL_P (CB_VALUE (f->values))
-			|| CB_CONST_P (CB_VALUE (f->values)))
-		    && (CB_TREE_CATEGORY (CB_VALUE (f->values)) == CB_CATEGORY_ALPHANUMERIC
-			|| CB_TREE_CATEGORY (CB_VALUE (f->values)) == CB_CATEGORY_BOOLEAN
-			|| CB_TREE_CATEGORY (CB_VALUE (f->values)) == CB_CATEGORY_NATIONAL))
-		|| f->screen_flag & COB_SCREEN_BELL
-		|| f->screen_flag & COB_SCREEN_BLANK_LINE
-		|| f->screen_flag & COB_SCREEN_BLANK_SCREEN
-		|| f->screen_flag & COB_SCREEN_ERASE_EOL
-		|| f->screen_flag & COB_SCREEN_ERASE_EOS;
+	cb_tree first_value = get_first_value (f);
+	return (f ->pic
+	     && (f->screen_from
+	      || f->screen_to
+	      || (first_value && CB_NUMERIC_LITERAL_P (first_value))))
+	     || (first_value
+	      && (CB_LITERAL_P (first_value)
+	       || CB_CONST_P   (first_value))
+	      && (CB_TREE_CATEGORY (first_value) == CB_CATEGORY_ALPHANUMERIC
+	       || CB_TREE_CATEGORY (first_value) == CB_CATEGORY_BOOLEAN
+	       || CB_TREE_CATEGORY (first_value) == CB_CATEGORY_NATIONAL))
+	     || f->screen_flag & COB_SCREEN_BELL
+	     || f->screen_flag & COB_SCREEN_BLANK_LINE
+	     || f->screen_flag & COB_SCREEN_BLANK_SCREEN
+	     || f->screen_flag & COB_SCREEN_ERASE_EOL
+	     || f->screen_flag & COB_SCREEN_ERASE_EOS;
 }
 
 static void
 error_value_figurative_constant(const struct cb_field * const f)
 {
-	if (f->values
-	    && cb_is_figurative_constant (CB_VALUE (f->values))) {
-		cb_error_x (CB_TREE (f), _("VALUE may not contain a figurative constant"));
+	cb_tree first_value = get_first_value (f);
+	if (first_value && cb_is_figurative_constant (first_value)) {
+		cb_error_x (CB_TREE (f),
+			_("VALUE may not contain a figurative constant"));
 	}
 }
 
@@ -1583,21 +1889,22 @@ static void
 error_both_full_and_justified (const struct cb_field * const f)
 {
 	if ((f->screen_flag & COB_SCREEN_FULL) && f->flag_justified) {
-		cb_error_x (CB_TREE (f), _("cannot specify both FULL and JUSTIFIED"));
+		cb_error_x (CB_TREE (f),
+			_("cannot specify both %s and %s"), "FULL", "JUSTIFIED");
 	}
 }
 
 static int
 warn_from_to_using_without_pic (const struct cb_field * const f)
 {
-	const cb_tree	x = CB_TREE (f);
 
 	if ((f->screen_from || f->screen_to) && !f->pic) {
-		/* TO-DO: Change to dialect option */
+		const cb_tree	x = CB_TREE (f);
+		/* TODO: Change to dialect option */
 		cb_warning_x (cb_warn_additional, x,
-			      _("'%s' has FROM, TO or USING without PIC; PIC will be implied"),
-			      cb_name (x));
-		/* TO-DO: Add setting of PIC below here or move warnings to the code which sets the PIC */
+			_("'%s' has FROM, TO or USING without PIC; PIC will be implied"),
+			cb_name (x));
+		/* TODO: Add setting of PIC below here or move warnings to the code which sets the PIC */
 		return 1;
 	} else {
 		return 0;
@@ -1607,10 +1914,14 @@ warn_from_to_using_without_pic (const struct cb_field * const f)
 static int
 warn_pic_for_numeric_value_implied (const struct cb_field * const f)
 {
-	if (f->values && CB_NUMERIC_LITERAL_P (CB_VALUE (f->values))) {
-		cb_warning_x (cb_warn_additional, CB_TREE (f),
-			      _("'%s' has numeric VALUE without PIC; PIC will be implied"),
-			      cb_name (CB_TREE (f)));
+	cb_tree first_value = get_first_value (f);
+	if (first_value && CB_NUMERIC_LITERAL_P (first_value)) {
+		const cb_tree	x = CB_TREE (f);
+		/* TODO: Change to dialect option */
+		cb_warning_x (cb_warn_additional, x,
+			_("'%s' has numeric VALUE without PIC; PIC will be implied"),
+			cb_name (x));
+		/* TODO: Add setting of PIC below here or move warnings to the code which sets the PIC */
 		return 1;
 	} else {
 		return 0;
@@ -1618,39 +1929,10 @@ warn_pic_for_numeric_value_implied (const struct cb_field * const f)
 }
 
 static void
-validate_elem_screen_clauses_std (struct cb_field * const f)
-{
-	const cb_tree	x = CB_TREE (f);
-
-	if (!has_std_needed_screen_clause (f)) {
-		if (f->pic) {
-			cb_error_x (x, _("'%s' cannot have PIC without FROM, TO, USING or numeric VALUE"),
-				    cb_name (x));
-		} else if (warn_from_to_using_without_pic (f)) {
-			/*
-			  The above rule is not explicitly stated, but the general rules of FROM,
-			  TO and USING assume the item has a PICTURE clause.
-			*/
-			;
-		} else if (warn_pic_for_numeric_value_implied (f)) {
-			;
-			/* TO-DO: Add setting of PIC below here or move warnings to the code which sets the PIC */
-		} else {
-			cb_error_x (x, _("'%s' needs a PIC, FROM, TO, USING, VALUE, BELL, BLANK or ERASE clause"),
-				    cb_name (x));
-		}
-	}
-
-	error_both_full_and_justified (f);
-
-	error_value_figurative_constant (f);
-}
-
-static void
 error_both_pic_and_value (const struct cb_field * const f)
 {
 	if (f->pic && f->values) {
-		cb_error_x (CB_TREE (f), _("cannot specify both PIC and VALUE"));
+		cb_error_x (CB_TREE (f), _("cannot specify both %s and %s"), "PIC", "VALUE");
 	}
 }
 
@@ -1663,9 +1945,18 @@ error_pic_without_from_to_using (const struct cb_field * const f)
 }
 
 static void
+error_pic_for_numeric_value (const struct cb_field * const f)
+{
+	cb_tree first_value = get_first_value (f);
+	if (first_value && CB_NUMERIC_LITERAL_P (first_value)) {
+		cb_error_x (CB_TREE (f), _("cannot have numeric VALUE without PIC"));
+	}
+}
+
+static void
 error_from_to_using_without_pic (const struct cb_field * const f)
 {
-	/* TO-DO: Replace warning, like in validate_elem_screen_clauses_std? */
+	/* TODO: Replace warning, like in validate_elem_screen_clauses_std? */
 	if ((f->screen_from || f->screen_to) && !f->pic) {
 		cb_error_x (CB_TREE (f), _("cannot have FROM, TO or USING without PIC"));
 	}
@@ -1674,8 +1965,9 @@ error_from_to_using_without_pic (const struct cb_field * const f)
 static void
 error_value_numeric (const struct cb_field * const f)
 {
-	if (f->values
-	    && CB_TREE_CATEGORY (CB_VALUE (f->values)) == CB_CATEGORY_NUMERIC) {
+	cb_tree first_value = get_first_value (f);
+	if (first_value
+	 && CB_TREE_CATEGORY (first_value) == CB_CATEGORY_NUMERIC) {
 		cb_error_x (CB_TREE (f), _("VALUE item may not be numeric"));
 	}
 }
@@ -1683,18 +1975,42 @@ error_value_numeric (const struct cb_field * const f)
 static void
 error_no_screen_clause_needed_by_xopen (const struct cb_field * const f)
 {
-	const cb_tree	x = CB_TREE (f);
-
 	if (!(f->pic
-	      || f->screen_column
-	      || f->screen_flag & COB_SCREEN_BELL
-	      || f->screen_flag & COB_SCREEN_BLANK_LINE
-	      || f->screen_flag & COB_SCREEN_BLANK_SCREEN
-	      || f->screen_line
-	      || f->values)) {
+	   || f->screen_column
+	   || f->screen_flag & COB_SCREEN_BELL
+	   || f->screen_flag & COB_SCREEN_BLANK_LINE
+	   || f->screen_flag & COB_SCREEN_BLANK_SCREEN
+	   || f->screen_line
+	   || f->values)) {
+		const cb_tree	x = CB_TREE (f);
 		cb_error_x (x, _("'%s' needs a PIC, COL, LINE, VALUE, BELL or BLANK clause"),
 			    cb_name (x));
 	}
+}
+
+static void
+validate_elem_screen_clauses_std (struct cb_field * const f)
+{
+	const cb_tree	x = CB_TREE (f);
+
+	if (!has_std_needed_screen_clause (f)) {
+		if (f->pic) {
+			cb_error_x (x, _("'%s' cannot have PIC without FROM, TO, USING or numeric VALUE"),
+				    cb_name (x));
+		} else if (f->values) {
+			/* TODO: Add setting of PIC below here or move warnings to the code which sets the PIC */
+			error_pic_for_numeric_value (f);
+		} else if (f->screen_from || f->screen_to) {
+			error_from_to_using_without_pic (f);
+		} else {
+			cb_error_x (x, _("'%s' needs a PIC, FROM, TO, USING, VALUE, BELL, BLANK or ERASE clause"),
+				    cb_name (x));
+		}
+	}
+
+	error_both_full_and_justified (f);
+
+	error_value_figurative_constant (f);
 }
 
 static void
@@ -1718,18 +2034,18 @@ validate_elem_screen_clauses_mf (const struct cb_field * const f)
 	error_value_numeric (f);
 
 	if (!f->screen_to
-	    && ((f->screen_flag & COB_SCREEN_AUTO)
-		|| (f->screen_flag & COB_SCREEN_FULL)
-		|| (f->screen_flag & COB_SCREEN_PROMPT)
-		|| (f->screen_flag & COB_SCREEN_REQUIRED)
-		|| (f->screen_flag & COB_SCREEN_SECURE))) {
+	  && ((f->screen_flag & COB_SCREEN_AUTO)
+	   || (f->screen_flag & COB_SCREEN_FULL)
+	   || (f->screen_flag & COB_SCREEN_PROMPT)
+	   || (f->screen_flag & COB_SCREEN_REQUIRED)
+	   || (f->screen_flag & COB_SCREEN_SECURE))) {
 		cb_error_x (x, _("cannot use AUTO, FULL, PROMPT, REQUIRED or SECURE on elementary item without TO or USING"));
 	}
 	if (!f->screen_from && !f->screen_to
-	    && (f->flag_blank_zero
-		|| f->flag_justified
-		|| f->flag_occurs
-		|| f->flag_sign_clause)) {
+	  && (f->flag_blank_zero
+	   || f->flag_justified
+	   || f->flag_occurs
+	   || f->flag_sign_clause)) {
 		cb_error_x (x, _("cannot use BLANK WHEN ZERO, JUSTIFIED, OCCURS or SIGN on item without FROM, TO or USING"));
 	}
 }
@@ -1737,8 +2053,6 @@ validate_elem_screen_clauses_mf (const struct cb_field * const f)
 static void
 validate_elem_screen_clauses_rm (struct cb_field *f)
 {
-	const cb_tree	x = CB_TREE (f);
-
 	error_both_pic_and_value (f);
 	error_pic_without_from_to_using (f);
 	error_from_to_using_without_pic (f);
@@ -1746,15 +2060,16 @@ validate_elem_screen_clauses_rm (struct cb_field *f)
 	error_value_numeric (f);
 
 	if (!f->pic) {
+		const cb_tree	x = CB_TREE (f);
 		if ((f->screen_flag & COB_SCREEN_AUTO)
-		    || (f->screen_flag & COB_SCREEN_FULL)
-		    || (f->screen_flag & COB_SCREEN_REQUIRED)
-		    || (f->screen_flag & COB_SCREEN_SECURE)) {
+		 || (f->screen_flag & COB_SCREEN_FULL)
+		 || (f->screen_flag & COB_SCREEN_REQUIRED)
+		 || (f->screen_flag & COB_SCREEN_SECURE)) {
 			cb_error_x (x, _("cannot use AUTO, FULL, REQUIRED or SECURE on elementary item without FROM, TO or USING"));
 		}
 		if (f->flag_blank_zero
-		    || f->flag_justified
-		    || f->flag_sign_clause) {
+		 || f->flag_justified
+		 || f->flag_sign_clause) {
 			cb_error_x (x, _("cannot use BLANK WHEN ZERO, JUSTIFIED or SIGN without FROM, TO or USING"));
 		}
 	}
@@ -1763,8 +2078,6 @@ validate_elem_screen_clauses_rm (struct cb_field *f)
 static void
 validate_elem_screen_clauses_acu (struct cb_field *f)
 {
-	const cb_tree	x = CB_TREE (f);
-
 	error_both_pic_and_value (f);
 	error_pic_without_from_to_using (f);
 
@@ -1772,6 +2085,7 @@ validate_elem_screen_clauses_acu (struct cb_field *f)
 
 	warn_from_to_using_without_pic (f);
 	if (!f->pic) {
+		const cb_tree	x = CB_TREE (f);
 		if (f->flag_blank_zero) {
 			cb_error_x (x, _("cannot have BLANK WHEN ZERO without PIC"));
 		}
@@ -1795,12 +2109,12 @@ validate_elem_screen_clauses_xopen (struct cb_field *f)
 	error_value_numeric (f);
 
 	if (!f->screen_to && !f->screen_from
-	    && (f->screen_flag & COB_SCREEN_AUTO)) {
+	 && (f->screen_flag & COB_SCREEN_AUTO)) {
 		cb_error_x (x, _("cannot have AUTO without FROM, TO or USING"));
 	}
 	if (!f->screen_to
-	    && ((f->screen_flag & COB_SCREEN_FULL)
-		|| (f->screen_flag & COB_SCREEN_REQUIRED))) {
+	  && ((f->screen_flag & COB_SCREEN_FULL)
+	   || (f->screen_flag & COB_SCREEN_REQUIRED))) {
 		cb_error_x (x, _("cannot use FULL or REQUIRED on item without TO or USING"));
 	}
 
@@ -1869,7 +2183,8 @@ validate_elem_screen (struct cb_field *f)
 	warn_full_on_numeric_items_is_useless (f);
 }
 
-/* Perform validation of a non-66-or-88-level elementary item. */
+/* Perform validation of a non-66-or-88-level elementary item.
+   note: this actually adjusts the field ! */
 static unsigned int
 validate_elementary_item (struct cb_field *f)
 {
@@ -1887,15 +2202,18 @@ validate_elementary_item (struct cb_field *f)
 
 	if (f->values) {
 		validate_elem_value (f);
+		if (CB_LIST_P (f->values)) {
+			ret |= validate_multi_value (f);
+		}
 	}
 	if (!ret && f->storage == CB_STORAGE_SCREEN) {
 		validate_elem_screen (f);
 	}
 
-	/* Validate PICTURE */
+	/* Validate PICTURE (adjusts the field if an implicit PIC is created) */
 	ret |= validate_pic (f);
 
-	/* TO-DO: This is not validation and should be elsewhere. */
+	/* TODO: This is not validation and should be elsewhere. */
 	switch (f->usage) {
 	case CB_USAGE_DISPLAY:
 		if (current_program
@@ -1959,7 +2277,7 @@ validate_elementary_item (struct cb_field *f)
 		break;
 	}
 
-	/* TO-DO: Also move, this is not validation */
+	/* TODO: Also move, this is not validation */
 	if (f->flag_blank_zero
 	 && f->pic
 	 && f->pic->category == CB_CATEGORY_NUMERIC) {
@@ -2020,6 +2338,7 @@ static unsigned int
 validate_field_1 (struct cb_field *f)
 {
 	cb_tree		x;
+	int			sts = 0;
 
 #if 0
 	/* LCOV_EXCL_START */
@@ -2034,17 +2353,17 @@ validate_field_1 (struct cb_field *f)
 		return 1;
 	}
 
-	if (f->flag_any_length) {
-		return validate_any_length_item (f);
-	}
-
 	x = CB_TREE (f);
 	if (f->level == 77) {
-		if (f->storage != CB_STORAGE_WORKING &&
-		    f->storage != CB_STORAGE_LOCAL &&
-		    f->storage != CB_STORAGE_LINKAGE) {
+		if (f->storage != CB_STORAGE_WORKING
+		 && f->storage != CB_STORAGE_LOCAL
+		 && f->storage != CB_STORAGE_LINKAGE) {
 			cb_error_x (x, _("'%s' 77 level is not allowed here"), cb_name (x));
 		}
+	}
+
+	if (f->flag_any_length) {
+		return validate_any_length_item (f);
 	}
 
 	if (f->flag_external) {
@@ -2055,7 +2374,7 @@ validate_field_1 (struct cb_field *f)
 	}
 
 	if (f->flag_occurs) {
-		/* TO-DO: Not validation, so should not be in this function! */
+		/* TODO: Not validation, so should not be in this function! */
 		cb_tree		l;
 		for (l = f->index_list; l; l = CB_CHAIN (l)) {
 			CB_FIELD_PTR (CB_VALUE (l))->flag_is_global = f->flag_is_global;
@@ -2073,12 +2392,45 @@ validate_field_1 (struct cb_field *f)
 		   COBOL 202x doesn't allow REDEFINES in SCREEN/REPORT */
 		validate_redefines (f);
 	}
+	
+	if (f->storage == CB_STORAGE_REPORT) {
+		if (f->report_num_col > 1) {
+			if (f->flag_occurs) {
+				cb_error_x (CB_TREE (f), _("OCCURS and multi COLUMNs is not allowed"));
+			} else {
+				/* FIXME: this is not a "real" validation*/
+				f->occurs_max = f->occurs_min = f->report_num_col;
+				f->flag_occurs = 1;
+				f->indexes = 1;
+			}
+		}
+		if ((f->report_flag & COB_REPORT_LINE)
+		 && !(f->report_flag & COB_REPORT_LINE_PLUS)
+		 && f->parent
+		 && f->parent->children != f) {
+			/* check all _previous_ definitions for a LINE clause,
+			   if it is there then drop the LINE clause of this field */
+			struct cb_field	*c;
+			for (c = f->parent->children; c && c != f; c = c->sister) {
+				if ((c->report_flag & COB_REPORT_LINE)
+				 && !(c->report_flag & COB_REPORT_LINE_PLUS)
+				 && c->report_line == f->report_line) {
+					cb_warning_x (cb_warn_additional, CB_TREE (f),
+						_("duplicate LINE %d ignored"), f->report_line);
+					f->report_line = 0;
+					f->report_flag &= ~COB_REPORT_LINE;
+					break;
+				}
+			}
+		}
+	}
 
 	if (f->children) {
-		return validate_group (f);
+		sts = validate_group (f);
 	} else {
-		return validate_elementary_item (f);
+		sts = validate_elementary_item (f);
 	}
+	return sts;
 }
 
 static void
@@ -2114,7 +2466,7 @@ setup_parameters (struct cb_field *f)
 	case CB_USAGE_HNDL_MENU:
 	case CB_USAGE_HNDL_VARIANT:
 	case CB_USAGE_HNDL_LM:
-		f->pic = CB_PICTURE (cb_build_picture ("S9(9)"));
+		f->pic = cb_build_picture ("S9(9)");
 		f->pic->flag_is_calculated = 1;
 #if 0
 		/* REMIND: The category should be set, but doing so causes
@@ -2128,35 +2480,39 @@ setup_parameters (struct cb_field *f)
 		break;
 
 	case CB_USAGE_LENGTH:
-		f->pic = CB_PICTURE (cb_build_picture ("9(9)"));
+		f->pic = cb_build_picture ("9(9)");
 		f->pic->flag_is_calculated = 1;
 		break;
 
 	case CB_USAGE_POINTER:
 	case CB_USAGE_PROGRAM_POINTER:
 #ifdef COB_64_BIT_POINTER
-		f->pic = CB_PICTURE (cb_build_picture ("9(17)"));
+		f->pic = cb_build_picture ("9(17)");
 #else
-		f->pic = CB_PICTURE (cb_build_picture ("9(10)"));
+		f->pic = cb_build_picture ("9(10)");
 #endif
 		f->pic->flag_is_calculated = 1;
 		break;
 	case CB_USAGE_FLOAT:
-		f->pic = CB_PICTURE (cb_build_picture ("S9(7)V9(8)"));
+		f->pic = cb_build_picture ("S9(7)V9(8)");
+		f->pic->flag_is_calculated = 1;
+		break;
+	case CB_USAGE_LONG_DOUBLE:
+		f->pic = cb_build_picture ("S9(19)V9(19)");
 		f->pic->flag_is_calculated = 1;
 		break;
 	case CB_USAGE_DOUBLE:
-		f->pic = CB_PICTURE (cb_build_picture ("S9(17)V9(17)"));
+		f->pic = cb_build_picture ("S9(17)V9(17)");
 		f->pic->flag_is_calculated = 1;
 		break;
 	case CB_USAGE_FP_DEC64:
 		/* RXWRXW - Scale Fix me */
-		f->pic = CB_PICTURE (cb_build_picture ("S9(17)V9(16)"));
+		f->pic = cb_build_picture ("S9(17)V9(16)");
 		f->pic->flag_is_calculated = 1;
 		break;
 	case CB_USAGE_FP_DEC128:
 		/* RXWRXW - Scale Fix me */
-		f->pic = CB_PICTURE (cb_build_picture ("S999V9(34)"));
+		f->pic = cb_build_picture ("S999V9(34)");
 		f->pic->flag_is_calculated = 1;
 		break;
 
@@ -2167,11 +2523,11 @@ setup_parameters (struct cb_field *f)
 	case CB_USAGE_COMP_N:
 		if (f->pic->category == CB_CATEGORY_ALPHANUMERIC) {
 			if (f->pic->size > 8) {
-				f->pic = CB_PICTURE (cb_build_picture ("9(36)"));
+				f->pic = cb_build_picture ("9(36)");
 			} else {
 				char		pic[8];
 				sprintf (pic, "9(%u)", pic_digits[f->pic->size - 1]);
-				f->pic = CB_PICTURE (cb_build_picture (pic));
+				f->pic = cb_build_picture (pic);
 			}
 		}
 #ifndef WORDS_BIGENDIAN
@@ -2371,13 +2727,12 @@ compute_binary_size (struct cb_field *f, const int size)
 static struct cb_field *
 get_last_child (struct cb_field *f)
 {
-	do {
+	while (f->children) {
 		f = f->children;
 		while (f->sister) {
 			f = f->sister;
 		}
-	} while (f->children);
-
+	}
 	return f;
 }
 
@@ -2404,7 +2759,7 @@ set_report_field_offset (struct cb_field *f)
 			for (c = pp->children; c; c = c->sister) {	/* Find previous field */
 				if (c->sister == f) {
 					if (c->occurs_max > 1) {
-					 	f->offset = c->offset + c->size * c->occurs_max + f->report_column;
+						f->offset = c->offset + c->size * c->occurs_max + f->report_column;
 					}
 					else {
 						f->offset = c->offset + c->size + f->report_column;
@@ -2416,60 +2771,93 @@ set_report_field_offset (struct cb_field *f)
 	}
 }
 
+/* get highest numeric integer value that may be stored in field 'f',
+   everything after the decimal point is stripped, non-numeric and float
+   data return 0 */
+static int
+get_max_int_val (struct cb_field *f)
+{
+	int max_val;
+
+	switch (f->usage) {
+	case CB_USAGE_BINARY:
+	case CB_USAGE_COMP_5:
+	case CB_USAGE_COMP_X:
+	case CB_USAGE_COMP_N:
+	case CB_USAGE_INDEX:
+		if (f->flag_real_binary || !cb_binary_truncate) {
+			max_val = f->size * 8;
+			if (f->pic->have_sign) {
+				max_val--;
+			}
+			max_val = cob_s32_pow (2, max_val);
+			break;
+		}
+		/* Fall-through */
+	case CB_USAGE_DISPLAY:
+		if (CB_TREE_CATEGORY (f) != CB_CATEGORY_NUMERIC
+		 && CB_TREE_CATEGORY (f) != CB_CATEGORY_NUMERIC_EDITED) {
+			return 0;
+		}
+		/* Fall-through */
+	case CB_USAGE_PACKED:
+	case CB_USAGE_COMP_6:
+		max_val = cob_s32_pow (10, f->pic->digits) - 1;
+		break;
+	default:
+		return 0;
+	}
+
+	if (f->pic->scale > 0) {
+		return max_val / cob_s32_pow (10, f->pic->scale);
+	}
+	if (f->pic->scale < 0) {
+		return max_val * cob_s32_pow (10, -f->pic->scale);
+	}
+	return max_val;
+}
+
+/* computes this field's and its children's size and offset */
 static int
 compute_size (struct cb_field *f)
 {
-	struct cb_field	*c;
-	int		size = 0;
-	int		size_check = 0;
-	int		align_size;
-	int		pad;
-	int		unbounded_items = 0;
-	int		unbounded_parts = 1;
+	const int max_size = f->storage == CB_STORAGE_LINKAGE
+		? COB_MAX_FIELD_SIZE_LINKAGE
+		: COB_MAX_FIELD_SIZE;
 
-	int		maxsz;
-	struct cb_field *c0;
-
-	if (f->storage == CB_STORAGE_REPORT) {
-		if (f->report_num_col > 1) {
-			if (f->flag_occurs) {
-				/* FIXME: this is no size calculation and likely not reachable (if it is: move) */
-				cb_error_x (CB_TREE (f), _("OCCURS and multi COLUMNs is not allowed"));
-			} else {
-				f->occurs_max = f->occurs_min = f->report_num_col;
-				f->flag_occurs = 1;
-				f->indexes = 1;
-			}
-		}
-	}
-	if (f->level == 66) {
-		/* Rename */
+	if (f->level == 66) {	/* RENAMES */
 		if (f->rename_thru) {
-			f->size = f->rename_thru->offset + f->rename_thru->size -
-				  f->redefines->offset;
-		} else {
+			f->size = f->rename_thru->offset
+			        + f->rename_thru->size - f->redefines->offset;
+		} else if (f->redefines) {
+#if 0	/* FIXME: redefine loop, possibly also below */
+			if (f->redefines->size == 0) {
+				f->size = compute_size (f->redefines);
+			} else {
+				f->size = f->redefines->size;
+			}
+#else
 			f->size = f->redefines->size;
+#endif
+		} else {
+			f->size = 1;	/* error case: invalid REDEFINES */
 		}
 		return f->size;
 	}
-	if (f->storage == CB_STORAGE_REPORT
-	 && (f->report_flag & COB_REPORT_LINE)
-	 && !(f->report_flag & COB_REPORT_LINE_PLUS)
-	 && f->parent
-	 && f->parent->children != f) {
-		for(c = f->parent->children; c && c != f; c = c->sister) {
-			if ((c->report_flag & COB_REPORT_LINE)
-			 && !(c->report_flag & COB_REPORT_LINE_PLUS)
-			 && c->report_line == f->report_line) {
-				cb_warning_x (cb_warn_additional, CB_TREE (f),
-					_("duplicate LINE %d ignored"), f->report_line);
-				f->report_line = 0;
-				f->report_flag &= ~COB_REPORT_LINE;
-			}
-		}
+
+	/* early exit if we're already calculated as "too big" */
+	if (f->size == max_size + 1) {
+		return f->size;
 	}
 
 	if (f->children) {
+		cob_s64_t		size_check = 0;
+		int		align_size;
+		int		pad;
+		int		unbounded_items = 0;
+		int		unbounded_parts = 1;
+
+		struct cb_field	*c;
 		if (f->storage == CB_STORAGE_REPORT
 		 && (f->report_flag & COB_REPORT_LINE) ) {
 			f->offset = 0;
@@ -2477,6 +2865,7 @@ compute_size (struct cb_field *f)
 
 		/* Groups */
 		if (f->flag_synchronized) {
+			/* TODO: handle this "per dialect", some disallow this (per ANSI85) or ignore it */
 			cb_warning_x (cb_warn_additional, CB_TREE (f),
 				_("ignoring SYNCHRONIZED for group item '%s'"),
 				cb_name (CB_TREE (f)));
@@ -2489,36 +2878,68 @@ unbounded_again:
 				c->offset = c->redefines->offset;
 				compute_size (c);
 				/* Increase the size if redefinition is larger */
-				if (c->level != 66 &&
-				    c->size * c->occurs_max >
+				if (c->level != 66
+				 && c->size * c->occurs_max >
 				    c->redefines->size * c->redefines->occurs_max) {
-					if (cb_larger_redefines_ok) {
-						cb_warning_x (cb_warn_additional, CB_TREE (c),
-							_("size of '%s' larger than size of '%s'"),
-							c->name, c->redefines->name);
-						maxsz = c->redefines->size * c->redefines->occurs_max;
+					if (cb_verify_x (CB_TREE (c), cb_larger_redefines, _("larger REDEFINES"))) {
+						struct cb_field *c0;
+						int		maxsz = c->redefines->size * c->redefines->occurs_max;
 						for (c0 = c->redefines->sister; c0 != c; c0 = c0->sister) {
 							if (c0->size * c0->occurs_max > maxsz) {
 								maxsz = c0->size * c0->occurs_max;
 							}
 						}
 						if (c->size * c->occurs_max > maxsz) {
-							size_check += (c->size * c->occurs_max) - maxsz;
+							size_check += ((cob_s64_t)c->size * c->occurs_max) - maxsz;
 						}
-					} else {
-						cb_error_x (CB_TREE (c),
-							    _("size of '%s' larger than size of '%s'"),
-							    c->name, c->redefines->name);
+					}
+					if (cb_larger_redefines >= CB_WARNING) {
+						cb_note_x (cb_warn_dialect, CB_TREE (c),
+							_("size of '%s' larger than size of '%s'"),
+							c->name, c->redefines->name);
 					}
 				}
 			} else {
 				c->offset = f->offset + (int) size_check;
 				compute_size (c);
-				if (c->flag_unbounded) {
-					unbounded_items++;
-					c->occurs_max = (COB_MAX_UNBOUNDED_SIZE / c->size / unbounded_parts) - 1;
+				if (c->flag_unbounded && CB_VALID_TREE (c->depending)) {
+					cb_tree dep = cb_ref (c->depending);
+					if (CB_FIELD_P (dep)) {
+						const int max_odo_value = get_max_int_val (CB_FIELD (dep));
+						unbounded_items++;
+						/* computed MAX */
+						{
+							/* size above the field  [there is no sister for UNBOUNDED]*/
+							cob_s64_t size_above = 0;
+							struct cb_field *curr_fld = c;
+							struct cb_field *p_fld = f;
+							while (p_fld) {
+								struct cb_field *p_fld_c;
+								for (p_fld_c = p_fld->children; p_fld_c != curr_fld; p_fld_c = p_fld_c->sister) {
+									if (p_fld_c->size == 0) {
+										compute_size (p_fld_c);
+									}
+									size_above += p_fld_c->size;
+								}
+								curr_fld = p_fld;
+								p_fld = p_fld->parent;
+							}
+							/* calculated size */
+							c->occurs_max = (   (COB_MAX_UNBOUNDED_SIZE - size_above)
+							                  / (c->size * unbounded_parts)
+							                ) - 1;
+							/* maximum possible in ODO field */
+							if (max_odo_value != 0
+							 && max_odo_value < c->occurs_max) {
+								c->occurs_max = max_odo_value;
+							}
+						}
+
+					} else {
+						c->depending = cb_error_node;
+					}
 				}
-				size_check += c->size * c->occurs_max;
+				size_check += (cob_s64_t)c->size * c->occurs_max;
 
 				if (c->report_column > 0) { 		/* offset based on COLUMN value */
 					set_report_field_offset(c);
@@ -2540,10 +2961,10 @@ unbounded_again:
 					case CB_USAGE_FP_BIN128:
 					case CB_USAGE_FP_DEC64:
 					case CB_USAGE_FP_DEC128:
-						if (c->size == 2 ||
-						    c->size == 4 ||
-						    c->size == 8 ||
-						    c->size == 16) {
+						if (c->size == 2
+						 || c->size == 4
+						 || c->size == 8
+						 || c->size == 16) {
 							align_size = c->size;
 						}
 						break;
@@ -2580,12 +3001,16 @@ unbounded_again:
 
 			if (c->sister == NULL
 			 && c->storage == CB_STORAGE_REPORT) {	/* To set parent size */
-				if((c->offset + c->size) > size_check)
-					size_check = (c->offset + c->size);
+				cob_s64_t calc = (cob_s64_t)c->offset + c->size;
+				if (calc > size_check)
+					size_check = calc;
 			}
 		}
+
 		/* Ensure items within OCCURS are aligned correctly. */
-		if (f->occurs_max > 1 && (size_check % occur_align_size) != 0) {
+		if (f->occurs_max > 1
+		 && occur_align_size > 1
+		 && (size_check % occur_align_size) != 0) {
 			pad = occur_align_size - (size_check % occur_align_size);
 			size_check += pad;
 			/*
@@ -2600,7 +3025,7 @@ unbounded_again:
 			if (f->children) {
 				get_last_child (f)->offset += pad;
 			} else {
-				/* ToDo: add appropriate message (untranslated) */
+				/* TODO: add appropriate message (untranslated) */
 				COBC_ABORT ();	/* LCOV_EXCL_LINE */
 			}
 		}
@@ -2615,14 +3040,21 @@ unbounded_again:
 				}
 				goto unbounded_again;
 			}
-		} else if (size_check > COB_MAX_FIELD_SIZE) {
+		} else if (size_check > max_size) {
 			cb_error_x (CB_TREE (f),
 					_("'%s' cannot be larger than %d bytes"),
-					f->name, COB_MAX_FIELD_SIZE);
+					f->name, max_size);
+			size_check = max_size + 1;
 		}
-		f->size = (int) size_check;
+		if (size_check <= INT_MAX) {
+			f->size = (int) size_check;
+		} else {
+			f->size = INT_MAX;
+		}
 	} else if (!f->flag_is_external_form) {
+		int		size = 0;
 		/* Elementary item */
+
 		if (f->report_column > 0) { 		/* offset based on COLUMN value */
 			set_report_field_offset (f);
 		}
@@ -2665,7 +3097,20 @@ unbounded_again:
 #endif
 			compute_binary_size (f, size);
 			break;
+		case CB_USAGE_ERROR:
+			if (f->pic == NULL) {
+				/* should only happen for fields where we already raised
+				   an error and could not create an implied PICTURE either */
+				f->size = 1;
+				break;
+			}
+			/* Fall-through */
 		case CB_USAGE_DISPLAY:
+#if 0	/* should be always available here */
+			if (f->pic == NULL) {
+				break;
+			}
+#endif
 			/* boolean items without USAGE BIT */
 			if (f->pic->category == CB_CATEGORY_BOOLEAN) {
 				f->size = f->pic->size / 8;
@@ -2675,20 +3120,39 @@ unbounded_again:
 				break;
 			}
 			f->size = f->pic->size;
-			/* size check for single items */
-			if (f->size > COB_MAX_FIELD_SIZE) {
-				cb_error_x (CB_TREE (f),
-						_("'%s' cannot be larger than %d bytes"),
-						f->name, COB_MAX_FIELD_SIZE);
-			}
 			if (f->pic->have_sign && f->flag_sign_separate) {
 				f->size++;
 			}
+			/* note: size check for single items > INT_MAX done in tree.c */
+			if (f->size > max_size) {
+				cb_error_x (CB_TREE (f),
+						_("'%s' cannot be larger than %d bytes"),
+						f->name, max_size);
+				f->size = max_size + 1;
+			}
+			break;
+		case CB_USAGE_NATIONAL:
+#if 0	/* should be always available here */
+			if (f->pic == NULL) {
+				break;
+			}
+#endif
+			f->size = f->pic->size * COB_NATIONAL_SIZE;
 			break;
 		case CB_USAGE_PACKED:
+#if 0	/* should be always available here */
+			if (f->pic == NULL) {
+				break;
+			}
+#endif
 			f->size = f->pic->size / 2 + 1;
 			break;
 		case CB_USAGE_COMP_6:
+#if 0	/* should be always available here */
+			if (f->pic == NULL) {
+				break;
+			}
+#endif
 			f->size = (f->pic->size + 1) / 2;
 			break;
 		case CB_USAGE_INDEX:
@@ -2710,7 +3174,7 @@ unbounded_again:
 			f->size = sizeof (double);
 			break;
 		case CB_USAGE_LONG_DOUBLE:
-			f->size = 16;
+			f->size = 16;	/* sizeof (long double) */
 			break;
 		case CB_USAGE_FP_BIN32:
 			f->size = 4;
@@ -2737,24 +3201,30 @@ unbounded_again:
 			break;
 		/* LCOV_EXCL_START */
 		default:
-			cobc_err_msg (_("unexpected USAGE: %d"),
-					(int)f->usage);
+			/* as this is an unexpected message, only for requested reports,
+			   leave untranslated */
+			cobc_err_msg ("unexpected USAGE: %d", (int)f->usage);
 			COBC_ABORT ();
 		/* LCOV_EXCL_STOP */
 		}
 	}
 
-	/* The size of redefining field should not be larger than
-	   the size of redefined field unless the redefined field
-	   is level 01 and non-external */
-	if (f->redefines && f->redefines->flag_external &&
-	    (f->size * f->occurs_max > f->redefines->size * f->redefines->occurs_max)) {
-		if (cb_larger_redefines_ok) {
-			cb_warning_x (cb_warn_additional, CB_TREE (f),
-				_("size of '%s' larger than size of '%s'"),
-				f->name, f->redefines->name);
+	/* COBOL standard: The size of redefining field should not be larger
+	   than the size of redefined field unless the redefined field is
+	   level 01 and non-external */
+	if (f->level == 1 && f->redefines
+	 && (f->size * f->occurs_max > f->redefines->size * f->redefines->occurs_max)) {
+		/* note: when allowed the redefined field is NOT size-adjusted here */
+		if (f->redefines->flag_external) {
+			if (!cb_verify_x (CB_TREE (f), cb_larger_redefines, _("larger REDEFINES"))
+			 || cb_larger_redefines == CB_WARNING) {
+				cb_note_x (cb_warn_dialect, CB_TREE (f),
+					_("size of '%s' larger than size of '%s'"),
+					f->name, f->redefines->name);
+			}
 		} else {
-			cb_error_x (CB_TREE (f), _("size of '%s' larger than size of '%s'"),
+			cb_warning_x (cb_warn_larger_01_redefines, CB_TREE (f),
+				_("size of '%s' larger than size of '%s'"),
 				f->name, f->redefines->name);
 		}
 	}
@@ -2762,20 +3232,170 @@ unbounded_again:
 	return f->size;
 }
 
+/* Check for default-matching VALUE, and depending on "default init"
+   replace by cb_zero/cb_space and return 1 if the value matches the default. */
+static int
+cleanup_field_value (struct cb_field* f, cb_tree *val)
+{
+	switch (CB_TREE_CATEGORY (f)) {
+	case CB_CATEGORY_NUMERIC:
+		if (CB_LITERAL_P (*val)) {
+			const struct cb_literal* lit = CB_LITERAL (*val);
+			char *p = (char*)lit->data;
+			char *end = p + lit->size - 1;
+			/* note: literal data has no sign or decimal period any more */
+			if (*end == '0') {
+				while (p < end && *p == '0') p++;
+				if (p == end) *val = cb_zero;
+			}
+		}
+		if (*val == cb_zero
+		 && !f->flag_internal_register
+		 && cb_default_byte == CB_DEFAULT_BYTE_INIT
+		 && ( f->storage == CB_STORAGE_WORKING
+		   || f->storage == CB_STORAGE_LOCAL)
+		 && !f->flag_sign_separate) {
+			return 1;
+		}
+		break;
+	case CB_CATEGORY_NATIONAL:
+		if (CB_LITERAL_P (*val)) {
+			const struct cb_literal *lit = CB_LITERAL (*val);
+			char *p = (char*)lit->data;
+			char *end = p + lit->size - 1;
+			if (lit->size % COB_NATIONAL_SIZE != 0) {
+				break;
+			}
+			if (*end == ' ') {
+				while (p < end && p[0] == 0x00 && p[1] == ' ') p += 2;
+				if (p == end) *val = cb_space;
+			}
+		}
+		if (*val == cb_space
+		 && !f->flag_internal_register
+		 && ( cb_default_byte == CB_DEFAULT_BYTE_INIT)
+		 && ( f->storage == CB_STORAGE_WORKING
+		   || f->storage == CB_STORAGE_LOCAL)
+		 && !f->children) {
+			return 1;
+		}
+		break;
+	case CB_CATEGORY_ALPHANUMERIC:
+		if (CB_LITERAL_P (*val)) {
+			const struct cb_literal *lit = CB_LITERAL (*val);
+			char *p = (char*)lit->data;
+			char *end = p + lit->size - 1;
+			if (*end == ' ') {
+				while (p < end && *p == ' ') p++;
+				if (p == end) *val = cb_space;
+			}
+		}
+		if (*val == cb_space
+		 && !f->flag_internal_register
+		 && ( cb_default_byte == CB_DEFAULT_BYTE_INIT
+		   || cb_default_byte == ' ')
+		 && ( f->storage == CB_STORAGE_WORKING
+		   || f->storage == CB_STORAGE_LOCAL)
+		 && !f->children) {
+			return 1;
+		}
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+/* validate list of simple VALUEs */
+static int
+validate_field_value_list (cb_tree values, struct cb_field* f)
+{
+	int ret = 0;
+	int ret_single;
+	int no_relevant_value = 1;
+	for (; values; values = CB_CHAIN (values)) {
+		cb_tree value = CB_VALUE (values);
+		ret_single = validate_move (value, CB_TREE (f), 1, NULL);
+		if (!ret_single) {
+			/* possible cleanup for value */
+			if (!cleanup_field_value (f, &value)) {
+				no_relevant_value = 0;
+			}
+		} else {
+			ret++;
+		}
+	}
+	if (no_relevant_value
+	 && !ret) {
+#if 0 /* this idea was nice, but we need a hint for
+         INITIALIZE BY VALUE, so don't drop the value; otherwise
+         fails "752. run_misc.at:10849: dump feature with NULL address ..." */
+		/* if deemed that no value is necessary: drop that completely */
+		f->values = NULL;
+#endif
+	}
+	return ret;
+}
+
+/* validate if field's VALUE clause matches
+   the necesary rules;
+   remove VALUE clause if it matches the default setting
+   to improve codegen
+   recursively called for the field's sub-fields */
 static int
 validate_field_value (struct cb_field *f)
 {
+	int ret = 0;
 	if (f->values) {
-		validate_move (CB_VALUE (f->values), CB_TREE (f), 1, NULL);
+		if (f->flag_picture_l) {
+			cb_error_x (CB_TREE (f),
+				    _("%s and %s are mutually exclusive"),
+				    _("variable-length PICTURE"), "VALUE");
+			f->values = NULL;
+			return 1;
+		} else {
+			cb_tree x = f->values;
+			int ret_single = 0;
+			if (!CB_LIST_P (x)) {
+				/* simple, single VALUE */
+				ret_single = validate_move (x, CB_TREE (f), 1, NULL);
+				if (!ret_single) {
+					/* possible cleanup for value */
+					if (cleanup_field_value (f, &x)) {
+#if 0 /* this idea was nice, but we need a hint for
+         INITIALIZE BY VALUE, so don't drop the value; otherwise
+         fails "752. run_misc.at:10849: dump feature with NULL address ..." */
+						/* if deemed that no value is necessary: drop that completely */
+						f->values = NULL;
+#endif
+					}
+				} else {
+					ret++;
+				}
+
+			} else if (!CB_TAB_VALS_P (CB_VALUE (x))) {
+				/* list of simple VALUEs */ 
+				ret += validate_field_value_list (x, f);
+			} else {
+				/* list of complex entries (table-format) for OCCURS */
+				for (; x; x = CB_CHAIN (x)) {
+					const struct cb_table_values *vals
+						= CB_TAB_VALS (CB_VALUE (x));
+					/* check for the value entry types */
+					ret += validate_field_value_list (vals->values, f);
+				}
+			}
+		}
 	}
 
 	if (f->children) {
 		for (f = f->children; f; f = f->sister) {
-			validate_field_value (f);
+			ret += validate_field_value (f);
 		}
 	}
 
-	return 0;
+	return ret;
 }
 
 void
@@ -2813,7 +3433,11 @@ cb_validate_field (struct cb_field *f)
 		f->redefines->memory_size = f->size * f->occurs_max;
 	}
 
-	validate_field_value (f);
+	if (!f->flag_internal_register) {
+		/* don't check internal ones, these ought to be fine
+		   and would otherwise be checked on each run of cobc */
+		validate_field_value (f);
+	}
 	if (f->flag_is_global) {
 		struct cb_field		*c;
 #if 0 /* CHECKME: Why should we adjust the field count here? */
@@ -2835,16 +3459,19 @@ cb_validate_field (struct cb_field *f)
 void
 cb_validate_88_item (struct cb_field *f)
 {
-	cb_tree x = CB_TREE (f);
-	cb_tree l;
-	cb_tree t;
+	if (CB_VALID_TREE (f->parent)
+	 && CB_TREE_CLASS (f->parent) == CB_CLASS_NUMERIC) {
 
-	if (CB_VALID_TREE (f->parent) &&
-	    CB_TREE_CLASS (f->parent) == CB_CLASS_NUMERIC) {
+		cb_tree l;
+
 		for (l = f->values; l; l = CB_CHAIN (l)) {
-			t = CB_VALUE (l);
-			if (t == cb_space || t == cb_low ||
-			    t == cb_high || t == cb_quote) {
+			cb_tree x = CB_VALUE (l);
+			/* for list A THRU C, X, Z we have another list */
+			if (CB_LIST_P (x)) {
+				x = CB_VALUE (x);
+			}
+			if (CB_TREE_CLASS (x) != CB_CLASS_NUMERIC) {
+				if (CB_CONST_P (x)) x = CB_TREE (f);
 				cb_error_x (x, _("literal type does not match numeric data type"));
 			}
 		}
@@ -2869,8 +3496,8 @@ cb_validate_78_item (struct cb_field *f, const cob_u32_t no78add)
 		prec = 0;
 	}
 
-	if (cb_is_expr (f->values) ) {
-		f->values = CB_LIST_INIT(cb_evaluate_expr (f->values, prec));
+	if (CB_LIST_P (f->values) && cb_is_expr (f->values) ) {
+		f->values = cb_evaluate_expr (f->values, prec);
 	}
 
 	x = CB_TREE (f);
@@ -2878,7 +3505,8 @@ cb_validate_78_item (struct cb_field *f, const cob_u32_t no78add)
 	if (CB_INVALID_TREE (f->values)) {
 		level_require_error (x, "VALUE");
 		noadd = 1;
-	} else if (CB_INVALID_TREE (CB_VALUE (f->values))) {
+	} else if (CB_LIST_P (f->values)
+	        && CB_INVALID_TREE (CB_VALUE (f->values))) {
 		noadd = 1;
 	}
 
@@ -2984,8 +3612,8 @@ error_if_invalid_type_in_renames_range (const struct cb_field * const item)
 	while (f) {
 		category = cb_tree_category (CB_TREE (f));
 		if (category == CB_CATEGORY_OBJECT_REFERENCE
-		    || category == CB_CATEGORY_DATA_POINTER
-		    || category == CB_CATEGORY_PROGRAM_POINTER) {
+		 || category == CB_CATEGORY_DATA_POINTER
+		 || category == CB_CATEGORY_PROGRAM_POINTER) {
 			cb_error_x (CB_TREE (item),
 				    _("RENAMES may not contain '%s' as it is a pointer or object reference"),
 				    cb_name (CB_TREE (f)));
@@ -3115,6 +3743,8 @@ cb_get_usage_string (const enum cb_usage usage)
 	case CB_USAGE_DOUBLE:
 		return "COMP-2";
 		/* return "FLOAT-LONG"; */
+	case CB_USAGE_LONG_DOUBLE:
+		return "FLOAT-EXTENDED";
 	case CB_USAGE_INDEX:
 		return "INDEX";
 	case CB_USAGE_NATIONAL:
@@ -3159,8 +3789,6 @@ cb_get_usage_string (const enum cb_usage usage)
 		return "FLOAT-BINARY-64";
 	case CB_USAGE_FP_BIN128:
 		return "FLOAT-BINARY-128";
-	case CB_USAGE_LONG_DOUBLE:
-		return "FLOAT-EXTENDED";
 	case CB_USAGE_HNDL:
 		return "HANDLE";
 	case CB_USAGE_HNDL_WINDOW:
@@ -3179,7 +3807,9 @@ cb_get_usage_string (const enum cb_usage usage)
 		return "HANDLE OF LAYOUT-MANAGER";
 	/* LCOV_EXCL_START */
 	default:
-		cb_error (_("unexpected USAGE: %d"), usage);
+		/* as this is an unexpected message, only for requested reports,
+		   leave untranslated */
+		cb_error ("unexpected USAGE: %d", usage);
 		COBC_ABORT ();
 	/* LCOV_EXCL_STOP */
 	}
@@ -3197,7 +3827,8 @@ cb_is_figurative_constant (const cb_tree x)
 		|| x == cb_norm_high
 		|| x == cb_quote
 		|| (CB_REFERENCE_P (x)
-		    && CB_REFERENCE (x)->flag_all);
+		 && CB_REFERENCE (x)->subs == NULL
+		 && CB_REFERENCE (x)->flag_all);
 }
 
 int

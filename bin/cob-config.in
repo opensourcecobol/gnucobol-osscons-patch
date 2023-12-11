@@ -2,8 +2,8 @@
 #
 # cob-config
 #
-# Copyright (C) 2003-2012, 2020 Free Software Foundation, Inc.
-# Written by Keisuke Nishida, Roger While
+# Copyright (C) 2003-2012, 2020, 2023 Free Software Foundation, Inc.
+# Written by Keisuke Nishida, Roger While, Simon Sobisch, Fabrice Le Fessant
 #
 # This file is part of GnuCOBOL.
 #
@@ -26,6 +26,11 @@ exec_prefix=${prefix}
 exec_prefix_set=no
 libdir=@libdir@
 includedir=@includedir@
+bindir=@bindir@
+datarootdir=@datarootdir@
+datadir=@datadir@
+includedir=@includedir@
+mandir=@mandir@
 
 version="@VERSION@.@COB_PATCH_LEVEL@"
 cflags="@COB_CFLAGS@"
@@ -39,6 +44,8 @@ usage()
 	cat <<EOF
 Usage: $me [options]
 
+echos configuration variables of ${THIS}.
+
 Options:
   --prefix           echos the package-prefix of ${THIS}
   --exec-prefix      echos the executable-prefix of ${THIS}
@@ -49,6 +56,7 @@ Options:
   --version          echos the release+patchdate version of ${THIS}
 
   --bindir           echos the directory containing ${THIS} programs
+  --datarootdir      echos the data root for ${THIS}
   --datadir          echos the directory containing ${THIS} data
   --includedir       echos the directory containing ${THIS} header files
   --libdir           echos the directory containing ${THIS} libraries
@@ -70,32 +78,56 @@ while test $# -gt 0; do
   esac
 
   case $1 in
-    --prefix=*)
+    -prefix=* | --prefix=* | --prefi=* | --pref=* | --pre=* | --pr=* | --p=*)
       prefix=$optarg
       if test $exec_prefix_set = no ; then
         exec_prefix=$optarg
       fi
       ;;
-    --prefix)
-      echo_prefix=yes
-      ;;
-    --exec-prefix=*)
+    -exec-prefix=* | --exec_prefix=* | --exec-prefix=* | --exec-prefi=* \
+    | --exec-pref=* | --exec-pre=* | --exec-pr=* | --exec-p=* | --exec-=* \
+    | --exec=* | --exe=* | --ex=*)
       exec_prefix=$optarg
       exec_prefix_set=yes
       ;;
-    --exec-prefix)
-      echo_exec_prefix=yes
+    -prefix | --prefix | --prefi | --pref | --pre | --pr | --p)
+      echo ${prefix}
       ;;
-    --version)
-      echo $version
+    -exec-prefix | --exec_prefix | --exec-prefix | --exec-prefi \
+    | --exec-pref | --exec-pre | --exec-pr | --exec-p | --exec- \
+    | --exec | --exe | --ex)
+      echo ${exec_prefix}
       ;;
-    --cflags)
-      echo_cflags=yes
+    -version | --version | --versio | --versi | --vers | -V)
+      echo ${version}
       ;;
-    --libs)
-      echo_libs=yes
+    -cflags | --cflags | --cflag | --cfla | --cfl | --cf | --c | -c)
+      echo ${cflags}
       ;;
-    --help)
+    -libs | --libs | --lib | --li | --l | -l)
+      echo ${libs}
+      ;;
+    -bindir | --bindir | --bindi | --bind | --bin | --bi)
+      echo ${bindir}
+      ;;
+    -datarootdir | --datarootdir | --datarootdi | --datarootd | --dataroot \
+    | --dataroo | --dataro | --datar)
+      echo ${datarootdir}
+      ;;
+    -datadir | --datadir | --datadi | --datad)
+      echo ${datadir}
+      ;;
+    -includedir | --includedir | --includedi | --included | --include \
+    | --includ | --inclu | --incl | --inc)
+      echo ${includedir}
+      ;;
+    -libdir | --libdir | --libdi | --libd)
+      echo ${libdir}
+      ;;
+    -mandir | --mandir | --mandi | --mand | --man | --ma | --m | -m)
+      echo ${mandir}
+      ;;
+    -help | --help | --hel | --he | -h)
 	cat <<EOF
 This is a shell script which simplifies configuring applications
 against a particular version of the GnuCOBOL library.
@@ -109,19 +141,3 @@ EOF
   esac
   shift
 done
-
-if test "$echo_prefix" = "yes"; then
-	echo $prefix
-fi
-
-if test "$echo_exec_prefix" = "yes"; then
-	echo $exec_prefix
-fi
-
-if test "$echo_cflags" = "yes"; then
-      echo $cflags
-fi
-
-if test "$echo_libs" = "yes"; then
-      echo $libs
-fi

@@ -1,40 +1,112 @@
-Alain Lucari <eurlix@libertysurf.fr>
-Brian Tiffin <btiffin@gnu.org>
-David Korn <dgk@research.att.com>
-Dave Pitts <dpitts@cozx.com>
-Edward Hart <edward.dan.hart@gmail.com>
-Joe Robbins (-2017)
-Keiichi Takahashi <bitwalk@jcom.home.ne.jp>
+Past and present maintainers:
+
 Keisuke Nishida <knishida@netlab.jp>
-Peg <peg@coboler.com>
-Richard Smith <rich@theforest.plus.com>
 Roger While (1950-2015)
 Simon Sobisch <simonsobisch@gnu.org>
-Thomas Biehler <tobiglob@users.sourceforge.net>
-William M. Klein <wmklein@ix.netcom.com>
-Yoshiki Kusumoto <webmaster@coboler.com>
 
-Also to the many people that have helped out in testing this product.
-We hope that everybody will continue to provide feedback. This is invaluable
-to the continuing development process.
 
-A special mention here of people who have provided exceptional support in terms
-of time and resources on hardware that was not available to the developers:
-Oleg Philon - For his work on the PowerPC
-David Wilson - For his work on the MAC (Darwin)
+Other core developers with major code and design contributions
+
+Ron Norman <rjn@inglenet.com> including but not limited to
+  - Implementation and ongoing work on the C-/D-/VBISAM handler
+  - Report Writer development
+  - Standard EXTFH together with ADDRESS OF FH--FCD and FH--KEYDEF
+  - Improved compatibility with Micro Focus COBOL
+  - Runtime configuration
+  - C-API to inspect/update COBOL data fields
+  - Dump on abort
+  - Performance improvements
+
+Edward Hart <edward.dan.hart@gmail.com> including but not limited to
+  - fine-grained configuration of run-time checks
+  - Compiler configuration, in particular reserved word handling
+  - datetime intrinsic functions
+  - XML GENERATE and JSON GENERATE
+  - Initial support for internal repository (function and program prototypes)
+  - Syntax support for standard COBOL and existing implementor extensions
+  - Bug fixes and test suite enhancements
+
+
+We are grateful for the work of the Translation Project, its translation teams
+and their individual contributors, who provide translations of user messages
+for non-English speakers.
+
+Similar thanks go to all the packagers who allow users to install GnuCOBOL from
+their distributions' package management systems.
+
+Also to the many people that have helped with testing this software.
+We hope that everyone will continue to provide feedback. This is invaluable
+to the ongoing development process.
+
+A special mention here goes to people who have given exceptional support in
+terms of time and resources on hardware that was not available to the
+developers:
+Oleg Philon     - For his work on the PowerPC
+David Wilson    - For his work on the MAC (Darwin)
 Sergey Kashyrin - For his work on:
-		SUN Solaris
-		IBM AIX
-		HP-UX
+  - SUN Solaris
+  - IBM AIX
+  - HP-UX
 
 And continuing this amazing support:
-Ludwin Janvier <lud.janvier@gmail.com> - patches concerning build/packaging issues
+Arnold Trembley <arnold.trembley@att.net> - Win32 packaging and user support
+Chuck Haatvedt <chuck.haatvedt@gmail.com> - Work on optimized BCD handling
+Ludwin Janvier <lud.janvier@gmail.com> - patches for build/packaging issues
 Hans-Martin Rasch - Work on compiler syntax
 Michel Gouget - Work on syntax - IS
 Bill Klein - The mainstay for COBOL questions
 Frank Swarbrick - Work on compiler syntax
-Warren Gay - For testing systems that we didn't known that we even support!
-	(eg. old DEC Alpha systems)
-Ron Norman - Work on C/D/VB-ISAM handler
-           - Development of Report Writer
-Fabrizio Calabretta - Work on the EXTFH interface
+Warren Gay - For testing systems we didn't even know we supported!
+   (e.g. old DEC Alpha systems)
+Fabrizio Calabretta - Work on the internal EXTFH interface
+
+Gary L. Cutler <cutlergl@gmail.com> and Vincent B. Coen <vbcoen@gmail.com> for
+writing and maintaining the GnuCOBOL Programmer's Guide.
+
+OCamlPro SAS for assigning David Declerck, Nicolas Berthier and
+Fabrice Le Fessant to work for adding GCOS (Bull) support and
+contributing the result.
+
+Denis Hugonnard-Roche for continuous additions to the internal test suite to
+improve code coverage.
+
+
+Further explicit thanks to
+
+Alain Lucari <eurlix@libertysurf.fr>
+Brian Tiffin <btiffin@gnu.org>
+David Korn <dgk@research.att.com>
+Dave Pitts <dpitts@cozx.com>
+Joe Robbins (-2017)
+Keiichi Takahashi <bitwalk@jcom.home.ne.jp>
+Peg <peg@coboler.com>
+Richard Smith <rich@theforest.plus.com>
+Thomas Biehler <tobiglob@users.sourceforge.net>
+William M. Klein <wmklein@ix.netcom.com>
+Yoshiki Kusumoto <webmaster@coboler.com>
+
+
+-------------------------------------------------------------------------------
+For OpenCOBOL 0.10:
+
+Bug reports and patches by:
+
+  Ingo D. Rullhusen
+  Richard A. Painter
+  Tim Josling
+
+OpenCOBOL was inspired by the TinyCOBOL project.
+Thanks to the TinyCOBOL authors and maintainers.
+
+
+Additional from TinyCOBOL:
+
+Rildo Pragana (1958-2020)
+
+Andrew Cameron
+Bernard Giroud 
+David Essex 
+Jeff Smith
+Jim Noeth
+Stephen Connolly
+Laura Tweedy

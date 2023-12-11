@@ -1,4 +1,4 @@
-## Copyright (C) 2003-2012, 2014, 2016-2020 Free Software Foundation, Inc.
+## Copyright (C) 2003-2012, 2014, 2016-2023 Free Software Foundation, Inc.
 ## Written by Keisuke Nishida, Roger While, Simon Sobisch, Joe Robbins,
 ## Edward Hart
 ##
@@ -862,6 +862,27 @@ AT_DATA([prog.cob], [
            STOP RUN.
 ])
 
+AT_DATA([prog2.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       INPUT-OUTPUT     SECTION.
+       FILE-CONTROL.
+       SELECT TEST-FILE ASSIGN TO 'FILE-TEST'
+                        ORGANIZATION IS SEQUENTIAL.
+       DATA             DIVISION.
+       FILE             SECTION.
+       FD TEST-FILE
+           RECORD CONTAINS 12 TO 125 CHARACTERS
+             DEPENDING ON RECORDSIZE.
+       01  TEST-REC.
+           05 FILLER    PIC X(40).
+       PROCEDURE        DIVISION.
+           OPEN  INPUT TEST-FILE.
+           CLOSE TEST-FILE.
+           STOP RUN.
+])
+
 # FIXME: the check misses "prog.cob:40: error: RECORD DEPENDING item must be unsigned numeric"
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:20: error: 'RECORDSIZE' is not defined
@@ -875,12 +896,19 @@ prog.cob:26: error: RECORD DEPENDING must reference a data-item
 prog.cob:34: warning: RECORD DEPENDING item 'RECORDSIZE3' should be defined in WORKING-STORAGE, LOCAL-STORAGE or LINKAGE SECTION
 prog.cob:40: warning: RECORD DEPENDING item 'RECORDSIZE4' should be defined in WORKING-STORAGE, LOCAL-STORAGE or LINKAGE SECTION
 ])
+AT_CHECK([$COMPILE_ONLY -frecord-contains-depending-clause=error prog2.cob], [1], [],
+[prog2.cob:13: error: RECORD CONTAINS DEPENDING used
+prog2.cob:13: error: 'RECORDSIZE' is not defined
+])
+AT_CHECK([$COMPILE_ONLY -frecord-contains-depending-clause=ok prog2.cob], [1], [],
+[prog2.cob:13: error: 'RECORDSIZE' is not defined
+])
 
 AT_CLEANUP
 
 
 AT_SETUP([DECLARATIVES invalid procedure reference (1)])
-AT_KEYWORDS([file])
+AT_KEYWORDS([file GOTO GO PERFORM])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
@@ -903,8 +931,8 @@ AT_DATA([prog.cob], [
        G01 SECTION.
            USE AFTER ERROR PROCEDURE ON GO-FILE.
        G02.
-           DISPLAY "OK"
-           END-DISPLAY.
+           DISPLAY "OK".
+      *    explicit check both PERFORM and GO TO - silencing its warning
            GO TO GG02.
        P01 SECTION.
            USE AFTER ERROR PROCEDURE ON PERF-FILE.
@@ -931,7 +959,7 @@ AT_DATA([prog.cob], [
            STOP RUN.
 ])
 
-AT_CHECK([$COMPILE_ONLY -Wno-dialect prog.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -Wno-dialect -Wno-goto-different-section prog.cob], [0], [], [])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
 [prog.cob: in section 'G01':
@@ -943,7 +971,7 @@ prog.cob:31: warning: 'PPOK' is not in DECLARATIVES
 prog.cob:34: warning: 'PP02' is not in DECLARATIVES
 ])
 
-AT_CHECK([$COMPILE_ONLY -freference-out-of-declaratives=ok prog.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -freference-out-of-declaratives=ok -Wno-goto-different-section prog.cob], [0], [], [])
 
 AT_CHECK([$COMPILE_ONLY -std=cobol2014 prog.cob], [1], [],
 [prog.cob: in section 'G01':
@@ -1076,13 +1104,15 @@ AT_DATA([prog.cob], [
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
        SPECIAL-NAMES.
-           ALPHABET A IS ASCII.
+           ALPHABET A IS ASCII, ALPHABET EBC IS EBCDIC.
 
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT f, ASSIGN "f.dat", LINE SEQUENTIAL.
-           SELECT g, ASSIGN "g.dat", LINE SEQUENTIAL.
-
+           SELECT g, ASSIGN "g.dat", SEQUENTIAL.
+           SELECT h, ASSIGN "h.dat", LINE SEQUENTIAL.
+           SELECT i, ASSIGN "i.dat", SEQUENTIAL.
+           
        DATA DIVISION.
        FILE SECTION.
        FD  f CODE-SET A.
@@ -1090,13 +1120,27 @@ AT_DATA([prog.cob], [
 
        FD  g CODE-SET foo.
        01  g-rec PIC X(10).
+
+       FD  h CODE-SET ebcdic.
+       01  h-rec PIC X(10).
+
+       FD  i CODE-SET ebc FOR h-rec.
+       01  i-rec PIC X(10).
 ])
 
+# FIXME: this test will false-positive fail on EBCDIC machines
+
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:17: warning: ignoring CODE-SET 'A'
-prog.cob:20: error: 'foo' is not defined
-prog.cob:20: error: 'foo' is not an alphabet-name
+[prog.cob:19: note: ignoring CODE-SET 'A'
+prog.cob:22: error: 'foo' is not defined
+prog.cob:22: error: 'foo' is not an alphabet-name
+prog.cob:25: error: 'ebcdic' cannot be used here
+prog.cob:25: error: 'ebcdic' is not an alphabet-name
+prog.cob:28: warning: handling of CODE-SET is unfinished; implementation is likely to be changed
+prog.cob:28: error: FOR item 'h-rec' is a record
+prog.cob:28: error: FOR item 'h-rec' is not in a record associated with 'FILE i'
 ])
+
 AT_CLEANUP
 
 
@@ -1126,8 +1170,7 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:16: warning: FOR sub-records is not implemented
-prog.cob:16: warning: CODE-SET is not implemented
+[prog.cob:16: warning: handling of CODE-SET is unfinished; implementation is likely to be changed
 prog.cob:16: error: FOR item 'x' is a record
 prog.cob:16: error: FOR item 'z' is in different record to 'x'
 ])
@@ -1219,7 +1262,7 @@ prog.cob:8: error: missing file description for FILE testfile
 AT_CLEANUP
 
 
-AT_SETUP([RELATIVE KEY type checks])
+AT_SETUP([RELATIVE KEY type validation])
 AT_KEYWORDS([RELATIVE FILE])
 
 AT_DATA([prog.cob], [
@@ -1498,17 +1541,15 @@ AT_CHECK([$COMPILE_ONLY -fodoslide prog.cob], [1], [],
 prog.cob:18: error: 'non-existent' is not defined
 prog.cob:9: warning: FILE STATUS 'gs' is a numeric field, but I-O status codes are not numeric in general
 prog.cob:10: error: FILE STATUS 'hs' must be in WORKING-STORAGE, LOCAL-STORAGE or LINKAGE
-prog.cob:11: error: FILE STATUS 'js' must be alphanumeric or numeric field
+prog.cob:11: error: FILE STATUS 'js' must be an alphanumeric or numeric field
 prog.cob:12: warning: FILE STATUS 'ks' is a numeric field, but I-O status codes are not numeric in general
 prog.cob:12: error: FILE STATUS 'ks' must be USAGE DISPLAY
 prog.cob:13: error: FILE STATUS 'ls' may not be a decimal or have a PIC with a P
-prog.cob:13: warning: FILE STATUS 'ls' is a numeric field, but I-O status codes are not numeric in general
 prog.cob:14: error: FILE STATUS 'ms' may not be a decimal or have a PIC with a P
-prog.cob:14: warning: FILE STATUS 'ms' is a numeric field, but I-O status codes are not numeric in general
 prog.cob:15: error: FILE STATUS 'ns' must be 2 characters long
 prog.cob:16: error: FILE STATUS 'os' may not be located after an OCCURS DEPENDING field
-prog.cob:17: error: FILE STATUS 'ps' must be alphanumeric or numeric field
-prog.cob:19: error: FILE STATUS 'rs' must be alphanumeric or numeric field
+prog.cob:17: error: FILE STATUS 'ps' must be an alphanumeric or numeric field
+prog.cob:19: error: FILE STATUS 'rs' is not a field
 ])
 AT_CLEANUP
 
@@ -1686,11 +1727,11 @@ AT_DATA([prog.cob], [
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:21: error: figurative constants not allowed in FROM clause
-prog.cob:21: error: literal in FROM clause must be alphanumeric, national or boolean
+prog.cob:21: error: literal in FROM clause must be alphanumeric, utf-8, national or boolean
 prog.cob:22: warning: numeric value is expected
 prog.cob:13: note: 'f-rec' defined here as PIC 999999
 prog.cob:24: error: figurative constants not allowed in FROM clause
-prog.cob:24: error: literal in FROM clause must be alphanumeric, national or boolean
+prog.cob:24: error: literal in FROM clause must be alphanumeric, utf-8, national or boolean
 prog.cob:25: warning: numeric value is expected
 prog.cob:13: note: 'f-rec' defined here as PIC 999999
 ])
@@ -1705,41 +1746,6 @@ AT_CHECK([$COMPILE_ONLY -std=mf-strict prog.cob], [0], [],
 prog.cob:25: warning: source is non-numeric - substituting zero
 ])
 
-AT_CLEANUP
-
-
-
-AT_SETUP([WRITE / REWRITE on LINE SEQUENTIAL files])
-AT_KEYWORDS([file])
-
-# FIXME: this should be depending on a compilation flag,
-#        see reportwriter branch for this feature
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. prog.
-
-       ENVIRONMENT DIVISION.
-       INPUT-OUTPUT SECTION.
-       FILE-CONTROL.
-           SELECT f ASSIGN TO "ssad" LINE SEQUENTIAL.
-
-       DATA DIVISION.
-       FILE SECTION.
-       FD  f.
-       01  f-rec PIC X(05).
-
-       PROCEDURE DIVISION.
-           OPEN OUTPUT f
-           WRITE FILE f FROM "abc"
-           REWRITE FILE f FROM "abc"
-           CLOSE f
-           .
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:18: error: REWRITE not allowed on LINE SEQUENTIAL files
-])
 AT_CLEANUP
 
 
@@ -1827,6 +1833,34 @@ prog.cob:12: warning: variable 'fid-file1' will be implicitly defined
 AT_CLEANUP
 
 
+AT_SETUP([ASSIGN external-name matching filename])
+AT_KEYWORDS([file external])
+
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       INPUT-OUTPUT     SECTION.
+       FILE-CONTROL.
+       SELECT SYSUT1    ASSIGN TO sysut1.
+       DATA             DIVISION.
+       FILE             SECTION.
+       FD  SYSUT1.
+       01  SYSUT1-REC   PIC X(4).
+       PROCEDURE        DIVISION.
+           OPEN INPUT SYSUT1.
+           GOBACK.
+])
+
+AT_CHECK([$COMPILE_ONLY -fassign-clause=external prog.cob], [0], [], [])
+# ASSIGN dynamic should still work here, it is to be seen as literal
+# as long as it matches the file name (note: it still differs as "external"
+# would also cut "labels" from the literal
+AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
+AT_CLEANUP
+
+
 AT_SETUP([Undeclared ASSIGN variable])
 AT_KEYWORDS([file global])
 
@@ -1903,31 +1937,6 @@ AT_DATA([prog.cob], [
 AT_CHECK([$COMPILE_ONLY -Wimplicit-define prog.cob], [0], [],
 [[prog.cob:60: warning: variable 'GLOB-PATH' will be implicitly defined
 ]])
-AT_CLEANUP
-
-
-AT_SETUP([OPEN I-O with LINE SEQUENTIAL])
-AT_KEYWORDS([file])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. prog.
-       ENVIRONMENT DIVISION.
-       INPUT-OUTPUT SECTION.
-       FILE-CONTROL.
-           SELECT file1 ASSIGN DISK ORGANIZATION LINE SEQUENTIAL.
-       DATA DIVISION.
-       FILE SECTION.
-       FD  file1.
-       01  file1-rec PIC X.
-       PROCEDURE DIVISION.
-           OPEN I-O file1.
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:13: error: OPEN I-O not allowed on LINE SEQUENTIAL files
-])
-
 AT_CLEANUP
 
 
@@ -2241,7 +2250,7 @@ AT_DATA([prog.cob], [
 ])
 
 # note: we actually want to check codegen -> C compilation here
-AT_CHECK([$COMPILE -std=cobol2002 prog.cob], [0], [], [])
+AT_CHECK([$COMPILE -std=cobol2002 -Wno-unsupported prog.cob], [0], [], [])
 
 AT_CLEANUP
 

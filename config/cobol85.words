@@ -1,6 +1,6 @@
 # GnuCOBOL compiler - list of reserved words
 #
-# Copyright (C) 2016-2017 Free Software Foundation, Inc.
+# Copyright (C) 2016-2017,2021,2023 Free Software Foundation, Inc.
 # Written by Simon Sobisch, Edward Hart
 #
 # This file is part of GnuCOBOL.
@@ -75,13 +75,14 @@ reserved:	CLOSE
 reserved:	COBOL
 reserved:	CODE
 reserved:	CODE-SET
+#reserved:	COL			# CHECKME: not in this list before - missing or added 2002?
 reserved:	COLLATING
 reserved:	COLUMN
 reserved:	COMMA
 reserved:	COMMON
 reserved:	COMMUNICATION
 reserved:	COMP
-reserved:	COMPUTATIONAL
+reserved:	COMPUTATIONAL=COMP
 reserved:	COMPUTE
 reserved:	CONFIGURATION
 reserved:	CONTAINS
@@ -91,7 +92,7 @@ reserved:	CONTROL
 reserved:	CONTROLS
 reserved:	CONVERTING
 reserved:	COPY
-reserved:	CORR
+reserved:	CORR=CORRESPONDING
 reserved:	CORRESPONDING
 reserved:	COUNT
 reserved:	CURRENCY
@@ -102,6 +103,17 @@ reserved:	DATE-WRITTEN
 reserved:	DAY
 reserved:	DAY-OF-WEEK
 reserved:	DE
+# note: the following are part of the register DEBUG-ITEM,
+#       they are automatically unreserved if the register is
+#       created, which happens on USE FOR DEBUGGING
+reserved:	DEBUG-CONTENTS
+reserved:	DEBUG-ITEM
+reserved:	DEBUG-LINE
+reserved:	DEBUG-NAME
+reserved:	DEBUG-SUB-1
+reserved:	DEBUG-SUB-2
+reserved:	DEBUG-SUB-3
+# debug-item end
 reserved:	DEBUGGING
 reserved:	DECIMAL-POINT
 reserved:	DECLARATIVES
@@ -194,7 +206,7 @@ reserved:	INSTALLATION
 reserved:	INTO
 reserved:	INVALID
 reserved:	IS
-reserved:	JUST
+reserved:	JUST=JUSTIFIED
 reserved:	JUSTIFIED
 reserved:	KEY
 reserved:	LABEL
@@ -267,7 +279,7 @@ reserved:	PROGRAM-ID
 reserved:	PURGE
 reserved:	QUEUE
 reserved:	QUOTE
-reserved:	QUOTES
+reserved:	QUOTES=QUOTE
 reserved:	RANDOM
 reserved:	RD
 reserved:	READ
@@ -337,7 +349,7 @@ reserved:	SUBTRACT
 reserved:	SUM
 reserved:	SUPPRESS
 reserved:	SYMBOLIC
-reserved:	SYNC
+reserved:	SYNC=SYNCHRONIZED
 reserved:	SYNCHRONIZED
 reserved:	TABLE
 reserved:	TALLYING
@@ -348,7 +360,7 @@ reserved:	TEST
 reserved:	TEXT
 reserved:	THAN
 reserved:	THEN
-reserved:	THROUGH
+reserved:	THROUGH=THRU
 reserved:	THRU
 reserved:	TIME
 reserved:	TIMES
@@ -366,7 +378,7 @@ reserved:	USAGE
 reserved:	USE
 reserved:	USING
 reserved:	VALUE
-reserved:	VALUES=VALUE
+reserved:	VALUES
 reserved:	VARYING
 reserved:	WHEN
 reserved:	WITH
@@ -378,7 +390,9 @@ reserved:	ZEROES=ZERO
 reserved:	ZEROS=ZERO
 
 
-not-register:	DIALECT-ALL	# disable all registers, specify used below
+not-register:	DIALECT-ALL	# disable all registers that don't need explicit
+#            	enabling - the ones used are specified below
+
 register:	DEBUG-ITEM
 #register:	"LINAGE-COUNTER"	# not yet handled as register in GnuCOBOL
 #register:	"LINE-COUNTER"	# not yet handled as register in GnuCOBOL

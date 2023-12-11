@@ -66,7 +66,7 @@ together with a designated C compiler and linker.
 This manual corresponds to GnuCOBOL @value{VERSION}.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2002-2012, 2014-2020 Free Software Foundation, Inc.@*
+Copyright @copyright{} 2002-2012, 2014-2023 Free Software Foundation, Inc.@*
 Written by Keisuke Nishida, Roger While, Brian Tiffin, Simon Sobisch.
 
 @insertcopying
@@ -150,6 +150,10 @@ Optimize
 Debug
 
 * Debug options::               Debug options
+* Debugger::                    Source Level Debugger
+* Memory Dumps::                Memory Dumps
+* Core Dumps::                  Core Dumps
+* Trace::                       Tracing execution
 
 Extensions
 
@@ -163,7 +167,7 @@ Extensions
 
 System Routines
 
-* CBL_GC_GETOPT                 GETOPT for Cobol
+* CBL_GC_GETOPT                 GETOPT for COBOL
 * CBL_GC_HOSTED                 Access to C hosted variables
 * CBL_GC_NANOSLEEP              Sleep for nanoseconds
 * CBL_GC_FORK                   Fork the current COBOL process to a new one
@@ -176,10 +180,11 @@ Appendices
 * Appendix C                    Intrinsic Functions
 * Appendix D                    System routines
 * Appendix E                    System names
-* Appendix F                    Compiler Configuration
-* Appendix G                    Module loader @command{cobcrun} options
-* Appendix H                    Runtime configuration
-* Appendix I                    GNU Free Documentation License
+* Appendix F                    Exception names
+* Appendix G                    Compiler Configuration
+* Appendix H                    Module loader @command{cobcrun} options
+* Appendix I                    Runtime configuration
+* Appendix J                    GNU Free Documentation License
 
 @end detailmenu
 @end menu
@@ -202,8 +207,8 @@ This is a sample program that displays ``Hello, world!'':
        IDENTIFICATION DIVISION.
        PROGRAM-ID. hello.
        PROCEDURE DIVISION.
-       DISPLAY "Hello, world!".
-       STOP RUN.
+           DISPLAY "Hello, world!".
+           STOP RUN.
 ----------------------------------------
 @end example
 
@@ -292,15 +297,19 @@ The following switches display information about the compiler:
 Display help screen (@pxref{Appendix A}).
 No further actions will be taken.
 
-@item --version
+@item --version, -V
 Display compiler version, author package date and executable build
-date.  @option{-V} will also display version. No further actions will be taken.
+date. No further actions will be taken.
+
+@item -dumpversion
+Display internal compiler version (plain string of numbers).
+No further actions will be taken.
 
 @item --info
 Display build information along with the default and current compiler
 configurations. No further actions will be taken except for further display options.
 
-@item --version, -v
+@item --verbose, -v
 Verbosely display the programs invoked during compilation and additional diagnostics. 
 Use multiple times to increase the verbosity.
 
@@ -325,6 +334,10 @@ No further actions will be taken except for further display options.
 Display mnemonic names (@pxref{Appendix E}).
 No further actions will be taken except for further display options.
 
+@item --list-exceptions
+Display exception names (@pxref{Appendix F}).
+No further actions will be taken except for further display options.
+
 @end table
 
 @node Build target
@@ -340,6 +353,9 @@ The special input name @file{-} takes input from @file{stdin} which is
 assumed to be COBOL source, and uses a default output name of
 @file{a.out} (or @file{a.so/c/o/i}, selected as appropriate) for the build type.
 
+You may also use @file{-} as output name for the listing file or the preprocessor
+result, for example with @code{cobc -t - prog.cob} / @code{cobc -P- prog.cob}.
+
 By default, the compiler builds a dynamically loadable module.
 
 The following options specify the target type produced by the compiler:
@@ -348,11 +364,16 @@ The following options specify the target type produced by the compiler:
 @item -E
 Preprocess only: compiler directives are executed, comment lines are
 removed and @code{COPY} statements are expanded.
-The output is saved in file @file{*.i}.
+The output is sent to stdout, allowing you to directly use it as input for
+another process. You can manually set an output file using @option{-o}.
 
 @item -C
 Translation only.  COBOL source files are translated into C files.
 The output is saved in file @file{*.c}.
+
+@item --save-temps
+Normal compilation with additional storing the preprocessed files as @file{*.i}
+and the translated C files as file @file{*.c}.
 
 @item -S
 Compile only.  Translated C files are compiled by the C compiler
@@ -406,25 +427,89 @@ Place the output into @var{file}.
 @node Source format
 @subsection Source format
 
-GnuCOBOL supports both fixed and free source format.
-The default format is the fixed format.
-This can be overridden either by the
-@code{>>SOURCE [FORMAT] [IS] @{FIXED|FREE@}} directive,
-or by one of the following options:
+GnuCOBOL supports fixed, free, Micro Focus' Variable, X/Open Free-form,
+ICOBOL xCard and Free-form, ACUCOBOL-GT Terminal, and COBOLX source
+formats.  By default, the compiler tries to autodetect the format using
+the indicator on the first line, using the fixed format for correct
+indicators and the free format for incorrect ones.  This can be
+overridden either by the @code{>>SOURCE [FORMAT] [IS]
+@{FIXED|FREE|COBOL85|VARIABLE|XOPEN|XCARD|CRT|TERMINAL|COBOLX|AUTO@}}
+directive, or by one of the following options:
 
 @table @code
-@item -free, -F
+@item -free, -F, -fformat=free
 Free format.  The program-text area starts in column 1 and
 continues till the end of line (effectively 255 characters
 in GnuCOBOL).
 
-@item -fixed
+@item -fixed, -fformat=fixed
 Fixed format.  Source code is divided into: columns 1-6, the sequence
 number area; column 7, the indicator area; columns 8-72, the program-text
 area; and columns 72-80 as the reference area.@footnote{Historically, fixed
 format was based on 80-character punch cards.}
 
+@item -fformat=cobol85
+Fixed format with enforcements on the use of Area A.
+
+@item -fformat=variable
+Micro Focus' Variable format.  Identical to the fixed format above
+except for the program-text area which extends up to column 250 instead
+of 72.
+
+@item -fformat=xcard
+ICOBOL xCard format.  Variable format with right margin set at column
+255 instead of 250.
+
+@item -fformat=xopen
+X/Open Free-form format.  The program-text area may start in column 1
+unless an indicator is present, and lines may contain up to 255
+characters.  Indicator for debugging lines is @samp{D } (D followed by
+a space) instead of @samp{D} or @samp{d}.
+
+@item -fformat=crt
+ICOBOL Free-form format (CRT).  Similar to the X/Open format above, with
+lines containing up to 320 characters and single-character debugging
+line indicators (@samp{D} or @samp{d}).
+
+@item -fformat=terminal
+ACUCOBOL-GT Terminal format.  Similar to the CRT format above, with
+indicator for debugging lines being @samp{\D} instead of @samp{D} or
+@samp{d}.  This format is mostly compatible with VAX COBOL terminal
+source format.
+
+@item -fformat=cobolx
+COBOLX format.  This format is similar to the CRT format above, except
+that the indicator area is always present in column 1; the program-text
+area starts in column 2 and extends up to the end of the record.  Lines
+may contain up to 255 characters.
+
+@item -fformat=auto
+Autodetection of format.  The compiler will use the first line of the file
+to detect whether the file is in fixed format (with a correct indicator
+at position 7), or in free format.
+
 @end table
+
+Note that with source formats @code{XOPEN}, @code{CRT}, @code{TERMINAL},
+and @code{COBOLX}, missing spaces are not inserted within continued
+alphanumeric literals that are truncated before the right margin.
+
+@emph{Area A} denotes the source code that spans between margin A and
+margin B, and Area B spans from the latter to the end of the record.
+@emph{Area A enforcement} checks the contents of Area A, and reports any
+item that does not belong to the correct Area: this feature helps in
+developping COBOL programs that are portable to actual mainframe
+environments.
+
+In general, division, section, and paragraph names must start in Area A.
+In the @code{DATA DIVISION}, level numbers @samp{01} and @samp{77}, must
+also start in Area A.  In the @code{PROCEDURE DIVISION}s, statements and
+separator periods must fit within Area B.  Every source format listed
+above may be subject to Area A enforcement, except @code{FIXED},
+@code{FREE}, and @code{XOPEN}.
+
+Note that Area A enforcement enables recovery from missing periods
+between paragraphs and sections.
 
 @node Warning options
 
@@ -459,13 +544,10 @@ negate @option{-Werror} for specific warnings; for example
 @option{-Wno-error=obsolete} makes @option{-Wobsolete} warnings not be errors,
 even when @option{-Werror} is in effect.
 
-@ignore
-@comment{TODO - add in cobc this way}, see FR #386
 The warning message for each controllable warning includes the option that controls
 the warning. That option can then be used with @option{-Werror=} and
 @option{-Wno-error=} as described above. (Printing of the option in the warning
 message can be disabled using the @option{-fno-diagnostics-show-option} flag.)
-@end ignore
 
 Note that specifying @option{-Werror=foo} automatically implies @option{-Wfoo}.
 However, @option{-Wno-error=foo} does not imply anything.
@@ -477,10 +559,10 @@ rather than trying to keep going and printing further error messages.
 
 @end table
 @*
-You can request many specific warnings with options beginning with '@code{-W}',
+You can request many specific warnings with options beginning with @samp{-W},
 for example @option{-Wimplicit-define} to request warnings on implicit declarations.
 Each of these specific warning options also has a negative form beginning
-'@code{-Wno}' to turn off warnings; for example, @option{-Wno-implicit-define}.
+@samp{-Wno} to turn off warnings; for example, @option{-Wno-implicit-define}.
 This manual lists only one of the two forms, whichever is not the default.
 
 Some options, such as @option{-Wall} and @option{-Wextra}, turn on other options,
@@ -492,7 +574,8 @@ one takes effect.
 @ignore
 @comment{TODO - add in cobc this way, ideally until GC 3.1 is out...}
 When an unrecognized warning option is requested (e.g., @option{-Wunknown-warning}),
-@command{cobc} emits a diagnostic stating that the option is not recognized, as long as the verbose mode @option{--verbose} is active.
+@command{cobc} emits a diagnostic stating that the option is not recognized,
+as long as the verbose mode @option{--verbose} is active.
 
 @comment{TODO - add in cobc this way}
 However, if the @option{-Wno-} form is used, the behavior is slightly different: no
@@ -557,8 +640,12 @@ Warn about the lack of scope terminator END-XXX. This is @emph{not} set with @op
 @item -Wtruncate
 Warn on possible field truncation. This is @emph{not} set with @option{-Wall}.
 
+@item -Wconstant-expression
+@item -Wconstant-numlit-expression
+Warn about expressions that always resolve to true/false and therefore lead to unreachable code.
+
 @item -Wunreachable
-Warn if statements are unreachable. This is @emph{not} set with @option{-Wall}.
+Warn if statements are likely unreachable. This is @emph{not} set with @option{-Wall}.
 
 @item -Wadditional
 Enable warnings that don't have an own warning flag.
@@ -571,7 +658,7 @@ The compiler uses many dialect specific options. These may be set via a defined
 dialect by @option{-std=}, a configuration file by @option{-conf=} or by using the
 single dialect flags directly.
 
-@xref{Appendix F, Compiler Configuration, Compiler Configuration}, and @file{config/*.conf}.
+@xref{Appendix G, Compiler Configuration, Compiler Configuration}, and @file{config/*.conf}.
 
 Note concerning the defined dialects: The GnuCOBOL compiler tries to limit both the
 feature-set and reserved words to the specified compiler when the "strict" dialects
@@ -633,11 +720,19 @@ RM/COBOL compatible
 @item -std=realia-strict, -std=realia
 CA Realia II compatible
 
+@item -std=gcos-strict, -std=gcos
+GCOS compatible
+
 @item -freserved-words=@var{dialect}
 Compiler uses the given @var{dialect} to determine the reserved words.
 
 @item -conf=<file>
 User-defined dialect configuration.
+
+@item -febcdic-table=@var{cconv-table}/@var{file}
+EBCDIC/ASCII translation table to use; either read from @var{file}, or one of the existing @var{cconv-table}
+from the configuration directory (see @code{cobc --info}) which have a .ttbl extension, for example @option{-febcdic-table=alternate}.@*
+See the @file{default.ttbl} file for detailed information about the format.
 
 @end table
 
@@ -734,7 +829,7 @@ LINE    PG/LN  A...B...........................................................
 
 The first part of the listing lists the program text.  If the program text is
 a COPY the line number reflects the COPY line number and is appended with
-a '@code{C}'.
+a @samp{C}.
 
 When the wide list option @option{-T} is specified, the @code{SEQUENCE}
 columns (for fixed-form reference-format) are included in the listing.
@@ -768,7 +863,7 @@ SIZE TYPE           LVL  NAME                           PICTURE
 0004 ALPHANUMERIC   05     FLD4                         X(4)
 @end smallexample
 
-If the symbol redefines another variable the @code{TYPE} is marked with '@code{R}'.
+If the symbol redefines another variable the @code{TYPE} is marked with @samp{R}.
 If the symbol is an array the @code{OCCURS} phrase is in the @code{PICTURE} field.
 
 
@@ -785,11 +880,26 @@ compilation group:
 
 @table @code
 
-@item -debug, -d
-Enable all run-time error checks.
-
 @item -g
 Produce C debugging information in the output.
+
+@item --debug, -d
+Enable all run-time error checks.
+
+@item -fmemory-check=scope
+Enable checking of internal storage during CALL (implied by @option{--debug}.
+
+@item -fec=exception-name, -fno=ec=exception-name
+Enable/disable specified exception checks,
+@pxref{Appendix F, Exception Names, Exception Names};
+@option{--debug} implies @option{-fec=ALL}.
+
+@item -fsource-location
+Generate source location code (implied by @option{--debug}, @option{-fdump} and
+@option{-fec}).
+
+@item -fstack-check
+Enable @code{PERFORM} stack checking (implied by @option{--debug} or @option{-g}).
 
 @item -ftrace
 Generate trace code (log executed procedures, if tracing is enabled).
@@ -798,14 +908,8 @@ Generate trace code (log executed procedures, if tracing is enabled).
 Generate trace code (log executed procedures and statements,
 if tracing is enabled).
 
-@item -fsource-location
-Generate source location code (implied by @option{-debug} or @option{-g}).
-
-@item -fstack-check
-Enable @code{PERFORM} stack checking (implied by @option{-debug} or @option{-g}).
-
 @item -fdebugging-line
-Enable debugging lines (@code{D} in indicator column; >>D directive).
+Enable debugging lines (@samp{D} in indicator column; @samp{>>D} directive).
 
 @item -O
 Enable optimization of code size and execution speed.
@@ -829,20 +933,6 @@ Do not truncate binary fields according to PICTURE.
 @item -ext <extension>
 @comment{TODO: Clarify}
 Add default file extension.
-
-@item -fmfcomment
-Treat lines with @code{*} or @code{/} in column 1 as comment
-(fixed-form reference-format only).
-
-@item -acucomment
-Treat @code{|} as an inline comment marker.
-
-@item -fsign=ASCII
-@comment{TODO: Clarify}
-Numeric display sign ASCII (default on ASCII machines).
-
-@item -fsign=EBCDIC
-Numeric display sign EBCDIC (default on EBCDIC machines).
 
 @item -fintrinsics=[ALL|intrinsic function name(,name,...)]
 Allow use of all or specific intrinsic functions without @code{FUNCTION}
@@ -893,9 +983,9 @@ One way is to compile all the files in one command:
 $ cobc -x -o prog main.cob subr1.cob subr2.cob
 @end example
 
-Another way is to compile each file with the option @code{-c},
+Another way is to compile each file with the option @option{-c},
 and link them at the end.
-The top-level program must be compiled with the option @code{-x}.
+The top-level program must be compiled with the option @option{-x}.
 
 @example
 $ cobc -c subr1.cob
@@ -935,7 +1025,7 @@ if (func != NULL)
   func (X);
 @end example
 
-With the compiler option @code{-fstatic-call}, more efficient code
+With the compiler option @option{-fstatic-call}, more efficient code
 will be generated:
 
 @example
@@ -954,7 +1044,7 @@ the main program and subprograms separately.
 
 @subsubsection Driver program
 
-Compile all programs with the option @code{-m}:
+Compile all programs with the option @option{-m}:
 @example
 $ cobc -m main.cob subr.cob
 @end example
@@ -972,7 +1062,7 @@ to your library directory, and run the main program:
 $ export COB_LIBRARY_PATH=/your/cobol/lib
 @end example
 (@emph{Please notice:} You may set the variable via a runtime configuration file,
-@pxref{Appendix H, Runtime Configuration, Runtime Configuration}.
+@pxref{Appendix I, Runtime Configuration, Runtime Configuration}.
 You may also set the variable to directly point to the directory
 where you compiled the sources.)
 
@@ -988,7 +1078,7 @@ The main program is compiled as usual:
 $ cobc -x -o main main.cob
 @end example
 
-Subprograms are compiled with the option @code{-m}:
+Subprograms are compiled with the option @option{-m}:
 @example
 $ cobc -m subr.cob
 @end example
@@ -1053,6 +1143,7 @@ This chapter describes how to combine C programs with COBOL programs.
 * Static COBOL to C::
 * Dynamic COBOL to C::
 * Interface functions for C::
+* Loading translation tables::
 @end menu
 
 @node Main C program
@@ -1062,8 +1153,9 @@ Include @file{libcob.h} in your C program and call @code{cob_init} before
 using any COBOL module.
 Do a cleanup afterwards, either by calling @code{cob_stop_run} (if your
 program should terminate) or by calling @code{cob_tidy} (if your program
-should execute further on without any more COBOL calls, calling both
-functions in this sequence can be done multiple times).
+should execute further on without any more COBOL calls).
+Calling @code{cob_init}, one or several GnuCOBOL modules and then @code{cob_tidy}
+in this sequence can be done multiple times).
 
 @example
 #include <libcob.h>
@@ -1088,17 +1180,35 @@ main (int argc, char **argv)
 You can write @code{cobc_init(0, NULL);} if you do not want to pass
 command line arguments to COBOL.
 
-You can compile your C program as follows:
+The easiest option to compile and/or link your C program is by passing
+the work to @code{cobc} as follows:
 
 @example
-cc -c @`{}cob-config --cflags@`{} main.c
+cobc -x main.c
 @end example
 
-The compiled object must be linked with libcob as follows:
+possibly running in verbose mode to see what cobc does:
 
 @example
-cc -o main main.o @`{}cob-config --libs@`{}
+cobc -x --verbose main.c   # using -x -v or -xv would be also possible
 @end example
+
+or with several steps:
+
+@example
+cobc -c main.c
+cobc -x main.o
+@end example
+
+As an alternative you can use the @code{cob-config} tool to get the necessary
+options to be passed to the C compiler / linker.
+
+@example
+cc -c @`{}cob-config --cflags@`{} main.c    # compile only
+cc -o main main.o @`{}cob-config --libs@`{} # link only
+
+@end example
+
 
 @node Static C to COBOL
 @subsection Static linking with COBOL programs
@@ -1116,7 +1226,7 @@ Let's call the following COBOL module from a C program:
        01 world PIC X(6).
        PROCEDURE DIVISION USING hello world.
            DISPLAY hello world.
-           EXIT PROGRAM.
+           GOBACK.
 ----------------------------------------
 @end example
 
@@ -1158,7 +1268,15 @@ main()
 ----------------------------------------
 @end example
 
-Compile these programs as follows:
+Compile and run these programs as follows:
+
+@example
+$ cobc -x hello.c say.cob
+$ ./hello
+Hello, world!
+@end example
+
+or, more split and directly using the C compiler:
 
 @example
 $ cc -c `cob-config --cflags` hello.c
@@ -1167,6 +1285,11 @@ $ cobc -x -o hello hello.o say.o
 $ ./hello
 Hello, world!
 @end example
+
+Note: The biggest benefits of static linking are that all programs are verified to
+be available in the resulting binary. Furthermore there is a slightly performance
+benefit in this type of CALL (not visible for "normal" programs).
+
 
 @node Dynamic C to COBOL
 @subsection Dynamic linking with COBOL programs
@@ -1213,16 +1336,119 @@ int main()
 ----------------------------------------
 @end example
 
-Compile these programs as follows:
+Compile and run these programs as follows:
 
 @example
-$ cc -c `cob-config --cflags` hello-dynamic.c
-$ cobc -x -o hello hello-dynamic.o
+$ cobc -x -o hello hello-dynamic.c
 $ cobc -m say.cob
 $ export COB_LIBRARY_PATH=.
 $ ./hello
 Hello, world!
 @end example
+
+The check of the module load as written above can be directly done in
+libcob as follows:
+
+@example
+---- hello-dynamic2.c ------------------
+#include <libcob.h>
+
+int main()
+@{
+  int ret;
+  char hello[8] = "Hello, ";
+  char world[7] = "world!";
+
+  void *cob_argv[2];
+  cob_argv[0] = hello;
+  cob_argv[1] = world;
+
+  /* initialize the COBOL run-time library */
+  cob_init(0, NULL);
+
+  /* do a CALL, expecting the module to exist,
+     otherwise exiting with an error. */
+  ret = cob_call ("say", 2, cob_argv);
+
+  /* ...and exit with the return code. */
+  cob_stop_run(ret);
+@}
+----------------------------------------
+@end example
+
+
+In any case be aware that all errors that happen within COBOL will exit your
+program, as same as a @code{STOP RUN} will do.
+
+Depending on the application you possibly want to register C signal handlers;
+error and/or exit handlers in C and/or COBOL to do cleanups, logging or anything else.
+
+There is one way to handle all these scenarios with a call, too, using 
+@code{cob_call_with_exception_check} instead of @code{cob_call} as follows:
+
+@example
+---- hello-dynamic3.c ------------------
+#include <libcob.h>
+
+int main()
+@{
+  int ret;
+  char hello[8] = "Hello, ";
+  char world[7] = "world!";
+
+  void *cob_argv[2];
+  cob_argv[0] = hello;
+  cob_argv[1] = world;
+
+  /* initialize the COBOL run-time library */
+  cob_init(0, NULL);
+
+  /* do a CALL, catching all possible results, */
+  ret = cob_call_with_exception_check ("say", 2, cob_argv);
+
+  switch (ret) @{
+  case 0:  /* program coming back */
+
+    /* Clean up and terminate runtime */
+    cob_runtime_hint("program exited with return code %d",
+       cob_last_exit_code ());
+    cob_tidy ();
+    break;
+
+  case 1:  /* normal exit */
+    cob_runtime_hint("STOP RUN with return code %d",
+       cob_last_exit_code ());
+    break;
+
+  case -1:  /* error exit */
+    cob_runtime_hint("error exit with return code %d and error \"%s\"",
+       cob_last_exit_code (), cob_last_runtime_error ());
+    break;
+
+  case -2:  /* hard error exit */
+    cob_runtime_hint("hard error exit with return code %d and error \"%s\"",
+       cob_last_exit_code (), cob_last_runtime_error ());
+    break;
+
+  case -3:  /* signal handler  exit */
+    cob_runtime_hint("signal handler exit with signal %d and error \"%s\"",
+       cob_last_exit_code (), cob_last_runtime_error ());
+    break;
+
+  default:
+    cob_runtime_hint("unexpected return from cob_call_with_exception_check,"
+       " last exit code %d, last error \"%s\"",
+       cob_last_exit_code (), cob_last_runtime_error ());
+    break;
+  @}
+
+  /* ...and exit with zero if no error happened */
+  exit(ret != 0 && ret != 1);
+@}
+----------------------------------------
+@end example
+
+
 
 @node Static COBOL to C
 @subsection Static linking with C programs
@@ -1247,7 +1473,7 @@ int say(char *hello, char *world)
 This program is equivalent to the program in @file{say.cob} above.
 
 Note that, unlike C, the arguments passed from COBOL programs are not
-terminated by the null character (i.e., @code{'\0'}).
+terminated by the null character (i.e., @samp{\0}).
 
 You can call this function in the same way you call COBOL programs:
 
@@ -1269,6 +1495,14 @@ You can call this function in the same way you call COBOL programs:
 Compile these programs as follows:
 
 @example
+$ cobc -x -o hello -static hello.cob say.c
+$ ./hello
+Hello, world!
+@end example
+
+or separate:
+
+@example
 $ cc -c say.c
 $ cobc -c -static -x hello.cob
 $ cobc -x -o hello hello.o say.o
@@ -1279,8 +1513,18 @@ Hello, world!
 @node Dynamic COBOL to C
 @subsection Dynamic linking with C programs
 
-You can create a dynamically-linked module from a C program by passing an
-option @code{-shared} to the C compiler:
+You can create a dynamically-linked module from a C program by compiling
+it with cobc ...
+
+@example
+$ cobc -m say.c
+$ cobc -x hello.cob
+$ export COB_LIBRARY_PATH=.
+$ ./hello
+Hello, world!
+@end example
+
+or with most C compilers by passing option @option{-shared} to the C compiler:
 
 @example
 $ cc -shared -o say.so say.c
@@ -1289,6 +1533,10 @@ $ export COB_LIBRARY_PATH=.
 $ ./hello
 Hello, world!
 @end example
+
+Mind that for COBOL to be able to load the module via CALL the name of the binary
+must either be identical to the CALL name or the binary containing the entry-point
+must have been loaded before (by a previous call or COB_PRE_LOAD).
 
 @node Interface functions for C
 @subsection Redirecting output to a (FILE *)
@@ -1328,6 +1576,19 @@ Another routine can be used to return the current value of the option.
 @example
 COB_EXPIMP  void *
 cob_get_runtime_option (enum cob_runtime_option_switch opt);
+@end example
+
+@node Loading translation tables
+@subsection Loading EBCDIC/ASCII translation tables (collating sequences)
+
+When an EBCDIC/ASCII translation table is needed (for instance when calling
+sort functions), you can can call the @code{cob_load_collation} function to
+retrieve such tables:
+@example
+COB_EXPIMP int
+cob_load_collation (const char *col_name,
+                    cob_u8_t *ebcdic_to_ascii,
+                    cob_u8_t *ascii_to_ebcdic)
 @end example
 
 @node Customize, Optimize, Compile, Top
@@ -1374,7 +1635,7 @@ For displaying the current runtime settings you can use the option
 @option{-r}, @option{--runtime-env} of @command{cobcrun}.
 
 For a complete list of runtime variables, aliases, their default values and options
-to set them @pxref{Appendix H, Runtime Configuration, Runtime Configuration}.
+to set them @pxref{Appendix I, Runtime Configuration, Runtime Configuration}.
 
 @node Optimize, Debug, Customize, Top
 @chapter Optimize
@@ -1394,16 +1655,22 @@ These options enable optimization at both translation
 (from COBOL to C) and compilation (C to assembly) levels.
 
 Currently, there is no difference between these optimization options at
-the translation level.
+the translation level other than @option{-O0} disabling constant folding of
+expressions and disabling removement of unreachable code.
 
 The option @option{-O}, @option{-Os} or @option{-O2} is passed to the
 C compiler as is and used for C level optimization.
+
+Additional the options @option{-fremove-unreachable} and  @option{-fconstant-folding}
+may be used to adjust handling of these parts; note that constant-folding is a dialect
+specific option and that both options have an effect on the detail of checks done
+to unreachable code.
 
 @node Optimize call
 @section Optimize call
 
 When a @code{CALL} statement is executed, the called program is linked at run
-time.  By specifying the compiler option @code{-fstatic-call}, you can
+time.  By specifying the compiler option @option{-fstatic-call}, you can
 statically link the program at compile time and call it efficiently.
 (@pxref{Static linking})
 
@@ -1426,15 +1693,59 @@ In addition, setting the option @code{binary-size} to @code{2-4-8} or
 
 @menu
 * Debug options::               Debug options
+* Debugger::                    Source Level Debugger
+* Memory Dumps::                Memory Dumps
+* Core Dumps::                  Core Dumps
+* Trace::                       Tracing execution
 @end menu
 
 @node Debug options
 @section Debug options
 
-The compiler option @option{-debug} can be used during the development
-of your programs.  It enables all run-time error checking, such as
-subscript boundary checks and numeric data checks, and displays
+The compiler option @option{--debug} can be used, especially during the
+development of your programs.  It enables all run-time error checking, such as
+subscript boundary checks and numeric data checks, and leads to display of
 run-time errors with source locations.
+Exceptions may also be enabled/disabled separately.
+@xref{Debug switches, Debug switches,,,}.
+
+@node Debugger
+@section Source Level Debugger
+Compiling with @option{-g} enables several kinds of debug information, allowing
+you to run your programs with the system debugger.
+This allows you to step through the COBOL code and inspect the call stack,
+but direct access to the COBOL variables is not available.
+Different GDB frontends exist that provide access the COBOL variables directly.
+
+Compiling with debug information also enables several tools to profile the code
+or test it, for example against memory violations.
+
+@comment Much more too add here, at least leaving teasers...
+
+@node Memory Dumps
+@section Memory Dumps
+Memory Dumps can be enabled/disabled at runtime and will by default
+be executed in case of runtime errors or handling of different signals.
+
+They can also be requested via C interface.
+
+Only modules that are explicit enabled for dump code will output their data.
+
+@node Core Dumps
+@section Core Dumps
+By default GnuCOBOL catches signals that normally may create core-dumps.
+To disable this or to even explicit raise SIGABRT on runtime errors or to
+directly generate core-dumps through libcob, see the runtime varialbes
+@code{COB_CORE_ON_ERROR} and @code{COB_CORE_FILENAME}.
+To inspecting the reason for the abort check the content of the variable
+@code{runtime_err_str} in the generated dump file.
+@footnote{The usability of coredumps depends on your operating system.}
+
+@node Trace
+@section Tracing execution
+Tracing program execution, either in general or in specific parts can be enabled.
+
+
 
 @exampleindent 0
 
@@ -1760,7 +2071,7 @@ When it is off, typed characters type over existing characters.
 Note: The insert mode is ignored for fields with a size of 1.
 
 The insert mode can also be changed by the @code{COB_INSERT_MODE} setting at any time,
-@pxref{Appendix H, Runtime Configuration, Runtime Configuration}.
+@pxref{Appendix I, Runtime Configuration, Runtime Configuration}.
 
 
 @subsection Tab keys
@@ -1960,7 +2271,7 @@ For a complete list of supported system routines,
 @pxref{Appendix D, ,System routines}.
 
 @menu
-* CBL_GC_GETOPT::               GETOPT for Cobol
+* CBL_GC_GETOPT::               GETOPT for COBOL
 * CBL_GC_HOSTED::               Access to C hosted variables
 * CBL_GC_NANOSLEEP::            Sleep for nanoseconds
 * CBL_GC_FORK::                 Fork the current COBOL process to a new one
@@ -2337,10 +2648,11 @@ is not available on the current system.
 * Appendix C::                  Intrinsic Functions
 * Appendix D::                  System routines
 * Appendix E::                  System names
-* Appendix F::                  Compiler Configuration
-* Appendix G::                  Module loader @command{cobcrun} options
-* Appendix H::                  Runtime configuration
-* Appendix I::                  GNU Free Documentation License
+* Appendix F::                  Exception names
+* Appendix G::                  Compiler Configuration
+* Appendix H::                  Module loader @command{cobcrun} options
+* Appendix I::                  Runtime configuration
+* Appendix J::                  GNU Free Documentation License
 @end menu
 
 @node Appendix A, Appendix B, Appendices, Appendices
@@ -2394,13 +2706,25 @@ by their type.
 @include cbmnem.tex
 
 @node Appendix F, Appendix G, Appendix E, Appendices
+@appendix Exception names
+
+The following list of exception names was extracted from
+@code{cobc --list-exceptions} and shows the exception names and
+if those are fatal (lead to a program abort).
+
+All of those can be activated and deactivated, both directly and
+at group level, using @option{-fec}.
+
+@include cbexceptions.tex
+
+@node Appendix G, Appendix H, Appendix F, Appendices
 @appendix Compiler Configuration
 
 The following list was extracted from @file{config/default.conf}.
 
 @verbatiminclude cbconf.tex
 
-@node Appendix G, Appendix H, Appendix F, Appendices
+@node Appendix H, Appendix I, Appendix G, Appendices
 @appendix Module loader @command{cobcrun} options
 
 The following list of options was extracted from
@@ -2409,7 +2733,7 @@ for the module loader with a short description.
 
 @include cbchelp.tex
 
-@node Appendix H, Appendix I, Appendix G, Appendices
+@node Appendix I, Appendix J, Appendix H, Appendices
 @appendix Runtime configuration
 
 The following list was extracted from @file{config/runtime.cfg}.
@@ -2417,7 +2741,7 @@ The following list was extracted from @file{config/runtime.cfg}.
 @include cbrunt.tex
 
 @comment The full FDL 1.3 text
-@node Appendix I, , Appendix H, Appendices
+@node Appendix J, , Appendix I, Appendices
 @appendix GNU Free Documentation License
 @cindex Copying
 

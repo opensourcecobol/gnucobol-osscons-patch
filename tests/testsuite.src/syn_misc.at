@@ -1,4 +1,4 @@
-## Copyright (C) 2007-2012, 2014-2020 Free Software Foundation, Inc.
+## Copyright (C) 2007-2012, 2014-2023 Free Software Foundation, Inc.
 ## Written by Keisuke Nishida, Roger While, Simon Sobisch, Edward Hart,
 ## Ron Norman
 ##
@@ -43,7 +43,7 @@ AT_DATA([prog.cob], [
            STOP RUN.
 ])
 
-AT_CHECK([$COMPILE_ONLY -Wno-constant-expression prog.cob], [0], [],
+AT_CHECK([$COMPILE_ONLY -Wno-constant-numlit-expression prog.cob], [0], [],
 [prog.cob:10: warning: suggest parentheses around AND within OR
 prog.cob:14: warning: suggest parentheses around OR within AND
 ])
@@ -67,19 +67,52 @@ AT_DATA([prog.cob], [
               2 AND 3
               DISPLAY "NO"
               END-DISPLAY
+           END-IF
+           IF "a" = "b"
+              DISPLAY "NO"
+              END-DISPLAY
+           END-IF.
+           IF "c" = "c    "
+              DISPLAY "NO"
+              END-DISPLAY
            END-IF.
            STOP RUN.
 ])
 
 # FIXME positions broken
-AT_CHECK([$COMPILE_ONLY -w -Wconstant-expression prog.cob], [0], [],
-[prog.cob:5: warning: expression '3' EQUALS '1' is always FALSE
-prog.cob:6: warning: expression '3' EQUALS '2' is always FALSE
-prog.cob:6: warning: expression '3' EQUALS '3' is always TRUE
-prog.cob:10: warning: expression '3' EQUALS '1' is always FALSE
-prog.cob:11: warning: expression '3' EQUALS '2' is always FALSE
-prog.cob:11: warning: expression '3' EQUALS '3' is always TRUE
-])
+# Note: also checks that -Wconstant-expression works as "group" warning
+AT_CHECK([$COMPILE_ONLY -fdiagnostics-show-option -w -Wconstant-expression prog.cob], [0], [],
+[[prog.cob:5: warning: expression '3' EQUALS '1' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:6: warning: expression '3' EQUALS '2' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:6: warning: expression '3' EQUALS '3' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:10: warning: expression '3' EQUALS '1' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:11: warning: expression '3' EQUALS '2' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:11: warning: expression '3' EQUALS '3' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:15: warning: expression 'a' EQUALS 'b' is always FALSE [-Wconstant-expression]
+prog.cob:19: warning: expression 'c' EQUALS 'c    ' is always TRUE [-Wconstant-expression]
+]])
+AT_CHECK([$COMPILE_ONLY -fdiagnostics-show-option -Wno-parentheses prog.cob], [0], [],
+[[prog.cob:5: warning: expression '3' EQUALS '1' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:6: warning: expression '3' EQUALS '2' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:6: warning: expression '3' EQUALS '3' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:10: warning: expression '3' EQUALS '1' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:11: warning: expression '3' EQUALS '2' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:11: warning: expression '3' EQUALS '3' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:15: warning: expression 'a' EQUALS 'b' is always FALSE [-Wconstant-expression]
+prog.cob:19: warning: expression 'c' EQUALS 'c    ' is always TRUE [-Wconstant-expression]
+]])
+AT_CHECK([$COMPILE_ONLY -fdiagnostics-show-option -w -Wconstant-numlit-expression prog.cob], [0], [],
+[[prog.cob:5: warning: expression '3' EQUALS '1' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:6: warning: expression '3' EQUALS '2' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:6: warning: expression '3' EQUALS '3' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:10: warning: expression '3' EQUALS '1' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:11: warning: expression '3' EQUALS '2' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:11: warning: expression '3' EQUALS '3' is always TRUE [-Wconstant-numlit-expression]
+]])
+AT_CHECK([$COMPILE_ONLY -fdiagnostics-show-option -Wno-parentheses -Wno-constant-numlit-expression prog.cob], [0], [],
+[[prog.cob:15: warning: expression 'a' EQUALS 'b' is always FALSE [-Wconstant-expression]
+prog.cob:19: warning: expression 'c' EQUALS 'c    ' is always TRUE [-Wconstant-expression]
+]])
 
 AT_CLEANUP
 
@@ -249,7 +282,9 @@ AT_DATA([prog.cob], [
            IF PIC-9-SIGNED-DECIMAL <   -99.99  CONTINUE.
            IF PIC-9-SIGNED-DECIMAL <= -099.990 CONTINUE.
            IF PIC-9-SIGNED-DECIMAL <= -099.991 CONTINUE.
-
+           IF 99                   > XX CONTINUE.
+           IF XX               NOT < 99 CONTINUE.
+           IF NOT XX               < 99 CONTINUE.
 
            STOP RUN.
 ])
@@ -344,6 +379,7 @@ prog.cob:159: warning: 'PIC-9-SIGNED-DECIMAL' may not be GREATER THAN 99.99
 prog.cob:160: warning: 'PIC-9-SIGNED-DECIMAL' may not be LESS THAN -99.99
 prog.cob:161: warning: 'PIC-9-SIGNED-DECIMAL' may not be LESS THAN -99.99
 prog.cob:162: warning: literal '-99.991' has more decimals than 'PIC-9-SIGNED-DECIMAL'
+prog.cob:164: warning: 'XX' may not be GREATER THAN 99
 ])
 
 AT_CLEANUP
@@ -489,24 +525,23 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:10: error: invalid expression
-prog.cob:14: error: invalid expression
-prog.cob:18: error: invalid expression
-prog.cob:22: error: invalid expression
-prog.cob:26: error: invalid expression
+[prog.cob:10: error: incomplete expression
+prog.cob:14: error: incomplete expression
+prog.cob:18: error: incomplete expression
+prog.cob:22: error: incomplete expression
+prog.cob:26: error: incomplete expression
 prog.cob:30: error: invalid conditional expression
-prog.cob:35: error: invalid expression
-prog.cob:38: error: invalid expression
-prog.cob:41: error: invalid expression
-prog.cob:44: error: invalid expression
-prog.cob:47: error: invalid expression
-prog.cob:54: error: invalid expression
-prog.cob:60: error: invalid expression
-prog.cob:66: error: invalid expression
-prog.cob:72: error: invalid expression
+prog.cob:35: error: incomplete expression
+prog.cob:38: error: incomplete expression
+prog.cob:41: error: incomplete expression
+prog.cob:44: error: incomplete expression
+prog.cob:47: error: incomplete expression
+prog.cob:54: error: incomplete expression
+prog.cob:60: error: incomplete expression
+prog.cob:66: error: incomplete expression
+prog.cob:72: error: incomplete expression
 prog.cob:76: error: 'NOTDEFINED' is not defined
-prog.cob:76: error: invalid expression
-prog.cob:80: error: invalid expression
+prog.cob:80: error: invalid expression: boolean expected with logical operator
 ])
 
 AT_CLEANUP
@@ -521,6 +556,7 @@ AT_DATA([prog.cob], [
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         01 WRKN  PIC S999 VALUE 123.
+           88 WRKN-IS-ZERO VALUE 0.
         01 WRKX  PIC X(8) VALUE 'House'.
         PROCEDURE DIVISION.
         MAIN.
@@ -553,16 +589,28 @@ AT_DATA([prog.cob], [
                    >= (456 + 16)
               DISPLAY "And another brew! " WRKN
             END-IF.
+            IF ( WRKN-IS-ZERO + 3  ) > 0
+	      DISPLAY "Weird if compiled"
+	    END-IF.
+            IF ( 3 + WRKN-IS-ZERO  ) > 0
+	      DISPLAY "Weird if compiled"
+	    END-IF.
+            IF ( WRKN-IS-ZERO AND WRKN-IS-ZERO ) > 0
+              DISPLAY "Weird if compiled"
+            END-IF.
             STOP RUN.
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob: in paragraph 'MAIN':
-prog.cob:10: error: GREATER THAN operator may be misplaced
-prog.cob:17: error: EQUALS operator may be misplaced
-prog.cob:20: error: NOT EQUAL operator may be misplaced
-prog.cob:29: error: LESS OR EQUAL operator may be misplaced
-prog.cob:32: error: invalid expression
+prog.cob:13: error: condition expression found where decimal expression was expected
+prog.cob:18: error: condition expression found where decimal expression was expected
+prog.cob:21: error: condition expression found where decimal expression was expected
+prog.cob:30: error: condition expression found where decimal expression was expected
+prog.cob:33: error: invalid expression: unfinished expression
+prog.cob:40: error: condition-name not allowed here: 'WRKN-IS-ZERO'
+prog.cob:43: error: condition-name not allowed here: 'WRKN-IS-ZERO'
+prog.cob:46: error: condition expression found where decimal expression was expected
 ])
 
 AT_CLEANUP
@@ -626,7 +674,7 @@ AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:15: error: invalid conditional expression
 prog.cob:20: error: invalid conditional expression
 prog.cob:25: error: invalid conditional expression
-prog.cob:35: error: invalid expression
+prog.cob:35: error: invalid expression: boolean expected with logical operator
 ])
 
 AT_CLEANUP
@@ -703,13 +751,20 @@ prog.cob:17: error: PROCEDURE DIVISION header missing
 ])
 
 AT_CHECK([$COMPILE_ONLY -frelax-syntax-checks prog.cob], [0], [],
-[prog.cob:2: warning: PROGRAM-ID header missing - assumed
-prog.cob:2: warning: ENVIRONMENT DIVISION header missing - assumed
-prog.cob:2: warning: CONFIGURATION SECTION header missing - assumed
-prog.cob:10: warning: INPUT-OUTPUT SECTION header missing - assumed
-prog.cob:10: warning: FILE-CONTROL header missing - assumed
-prog.cob:14: warning: FILE SECTION header missing - assumed
-prog.cob:17: warning: PROCEDURE DIVISION header missing - assumed
+[prog.cob:2: warning: PROGRAM-ID header missing
+prog.cob:2: note: PROGRAM-ID header assumed
+prog.cob:2: warning: ENVIRONMENT DIVISION header missing
+prog.cob:2: note: ENVIRONMENT DIVISION header assumed
+prog.cob:2: warning: CONFIGURATION SECTION header missing
+prog.cob:2: note: CONFIGURATION SECTION header assumed
+prog.cob:10: warning: INPUT-OUTPUT SECTION header missing
+prog.cob:10: note: INPUT-OUTPUT SECTION header assumed
+prog.cob:10: warning: FILE-CONTROL header missing
+prog.cob:10: note: FILE-CONTROL header assumed
+prog.cob:14: warning: FILE SECTION header missing
+prog.cob:14: note: FILE SECTION header assumed
+prog.cob:17: warning: PROCEDURE DIVISION header missing
+prog.cob:17: note: PROCEDURE DIVISION header assumed
 ])
 
 AT_CLEANUP
@@ -727,8 +782,10 @@ prog.cob:1: error: PROCEDURE DIVISION header missing
 ])
 
 AT_CHECK([$COMPILE_ONLY -frelax-syntax-checks prog.cob], [0], [],
-[prog.cob:1: warning: PROGRAM-ID header missing - assumed
-prog.cob:1: warning: PROCEDURE DIVISION header missing - assumed
+[prog.cob:1: warning: PROGRAM-ID header missing
+prog.cob:1: note: PROGRAM-ID header assumed
+prog.cob:1: warning: PROCEDURE DIVISION header missing
+prog.cob:1: note: PROCEDURE DIVISION header assumed
 ])
 
 AT_CLEANUP
@@ -770,11 +827,13 @@ AT_CHECK([$COMPILE_ONLY prog3.cob], [1], [],
 [prog3.cob:1: error: PROGRAM-ID header missing
 ])
 
-AT_CHECK([$COMPILE -frelax-syntax-checks prog3.cob], [0], [],
-[prog3.cob:1: warning: PROGRAM-ID header missing - assumed
+AT_CHECK([$COMPILE -fdiagnostics-plain-output -frelax-syntax-checks prog3.cob], [0], [],
+[prog3.cob:1: warning: PROGRAM-ID header missing
+prog3.cob:1: note: PROGRAM-ID header assumed
 ])
-AT_CHECK([$COBC -frelax-syntax-checks prog3.cob], [0], [],
-[prog3.cob:1: warning: PROGRAM-ID header missing - assumed [[-Wothers]]
+AT_CHECK([$COBC -fdiagnostics-plain-output -frelax-syntax-checks prog3.cob], [0], [],
+[prog3.cob:1: warning: PROGRAM-ID header missing [[-Wothers]]
+prog3.cob:1: note: PROGRAM-ID header assumed [[-Wothers]]
 ])
 
 AT_CLEANUP
@@ -937,10 +996,10 @@ AT_DATA([prog.cob], [
        01  x PIC 9(5).
 
        PROCEDURE DIVISION.
-           *> Ok
+      *> Ok
            INSPECT "abcde" TALLYING x FOR CHARACTERS CHARACTERS
        
-           *> Not ok
+      *> Not ok
            INSPECT "abcde" TALLYING x FOR ALL LEADING
                TRAILING ALL ALL ALL TRAILING
            INSPECT "abcde" TALLYING x FOR x FOR LEADING "a"
@@ -1006,31 +1065,86 @@ AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 AT_CLEANUP
 
 
-AT_SETUP([maximum data size])
+AT_SETUP([EXAMINE invalid literals])
 AT_KEYWORDS([misc])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  x  PIC X(10).
+       01  y  PIC X.
+       01  yy PIC XX.
+
+       PROCEDURE DIVISION.
+           EXAMINE x TALLYING ALL "AA" REPLACING BY "CC"
+           EXAMINE x TALLYING UNTIL FIRST SPACE
+           EXAMINE x TALLYING UNTIL FIRST y
+           EXAMINE x TALLYING LEADING yy
+           EXAMINE y TALLYING ALL x (1).
+           EXAMINE y TALLYING ALL x (3:2).
+           EXAMINE x TALLYING UNTIL FIRST ALL
+])
+
+AT_CHECK([$COMPILE_ONLY -freserved=EXAMINE prog.cob], [1], [],
+[prog.cob:12: error: single-character literal or data item expected
+prog.cob:12: error: single-character literal or data item expected
+prog.cob:15: error: single-character literal or data item expected
+prog.cob:16: error: single-character literal or data item expected
+prog.cob:16: error: syntax error, unexpected [(]
+prog.cob:17: error: single-character literal or data item expected
+prog.cob:17: error: syntax error, unexpected [(]
+prog.cob:18: error: syntax error, unexpected ALL
+])
+AT_CLEANUP
+
+
+AT_SETUP([maximum data size])
+AT_KEYWORDS([misc max])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
-       01 SINGLE-ITEM   PIC X(999999999).
+       01 SINGLE-ITEM   PIC X(9999999999).
        01 GROUP-ITEM1.
-          05 FILLER     PIC X(999999999).
+          05 FILLER     PIC X(9999999999).
        01 GROUP-ITEM2.
           05 FILLER     PIC X(199999999).
           05 FILLER     PIC X(199999999).
+       >> IF P64 SET
+          05 FILLER     PIC X(1999999999).
+       >> END-IF
        PROCEDURE        DIVISION.
            STOP RUN.
 
 ])
 
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
+AT_CHECK([test "$COB_HAS_64_BIT_POINTER" = "yes"], [0], [], [],
+
+# Previous test "failed" --> 32 bit
+[AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:6: error: 'SINGLE-ITEM' cannot be larger than 268435456 bytes
 prog.cob:8: error: 'FILLER 1' cannot be larger than 268435456 bytes
 prog.cob:7: error: 'GROUP-ITEM1' cannot be larger than 268435456 bytes
 prog.cob:9: error: 'GROUP-ITEM2' cannot be larger than 268435456 bytes
-])
+])]
+
+,
+
+# Previous test "passed" --> 64 bit
+[AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
+[prog.cob:6: error: 'SINGLE-ITEM' cannot be larger than 2147483646 bytes
+prog.cob:8: error: 'FILLER 1' cannot be larger than 2147483646 bytes
+prog.cob:7: error: 'GROUP-ITEM1' cannot be larger than 2147483646 bytes
+prog.cob:9: error: 'GROUP-ITEM2' cannot be larger than 2147483646 bytes
+])]
+
+)
+
 
 AT_CLEANUP
 
@@ -1201,17 +1315,29 @@ AT_DATA([prog5.cob], [
            STOP RUN.
 ])
 
+AT_DATA([prog6.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       77  CRT-STATUS   PIC X(3) IS SPECIAL-NAMES CRT STATUS.
+       PROCEDURE        DIVISION.
+           ACCEPT OMITTED END-ACCEPT.
+           STOP RUN.
+])
+
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:14: error: duplicate CRT STATUS clause
 ])
 AT_CHECK([$COMPILE_ONLY prog2.cob], [1], [],
-[prog2.cob:6: error: 'CRT-STATUS' CRT STATUS must be 4 characters long
+[prog2.cob:6: error: 'CRT-STATUS' CRT STATUS must be 3 or 4 characters long
 ])
 AT_CHECK([$COMPILE_ONLY prog3.cob], [0], [], [])
 AT_CHECK([$COMPILE_ONLY prog4.cob], [0], [], [])
 AT_CHECK([$COMPILE_ONLY prog5.cob], [1], [],
-[prog5.cob:6: error: 'CRT-STATUS' CRT STATUS must have at least 4 digits
+[prog5.cob:6: error: 'CRT-STATUS' numeric CRT STATUS must have at least 4 digits
 ])
+AT_CHECK([$COMPILE_ONLY prog6.cob], [0], [], [])
 
 AT_CLEANUP
 
@@ -1731,22 +1857,32 @@ AT_DATA([prog_tmpl.cob], [
 # AT_DATA workaround via sed:
 AT_CHECK([$SED -e 's/_$//' prog_tmpl.cob > prog.cob], [0], [], [])
 
-AT_CHECK([$COBC -fsyntax-only -fixed -Wextra prog.cob], [0], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -fixed -Wextra prog.cob], [0], [],
 [prog.cob:7: warning: source text exceeds 512 bytes, will be truncated [[-Wothers]]
 prog.cob:8: warning: source text exceeds 512 bytes, will be truncated [[-Wothers]]
 prog.cob:11: warning: source text after program-text area (column 72) [[-Wdangling-text]]
 ])
 
-AT_CHECK([$COBC -fsyntax-only -free -Wextra prog.cob], [1], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -free -Wextra prog.cob], [1], [],
 [prog.cob:7: warning: source text exceeds 512 bytes, will be truncated [[-Wothers]]
 prog.cob:8: warning: source text exceeds 512 bytes, will be truncated [[-Wothers]]
-prog.cob:8: error: unknown statement 'This'
+prog.cob:8: error: syntax error, unexpected IS, expecting SECTION or .
+prog.cob:8: note: unknown statement 'This'
 ])
 
-AT_CHECK([$COBC -fsyntax-only -F -Wextra prog.cob], [1], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -F -Wextra prog.cob], [1], [],
 [prog.cob:7: warning: source text exceeds 512 bytes, will be truncated [[-Wothers]]
 prog.cob:8: warning: source text exceeds 512 bytes, will be truncated [[-Wothers]]
-prog.cob:8: error: unknown statement 'This'
+prog.cob:8: error: syntax error, unexpected IS, expecting SECTION or .
+prog.cob:8: note: unknown statement 'This'
+])
+
+# Check dialect option `format` (fixed for default) does not erase flags like `-F`, `--free`:
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -F -std=default -Wextra prog.cob], [1], [],
+[prog.cob:7: warning: source text exceeds 512 bytes, will be truncated [[-Wothers]]
+prog.cob:8: warning: source text exceeds 512 bytes, will be truncated [[-Wothers]]
+prog.cob:8: error: syntax error, unexpected IS, expecting SECTION or .
+prog.cob:8: note: unknown statement 'This'
 ])
 
 AT_CLEANUP
@@ -1764,18 +1900,18 @@ AT_DATA([prog.cob], [
            CONTINUE
 ])
 
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:8: error: syntax error, unexpected end of file
+AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
+[prog.cob:8: warning: optional period used
 ])
 
 # fixing the initial setup but now producing a missing newline:
 printf "           CONTINUE." >> prog.cob
 
-AT_CHECK([$COBC -fsyntax-only -Wextra -fixed prog.cob], [0], [],
-[prog.cob:8: warning: line not terminated by a newline [[-Wothers]]
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -Wextra -fixed prog.cob], [0], [],
+[prog.cob:8: warning: line not terminated by a newline [[-Wmissing-newline]]
 ])
-AT_CHECK([$COBC -fsyntax-only -Wextra -free prog.cob], [0], [],
-[prog.cob:8: warning: line not terminated by a newline [[-Wothers]]
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -Wextra -free prog.cob], [0], [],
+[prog.cob:8: warning: line not terminated by a newline [[-Wmissing-newline]]
 ])
 # should not happen if the data only consists of space characters
 printf "\n              \t " >> prog.cob
@@ -1784,562 +1920,6 @@ AT_CHECK([$COMPILE_ONLY -Wextra prog.cob], [0], [], [])
 AT_CLEANUP
 
 
-
-AT_SETUP([continuation Indicator - too many lines])
-AT_KEYWORDS([misc fixed literals listing])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog.
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       DATA             DIVISION.
-       WORKING-STORAGE  SECTION.
-       PROCEDURE        DIVISION.
-           DISPLAY '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    ' ' END-DISPLAY.
-           STOP RUN.
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:538: error: buffer overrun - too many continuation lines
-])
-
-# extra test with listing as this is an edge case there
-AT_CAPTURE_FILE([prog.lst])
-AT_CHECK([$COMPILE_ONLY -t prog.lst prog.cob], [1], [],
-[prog.cob:538: error: buffer overrun - too many continuation lines
-])
-
-AT_CLEANUP
 
 
 AT_SETUP([continuation of COBOL words])
@@ -2363,240 +1943,6 @@ AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
 AT_CLEANUP
 
 
-AT_SETUP([literal too long])
-AT_KEYWORDS([misc literals literal-length continuation listing])
-
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog.
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       DATA             DIVISION.
-       WORKING-STORAGE  SECTION.
-       PROCEDURE        DIVISION.
-           DISPLAY '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    '
-      -    ' '.
-           STOP RUN.
-])
-
-AT_DATA([prog2.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog2.
-       ENVIRONMENT DIVISION.
-       CONFIGURATION SECTION.
-       DATA             DIVISION.
-       WORKING-STORAGE  SECTION.
-       PROCEDURE        DIVISION.
-           DISPLAY '    '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           '                                                                                                                                                                                                                                             '-
-           ' ' END-DISPLAY.
-           STOP RUN.
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:9: error: invalid literal: '                                   ...'
-prog.cob:9: error: literal length exceeds 8191 characters
-])
-
-AT_CHECK([$COMPILE_ONLY -fliteral-length=160 prog.cob], [1], [],
-[prog.cob:9: error: invalid literal: '                                   ...'
-prog.cob:9: error: literal length exceeds 160 characters
-])
-
-AT_CHECK([$COMPILE_ONLY -free prog2.cob], [1], [],
-[prog2.cob:9: error: invalid literal: '                                   ...'
-prog2.cob:9: error: literal length 8299 exceeds 8191 characters
-])
-
-# extra test with listing as this is an edge case there
-AT_CAPTURE_FILE([prog.lst])
-AT_CHECK([$COMPILE_ONLY -t prog.lst prog.cob], [1], [],
-[prog.cob:9: error: invalid literal: '                                   ...'
-prog.cob:9: error: literal length exceeds 8191 characters
-])
-
-AT_CAPTURE_FILE([prog2.lst])
-AT_CHECK([$COMPILE_ONLY -free -t prog2.lst prog2.cob], [1], [],
-[prog2.cob:9: error: invalid literal: '                                   ...'
-prog2.cob:9: error: literal length 8299 exceeds 8191 characters
-])
-
-AT_CLEANUP
-
 
 AT_SETUP([line and floating comments])
 AT_KEYWORDS([misc extensions indicator])
@@ -2609,14 +1955,12 @@ AT_DATA([prog.cob], [
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
-      *    DISPLAY 'COMMENT'             END-DISPLAY
-      /    DISPLAY 'COMMENTSLASH'        END-DISPLAY
-*          DISPLAY 'MFCOMMENTASTERISK'   END-DISPLAY
-/          DISPLAY 'MFCOMMENTSLASH'      END-DISPLAY
- *         DISPLAY 'NOMFCOMMENTASTERISK' END-DISPLAY
- /         DISPLAY 'NOMFCOMMENTSLASH'    END-DISPLAY
-        *> DISPLAY 'FLOATING'            END-DISPLAY
- *>        DISPLAY 'NOFLOATING'          END-DISPLAY
+      *    DISPLAY 'COMMENT'      END-DISPLAY
+      /    DISPLAY 'COMMENTSLASH' END-DISPLAY
+*          DISPLAY 'MFCOMMENT'    END-DISPLAY
+ *         DISPLAY 'NOMFCOMMENT'  END-DISPLAY
+        *> DISPLAY 'FLOATING'     END-DISPLAY
+ *>        DISPLAY 'NOFLOATING'   END-DISPLAY
            STOP RUN.
 ])
 
@@ -2628,17 +1972,15 @@ AT_DATA([prog2.cob], [
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
-      *    DISPLAY 'COMMENT'             END-DISPLAY
-      /    DISPLAY 'COMMENTSLASH'        END-DISPLAY
-      $    DISPLAY 'COMMENTDOLLAR'       END-DISPLAY
-*          DISPLAY 'MFCOMMENTASTERISK'   END-DISPLAY
-/          DISPLAY 'MFCOMMENTSLASH'      END-DISPLAY
- *         DISPLAY 'NOMFCOMMENTASTERISK' END-DISPLAY
- /         DISPLAY 'NOMFCOMMENTSLASH'    END-DISPLAY
-        *> DISPLAY 'FLOATING'            END-DISPLAY
-        |  DISPLAY 'ACUFLOATING'         END-DISPLAY
- |         DISPLAY 'NOACUFLOATING'       END-DISPLAY
- *>        DISPLAY 'NOFLOATING'          END-DISPLAY
+      *    DISPLAY 'COMMENT'       END-DISPLAY
+      /    DISPLAY 'COMMENTSLASH'  END-DISPLAY
+      $    DISPLAY 'COMMENTDOLLAR' END-DISPLAY
+*          DISPLAY 'MFCOMMENT'     END-DISPLAY
+ *         DISPLAY 'NOMFCOMMENT'   END-DISPLAY
+        *> DISPLAY 'FLOATING'      END-DISPLAY
+        |  DISPLAY 'ACUFLOATING'   END-DISPLAY
+ |         DISPLAY 'NOACUFLOATING' END-DISPLAY
+ *>        DISPLAY 'NOFLOATING'    END-DISPLAY
            STOP RUN.
 ])
 
@@ -2650,58 +1992,52 @@ CONFIGURATION SECTION.
 DATA             DIVISION.
 WORKING-STORAGE  SECTION.
 PROCEDURE        DIVISION.
-      * DISPLAY 'NOCOMMENT'           END-DISPLAY
-      / DISPLAY 'NOCOMMENTSLASH'      END-DISPLAY
-      $ DISPLAY 'NOCOMMENTDOLLAR'     END-DISPLAY
-*       DISPLAY 'NOMFCOMMENTASTERISK' END-DISPLAY
-/       DISPLAY 'NOMFCOMMENTSLASH'    END-DISPLAY
- |      DISPLAY 'ACUFLOATING'         END-DISPLAY
- *>     DISPLAY 'FLOATING'            END-DISPLAY
-      x DISPLAY 'WRONGINDICATOR'      END-DISPLAY
+      * DISPLAY 'NOCOMMENT'        END-DISPLAY
+      / DISPLAY 'NOCOMMENTSLASH'   END-DISPLAY
+$       DISPLAY 'ACUCOMMENTDOLLAR' END-DISPLAY
+*       DISPLAY 'NOMFCOMMENT'      END-DISPLAY
+ |      DISPLAY 'ACUFLOATING'      END-DISPLAY
+ *>     DISPLAY 'FLOATING'         END-DISPLAY
+      x DISPLAY 'WRONGINDICATOR'   END-DISPLAY
         STOP RUN.
 ])
 
 AT_CHECK([$COMPILE prog.cob], [0], [], [])
 
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
-[MFCOMMENTASTERISK
-MFCOMMENTSLASH
-NOMFCOMMENTASTERISK
-NOMFCOMMENTSLASH
+[MFCOMMENT
+NOMFCOMMENT
 NOFLOATING
 ], [])
 
 AT_CHECK([$COMPILE_ONLY prog2.cob], [1], [],
 [prog2.cob:11: error: invalid indicator '$' at column 7
-prog2.cob:17: error: invalid symbol '|' - skipping word
+prog2.cob:15: error: invalid symbol '|' - skipping word
 ])
 
 # note: for checking the result we actually either need to run the program
-#       or change it to string concatenation and raise a constant compile time warning
-#       we do (historically) the first (for now)
+#       or change it to string concatenation and raise a constant compile
+#       time warning we do (historically) the first (for now)
 #
 AT_CHECK([$COMPILE -fmfcomment prog.cob], [0], [],
 [])
 
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
-[NOMFCOMMENTASTERISK
-NOMFCOMMENTSLASH
+[NOMFCOMMENT
 NOFLOATING
 ], [])
 
 AT_CHECK([$COMPILE_ONLY -fmfcomment prog2.cob], [1], [],
 [prog2.cob:11: error: invalid indicator '$' at column 7
-prog2.cob:17: error: invalid symbol '|' - skipping word
+prog2.cob:15: error: invalid symbol '|' - skipping word
 ])
 
 # COMPILE needed, see note above
 AT_CHECK([$COMPILE -facucomment prog.cob -o prog1], [0], [], [])
 
 AT_CHECK([$COBCRUN_DIRECT ./prog1], [0],
-[MFCOMMENTASTERISK
-MFCOMMENTSLASH
-NOMFCOMMENTASTERISK
-NOMFCOMMENTSLASH
+[MFCOMMENT
+NOMFCOMMENT
 NOFLOATING
 ], [])
 
@@ -2709,52 +2045,51 @@ NOFLOATING
 AT_CHECK([$COMPILE -facucomment prog2.cob], [0], [], [])
 
 AT_CHECK([$COBCRUN_DIRECT ./prog2], [0],
-[MFCOMMENTASTERISK
-MFCOMMENTSLASH
-NOMFCOMMENTASTERISK
-NOMFCOMMENTSLASH
+[MFCOMMENT
+NOMFCOMMENT
 NOACUFLOATING
 NOFLOATING
 ], [])
 
 
 AT_CHECK([$COMPILE_ONLY -free prog3.cob], [1], [],
-[prog3.cob:11: warning: spurious '$' detected - ignored
+[prog3.cob:11: warning: ignoring invalid directive: '$       DISPLAY'
 prog3.cob:9: error: syntax error, unexpected *
 prog3.cob:10: error: syntax error, unexpected /
 prog3.cob:12: error: syntax error, unexpected *
-prog3.cob:13: error: syntax error, unexpected /
-prog3.cob:14: error: invalid symbol '|' - skipping word
-prog3.cob:16: error: syntax error, unexpected Identifier
+prog3.cob:13: error: invalid symbol '|' - skipping word
+prog3.cob:15: error: syntax error, unexpected Identifier
 ])
 AT_CHECK([$COMPILE_ONLY -free -fmfcomment prog3.cob], [1], [],
-[prog3.cob:11: warning: spurious '$' detected - ignored
+[prog3.cob:11: warning: ignoring invalid directive: '$       DISPLAY'
 prog3.cob:9: error: syntax error, unexpected *
 prog3.cob:10: error: syntax error, unexpected /
 prog3.cob:12: error: syntax error, unexpected *
-prog3.cob:13: error: syntax error, unexpected /
-prog3.cob:14: error: invalid symbol '|' - skipping word
-prog3.cob:16: error: syntax error, unexpected Identifier
+prog3.cob:13: error: invalid symbol '|' - skipping word
+prog3.cob:15: error: syntax error, unexpected Identifier
 ])
 AT_CHECK([$COMPILE_ONLY -free -facucomment prog3.cob], [1], [],
-[prog3.cob:11: warning: spurious '$' detected - ignored
+[prog3.cob:11: warning: ignoring invalid directive: '$       DISPLAY'
 prog3.cob:9: error: syntax error, unexpected *
 prog3.cob:10: error: syntax error, unexpected /
 prog3.cob:12: error: syntax error, unexpected *
-prog3.cob:13: error: syntax error, unexpected /
-prog3.cob:16: error: syntax error, unexpected Identifier
+prog3.cob:15: error: syntax error, unexpected Identifier
+])
+AT_CHECK([$COMPILE_ONLY -fformat=terminal -facucomment prog3.cob], [1], [],
+[prog3.cob:9: error: syntax error, unexpected *
+prog3.cob:10: error: syntax error, unexpected /
+prog3.cob:15: error: syntax error, unexpected Identifier
 ])
 # Check that invalid indicator and doesn't abort preprocessing
 # and that errors in preprocessing doesn't abort compilation
-AT_CHECK([$COMPILE_ONLY prog3.cob], [1], [],
+AT_CHECK([$COMPILE_ONLY -fixed prog3.cob], [1], [],
 [prog3.cob:2: error: invalid indicator 'F' at column 7
 prog3.cob:3: error: invalid indicator 'M' at column 7
 prog3.cob:4: error: invalid indicator 'N' at column 7
 prog3.cob:5: error: invalid indicator 'U' at column 7
 prog3.cob:7: error: invalid indicator 'G' at column 7
 prog3.cob:8: error: invalid indicator 'U' at column 7
-prog3.cob:11: error: invalid indicator '$' at column 7
-prog3.cob:16: error: invalid indicator 'x' at column 7
+prog3.cob:15: error: invalid indicator 'x' at column 7
 prog3.cob:6: error: PROGRAM-ID header missing
 prog3.cob:6: error: PROCEDURE DIVISION header missing
 prog3.cob:6: error: syntax error, unexpected DIVISION
@@ -3043,588 +2378,6 @@ AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
 AT_CLEANUP
 
 
-AT_SETUP([Numeric literals])
-AT_KEYWORDS([misc numeric-literal-length])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog.
-       DATA             DIVISION.
-       WORKING-STORAGE  SECTION.
-       77 COUNTER       PIC 9 VALUE 0.
-       PROCEDURE        DIVISION.
-
-      *> No literals at all
-       00000000000000000000000000000000000000000000000000000000000
-       SECTION.
-       000000000000000000000000000000000000000000000000000000000000.
-           ADD 1 TO COUNTER END-ADD
-           EVALUATE COUNTER
-           WHEN 1
-           PERFORM
-           00000000000000000000000000000000000000000000000000000000000
-           WHEN 2
-           PERFORM
-           000000000000000000000000000000000000000000000000000000000000
-           WHEN 3
-           MOVE 0 TO COUNTER
-           END-EVALUATE.
-
-       100000000000000000000000000000000000000000000000000000000001
-       SECTION.
-       20000000000000000000000000000000000000000000000000000000002.
-           ADD 1 TO COUNTER END-ADD
-           EVALUATE COUNTER
-           WHEN 1
-           PERFORM
-           100000000000000000000000000000000000000000000000000000000001
-           WHEN 2
-           PERFORM
-           20000000000000000000000000000000000000000000000000000000002
-           WHEN 3
-           MOVE 0 TO COUNTER
-           END-EVALUATE.
-
-           STOP RUN.
-])
-
-AT_DATA([prog2.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog2.
-       ENVIRONMENT      DIVISION.
-       CONFIGURATION    SECTION.
-       SPECIAL-NAMES.
-       PROCEDURE        DIVISION.
-
-           *> Valid literals, depending on numeric literal size
-           DISPLAY 1.0076, +100000.03, +1.0, -0078,
-               +.1234567890123456789012345678901234
-               .123456789012345678901234567890123450
-           END-DISPLAY
-
-           *> Invalid literals
-           DISPLAY 1.03.0     END-DISPLAY
-           DISPLAY --123      END-DISPLAY
-           DISPLAY -123-      END-DISPLAY
-           DISPLAY -123-456   END-DISPLAY
-           DISPLAY -123-4.56  END-DISPLAY
-           DISPLAY -12.3-456  END-DISPLAY
-           DISPLAY -12.3-4.56 END-DISPLAY
-           DISPLAY 1000003+   END-DISPLAY
-           DISPLAY 1.000003+  END-DISPLAY
-           DISPLAY .3+        END-DISPLAY
-           DISPLAY 3.+        END-DISPLAY
-
-           STOP RUN.
-])
-
-AT_DATA([prog3.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog3.
-       ENVIRONMENT      DIVISION.
-       CONFIGURATION    SECTION.
-       SPECIAL-NAMES. DECIMAL-POINT IS COMMA.
-       PROCEDURE        DIVISION.
-
-           *> Valid literals, depending on numeric literal size
-           DISPLAY 1,0076, +100000,03, +1,0, -0078,
-               +,1234567890123456789012345678901234
-               ,123456789012345678901234567890123450
-           END-DISPLAY
-
-           *> Invalid literals
-           DISPLAY 1,03,0     END-DISPLAY
-           DISPLAY --123      END-DISPLAY
-           DISPLAY -123-      END-DISPLAY
-           DISPLAY -123-456   END-DISPLAY
-           DISPLAY -123-4,56  END-DISPLAY
-           DISPLAY -12,3-456  END-DISPLAY
-           DISPLAY -12,3-4,56 END-DISPLAY
-           DISPLAY 1000003+   END-DISPLAY
-           DISPLAY 1,000003+  END-DISPLAY
-           DISPLAY ,3+        END-DISPLAY
-           DISPLAY 3,+        END-DISPLAY
-
-           STOP RUN.
-])
-
-AT_CHECK([$COMPILE_ONLY -fliteral-length=1 -fnumeric-literal-length=1 -fword-length=60 prog.cob], [0], [], [])
-
-# result with extended scanner for wrong numeric literals:
-#AT_CHECK([$COMPILE_ONLY prog2.cob], [1], [],
-#[prog2.cob:16: error: invalid numeric literal: '1.03.0'
-#prog2.cob:16: error: literal with more than one decimal point
-#prog2.cob:17: error: invalid numeric literal: '--123'
-#prog2.cob:17: error: literal with more than one sign character
-#prog2.cob:18: error: invalid numeric literal: '-123-'
-#prog2.cob:18: error: literal with more than one sign character
-#prog2.cob:19: error: invalid numeric literal: '-123-456'
-#prog2.cob:19: error: literal with more than one sign character
-#prog2.cob:20: error: invalid numeric literal: '-123-4.56'
-#prog2.cob:20: error: literal with more than one sign character
-#prog2.cob:21: error: invalid numeric literal: '-12.3-456'
-#prog2.cob:21: error: literal with more than one sign character
-#prog2.cob:22: error: invalid numeric literal: '-12.3-4.56'
-#prog2.cob:22: error: literal with more than one sign character
-#prog2.cob:22: error: literal with more than one decimal point
-#prog2.cob:23: error: invalid numeric literal: '1000003+'
-#prog2.cob:23: error: sign must appear as leftmost character
-#prog2.cob:24: error: invalid numeric literal: '1.000003+'
-#prog2.cob:24: error: sign must appear as leftmost character
-#prog2.cob:25: error: invalid numeric literal: '.3+'
-#prog2.cob:25: error: sign must appear as leftmost character
-#prog2.cob:26: error: invalid numeric literal: '3.+'
-#prog2.cob:26: error: sign must appear as leftmost character
-#])
-#AT_CHECK([$COMPILE_ONLY prog3.cob], [1], [],
-#[prog3.cob:16: error: invalid numeric literal: '1,03,0'
-#prog3.cob:16: error: literal with more than one decimal point
-#prog3.cob:17: error: invalid numeric literal: '--123'
-#prog3.cob:17: error: literal with more than one sign character
-#prog3.cob:18: error: invalid numeric literal: '-123-'
-#prog3.cob:18: error: literal with more than one sign character
-#prog3.cob:19: error: invalid numeric literal: '-123-456'
-#prog3.cob:19: error: literal with more than one sign character
-#prog3.cob:20: error: invalid numeric literal: '-123-4,56'
-#prog3.cob:20: error: literal with more than one sign character
-#prog3.cob:21: error: invalid numeric literal: '-12,3-456'
-#prog3.cob:21: error: literal with more than one sign character
-#prog3.cob:22: error: invalid numeric literal: '-12,3-4,56'
-#prog3.cob:22: error: literal with more than one sign character
-#prog3.cob:22: error: literal with more than one decimal point
-#prog3.cob:23: error: invalid numeric literal: '1000003+'
-#prog3.cob:23: error: sign must appear as leftmost character
-#prog3.cob:24: error: invalid numeric literal: '1,000003+'
-#prog3.cob:24: error: sign must appear as leftmost character
-#prog3.cob:25: error: invalid numeric literal: ',3+'
-#prog3.cob:25: error: sign must appear as leftmost character
-#prog3.cob:26: error: invalid numeric literal: '3,+'
-#prog3.cob:26: error: sign must appear as leftmost character
-#])
-
-AT_CHECK([$COMPILE_ONLY prog2.cob], [1], [],
-[prog2.cob:17: error: syntax error, unexpected -, expecting [(]
-prog2.cob:18: error: syntax error, unexpected -
-prog2.cob:23: error: syntax error, unexpected +
-prog2.cob:24: error: syntax error, unexpected +
-prog2.cob:25: error: syntax error, unexpected +
-prog2.cob:26: error: syntax error, unexpected +
-])
-AT_CHECK([$COMPILE_ONLY prog3.cob], [1], [],
-[prog3.cob:17: error: syntax error, unexpected -, expecting [(]
-prog3.cob:18: error: syntax error, unexpected -
-prog3.cob:23: error: syntax error, unexpected +
-prog3.cob:24: error: syntax error, unexpected +
-prog3.cob:25: error: syntax error, unexpected +
-prog3.cob:26: error: syntax error, unexpected +
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([floating-point literals])
-# Refer to Section 8.3.1.2.2.2 of COBOL 2014.
-AT_KEYWORDS([misc])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog.
-       PROCEDURE        DIVISION.
-           *> Valid literals
-           DISPLAY 1.0E6144, +1.0E+3, +1.0E-6143, 123.E1,
-               +.123456789012345678901234567890123456E+0000
-           END-DISPLAY
-
-           *> invalid literals
-           DISPLAY 1.0D3 END-DISPLAY
-           DISPLAY 1E3 END-DISPLAY
-           DISPLAY '1.0E3'BLAH END-DISPLAY
-           DISPLAY 1.0E3.0 END-DISPLAY
-           DISPLAY -0.0E-0 END-DISPLAY
-           DISPLAY 1.0E00003 END-DISPLAY
-           DISPLAY .123456789012345678901234567890123456789E0
-           END-DISPLAY
-           DISPLAY 0.0E3 END-DISPLAY
-
-           *> Implementor-defined invalid literals
-           DISPLAY 1.0E6145 END-DISPLAY
-           DISPLAY 1.0E-6144 END-DISPLAY
-
-           STOP RUN.
-])
-
-AT_DATA([prog2.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog2.
-       ENVIRONMENT      DIVISION.
-       CONFIGURATION    SECTION.
-       SPECIAL-NAMES.
-            DECIMAL-POINT IS COMMA.
-       PROCEDURE        DIVISION.
-           *> Valid literals
-           DISPLAY 1,0E6144; +1,0E+3; +1,0E-6143; 123,E1;
-               +,123456789012345678901234567890123456E+0000
-           END-DISPLAY
-
-           *> invalid literals
-           DISPLAY 1,0D3 END-DISPLAY
-           DISPLAY 1E3 END-DISPLAY
-           DISPLAY 1,0E3BLAH END-DISPLAY
-           DISPLAY 1,0E3,0 END-DISPLAY
-           DISPLAY -0,0E-0 END-DISPLAY
-           DISPLAY 1,0E00003 END-DISPLAY
-           DISPLAY ,123456789012345678901234567890123456789E0
-           END-DISPLAY
-           DISPLAY 0,0E3 END-DISPLAY
-
-           *> Implementor-defined invalid literals
-           DISPLAY 1,0E6145 END-DISPLAY
-           DISPLAY 1,0E-6144 END-DISPLAY
-
-           STOP RUN.
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:11: error: 'D3' is not defined
-prog.cob:12: error: '1E3' is not defined
-prog.cob:13: error: 'BLAH' is not defined
-prog.cob:14: error: invalid floating-point literal: '1.0E3.0'
-prog.cob:14: error: exponent has decimal point
-prog.cob:15: error: invalid floating-point literal: '-0.0E-0'
-prog.cob:15: error: significand of 0 must be positive
-prog.cob:15: error: exponent of 0 must be positive
-prog.cob:16: error: invalid floating-point literal: '1.0E00003'
-prog.cob:16: error: exponent has more than 4 digits
-prog.cob:17: error: invalid floating-point literal: '.123456789012345678901234567890123 ...'
-prog.cob:17: error: significand has more than 36 digits
-prog.cob:19: error: invalid floating-point literal: '0.0E3'
-prog.cob:19: error: exponent of 0 must be 0
-prog.cob:22: error: invalid floating-point literal: '1.0E6145'
-prog.cob:22: error: exponent not between -6143 and 6144
-prog.cob:23: error: invalid floating-point literal: '1.0E-6144'
-prog.cob:23: error: exponent not between -6143 and 6144
-])
-
-AT_CHECK([$COMPILE_ONLY prog2.cob], [1], [],
-[prog2.cob:15: error: 'D3' is not defined
-prog2.cob:16: error: '1E3' is not defined
-prog2.cob:17: error: 'BLAH' is not defined
-prog2.cob:18: error: invalid floating-point literal: '1,0E3,0'
-prog2.cob:18: error: exponent has decimal point
-prog2.cob:19: error: invalid floating-point literal: '-0,0E-0'
-prog2.cob:19: error: significand of 0 must be positive
-prog2.cob:19: error: exponent of 0 must be positive
-prog2.cob:20: error: invalid floating-point literal: '1,0E00003'
-prog2.cob:20: error: exponent has more than 4 digits
-prog2.cob:21: error: invalid floating-point literal: ',123456789012345678901234567890123 ...'
-prog2.cob:21: error: significand has more than 36 digits
-prog2.cob:23: error: invalid floating-point literal: '0,0E3'
-prog2.cob:23: error: exponent of 0 must be 0
-prog2.cob:26: error: invalid floating-point literal: '1,0E6145'
-prog2.cob:26: error: exponent not between -6143 and 6144
-prog2.cob:27: error: invalid floating-point literal: '1,0E-6144'
-prog2.cob:27: error: exponent not between -6143 and 6144
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([X literals])
-AT_KEYWORDS([misc])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID.    prog.
-       PROCEDURE      DIVISION.
-           *> Valid form
-           DISPLAY X"0123456789ABCDEF"
-
-           *> invalid form
-           DISPLAY X"GH"
-                   X"1"
-           END-DISPLAY.
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:9: error: invalid X literal: 'GH'
-prog.cob:9: error: literal contains invalid character 'G'
-prog.cob:9: error: literal contains invalid character 'H'
-prog.cob:10: error: invalid X literal: '1'
-prog.cob:10: error: literal does not have an even number of digits
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([national literals])
-AT_KEYWORDS([misc])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID.    prog.
-       PROCEDURE      DIVISION.
-           DISPLAY N"UTF-16 string".
-           DISPLAY N'0123456789ABCDEF'.
-           DISPLAY N"0123456789ABCDEF"-
-                   N"0123456789ABCDEF".
-           DISPLAY NC"0123456789ABCDEF"-
-                   NC'0123456789ABCDEF'.
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
-[prog.cob:5: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:6: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:7: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:8: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:9: warning: national-character literal used
-prog.cob:9: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:10: warning: national-character literal used
-prog.cob:10: warning: handling of national literal is unfinished; implementation is likely to be changed
-])
-
-AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [1], [],
-[prog.cob:5: error: national literal does not conform to COBOL 85
-prog.cob:6: error: national literal does not conform to COBOL 85
-prog.cob:7: error: national literal does not conform to COBOL 85
-prog.cob:8: error: national literal does not conform to COBOL 85
-prog.cob:9: error: national-character literal does not conform to COBOL 85
-prog.cob:10: error: national-character literal does not conform to COBOL 85
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([NX literals])
-AT_KEYWORDS([misc])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID.    prog.
-       PROCEDURE      DIVISION.
-           *> Valid form
-           DISPLAY NX"265E"
-           DISPLAY NX"0123456789ABCDEF"
-
-           *> invalid form
-           DISPLAY NX"GH"
-                   NX"1".
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:6: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:7: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:10: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:10: error: invalid NX literal: 'GH'
-prog.cob:10: error: literal contains invalid character 'G'
-prog.cob:10: error: literal contains invalid character 'H'
-prog.cob:11: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:11: error: invalid NX literal: '1'
-prog.cob:11: error: literal does not have an even number of digits
-])
-
-AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [1], [],
-[prog.cob:6: error: hexadecimal-national literal does not conform to COBOL 85
-prog.cob:7: error: hexadecimal-national literal does not conform to COBOL 85
-prog.cob:10: error: hexadecimal-national literal does not conform to COBOL 85
-prog.cob:11: error: hexadecimal-national literal does not conform to COBOL 85
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([binary literals])
-AT_KEYWORDS([misc extensions])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog.
-       PROCEDURE        DIVISION.
-           DISPLAY B"101010"
-           DISPLAY B"111111111111111111111111111111111111111111111111111
-      -             "1111111111111" *> " Syntax highlighting hack
-
-           DISPLAY B"23"
-           DISPLAY B"111111111111111111111111111111111111111111111111111
-      -             "111111111111111111111111111111111111111111111111111
-      -             "11111111111111111111111111111111111111111111111111"
-           STOP RUN.
-])
-
-AT_CHECK([$COMPILE_ONLY -std=mf prog.cob], [1], [],
-[prog.cob:9: error: invalid B literal: '23'
-prog.cob:9: error: literal contains invalid character '2'
-prog.cob:9: error: literal contains invalid character '3'
-prog.cob:10: error: invalid B literal: '1111111111111111111111111111111111 ...'
-prog.cob:10: error: literal length 152 exceeds 64 characters
-])
-
-AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [1], [],
-[prog.cob:5: error: numeric boolean literal does not conform to COBOL 85
-prog.cob:6: error: numeric boolean literal does not conform to COBOL 85
-prog.cob:9: error: numeric boolean literal does not conform to COBOL 85
-prog.cob:10: error: numeric boolean literal does not conform to COBOL 85
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([binary-hexadecimal literals])
-AT_KEYWORDS([misc extensions])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog.
-       PROCEDURE        DIVISION.
-           DISPLAY BX"AB05CD0F"
-           DISPLAY        BX"0123456789ABCDEF0123456789ABCDEF0123456789A
-      -              "BCDEF" *> " Syntax highlighting hack
-
-           DISPLAY BX"A"
-           STOP RUN.
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:6: error: invalid BX literal: '0123456789ABCDEF0123456789ABCDEF01 ...'
-prog.cob:6: error: literal length 192 exceeds 64 characters
-])
-
-AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [1], [],
-[prog.cob:5: error: hexadecimal-boolean literal does not conform to COBOL 85
-prog.cob:6: error: hexadecimal-boolean literal does not conform to COBOL 85
-prog.cob:9: error: hexadecimal-boolean literal does not conform to COBOL 85
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([HP COBOL octal literals])
-AT_KEYWORDS([misc extensions])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog.
-       PROCEDURE        DIVISION.
-           *> Valid forms
-           DISPLAY %17 %37777777777 %456
-
-           *> invalid forms
-           DISPLAY %11111111111111111111111
-           DISPLAY %89
-
-           STOP RUN.
-])
-
-AT_CHECK([$COMPILE_ONLY -Wno-unfinished -fhp-octal-literals=ok prog.cob], [1], [],
-[prog.cob:9: error: invalid % literal: '11111111111111111111111'
-prog.cob:9: error: literal length 23 exceeds 22 characters
-prog.cob:10: error: invalid % literal: '89'
-prog.cob:10: error: literal contains invalid character '8'
-prog.cob:10: error: literal contains invalid character '9'
-])
-
-AT_CHECK([$COMPILE_ONLY -std=cobol2014 prog.cob], [1], [],
-[prog.cob:6: error: HP COBOL octal literal does not conform to COBOL 2014
-prog.cob:6: error: HP COBOL octal literal does not conform to COBOL 2014
-prog.cob:6: error: HP COBOL octal literal does not conform to COBOL 2014
-prog.cob:9: error: HP COBOL octal literal does not conform to COBOL 2014
-prog.cob:10: error: HP COBOL octal literal does not conform to COBOL 2014
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([ACUCOBOL literals])
-AT_KEYWORDS([misc acu extensions binary octal hexadecimal])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog.
-       PROCEDURE        DIVISION.
-           *> Valid forms
-           DISPLAY B#10 O#12345670123 X#12345678 H#90aBcDeF
-           END-DISPLAY
-
-           *> invalid forms
-       >>SOURCE FREE
-           DISPLAY B#11111111111111111111111111111111111111111111111111111111111111111
-               O#11111111111111111111111 X#11111111111111111 H#22222222222222222
-       >>SOURCE FIXED
-           DISPLAY B#23 O#89 X#GG H#HH
-
-           STOP RUN.
-])
-
-AT_CHECK([$COMPILE_ONLY -std=acu prog.cob], [1], [],
-[prog.cob:11: error: invalid B# literal: '1111111111111111111111111111111111 ...'
-prog.cob:11: error: literal length 65 exceeds 64 characters
-prog.cob:12: error: invalid O# literal: '11111111111111111111111'
-prog.cob:12: error: literal length 23 exceeds 22 characters
-prog.cob:12: error: invalid hexadecimal literal: '11111111111111111'
-prog.cob:12: error: literal length 17 exceeds 16 characters
-prog.cob:12: error: invalid hexadecimal literal: '22222222222222222'
-prog.cob:12: error: literal length 17 exceeds 16 characters
-prog.cob:14: error: invalid B# literal: '23'
-prog.cob:14: error: literal contains invalid character '2'
-prog.cob:14: error: literal contains invalid character '3'
-prog.cob:14: error: invalid O# literal: '89'
-prog.cob:14: error: literal contains invalid character '8'
-prog.cob:14: error: literal contains invalid character '9'
-prog.cob:14: error: invalid X# literal: 'GG'
-prog.cob:14: error: literal contains invalid character 'G'
-prog.cob:14: error: literal contains invalid character 'G'
-prog.cob:14: error: invalid H# literal: 'HH'
-prog.cob:14: error: literal contains invalid character 'H'
-prog.cob:14: error: literal contains invalid character 'H'
-])
-
-AT_CHECK([$COMPILE_ONLY -std=cobol2014 prog.cob], [1], [],
-[prog.cob:6: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:6: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:6: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:6: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:11: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:12: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:12: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:12: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:14: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:14: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:14: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-prog.cob:14: error: ACUCOBOL numeric literal does not conform to COBOL 2014
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([ACUCOBOL 32bit literal size])
-# ACUCOBOL literal max - the result is system dependent on size of unsigned long int
-AT_SKIP_IF(true)
-
-AT_KEYWORDS([extensions literals])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      prog.
-       PROCEDURE        DIVISION.
-
-       >>SOURCE FREE
-           DISPLAY B#1111111111111111111111111111111111111111111111111111111111111111
-               O#1111111111111111111111 X#1111111111111111
-
-           STOP RUN.
-])
-
-#AT_CHECK([$COMPILE_ONLY -std=acu prog.cob], [0], [], [])
-# TODO check the result according to COB_32_BIT_LONG --> 1 should result in the following
-AT_CHECK([$COMPILE_ONLY -std=acu prog.cob], [1], [],
-[prog.cob:7: error: invalid B# literal: '11111111111111111111111111111111111...'
-prog.cob:7: error: literal exceeds limit 4294967295
-prog.cob:8: error: invalid O# literal: '1111111111111111111111'
-prog.cob:8: error: literal exceeds limit 4294967295
-prog.cob:8: error: invalid X# literal: '1111111111111111'
-prog.cob:8: error: literal exceeds limit 4294967295
-])
-AT_CLEANUP
-
 
 AT_SETUP([ACUCOBOL USAGE FLOAT / DOUBLE])
 AT_KEYWORDS([misc acu extensions reserved])
@@ -3748,10 +2501,9 @@ prog.cob:17: error: 'handle' is not defined, but is a reserved word in another d
 prog.cob:19: error: 'handle' is not defined, but is a reserved word in another dialect
 prog.cob:20: error: 'handle' is not defined, but is a reserved word in another dialect
 prog.cob:21: error: 'handle' is not defined, but is a reserved word in another dialect
-prog.cob:15: error: PICTURE clause required for 'unused-thread'
 prog.cob: in paragraph 'MAIN':
 prog.cob:35: error: 'handle IN mywindow' is not defined
-prog.cob:34: error: invalid expression
+prog.cob:34: error: invalid expression: unfinished expression
 prog.cob:38: error: syntax error, unexpected END-PERFORM
 prog.cob:39: error: 'thread' is not defined, but is a reserved word in another dialect
 prog.cob:39: error: syntax error, unexpected Identifier
@@ -3915,12 +2667,11 @@ AT_DATA([prog.cob], [
 
 AT_CHECK([$COMPILE_ONLY -std=acu-strict prog.cob], [0], [],
 [prog.cob:16: warning: GRAPHICAL CONTROL is not implemented
-prog.cob:21: warning: COLOR clause is not implemented
+prog.cob:21: warning: COLOR clause (SCREEN) is not implemented
 prog.cob:23: warning: LINES clause is not implemented
 prog.cob:26: warning: screen positions from data-item is not implemented
 prog.cob: in paragraph 'MAIN':
 prog.cob:36: warning: GRAPHICAL WINDOW is not implemented
-prog.cob:42: warning: COLOR is not implemented
 prog.cob:53: warning: GRAPHICAL WINDOW is not implemented
 ])
 
@@ -4134,7 +2885,8 @@ AT_DATA([prog2.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY -fnot-reserved=DISPLAY -freserved=COMP-1=DISPLAY prog2.cob], [1], [],
-[prog2.cob:7: error: unknown statement 'DISPLAY'; it may exist in another dialect
+[prog2.cob:7: error: syntax error, unexpected Literal, expecting SECTION or .
+prog2.cob:7: note: unknown statement 'DISPLAY'; it may exist in another dialect
 ])
 
 AT_CLEANUP
@@ -4443,13 +3195,14 @@ AT_DATA([prog.cob], [
 
 AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [1], [],
 [prog.cob:10: error: 'CONVERSION' is not defined, but is a reserved word in another dialect
-prog.cob:11: error: unknown statement 'TRANSFORM'; it may exist in another dialect
+prog.cob:11: error: syntax error, unexpected Identifier, expecting SECTION or .
+prog.cob:11: note: unknown statement 'TRANSFORM'; it may exist in another dialect
 ])
 AT_CLEANUP
 
 
 AT_SETUP([redundant periods])
-AT_KEYWORDS([misc])
+AT_KEYWORDS([misc redundant-periods])
 
 AT_DATA([a.cpy], [
        01  var PIC X
@@ -4475,6 +3228,245 @@ AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
 [prog.cob:6: warning: ignoring redundant .
 prog.cob:12: warning: ignoring redundant .
 ])
+AT_CLEANUP
+
+
+AT_SETUP([missing periods])
+AT_KEYWORDS([misc cobol85 area-a missing-periods])
+
+# Check whether the first line is correcly handled:
+AT_DATA([prog.cob], [       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 DONE COMP-1 VALUE ZERO.
+
+       PROCEDURE DIVISION.
+       MAIN SECTION.
+           PERFORM SEC-1.
+           IF NOT DONE = 1
+              DISPLAY "SEC-1 NOT EXECUTED"
+           END-IF
+           STOP RUN
+       SEC-1 SECTION.
+           MOVE 1 TO DONE
+           GOBACK.
+])
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
+[prog.cob: in section 'MAIN':
+prog.cob:15: error: 'SEC-1' is not defined
+prog.cob:15: error: syntax error, unexpected SECTION
+])
+AT_CHECK([$COMPILE_ONLY -fformat=cobol85 -fmissing-period=error prog.cob], [1], [],
+[prog.cob: in section 'MAIN':
+prog.cob:15: error: optional period used
+])
+AT_CHECK([$COMPILE -fformat=cobol85 prog.cob], [0], [],
+[prog.cob: in section 'MAIN':
+prog.cob:15: warning: optional period used
+])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
+
+AT_CLEANUP
+
+
+AT_SETUP([missing periods with COPYs])
+AT_KEYWORDS([misc cobol85 area-a missing-periods copy])
+
+AT_DATA([ok.inc], [
+       01 FLG PIC XX VALUE "KO".
+])
+
+AT_DATA([sec-1.inc], [
+       SEC-1 SECTION.
+           MOVE "OK" TO FLG
+])
+
+AT_DATA([sec-2.inc], [
+       SEC-2 SECTION.
+           IF FLG NOT EQUAL "OK"
+              DISPLAY "DEC-1 NOT EXECUTED"
+           END-IF.
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY "ok.inc".
+
+       PROCEDURE DIVISION.
+       MAIN SECTION.
+           PERFORM SEC-1.
+           PERFORM SEC-2.
+      * Directive purposefully in Area A
+        REPLACE ==RUNNN== BY ==RUN==.
+           STOP RUNNN
+           COPY "sec-1.inc".
+      * Also purposefully in Area A
+        COPY "sec-2.inc".
+])
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
+[sec-1.inc: in section 'MAIN':
+sec-1.inc:2: error: 'SEC-1' is not defined
+sec-1.inc:2: error: syntax error, unexpected SECTION
+sec-2.inc:2: error: 'SEC-2' is not defined
+sec-2.inc:2: error: syntax error, unexpected SECTION
+])
+AT_CHECK([$COMPILE -fformat=cobol85 prog.cob], [0], [],
+[sec-1.inc: in section 'MAIN':
+sec-1.inc:2: warning: optional period used
+sec-2.inc: in section 'SEC-1':
+sec-2.inc:2: warning: optional period used
+])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
+
+AT_DATA([prog_err.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY "ok.inc".
+
+       PROCEDURE DIVISION.
+       MAIN SECTION.
+           PERFORM SEC-1.
+           PERFORM SEC-2.
+      * Directive purposefully in Area A
+        REPLACE ==RUNNN== BY ==RUN==.
+           PERFORM SEC-3.
+           STOP RUN
+           COPY "sec-1.inc".
+       COPY "sec-2.inc".
+       SEC-3 SECTION.
+           DISPLAY KO NO ADVANCING.
+])
+
+AT_CHECK([$COMPILE_ONLY -fformat=cobol85 prog_err.cob], [1], [],
+[sec-1.inc: in section 'MAIN':
+sec-1.inc:2: warning: optional period used
+sec-2.inc: in section 'SEC-1':
+sec-2.inc:2: warning: optional period used
+prog_err.cob: in section 'SEC-3':
+prog_err.cob:20: error: 'KO' is not defined
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([statement in Area A])
+AT_KEYWORDS([misc cobol85 areacheck])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 FLAG          PIC 9 VALUE ZERO.
+       PROCEDURE        DIVISION.
+       MAIN
+       .
+         PERFORM SEC-1
+         IF NOT FLAG = 1
+              DISPLAY "SEC-1 NOT EXECUTED"
+         END-IF
+         STOP RUN
+         .
+       SEC-1 SECTION.
+         MOVE 1 TO FLAG
+         .
+])
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [0], [])
+AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [1], [],
+[prog.cob:9: error: separator period in Area A
+prog.cob: in paragraph 'MAIN':
+prog.cob:10: error: start of statement in Area A
+prog.cob:11: error: start of statement in Area A
+prog.cob:13: error: END-IF should not start in Area A
+prog.cob:14: error: start of statement in Area A
+prog.cob:15: error: separator period in Area A
+prog.cob: in section 'SEC-1':
+prog.cob:17: error: start of statement in Area A
+prog.cob:18: error: separator period in Area A
+])
+
+AT_CHECK([$COMPILE_ONLY -std=cobol85 -fno-areacheck prog.cob], [0], [])
+AT_CHECK([$COMPILE_ONLY -std=cobol85 -fformat=fixed prog.cob], [0], [])
+
+AT_CLEANUP
+
+
+AT_SETUP([pseudotext replacement with text in area A])
+AT_KEYWORDS([misc cobol85 gcos copy missing-periods])
+
+# Check whether the first line is correcly handled:
+AT_DATA([ok.inc], [       01  REPLACE-ME
+       01  KO  PIC XX VALUE "KO".
+       PROCEDURE DIVISION.
+       MAIN SECTION.
+           PERFORM SEC-1
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+           COPY "ok.inc" REPLACING == 01 REPLACE-ME == BY ==
+       01  OK PIC XX VALUE "OK". ==
+           .
+
+           PERFORM SEC-2
+           STOP RUN
+           CONTINUE
+       SEC-1 SECTION.
+           IF OK NOT EQUAL "OK" DISPLAY OK
+       SEC-2 SECTION.
+           IF OK NOT EQUAL "OK" DISPLAY OK.
+])
+
+AT_CHECK([$COMPILE -std=cobol85 -fmissing-period=warning prog.cob], [0], [],
+[prog.cob: in section 'MAIN':
+prog.cob:14: warning: optional period used
+prog.cob: in section 'SEC-1':
+prog.cob:16: warning: optional period used
+])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
+
+AT_DATA([prog_err.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+           COPY "ok.inc" REPLACING == 01 REPLACE-ME == BY ==
+       01  OK PIC XX VALUE "OK". ==
+           .
+
+           PERFORM SEC-2.
+           STOP RUN
+       SEC-1 SECTION.
+           IF OK NOT EQUAL "OK" DISPLAY OK
+       SEC-2 SECTION.
+           DISPLAY NOT-FOUND.
+])
+AT_CHECK([$COMPILE -std=gcos prog_err.cob], [1], [],
+[prog_err.cob: in section 'MAIN':
+prog_err.cob:13: warning: optional period used
+prog_err.cob: in section 'SEC-1':
+prog_err.cob:15: warning: optional period used
+prog_err.cob: in section 'SEC-2':
+prog_err.cob:16: error: 'NOT-FOUND' is not defined
+])
+
 AT_CLEANUP
 
 
@@ -4553,65 +3545,144 @@ AT_DATA([prog.cob], [
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:19: error: invalid conditional expression
-prog.cob:16: error: invalid expression
+prog.cob:16: error: invalid expression: boolean expected with logical operator
 prog.cob:28: error: wrong number of WHEN parameters
 prog.cob:31: error: wrong number of WHEN parameters
 ])
 
 AT_CLEANUP
 
+AT_SETUP([COBOL-WORDS directive])
+AT_KEYWORDS([misc reserved words])
 
-AT_SETUP([MF reserved word directives])
-AT_KEYWORDS([extensions ADDRSV ADDSYN MAKESYN OVERRIDE REMOVE])
+# note: currently not checked - should all be seen before first IDENTIFICATION DIVISION
 
 AT_DATA([prog.cob], [
-       IDENTIFICATION DIVISION.
+      *> Valid
+           >>COBOL-WORDS RESERVE "CAT"
+      *> Valid (GC-extension)
+           >>COBOL-WORDS RESERVE  "doggy" "catty" "mouse"
+      *> Valid
+           >>COBOL-WORDS EQUATE "VALUE" WITH "VA"
+      *> Invalid - Bread is not reserved.
+           >>COBOL-WORDS EQUATE "BREAD" WITH "BARA"
+      *> Invalid - ID is already reserved
+           >>COBOL-WORDS EQUATE "IDENTIFICATION" WITH "ID"
+
+      *> Valid, BREAD is not reserved.
+           >>COBOL-WORDS SUBSTITUTE "program" BY "bread"
+      *> Valid (GC-extension)
+           >>COBOL-WORDS SUBSTITUTE "DIVISION" BY "DIV", "JUST" BY "JS"
+      *> Invalid - Bread is not reserved.
+           >>COBOL-WORDS SUBSTITUTE "BREAD" BY "BARA"
+      *> Invalid - ID is already reserved
+           >>COBOL-WORDS SUBSTITUTE "IDENTIFICATION" BY "ID"
+      *> Invalid - needs BY, not WITH
+      *> FIXME: error-recovery is bad, see below
+      *> >>COBOL-WORDS SUBSTITUTE "INITIALIZE" WITH "INIT"
+
+      *> Valid
+           >>COBOL-WORDS UNDEFINE "BREAD"
+      *> Valid (GC-extension)
+           >>COBOL-WORDS UNDEFINE "DOGGY" "CATTY"
+      *> Invalid in Standard COBOL, must be a defined word
+           >>COBOL-WORDS UNDEFINE "BREAD"
+           
+      *> FIXME: error-recovery is bad, see below
+      *>>COBOL-WORDS REMOVE "BREAD"
+
+       IDENTIFICATION DIV.
        PROGRAM-ID. prog.
-
-           *> Valid
-           $SET ADDRSV"DOG""CAT"
-
-           *> Valid
-           $SET ADD-SYN "VALUE" = "VA"
-           *> Bread is not reserved.
-           $SET ADDSYN "BREAD" = "BARA"
-           *> ID is already reserved
-           $SET ADDSYN "IDENTIFICATION" = "ID"
-
-           *> Valid
-           $SET MAKESYN(PROGRAM) = (FUNCTION)
-           *> BREAD is not reserved.
-           $SET MAKESYN "BREAD" = "PROGRAM"
-           $SET MAKESYN "PROGRAM" = "BREAD"
-
-           *> Valid
-           $SET OVERRIDE "DIVISION" = "DIV" "JUST" = "JS"
-           *> Bread is not reserved
-           $SET OVERRIDE "BREAD"="BARA"
-           *> ID is already reserved
-           $SET OVERRIDE "IDENTIFICATION"="ID"
-
-           *> Valid
-           $SET REMOVE "BREAD" (BARA)REMOVE(DOG)
 
        DATA DIV.
        WORKING-STORAGE SECTION.
-       *> Check ADDSYN and OVERRIDE work correctly
+      *> Check EQUATE and SUBSTITUTE work correctly
        01  just PIC XX VA "1" JS.
-       *> Check ADDRSV
+      *> Check RESERVE
        01  cat PIC 9 VA 1.
-       *> Check REMOVE
+      *> Check UNDEFINE
+       01  dog PIC 9 VA 1.
+])
+
+# TODO: add checks for valid reserved word names
+# CHECKME: do we follow the rule "The same COBOL word shall not be contained
+# in a literal in more than one COBOL-WORDS directive within a single compilation group."
+# or specify "this restriction is removed"
+
+# FIXME: error-recovery is really bad, the lines above lead to only directives
+# being part of prog.i, ending with the first broken one
+# prog.cob:23: error: syntax error, unexpected BY, expecting WITH
+# prog.cob:26: error: syntax error, unexpected Literal, expecting EQUATE or UNDEFINE or SUBSTITUTE or RESERVE
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
+[prog.cob:9: error: 'BREAD' is not a default reserved word, so cannot be aliased
+prog.cob:11: error: 'ID' is already reserved
+prog.cob:18: error: 'BREAD' is not a default reserved word, so cannot be aliased
+prog.cob:20: error: 'ID' is already reserved
+prog.cob:30: error: 'BREAD' is not a reserved word, so cannot be removed
+prog.cob:43: error: 'cat' is a reserved word, but isn't supported
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([MF reserved word directives])
+AT_KEYWORDS([misc extensions ADDRSV ADDSYN MAKESYN OVERRIDE REMOVE])
+
+# note: currently not checked - should all be seen before first IDENTIFICATION DIVISION
+
+AT_DATA([prog.cob], [
+      *> Valid
+           $SET ADDRSV"DOG""CAT"
+           $SET ADD-RSV  "doggy" "catty"
+      *> Valid
+           $SET ADD-SYN "VALUE" = "VA"
+      *> Invalid - Bread is not reserved.
+           $SET ADDSYN "BREAD" = "BARA"
+      *> Invalid - ID is already reserved
+           $SET ADDSYN "IDENTIFICATION" = "ID"
+
+      *> Valid
+           $SET MAKESYN(PROGRAM) = (FUNCTION)
+      *> Invalid - BREAD is not reserved.
+           $SET MAKESYN "BREAD" = "PROGRAM"
+           $SET MAKE-SYN "program" = "bread"
+
+      *> Valid
+           $SET OVERRIDE "DIVISION" = "DIV" "JUST" = "JS"
+      *> Invalid - Bread is not reserved
+           $SET OVERRIDE "BREAD" = "BARA"
+      *>Invalid - ID is already reserved; note: MF documents this rule but
+      *>  does not check it and applies the line; we do it better on purpose :-)
+           $SET OVERRIDE "IDENTIFICATION" = "ID"
+
+      *> Valid - note: MF rules does allow reserving not reserved words
+           $SET REMOVE "BREAD" (BARA)REMOVE(DOG)
+
+       IDENTIFICATION DIV.
+       PROGRAM-ID. prog.
+
+       DATA DIV.
+       WORKING-STORAGE SECTION.
+      *> Check ADDSYN and OVERRIDE work correctly
+       01  just PIC XX VA "1" JS.
+      *> Check ADDRSV
+       01  cat PIC 9 VA 1.
+      *> Check REMOVE
        01  dog PIC 9 VA 1.
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:11: error: 'BREAD' is not a default reserved word, so cannot be aliased
-prog.cob:13: error: 'ID' is already reserved; you may want MAKESYN instead
-prog.cob:18: error: 'BREAD' is not a default reserved word, so cannot be aliased
-prog.cob:19: error: 'BREAD' is not a reserved word; you may want ADDSYN or OVERRIDE instead
-prog.cob:24: error: 'BREAD' is not a default reserved word, so cannot be aliased
-prog.cob:26: error: 'ID' is already reserved; you may want MAKESYN instead
-prog.cob:36: error: 'cat' is a reserved word, but isn't supported
+[prog.cob:8: error: 'BREAD' is not a default reserved word, so cannot be aliased
+prog.cob:10: error: 'ID' is already reserved
+prog.cob:10: note: you may want MAKESYN instead
+prog.cob:15: error: 'BREAD' is not a default reserved word, so cannot be aliased
+prog.cob:16: error: 'BREAD' is not a reserved word
+prog.cob:16: note: you may want ADDSYN or OVERRIDE instead
+prog.cob:21: error: 'BREAD' is not a default reserved word, so cannot be aliased
+prog.cob:24: error: 'ID' is already reserved
+prog.cob:24: note: you may want MAKESYN instead
+prog.cob:37: error: 'cat' is a reserved word, but isn't supported
 ])
 
 AT_CLEANUP
@@ -4622,9 +3693,9 @@ AT_KEYWORDS([misc])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
-       *> Valid
+      *> Valid
        >> TURN ec-i-o f CHECKING ON
-       *> Invalid
+      *> Invalid
        >> TURN dd CHECKING ON
        >> TURN ec-all f CHECKING ON
        >> TURN EC-I-O-invalid-KEY not-exist CHECKING OFF
@@ -4715,6 +3786,120 @@ prog.cob:43: error: syntax error, unexpected DELIMITED, expecting INTO
 AT_CLEANUP
 
 
+AT_SETUP([STRING / UNSTRING POINTER clause])
+AT_KEYWORDS([misc])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION  DIVISION.
+       PROGRAM-ID.     prog.
+
+       DATA            DIVISION.
+       WORKING-STORAGE SECTION.
+       01  valid-ptr     PIC 99.
+       01  valid-ptr-2   BINARY-LONG.
+       01  valid-ptr-3   PIC 99 COMP-3.
+
+       01  invalid-ptr   PIC 9.
+       01  invalid-ptr-2 PIC 99V99.
+       01  invalid-ptr-3 FLOAT-LONG.
+       01  invalid-ptr-4 PIC 99PP.
+       01  invalid-ptr-5 PIC VPP99.
+       01  invalid-ptr-6 PIC X(30).
+       01  invalid-ptr-7.
+           03  n         PIC 99.
+           03  n2        PIC 99.
+
+
+       01  x             PIC X(9).
+       01  y             PIC X(9).
+
+       PROCEDURE       DIVISION.
+           STRING "hello" INTO x POINTER valid-ptr
+           STRING "hello" INTO x POINTER valid-ptr-2
+           STRING "hello" INTO x POINTER valid-ptr-3
+
+           STRING "hello" INTO x POINTER invalid-ptr
+           STRING "hello" INTO x POINTER invalid-ptr-2
+           STRING "hello" INTO x POINTER invalid-ptr-3
+           STRING "hello" INTO x POINTER invalid-ptr-4
+           STRING "hello" INTO x POINTER invalid-ptr-5
+           STRING "hello" INTO x POINTER invalid-ptr-6
+           STRING "hello" INTO x POINTER invalid-ptr-7
+
+           UNSTRING y INTO x POINTER valid-ptr
+           UNSTRING y INTO x POINTER valid-ptr-2
+           UNSTRING y INTO x POINTER valid-ptr-3
+
+           UNSTRING y INTO x POINTER invalid-ptr
+           UNSTRING y INTO x POINTER invalid-ptr-2
+           UNSTRING y INTO x POINTER invalid-ptr-3
+           UNSTRING y INTO x POINTER invalid-ptr-4
+           UNSTRING y INTO x POINTER invalid-ptr-5
+           UNSTRING y INTO x POINTER invalid-ptr-6
+           UNSTRING y INTO x POINTER invalid-ptr-7
+           .
+])
+
+# Note: the following checks (per COBOL standard) added with [r3678] are 4.x only:
+# prog.cob:30: error: 'invalid-ptr' is too small to contain the number 10 (one plus the size of 'x')
+# prog.cob:42: error: 'invalid-ptr' is too small to contain the number 10 (one plus the size of 'y')
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
+[prog.cob:31: error: POINTER item 'invalid-ptr-2' must be an integer
+prog.cob:32: error: POINTER item 'invalid-ptr-3' must be an integer
+prog.cob:33: error: POINTER item 'invalid-ptr-4' may not have PICTURE with P in it
+prog.cob:34: error: POINTER item 'invalid-ptr-5' must be an integer
+prog.cob:35: error: POINTER item 'invalid-ptr-6' must be an integer
+prog.cob:36: error: 'invalid-ptr-7' is not an elementary item
+prog.cob:43: error: POINTER item 'invalid-ptr-2' must be an integer
+prog.cob:44: error: POINTER item 'invalid-ptr-3' must be an integer
+prog.cob:45: error: POINTER item 'invalid-ptr-4' may not have PICTURE with P in it
+prog.cob:46: error: POINTER item 'invalid-ptr-5' must be an integer
+prog.cob:47: error: POINTER item 'invalid-ptr-6' must be an integer
+prog.cob:48: error: 'invalid-ptr-7' is not an elementary item
+])
+AT_CLEANUP
+
+
+AT_SETUP([STRING with non-DISPLAY])
+AT_KEYWORDS([Initialize])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       DATA  DIVISION.
+       WORKING-STORAGE SECTION.
+       01  I-X        PIC  9(9) COMP-X VALUE 6.
+       01  I-B        PIC  9(9) BINARY VALUE 6.
+       01  I-P        PIC  9(9) COMP-3 VALUE 6.
+       01  I-D        PIC  9(9) VALUE 6.
+       01  I-F        COMP-1 VALUE 6.
+       01  TSTWRK   PIC X(48).
+
+       PROCEDURE DIVISION.
+       MAIN-10.
+           STRING " ID:" I-D 
+               DELIMITED BY SIZE INTO TSTWRK.
+           STRING " IX:" I-X " IB:" I-B 
+                  " ID:" I-D 
+                  " IP:" I-P " IF:" I-F 
+               DELIMITED BY SIZE INTO TSTWRK.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -x -std=mf -debug -Wall prog.cob ], [1], [],
+[prog.cob: in paragraph 'MAIN-10':
+prog.cob:19: error: STRING item 'I-X' must be USAGE DISPLAY or NATIONAL
+prog.cob:19: error: STRING item 'I-B' must be USAGE DISPLAY or NATIONAL
+prog.cob:21: error: STRING item 'I-P' must be USAGE DISPLAY or NATIONAL
+prog.cob:21: error: STRING item 'I-F' must be USAGE DISPLAY or NATIONAL
+])
+
+AT_CLEANUP
+
+
 AT_SETUP([UNSTRING COUNT clause])
 AT_KEYWORDS([misc])
 
@@ -4754,17 +3939,17 @@ AT_DATA([prog.cob], [
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:26: error: COUNT item 'invalid-1' must be an integer
-prog.cob:27: error: COUNT item 'invalid-2' must be numeric and an integer
+prog.cob:27: error: COUNT item 'invalid-2' must be an integer
 prog.cob:28: error: COUNT item 'invalid-3' may not have PICTURE with P in it
 prog.cob:29: error: COUNT item 'invalid-4' must be an integer
-prog.cob:30: error: COUNT item 'invalid-5' must be numeric and an integer
+prog.cob:30: error: COUNT item 'invalid-5' must be an integer
 prog.cob:31: error: condition-name not allowed here: 'invalid-6'
 ])
 AT_CLEANUP
 
 
-AT_SETUP([use of program-prototypes])
-AT_KEYWORDS([misc])
+AT_SETUP([use of program-prototype-names])
+AT_KEYWORDS([misc prototype prototypes])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION  DIVISION.
@@ -4786,6 +3971,143 @@ AT_CHECK([$COMPILE_ONLY -fprogram-prototypes=warning prog.cob], [0], [],
 prog.cob:8: warning: no definition/prototype seen for PROGRAM 'test-prog'
 prog.cob:11: warning: CALL/CANCEL with program-prototype-name used
 prog.cob:12: warning: CALL/CANCEL with program-prototype-name used
+])
+AT_CLEANUP
+
+
+AT_SETUP([checking prototypes and definitions match])
+AT_KEYWORDS([misc prototype])
+
+AT_XFAIL_IF([true])
+# patch #32 was not fully included and the current implementation
+# needs updating
+
+AT_DATA([prog.cob], [
+      *> Prototype and definition have different signatures.
+       IDENTIFICATION DIVISION.
+       FUNCTION-ID. invalid-1 PROTOTYPE.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SOURCE-COMPUTER. x.
+       SPECIAL-NAMES.
+           DECIMAL-POINT COMMA
+           CURRENCY SIGN "F"
+           .
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  x.
+           03  x1 PIC X(15).
+           03  x2 PIC X(15) JUST.
+       01  y PIC +9(30) BLANK ZERO.
+
+       PROCEDURE DIVISION USING x returning y.
+       END FUNCTION invalid-1.
+
+      *> Prototype and definition have different signatures.
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. invalid-2 PROTOTYPE.
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  x PIC X.
+       PROCEDURE DIVISION USING x.
+       END PROGRAM invalid-2.
+
+      *> Prototype and definition have matching signatures.
+       IDENTIFICATION DIVISION.
+       FUNCTION-ID. valid-1 PROTOTYPE.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT COMMA
+           .
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  ret PIC 999V99.
+
+       PROCEDURE DIVISION RETURNING ret.
+       END FUNCTION valid-1.
+
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. blahblah AS "invalid-1".
+
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  a.
+           03  a-1 PIC X(15) JUST.
+           03  a-2 PIC X(15).
+       01  b PIC S9(10) SIGN LEADING.
+
+       PROCEDURE DIVISION USING a RETURNING b.
+           DISPLAY "yes"
+           .
+       END PROGRAM blahblah.
+
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. invalid-2.
+
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  ret PIC X.
+
+       PROCEDURE DIVISION RETURNING ret.
+           MOVE "x" TO ret
+           .
+       END PROGRAM invalid-2.
+
+       IDENTIFICATION DIVISION.
+       FUNCTION-ID. valid-1.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SPECIAL-NAMES.
+           DECIMAL-POINT COMMA
+           .
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  ret PIC 999V99.
+
+       PROCEDURE DIVISION RETURNING ret.
+           MOVE 1,5 TO ret
+           .
+       END FUNCTION valid-1.
+
+      *> Prototypes must be at start of compilation group.
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. invalid-3.
+
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  x PIC X(10).
+
+       PROCEDURE DIVISION USING x.
+       END PROGRAM invalid-3.
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. invalid-3 IS PROTOTYPE.
+
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  x PIC X(10).
+
+       PROCEDURE DIVISION USING x.
+       END PROGRAM invalid-3.
+])
+
+AT_CHECK([$COMPILE_ONLY -Wno-unfinished -Wno-pending prog.cob], [1], [],
+[prog.cob:60: warning: prototype and definition of 'invalid-1' do not match
+prog.cob:60: note: definition is a program but the prototype is a function
+prog.cob:60: note: DECIMAL-POINT IS COMMA clauses differ
+prog.cob:60: note: CURRENCY clauses differ
+prog.cob:60: note: parameters #1 ('a-1' in the definition and 'x1' in the prototype) differ
+prog.cob:60: note: returning items ('b' in the definition and 'y' in the prototype) differ
+prog.cob:73: warning: prototype and definition of 'invalid-2' do not match
+prog.cob:73: note: number of parameters differ
+prog.cob:73: note: definition has a RETURNING item but protoype does not
+prog.cob:106: error: prototypes must be come before any program/function definitions
 ])
 AT_CLEANUP
 
@@ -4815,6 +4137,11 @@ AT_DATA([prog.cob], [
            INSPECT f TALLYING not-a-num FOR ALL 3
                REPLACING FIRST "abcde" BY not-display
            TRANSFORM f FROM 3 TO 2
+           TRANSFORM function udf(f-rec) FROM SPACE TO ZERO
+           TRANSFORM "yada" FROM SPACE TO ZERO
+           INSPECT function trim(f-rec)
+               TALLYING not-display FOR ALL SPACES *> valid with func
+               REPLACING FIRST ZERO BY SPACE       *> not valid
            .
 ])
 
@@ -4830,6 +4157,9 @@ prog.cob:22: error: 'f' is not a field
 prog.cob:22: error: 3 is not an alphanumeric literal
 prog.cob:22: error: 2 is not an alphanumeric literal
 prog.cob:22: error: invalid target for TRANSFORM
+prog.cob:23: error: syntax error, unexpected intrinsic function name, expecting Identifier
+prog.cob:24: error: syntax error, unexpected Literal, expecting Identifier
+prog.cob:25: error: invalid target for REPLACING
 ])
 AT_CLEANUP
 
@@ -4942,7 +4272,7 @@ AT_DATA([prog.cob], [
               'callee'
               WITH C LINKAGE
               .
-           GOBACK.
+           STOP RUN.
 ])
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:10: error: CALL-CONVENTION and WITH LINKAGE are mutually exclusive
@@ -5249,8 +4579,101 @@ AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
 AT_CLEANUP
 
 
-AT_SETUP([USE FOR DEBUGGING syntax-checks])
-AT_KEYWORDS([misc])
+AT_SETUP([USE FOR DEBUGGING syntax-checks (1)])
+AT_KEYWORDS([misc DEBUG-ITEM DEBUG-NAME DEBUG-LINE DEBUG-CONTENTS
+DEBUG-SUB-1 DEBUG-SUB-2 DEBUG-SUB-3])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION  DIVISION.
+       PROGRAM-ID.     prog.
+
+       ENVIRONMENT     DIVISION.
+       CONFIGURATION   SECTION.
+       SOURCE-COMPUTER.
+            whatever   WITH DEBUGGING MODE.
+
+       DATA            DIVISION.
+       WORKING-STORAGE SECTION.
+       01  i           PIC 9.
+
+       PROCEDURE DIVISION.
+       DECLARATIVES.
+       test-DEBUG SECTION.
+           USE FOR DEBUGGING ON ALL REFERENCES OF I
+                                MAIN.
+           DISPLAY DEBUG-ITEM.
+           DISPLAY DEBUG-NAME " AT " DEBUG-LINE " WITH " DEBUG-CONTENTS.
+           DISPLAY DEBUG-SUB-1 DEBUG-SUB-2 DEBUG-SUB-3.
+       END DECLARATIVES.
+
+       MAIN SECTION.
+           MOVE 1 TO i
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [0], [],
+[prog.cob: in section 'test-DEBUG':
+prog.cob:18: warning: USE FOR DEBUGGING is obsolete in COBOL 85
+])
+AT_CHECK([$COMPILE_ONLY -std=acu-strict prog.cob], [1], [],
+[prog.cob: in section 'test-DEBUG':
+prog.cob:17: error: 'REFERENCES IN i' is not defined
+prog.cob:18: error: USE FOR DEBUGGING does not conform to ACUCOBOL-GT
+])
+AT_CHECK([$COMPILE_ONLY -std=acu-strict -fuse-for-debugging=ok -freserved=REFERENCES prog.cob], [0], [], [])
+
+# verify that DEBUG-ITEM and friends can only be used when DEBUGGING is actually active
+AT_DATA([prog2.cob], [
+       IDENTIFICATION  DIVISION.
+       PROGRAM-ID.     prog2.
+
+       ENVIRONMENT     DIVISION.
+       CONFIGURATION   SECTION.
+
+       PROCEDURE DIVISION.
+       MAIN.
+           DISPLAY DEBUG-ITEM.
+           DISPLAY DEBUG-NAME " AT " DEBUG-LINE " WITH " DEBUG-CONTENTS.
+           DISPLAY DEBUG-SUB-1 DEBUG-SUB-2 DEBUG-SUB-3.
+           STOP RUN.
+])
+AT_CHECK([$COMPILE_ONLY prog2.cob], [1], [],
+[prog2.cob: in paragraph 'MAIN':
+prog2.cob:10: error: 'DEBUG-ITEM' is not defined
+prog2.cob:11: error: 'DEBUG-NAME' is not defined
+prog2.cob:11: error: 'DEBUG-LINE' is not defined
+prog2.cob:11: error: 'DEBUG-CONTENTS' is not defined
+prog2.cob:12: error: 'DEBUG-SUB-1' is not defined
+prog2.cob:12: error: 'DEBUG-SUB-2' is not defined
+prog2.cob:12: error: 'DEBUG-SUB-3' is not defined
+])
+# HACK to cater for the reserved words hack...
+#AT_CHECK([$COMPILE_ONLY -std=cobol85 prog2.cob], [1], [],
+AT_CHECK([$COMPILE_ONLY -std=cobol85 prog2.cob \
+-freserved="debug-item,debug-name,debug-line,debug-contents" \
+-freserved="debug-sub-1,debug-sub-2,debug-sub-3" \
+], [1], [],
+[prog2.cob: in paragraph 'MAIN':
+prog2.cob:10: error: 'DEBUG-ITEM' is not defined
+prog2.cob:11: error: 'DEBUG-NAME' is a reserved word, but isn't supported
+prog2.cob:11: error: 'DEBUG-NAME' cannot be used here
+prog2.cob:11: error: 'DEBUG-LINE' is a reserved word, but isn't supported
+prog2.cob:11: error: 'DEBUG-LINE' cannot be used here
+prog2.cob:11: error: 'DEBUG-CONTENTS' is a reserved word, but isn't supported
+prog2.cob:11: error: 'DEBUG-CONTENTS' cannot be used here
+prog2.cob:12: error: 'DEBUG-SUB-1' is a reserved word, but isn't supported
+prog2.cob:12: error: 'DEBUG-SUB-2' is a reserved word, but isn't supported
+prog2.cob:12: error: 'DEBUG-SUB-1' cannot be used here
+prog2.cob:12: error: 'DEBUG-SUB-3' is a reserved word, but isn't supported
+prog2.cob:12: error: 'DEBUG-SUB-2' cannot be used here
+prog2.cob:12: error: 'DEBUG-SUB-3' cannot be used here
+])
+AT_CLEANUP
+
+
+AT_SETUP([USE FOR DEBUGGING syntax-checks (2)])
+AT_KEYWORDS([misc DEBUG-ITEM DEBUG-LINE])
 
 # TODO: still need tests/checks (3.2.3 Syntax Rules 9+11):
 # 09 Identifier must not reference any data item defined in the Report
@@ -5258,7 +4681,7 @@ AT_KEYWORDS([misc])
 # 11 References to the special register DEBUG-ITEM are restricted to
 # references from within a debugging section.
 
-AT_XFAIL_IF(true)
+AT_XFAIL_IF([true])
 # we currently fail to detect references into DECLARATIVES and
 # references to debugging-procedures other than PERFORM --> both in prog2
 
@@ -5302,6 +4725,7 @@ prog.cob:22: warning: 'MAIN' is not in DECLARATIVES
 prog.cob:22: error: 'TEST-DEBUG2' may only be referenced with PERFORM
 prog.cob:19: error: DEBUGGING target invalid: 'test-DEBUG'
 prog.cob: in section 'TEST-DEBUG2':
+prog.cob:24: error: duplicate DEBUGGING target: 'i'
 prog.cob:25: error: DEBUGGING target invalid: 'test-DEBUG'
 prog.cob: in section 'MAIN':
 prog.cob:31: warning: 'test-DEBUG' is in DECLARATIVES
@@ -5313,6 +4737,7 @@ prog.cob:22: error: 'MAIN' is not in DECLARATIVES
 prog.cob:22: error: 'TEST-DEBUG2' may only be referenced with PERFORM
 prog.cob:19: error: DEBUGGING target invalid: 'test-DEBUG'
 prog.cob: in section 'TEST-DEBUG2':
+prog.cob:24: error: duplicate DEBUGGING target: 'i'
 prog.cob:25: error: DEBUGGING target invalid: 'test-DEBUG'
 prog.cob: in section 'MAIN':
 prog.cob:31: error: 'test-DEBUG' is in DECLARATIVES
@@ -5498,7 +4923,7 @@ prog.cob:10: error: syntax error, unexpected Identifier
 AT_CHECK([$COMPILE_ONLY -std=mf-strict -freserved=CONSTANT prog.cob], [1], [],
 [prog.cob:6: error: 01 CONSTANT does not conform to Micro Focus COBOL
 prog.cob:7: error: 01 CONSTANT does not conform to Micro Focus COBOL
-prog.cob:7: error: syntax error, unexpected Identifier, expecting .
+prog.cob:7: error: syntax error, unexpected Identifier
 ])
 
 AT_CHECK([$COMPILE_ONLY -std=mf prog.cob], [1], [],
@@ -5759,33 +5184,33 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY -fdiagnostics-show-option prog.cob], [1], [],
-[prog.cob:15: warning: expression '115' LESS THAN '16' is always FALSE [[-Wconstant-expression]]
-prog.cob:17: warning: offset of 'var' out of bounds: -98 [[-Wignored-error]]
-prog.cob:22: warning: expression '2' EQUALS '3' is always FALSE [[-Wconstant-expression]]
-prog.cob:25: warning: expression '1' EQUALS '1' is always TRUE [[-Wconstant-expression]]
-prog.cob:29: warning: offset of 'var' out of bounds: -98 [[-Wignored-error]]
-prog.cob:30: warning: expression '1' EQUALS '1' is always TRUE [[-Wconstant-expression]]
-prog.cob:35: warning: expression '1' EQUALS '1' is always TRUE [[-Wconstant-expression]]
-prog.cob:36: warning: expression '2' EQUALS '1' is always FALSE [[-Wconstant-expression]]
-prog.cob:38: warning: offset of 'var' out of bounds: -98 [[-Wignored-error]]
-prog.cob:41: warning: expression '1' EQUALS '3' is always FALSE [[-Wconstant-expression]]
-prog.cob:41: warning: PERFORM FOREVER since UNTIL is always FALSE [[-Wadditional]]
-prog.cob:45: warning: expression '1' EQUALS '1' is always TRUE [[-Wconstant-expression]]
-prog.cob:45: warning: PERFORM NEVER since UNTIL is always TRUE [[-Wadditional]]
-prog.cob:47: warning: offset of 'var' out of bounds: -98 [[-Wignored-error]]
-prog.cob:50: warning: expression '1' EQUALS '3' is always FALSE [[-Wconstant-expression]]
-prog.cob:50: warning: PERFORM FOREVER since UNTIL is always FALSE [[-Wadditional]]
-prog.cob:54: warning: expression '1' EQUALS '1' is always TRUE [[-Wconstant-expression]]
-prog.cob:54: warning: PERFORM ONCE since UNTIL is always TRUE [[-Wadditional]]
-prog.cob:59: warning: expression '115' LESS THAN '16' is always FALSE [[-Wconstant-expression]]
-prog.cob:61: warning: offset of 'var' out of bounds: -98 [[-Wignored-error]]
-prog.cob:62: warning: expression '115' GREATER THAN '16' is always TRUE [[-Wconstant-expression]]
-prog.cob:71: warning: expression '115' LESS THAN '16' is always FALSE [[-Wconstant-expression]]
+[[prog.cob:15: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:17: warning: offset of 'var' out of bounds: -98 [-Wignored-error]
+prog.cob:22: warning: expression '2' EQUALS '3' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:25: warning: expression '1' EQUALS '1' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:29: warning: offset of 'var' out of bounds: -98 [-Wignored-error]
+prog.cob:30: warning: expression '1' EQUALS '1' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:35: warning: expression '1' EQUALS '1' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:36: warning: expression '2' EQUALS '1' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:38: warning: offset of 'var' out of bounds: -98 [-Wignored-error]
+prog.cob:41: warning: expression '1' EQUALS '3' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:41: warning: PERFORM FOREVER since UNTIL is always FALSE [-Wadditional]
+prog.cob:45: warning: expression '1' EQUALS '1' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:45: warning: PERFORM NEVER since UNTIL is always TRUE [-Wadditional]
+prog.cob:47: warning: offset of 'var' out of bounds: -98 [-Wignored-error]
+prog.cob:50: warning: expression '1' EQUALS '3' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:50: warning: PERFORM FOREVER since UNTIL is always FALSE [-Wadditional]
+prog.cob:54: warning: expression '1' EQUALS '1' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:54: warning: PERFORM ONCE since UNTIL is always TRUE [-Wadditional]
+prog.cob:59: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:61: warning: offset of 'var' out of bounds: -98 [-Wignored-error]
+prog.cob:62: warning: expression '115' GREATER THAN '16' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:71: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
 prog.cob:73: error: offset of 'var' out of bounds: -99
-prog.cob:74: warning: expression '115' GREATER THAN '16' is always TRUE [[-Wconstant-expression]]
-prog.cob:82: warning: expression '15' EQUALS '115' is always FALSE [[-Wconstant-expression]]
-prog.cob:85: warning: expression '115' EQUALS '15' is always FALSE [[-Wconstant-expression]]
-])
+prog.cob:74: warning: expression '115' GREATER THAN '16' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:82: warning: expression '15' EQUALS '115' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:85: warning: expression '115' EQUALS '15' is always FALSE [-Wconstant-numlit-expression]
+]])
 
 AT_CLEANUP
 
@@ -5882,12 +5307,12 @@ AT_DATA([prog.cob], [
 # note: the last error message comes from program validation
 #       and therefore cannot be raised earlier
 AT_CHECK([$COMPILE_ONLY -fdiagnostics-show-option prog.cob], [0], [],
-[[prog.cob:11: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-expression]
+[[prog.cob:11: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
 prog.cob:13: warning: offset of 'var' out of bounds: -98 [-Wignored-error]
-prog.cob:16: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-expression]
+prog.cob:16: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
 prog.cob:17: warning: 'notdefined' is not defined [-Wignored-error]
-prog.cob:20: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-expression]
-prog.cob:24: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-expression]
+prog.cob:20: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:24: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
 ]])
 
 # verify that we do only skip an undefined error when it actually was reported
@@ -5962,10 +5387,11 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY -fdiagnostics-show-option prog.cob], [1], [],
-[prog.cob:11: warning: expression '115' LESS THAN '16' is always FALSE [[-Wconstant-expression]]
-prog.cob:13: warning: offset of 'var' out of bounds: -98 [[-Wignored-error]]
+[[prog.cob:11: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:13: warning: offset of 'var' out of bounds: -98 [-Wignored-error]
 prog.cob:14: error: syntax error, unexpected IF
-])
+prog.cob:14: error: IF without imperative statement
+]])
 
 AT_CLEANUP
 
@@ -6046,26 +5472,26 @@ AT_DATA([prog.cob], [
 # Note: ideally this should not result in a difference compared to the next one
 
 AT_CHECK([$COMPILE_ONLY -fdiagnostics-show-option -C -fno-remove-unreachable prog.cob], [1], [],
-[prog.cob: in paragraph 'MAIN-10':
-prog.cob:17: warning: expression '115' GREATER THAN '16' is always TRUE [[-Wconstant-expression]]
-prog.cob:17: warning: expression '115' LESS THAN '200' is always TRUE [[-Wconstant-expression]]
+[[prog.cob: in paragraph 'MAIN-10':
+prog.cob:17: warning: expression '115' GREATER THAN '16' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:17: warning: expression '115' LESS THAN '200' is always TRUE [-Wconstant-numlit-expression]
 prog.cob:20: error: offset of 'VAR' out of bounds: -99
-prog.cob:23: warning: expression '115' LESS THAN '16' is always FALSE [[-Wconstant-expression]]
-prog.cob:35: warning: expression '3' EQUALS '7' is always FALSE [[-Wconstant-expression]]
-prog.cob:60: warning: expression '115' LESS THAN '32' is always FALSE [[-Wconstant-expression]]
-prog.cob:62: warning: expression '115' GREATER THAN '16' is always TRUE [[-Wconstant-expression]]
-])
+prog.cob:23: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:35: warning: expression '3' EQUALS '7' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:60: warning: expression '115' LESS THAN '32' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:62: warning: expression '115' GREATER THAN '16' is always TRUE [-Wconstant-numlit-expression]
+]])
 
 AT_CHECK([$COMPILE_ONLY -fdiagnostics-show-option -C prog.cob], [0], [],
-[prog.cob: in paragraph 'MAIN-10':
-prog.cob:17: warning: expression '115' GREATER THAN '16' is always TRUE [[-Wconstant-expression]]
-prog.cob:17: warning: expression '115' LESS THAN '200' is always TRUE [[-Wconstant-expression]]
-prog.cob:20: warning: offset of 'VAR' out of bounds: -99 [[-Wignored-error]]
-prog.cob:23: warning: expression '115' LESS THAN '16' is always FALSE [[-Wconstant-expression]]
-prog.cob:35: warning: expression '3' EQUALS '7' is always FALSE [[-Wconstant-expression]]
-prog.cob:60: warning: expression '115' LESS THAN '32' is always FALSE [[-Wconstant-expression]]
-prog.cob:62: warning: expression '115' GREATER THAN '16' is always TRUE [[-Wconstant-expression]]
-])
+[[prog.cob: in paragraph 'MAIN-10':
+prog.cob:17: warning: expression '115' GREATER THAN '16' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:17: warning: expression '115' LESS THAN '200' is always TRUE [-Wconstant-numlit-expression]
+prog.cob:20: warning: offset of 'VAR' out of bounds: -99 [-Wignored-error]
+prog.cob:23: warning: expression '115' LESS THAN '16' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:35: warning: expression '3' EQUALS '7' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:60: warning: expression '115' LESS THAN '32' is always FALSE [-Wconstant-numlit-expression]
+prog.cob:62: warning: expression '115' GREATER THAN '16' is always TRUE [-Wconstant-numlit-expression]
+]])
 
 AT_CLEANUP
 
@@ -6136,26 +5562,26 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY -w -fmissing-statement=error prog.cob], [1], [],
-[prog.cob:18: error: IF without imperative statement used
-prog.cob:23: error: IF without imperative statement used
-prog.cob:32: error: IF without imperative statement used
-prog.cob:33: error: IF without imperative statement used
-prog.cob:39: error: WHEN OTHER without imperative statement used
+[prog.cob:15: error: IF without imperative statement used
+prog.cob:20: error: IF without imperative statement used
+prog.cob:27: error: IF without imperative statement used
+prog.cob:25: error: IF without imperative statement used
+prog.cob:38: error: WHEN OTHER without imperative statement used
 prog.cob:42: error: inline PERFORM without imperative statement used
 prog.cob:47: error: WHEN without imperative statement used
-prog.cob:53: error: WHEN OTHER without imperative statement used
+prog.cob:52: error: WHEN OTHER without imperative statement used
 prog.cob:58: error: WHEN without imperative statement used
 ])
 
 AT_CHECK([$COMPILE_ONLY -fno-constant-folding -fmissing-statement=warning prog.cob], [0], [],
-[prog.cob:18: warning: IF without imperative statement used
-prog.cob:23: warning: IF without imperative statement used
-prog.cob:32: warning: IF without imperative statement used
-prog.cob:33: warning: IF without imperative statement used
-prog.cob:39: warning: WHEN OTHER without imperative statement used
+[prog.cob:15: warning: IF without imperative statement used
+prog.cob:20: warning: IF without imperative statement used
+prog.cob:27: warning: IF without imperative statement used
+prog.cob:25: warning: IF without imperative statement used
+prog.cob:38: warning: WHEN OTHER without imperative statement used
 prog.cob:42: warning: inline PERFORM without imperative statement used
 prog.cob:47: warning: WHEN without imperative statement used
-prog.cob:53: warning: WHEN OTHER without imperative statement used
+prog.cob:52: warning: WHEN OTHER without imperative statement used
 prog.cob:58: warning: WHEN without imperative statement used
 ])
 
@@ -6169,7 +5595,7 @@ AT_KEYWORDS([condition expression EVALUATE WHEN])
 # this test to pass - and likely need a different option
 # than frelax-syntax-checks..
 
-AT_XFAIL_IF(true)
+AT_XFAIL_IF([true])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION DIVISION.
@@ -6210,14 +5636,14 @@ AT_DATA([prog.cob], [
        data division.
        working-storage section.
        01  item-01.
-           05  item-05-a       pointer.
-           05  item-05-b       pic x(01).
-       01 myk-01 constant global as length of item-01.
-       01 myk-02 constant is global as length item-05-a.
-       01 myk-03 constant global as length of pointer. *> extension
-       01 myk-04 constant global as byte-length of item-01.
+           05  item-05-a     pointer.
+           05  item-05-b     pic x(01).
+       01 myk-01 constant           as      length of item-01.
+       01 myk-02 constant is global as      length item-05-a.
+       01 myk-03 constant    global as      length of pointer. *> extension
+       01 myk-04 constant    global as byte-length of item-01.
        01 myk-05 constant is global as byte-length item-05-a.
-       01 myk-06 constant global as byte-length of pointer. *> extension
+       01 myk-06 constant           as byte-length of pointer. *> extension
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
@@ -6233,12 +5659,12 @@ AT_DATA([prog.cob], [
 
        DATA           DIVISION.
        LINKAGE        SECTION.
-       *> Valid
+      *> Valid
        01  valid-1    PIC X ANY LENGTH.
        01  valid-2    PIC N ANY LENGTH.
        01  valid-3    PIC 9 ANY NUMERIC.
 
-       *> Invalid
+      *> Invalid
        01  invalid-1  PIC A ANY LENGTH.
        01  invalid-2  PIC Z ANY LENGTH.
        01  invalid-3  PIC 9 ANY LENGTH.
@@ -6250,9 +5676,9 @@ AT_DATA([prog.cob], [
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:9: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
 prog.cob:18: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:13: error: 'invalid-1' ANY LENGTH must be PIC X, PIC N or PIC 1
-prog.cob:14: error: 'invalid-2' ANY LENGTH must be PIC X, PIC N or PIC 1
-prog.cob:15: error: 'invalid-3' ANY LENGTH must be PIC X, PIC N or PIC 1
+prog.cob:13: error: 'invalid-1' ANY LENGTH must be PIC X, PIC U, PIC N or PIC 1
+prog.cob:14: error: 'invalid-2' ANY LENGTH must be PIC X, PIC U, PIC N or PIC 1
+prog.cob:15: error: 'invalid-3' ANY LENGTH must be PIC X, PIC U, PIC N or PIC 1
 prog.cob:16: error: 'invalid-4' ANY NUMERIC must be PIC 9
 prog.cob:17: error: 'invalid-5' ANY LENGTH has invalid definition
 prog.cob:18: error: 'invalid-6' ANY LENGTH has invalid definition
@@ -6297,7 +5723,7 @@ AT_DATA([prog.cob], [
        LINKAGE SECTION.
        01  XMYREC.
           05  XFLD1   PIC 9(2) VOLATILE.
-       SCREEN SECTION.
+      *SCREEN SECTION.
       *01  WRONG-SCREEN.
       *   05  WRONG-FIELD   PIC X VOLATILE.
       *
@@ -6309,18 +5735,19 @@ AT_DATA([prog.cob], [
 AT_CHECK([$COMPILE_ONLY -Wno-unfinished prog.cob], [0], [],
 [prog.cob:18: warning: initial VALUE clause ignored for EXTERNAL item 'STEP'
 ])
+AT_CHECK([$COMPILE_ONLY -std=ibm-strict -w prog.cob], [0], [], [])
 
 AT_CLEANUP
 
 
 AT_SETUP([SET SOURCEFORMAT syntax checks])
-AT_KEYWORDS([misc extensions directives])
+AT_KEYWORDS([misc extensions source directives])
 
 AT_DATA([prog.cob], [
-       *> Valid
+      *> Valid
        $set sourceformat(free)
-       $SET SOURCEFORMAT"FIXED"
-       *> Invalid
+       $  SET SOURCEFORMAT"FIXED"
+      *> Invalid
        $SET SOURCEFORMAT"hi!"
        $SET SOURCEFORMAT()
        $SET sourceformat'mis-matched"
@@ -6336,7 +5763,7 @@ prog.cob:7: error: invalid SOURCEFORMAT directive option ''
 prog.cob:8: error: syntax error, unexpected Variable, expecting Literal
 prog.cob:8: error: invalid SOURCEFORMAT directive option
 prog.cob:8: error: invalid literal: '"#OPTION mis-matched ...'
-prog.cob:8: error: missing terminating ' character
+prog.cob:8: note: missing terminating ' character
 prog.cob:8: error: PROGRAM-ID header missing
 prog.cob:8: error: PROCEDURE DIVISION header missing
 prog.cob:8: error: syntax error, unexpected Literal
@@ -6431,80 +5858,22 @@ AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
 AT_CLEANUP
 
 
-AT_SETUP([zero-length literals])
-AT_KEYWORDS([misc])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION  DIVISION.
-       PROGRAM-ID.     prog.
-
-       DATA            DIVISION.
-       WORKING-STORAGE SECTION.
-       01  x           PIC X.
-       01  nat         PIC N.
-       01  n           PIC 9.
-
-       PROCEDURE       DIVISION.
-           MOVE X'' TO x
-           MOVE H'' TO x
-           MOVE Z'' TO x
-           MOVE L'' TO x
-           MOVE N"" TO nat
-           MOVE NX'' TO nat
-           MOVE B"" TO n
-           MOVE BX"" TO n
-           .
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:8: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:12: warning: hexadecimal literal has zero length; X'00' will be assumed
-prog.cob:13: error: H literals must contain at least one character
-prog.cob:14: error: invalid Z literal: ''
-prog.cob:14: error: Z literals must contain at least one character
-prog.cob:15: error: invalid L literal: ''
-prog.cob:15: error: L literals must contain at least one character
-prog.cob:16: warning: national literal has zero length; a SPACE will be assumed
-prog.cob:16: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:17: warning: hexadecimal literal has zero length; X'00' will be assumed
-prog.cob:18: warning: Boolean literal has zero length; B'0' will be assumed
-prog.cob:19: warning: hexadecimal literal has zero length; X'00' will be assumed
-])
-AT_CHECK([$COMPILE_ONLY -fzero-length-literals=error prog.cob], [1], [],
-[prog.cob:8: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:12: error: zero-length literal used
-prog.cob:12: warning: hexadecimal literal has zero length; X'00' will be assumed
-prog.cob:13: error: H literals must contain at least one character
-prog.cob:14: error: invalid Z literal: ''
-prog.cob:14: error: Z literals must contain at least one character
-prog.cob:15: error: invalid L literal: ''
-prog.cob:15: error: L literals must contain at least one character
-prog.cob:16: error: zero-length literal used
-prog.cob:16: warning: national literal has zero length; a SPACE will be assumed
-prog.cob:16: warning: handling of national literal is unfinished; implementation is likely to be changed
-prog.cob:17: error: zero-length literal used
-prog.cob:17: warning: hexadecimal literal has zero length; X'00' will be assumed
-prog.cob:18: error: zero-length literal used
-prog.cob:18: warning: Boolean literal has zero length; B'0' will be assumed
-prog.cob:19: error: zero-length literal used
-prog.cob:19: warning: hexadecimal literal has zero length; X'00' will be assumed
-])
-AT_CLEANUP
-
 
 AT_SETUP([@OPTIONS parsing])
-AT_KEYWORDS([misc OPTIONS])
+AT_KEYWORDS([misc OPTIONS fujitsu])
 
 # GnuCOBOL currently only skips these, see FR 305
 
 AT_DATA([valid.cob], [
 000100 @OPTIONS NOMAIN,APOST
-000200 IDENTIFICATION  DIVISION.
-000300 PROGRAM-ID. VALID.
+000200 @OPTIONS APOST
+000300 IDENTIFICATION  DIVISION.
+000400 PROGRAM-ID. VALID.
 ])
 
 AT_CHECK([$COMPILE_ONLY valid.cob], [0], [],
-[valid.cob:3: warning: ignoring unknown directive: '@OPTIONS'
+[valid.cob:2: warning: ignoring unknown directive: '@OPTIONS NOMAIN,APOST'
+valid.cob:3: warning: ignoring unknown directive: '@OPTIONS APOST'
 ])
 
 #AT_DATA([invalid.cob], [
@@ -6530,6 +5899,104 @@ AT_CHECK([$COMPILE_ONLY valid.cob], [0], [],
 #invalid.cob:6: warning: skipping line after first space
 #invalid.cob:7: error: @OPTIONS MAIN conflicts with command line option '-m'
 #])
+
+AT_CLEANUP
+
+
+AT_SETUP([PROCESS / CBL parsing])
+AT_KEYWORDS([misc ibm])
+
+# GnuCOBOL currently only skips these, see FR 305
+
+#AT_DATA([valid.cob], [
+#Process codepage(1047)
+#CBL CODEPAGE(1047)
+#Process
+#  Process codepage(1208)
+#  CBL CODEPAGE(1208)
+#000100 Process codepage(1047)
+#000200 CBL CODEPAGE(1047)
+#000300 CBL
+#000400 IDENTIFICATION  DIVISION.
+#000500 PROGRAM-ID. VALID.
+#])
+#
+#AT_CHECK([$COMPILE_ONLY valid.cob], [0], [],
+#[valid.cob:2: warning: ignoring unknown directive: 'Process codepage(1047)'
+#valid.cob:3: warning: ignoring unknown directive: 'CBL CODEPAGE(1047)'
+#valid.cob:5: warning: ignoring unknown directive: 'Process codepage(1208)'
+#valid.cob:6: warning: ignoring unknown directive: 'CBL CODEPAGE(1208)'
+#valid.cob:7: warning: ignoring unknown directive: 'Process codepage(1047)'
+#valid.cob:8: warning: ignoring unknown directive: 'CBL CODEPAGE(1047)'
+#])
+
+# FIXME: the part above does not work
+
+#AT_DATA([valid.cob], [
+#Process codepage(1047)
+#   Process
+#    CBL
+#000100 Process codepage(1208)
+#000200 CBL CODEPAGE(1208)
+#000300 CBL
+#000400 IDENTIFICATION  DIVISION.
+#000500 PROGRAM-ID. VALID.
+#])
+
+#AT_CHECK([$COMPILE_ONLY valid.cob], [0], [],
+#[valid.cob:2: warning: ignoring unknown directive: 'Process codepage(1047)'
+#valid.cob:5: warning: ignoring unknown directive: 'Process codepage(1208)'
+#valid.cob:6: warning: ignoring unknown directive: 'CBL CODEPAGE(1208)'
+#])
+
+# simple one, to consider later how to make the necessary changes for
+# process/cbl before col 7
+
+AT_DATA([valid.cob], [
+000100 Process codepage(1047)
+000200 CBL CODEPAGE(1208)
+000300 CBL
+000400 IDENTIFICATION  DIVISION.
+000500 PROGRAM-ID. VALID.
+])
+
+AT_CHECK([$COMPILE_ONLY valid.cob], [0], [],
+[valid.cob:2: warning: ignoring unknown directive: 'Process codepage(1047)'
+valid.cob:3: warning: ignoring unknown directive: 'CBL CODEPAGE(1208)'
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([*CONTROL / *CBL parsing])
+AT_KEYWORDS([misc ibm])
+
+#AT_DATA([valid.cob], [
+#      *CONTROL LIST
+#        *CONTROL SOURCE
+#      *CBL MAP LIST
+#000100 *CBL NOMAP NOSOURCE NOLIST
+#000200 IDENTIFICATION  DIVISION.
+#000300 PROGRAM-ID. VALID.
+#])
+
+#AT_CHECK([$COMPILE_ONLY valid.cob], [0], [],
+#[valid.cob:2: warning: LIST is not applicable, consider -g / -s
+#valid.cob:4: warning: LIST is not applicable, consider -g / -s
+#])
+
+# for now only simple one -> ignored
+
+AT_DATA([valid.cob], [
+      *CONTROL LIST
+        *CONTROL SOURCE
+      *CBL MAP LIST
+000100 *CBL NOMAP NOSOURCE NOLIST
+000200 IDENTIFICATION  DIVISION.
+000300 PROGRAM-ID. VALID.
+])
+
+AT_CHECK([$COMPILE_ONLY valid.cob], [0], [], [])
 
 AT_CLEANUP
 
@@ -6677,113 +6144,113 @@ AT_DATA([prog.cob], [
            03  with-attrs-child PIC X.
 
        PROCEDURE DIVISION.
-           *> Receiving area is not alphanumeric or national.
+      *> Receiving area is not alphanumeric or national.
            XML GENERATE bool-item FROM str
-           *> Receiving area is JUSTIFIED RIGHT.
+      *> Receiving area is JUSTIFIED RIGHT.
            XML GENERATE just-item FROM str
-           *> Receiving area is subscripted or ref-mod'd.
+      *> Receiving area is subscripted or ref-mod'd.
            XML GENERATE table-entry (1) FROM str
            XML GENERATE long-str (1:100) FROM str
 
-           *> Input record cannot be function identifier.
+      *> Input record cannot be function identifier.
            XML GENERATE long-str FROM FUNCTION CHAR(4)
-           *> Input record cannot be ref-mod'd.
+      *> Input record cannot be ref-mod'd.
            XML GENERATE long-str FROM str (2:1)
-           *>  "       "   is not RENAMES (children may be RENAMES).
+      *>  "       "   is not RENAMES (children may be RENAMES).
            XML GENERATE long-str FROM renames-item
-           *> Non-ignored items of the input record must:
-           *>  * alphabetic, alphanumeric, national, numeric or index.
-           *>  * there must be at least one item.
-           *>  * each non-FILLER name must be unique within the input record.
+      *> Non-ignored items of the input record must:
+      *>  * alphabetic, alphanumeric, national, numeric or index.
+      *>  * there must be at least one item.
+      *>  * each non-FILLER name must be unique within the input record.
            XML GENERATE long-str FROM invalid-sub-elt-rec *> XXXXXXXXX ptr element is invalid
            XML GENERATE long-str FROM all-filler-rec
 
-           *> COUNT IN field must be an integer.
+      *> COUNT IN field must be an integer.
            XML GENERATE long-str FROM str COUNT float-item
-           *> COUNT IN field must not have P in PIC.
+      *> COUNT IN field must not have P in PIC.
            XML GENERATE long-str FROM str COUNT pic-p-item
 
-           *> ENCODING codepage must be unsigned integer.
-           *> If receiving area is national, codepage must be 1200.
-           *> "        "       "   alphanumeric, codepage must be 1208 or EBCDIC
-           *>   page supported with XML.
+      *> ENCODING codepage must be unsigned integer.
+      *> If receiving area is national, codepage must be 1200.
+      *> "        "       "   alphanumeric, codepage must be 1208 or EBCDIC
+      *>   page supported with XML.
 
-           *> WITH ATTRIBUTES, generated immediate children must be
-           *>  * elementary
-           *>  * be non-FILLER
-           *>  * not be OCCURS
-           *>  * not be subject of a TYPE phrase.
+      *> WITH ATTRIBUTES, generated immediate children must be
+      *>  * elementary
+      *>  * be non-FILLER
+      *>  * not be OCCURS
+      *>  * not be subject of a TYPE phrase.
            XML GENERATE long-str FROM with-attrs-does-nothing
                WITH ATTRIBUTES
                TYPE OF with-attrs-child IS ELEMENT
 
-           *> NAMESPACE must be a valid URI.
+      *> NAMESPACE must be a valid URI.
            XML GENERATE long-str FROM str NAMESPACE "<>"
-           *> NAMESPACE and -PREFIX must be alphanumeric or national.
+      *> NAMESPACE and -PREFIX must be alphanumeric or national.
            XML GENERATE long-str FROM str
               NAMESPACE bool-item NAMESPACE-PREFIX bool-item
-           *>   "        "     "    may not be figurative constants.
+      *>   "        "     "    may not be figurative constants.
            XML GENERATE long-str FROM str
                NAMESPACE SPACES NAMESPACE-PREFIX QUOTES
-           *> NAMESPACE-PREFIX must be a valid XML name.
+      *> NAMESPACE-PREFIX must be a valid XML name.
            XML GENERATE long-str FROM str
                NAMESPACE "http://www.w3.org/xml" NAMESPACE-PREFIX X"00"
 
-           *> NAME items must reference input record or its children.
+      *> NAME items must reference input record or its children.
            XML GENERATE long-str FROM rec
                NAME OF child-1 IS "c1", long-str IS "c2", rec IS "r"
-           *> NAME items cannot be reference modified or subscripted.
+      *> NAME items cannot be reference modified or subscripted.
            XML GENERATE long-str FROM rec
                NAME OF child-1 (1:2) IS "c1"
-           *> NAME items may not be ignored by the statement.
+      *> NAME items may not be ignored by the statement.
            XML GENERATE long-str FROM rec
                NAME OF child-1a IS "c1a"
-           *> NAME literals must be valid XML names.
+      *> NAME literals must be valid XML names.
            XML GENERATE long-str FROM rec
                NAME OF child-1 IS X"00"
 
-           *> TYPE items must be elementary and children of input record.
+      *> TYPE items must be elementary and children of input record.
            XML GENERATE long-str FROM rec
                TYPE OF child-3 IS ELEMENT, long-str IS CONTENT,
                    rec IS CONTENT
-           *> TYPE items cannot be ref-mod'd or subscripted.
+      *> TYPE items cannot be ref-mod'd or subscripted.
            XML GENERATE long-str FROM rec
                TYPE OF child-1 (1:3) IS ATTRIBUTE,
                    child-3-1 (1) IS CONTENT
-           *> TYPE items may not be ignored by the statement
+      *> TYPE items may not be ignored by the statement
            XML GENERATE long-str FROM rec
                TYPE OF child-1a IS ELEMENT
-           *> TYPE ATTRIBUTE items must satisfy the conditions for WITH
-           *>  ATTRIBUTES. (Covered by the above.)
+      *> TYPE ATTRIBUTE items must satisfy the conditions for WITH
+      *>  ATTRIBUTES. (Covered by the above.)
 
-           *> SUPPRESS WHEN items must be:
-           *>  * elementary
-           *>  * not ignored
-           *>  * child of input record.
+      *> SUPPRESS WHEN items must be:
+      *>  * elementary
+      *>  * not ignored
+      *>  * child of input record.
            XML GENERATE long-str FROM rec
                SUPPRESS child-3 WHEN SPACES, child-1a WHEN SPACES,
                    rec WHEN SPACES
-          *> All SUPPRESS items must not be functions
+      *> All SUPPRESS items must not be functions
            XML GENERATE long-str FROM rec
                SUPPRESS FUNCTION CHAR(5) WHEN SPACE
-           *> All SUPPRESS items must not be ref-mod'd or subscripted.
+      *> All SUPPRESS items must not be ref-mod'd or subscripted.
            XML GENERATE long-str FROM rec
                SUPPRESS child-1 (1:3) WHEN ZERO,
                    child-3-1 (1) WHEN SPACES
-           *> If non-WHEN SUPPRESS items may be groups. (No error message here.)
+      *> If non-WHEN SUPPRESS items may be groups. (No error message here.)
            XML GENERATE long-str FROM rec SUPPRESS child-3
-           *> If SUPPRESS WHEN ZEROES, item is not DISPLAY-1.
-           *> If SUPPRESS WHEN SPACES, item must be USAGE DISPLAY, DISPLAY-1 or
-           *>   NATIONAL
+      *> If SUPPRESS WHEN ZEROES, item is not DISPLAY-1.
+      *> If SUPPRESS WHEN SPACES, item must be USAGE DISPLAY, DISPLAY-1 or
+      *>   NATIONAL
            XML GENERATE long-str FROM bool-area
                SUPPRESS bool-item WHEN SPACES
-           *> If SUPPRESS WHEN LOW-/HIGH-VALUES, item must be USAGE DISPLAY or
-           *>   NATIONAL. If item is a zoned/national decimal item, it must be
-           *>   an integer.
+      *> If SUPPRESS WHEN LOW-/HIGH-VALUES, item must be USAGE DISPLAY or
+      *>   NATIONAL. If item is a zoned/national decimal item, it must be
+      *>   an integer.
            XML GENERATE long-str FROM bool-area
                SUPPRESS bool-item WHEN LOW-VALUES,
                    zoned-decimal WHEN HIGH-VALUE
-           *> (For generic WHEN phrases, invalid items above are ignored.)
+      *> (For generic WHEN phrases, invalid items above are ignored.)
            GOBACK.
 ])
 
@@ -6799,7 +6266,7 @@ prog.cob:59: error: JSON/XML GENERATE input record may not be reference modified
 prog.cob:61: error: JSON/XML GENERATE input record may not have RENAMES clause
 prog.cob:66: error: JSON/XML GENERATE input record has subrecords with non-unique names
 prog.cob:67: error: all the children of 'all-filler-rec' are ignored in JSON/XML GENERATE
-prog.cob:70: error: COUNT IN item 'float-item' must be numeric and an integer
+prog.cob:70: error: COUNT IN item 'float-item' must be an integer
 prog.cob:72: error: COUNT IN item 'pic-p-item' may not have PICTURE with P in it
 prog.cob:89: warning: OCCURS items in JSON/XML GENERATE is not implemented
 prog.cob:89: warning: WITH ATTRIBUTES specified, but no attributes can be generated
@@ -6870,13 +6337,14 @@ AT_DATA([prog.cob], [
        PROCEDURE DIVISION.
            ALLOCATE one
            ALLOCATE seven INITIALIZED
-           ALLOCATE seven CHARACTERS.
-           ALLOCATE seven CHARACTERS RETURNING ptr.
-           ALLOCATE 1 + 2 * 3 CHARACTERS RETURNING ptr.
-           ALLOCATE 1 + one * 3 CHARACTERS RETURNING ptr.
-           ALLOCATE one   CHARACTERS RETURNING ptr.
-           ALLOCATE seven CHARACTERS INITIALIZED RETURNING ptr.
+           ALLOCATE seven CHARACTERS
+           ALLOCATE seven CHARACTERS RETURNING ptr
+           ALLOCATE 1 + 2 * 3 CHARACTERS RETURNING ptr
+           ALLOCATE 1 + one * 3 CHARACTERS RETURNING ptr
+           ALLOCATE one   CHARACTERS RETURNING ptr
+           ALLOCATE seven CHARACTERS INITIALIZED RETURNING ptr
            ALLOCATE var
+           ALLOCATE 9 CHARACTERS INITIALIZED TO 9 RETURNING ptr.
            FREE var
            FREE ADDRESS OF var
            FREE one
@@ -6890,15 +6358,37 @@ AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:8: error: BASED only allowed at 01/77 level
 prog.cob:16: error: PROCEDURE DIVISION header missing
 prog.cob:16: error: syntax error, unexpected Identifier
-prog.cob:17: error: unknown statement '01'
-prog.cob:18: error: unknown statement '03'
+prog.cob:17: error: syntax error, unexpected Identifier, expecting SECTION or .
+prog.cob:17: note: unknown statement '01'
+prog.cob:18: error: syntax error, unexpected Identifier, expecting SECTION or .
+prog.cob:18: note: unknown statement '03'
 prog.cob:20: error: syntax error, unexpected PROCEDURE
 prog.cob:23: error: ALLOCATE CHARACTERS requires RETURNING clause
-prog.cob:26: error: 'one' is not a numeric value
+prog.cob:26: error: 'one' is not numeric
 prog.cob:27: error: amount must be specified as a numeric expression
-prog.cob:29: error: target of ALLOCATE is not a BASED item
-prog.cob:30: error: target 1 of FREE is not a BASED data item
+prog.cob:29: error: target of ALLOCATE must have BASED clause
+prog.cob:30: error: INITIALIZED TO item is not alphanumeric
 prog.cob:31: error: target 1 of FREE is not a BASED data item
+prog.cob:32: error: target 1 of FREE is not a BASED data item
+])
+
+AT_CHECK([$COMPILE_ONLY -frelax-syntax-checks prog.cob], [1], [],
+[prog.cob:8: error: BASED only allowed at 01/77 level
+prog.cob:16: warning: PROCEDURE DIVISION header missing
+prog.cob:16: note: PROCEDURE DIVISION header assumed
+prog.cob:16: error: syntax error, unexpected Identifier
+prog.cob:17: error: syntax error, unexpected Identifier, expecting SECTION or .
+prog.cob:17: note: unknown statement '01'
+prog.cob:18: error: syntax error, unexpected Identifier, expecting SECTION or .
+prog.cob:18: note: unknown statement '03'
+prog.cob:20: error: syntax error, unexpected PROCEDURE
+prog.cob:23: error: ALLOCATE CHARACTERS requires RETURNING clause
+prog.cob:26: error: 'one' is not numeric
+prog.cob:27: error: amount must be specified as a numeric expression
+prog.cob:29: error: cannot change address of 'var', which is not BASED or a LINKAGE item
+prog.cob:30: error: INITIALIZED TO item is not alphanumeric
+prog.cob:31: error: target 1 of FREE is not a BASED data item
+prog.cob:32: error: target 1 of FREE is not a BASED data item
 ])
 AT_CLEANUP
 
@@ -7052,10 +6542,10 @@ AT_DATA([prog.cob], [
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 [prog.cob:32: error: table SORT requires KEY phrase
-prog.cob:35: error: file sort requires USING or INPUT PROCEDURE
-prog.cob:35: error: file sort requires GIVING or OUTPUT PROCEDURE
-prog.cob:37: error: file sort requires KEY phrase
-prog.cob:38: error: file sort requires KEY phrase
+prog.cob:35: error: file SORT requires USING or INPUT PROCEDURE
+prog.cob:35: error: file SORT requires GIVING or OUTPUT PROCEDURE
+prog.cob:37: error: file SORT requires KEY phrase
+prog.cob:38: error: file SORT requires KEY phrase
 ])
 AT_CLEANUP
 
@@ -7127,59 +6617,6 @@ prog.cob:42: warning: OPEN LEAVE/REREAD/DISP is obsolete in GnuCOBOL
 AT_CLEANUP
 
 
-AT_SETUP([long literal in error message])
-AT_KEYWORDS([misc literals])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      tutorial.
-       PROCEDURE DIVISION.
-           move low-values to
-           ' 1  c d e f g h i j k l m n 0 q.'-
-           ' 2  C D E F G H I J K L M N 0 Q.'-
-           ' 3  c d e f g h i j k l m n 0 q.'-
-           ' 4  C D E F G H I J K L M N 0 Q.'-
-           ' 5  c d e f g h i j k l m n 0 q.'-
-           ' 6  C D E F G H I J K L M N 0 Q.'-
-           ' 7  c d e f g h i j k l m n 0 q.'-
-           ' 8  C D E F G H I J K L M N 0 Q.'-
-           ' 9  c d e f g h i j k l m n 0 q.'-
-           '10  C D E F G H I J K L M N 0 Q.'-
-           '11  c d e f g h i j k l m n 0 q.'-
-           '12  C D E F G H I J K L M N 0 Q.'-
-           '13  c d e f g h i j k l m n 0 q.'-
-           '14  C D E F G H I J K L M N 0 Q.'-
-           '15  c d e f g h i j k l m n 0 q.'.
-])
-
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:5: error: invalid MOVE target: literal " 1  c d e f g h i j k l m n 0 q. 2 ..."
-])
-
-AT_CLEANUP
-
-
-AT_SETUP([literal missing terminating character])
-AT_KEYWORDS([misc literals terminator])
-
-AT_DATA([prog.cob], [
-       IDENTIFICATION   DIVISION.
-       PROGRAM-ID.      tutorial.
-       PROCEDURE DIVISION.
-           DISPLAY ' 1  c d e f g h i j k l m n 0 q.
-      -            ' 2  C D E F G H I J K L M N 0 Q.
-])
-
-# FIXME: we should move this from scanner to pplex to preserve the spaces
-# [prog.cob:5: error: invalid literal: ' 1  c d e f g h i j k l m n 0 q. ...'
-AT_CHECK([$COMPILE_ONLY -w prog.cob], [1], [],
-[prog.cob:5: error: invalid literal: ' 1 c d e f g h i j k l m n 0 q. 2  ...'
-prog.cob:5: error: missing terminating ' character
-prog.cob:5: error: syntax error, unexpected end of file
-])
-
-AT_CLEANUP
-
 AT_SETUP([EQUALS in expressions])
 AT_KEYWORDS([misc])
 
@@ -7206,6 +6643,126 @@ AT_CHECK([$COMPILE prog.cob], [0], [], [])
 AT_CLEANUP
 
 
+AT_SETUP([SEARCH ALL checks])
+AT_KEYWORDS([misc])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 TAB-1.
+           05 TAB-1-ENTRY OCCURS 50
+                          ASCENDING KEY IS TAB-1-KEY
+                          INDEXED BY TAB-1-INDEX.
+             10 TAB-1-KEY.
+               15 T1K-SUB1     PIC X(03).
+               15 T1K-SUB2     PIC 9(03).
+             10 TAB-1-DATA     PIC X(50).
+       01 TAB-2.
+           05 TAB-2-ENTRY OCCURS 50
+                          INDEXED BY TAB-2-INDEX.
+             10 TAB-2-KEY.
+               15 T2K-SUB1     PIC X(03).
+               15 T2K-SUB2     PIC 9(03).
+             10 TAB-2-DATA     PIC X(50).
+
+       PROCEDURE DIVISION.
+       TESTING SECTION.
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN TAB-1-KEY = ALL ZERO
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN TAB-1-KEY (TAB-1-INDEX) = ALL ZERO
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN "ABC123" = TAB-1-KEY (TAB-1-INDEX)
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN TAB-1-KEY (TAB-2-INDEX) = ALL ZERO
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              WHEN TAB-1-KEY (TAB-1-INDEX) = ALL ZERO
+                 CONTINUE
+              AT END
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN TAB-1-KEY (TAB-1-INDEX) = ALL ZERO
+              WHEN TAB-1-KEY (TAB-1-INDEX) = "ZZZ999"
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN TESTING
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN T1K-SUB1 (TAB-1-INDEX) = "ZZZ"
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN TAB-2-KEY (TAB-1-INDEX) = ALL ZERO
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN TAB-2-KEY (TAB-2-INDEX) = ALL ZERO
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-1-ENTRY
+              AT END
+                 CONTINUE
+              WHEN "AA" = "BB"
+                 CONTINUE
+           END-SEARCH
+           SEARCH ALL TAB-2-ENTRY
+              AT END
+                 CONTINUE
+              WHEN TAB-2-KEY (TAB-2-INDEX) = ALL ZERO
+                 CONTINUE
+           END-SEARCH
+           .
+])
+
+AT_CHECK([$COMPILE prog.cob], [1], [],
+[prog.cob: in section 'TESTING':
+prog.cob:27: error: 'TAB-1-KEY' requires one subscript
+prog.cob:51: error: syntax error, unexpected AT END
+prog.cob:53: error: syntax error, unexpected END-SEARCH
+prog.cob:58: error: syntax error, unexpected WHEN
+prog.cob:64: error: 'TESTING' is not a field
+prog.cob:70: error: SEARCH ALL requires comparision of KEY field
+prog.cob:76: error: SEARCH ALL requires comparision of KEY field
+prog.cob:82: error: SEARCH ALL requires comparision of KEY field
+prog.cob:88: warning: expression 'AA' EQUALS 'BB' is always FALSE
+prog.cob:88: error: invalid SEARCH ALL condition
+prog.cob:91: error: SEARCH ALL requires KEY phrase
+prog.cob:15: note: 'TAB-2-ENTRY' defined here
+])
+AT_CLEANUP
+
+
 AT_SETUP([Invalid parentheses around condition])
 AT_KEYWORDS([misc])
 
@@ -7223,8 +6780,8 @@ AT_DATA([prog.cob], [
            .
 ])
 
-AT_CHECK([$COMPILE prog.cob], [1], [],
-[prog.cob:9: error: invalid expression
+AT_CHECK([$COMPILE prog.cob], [1], [], 
+[prog.cob:9: error: invalid expression: unfinished expression
 ])
 AT_CLEANUP
 
@@ -7288,6 +6845,105 @@ AT_DATA([prog.cob], [
 AT_CHECK([$COMPILE_ONLY prog.cob], [0],
 [OK
 ])
+AT_CLEANUP
+
+
+AT_SETUP([SET CONSTANT directive])
+AT_KEYWORDS([misc directives extensions])
+
+# The SET CONSTANT directive defines a level78 variable
+# for the current compilation unit
+
+# original MF extension: $SET CONSTANT
+AT_DATA([prog.cob], [
+       $SET CONSTANT DOGGY "Barky"
+       $SET CONSTANT PONY "Blacky"
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  THEDOG    PIC X(6) VALUE DOGGY.
+       77  MYHORSE   PIC X(7) VALUE PONY.
+       $SET CONSTANT PONY "White"
+      *
+      * ensure to test a numeric, too (not actually used):
+       $SET CONSTANT C-UNUSED-NUM 0
+       PROCEDURE DIVISION.
+       MAIN.
+           DISPLAY "Your Dog's name is " DOGGY ";".
+           DISPLAY "The Dog's name is " THEDOG ";".
+           DISPLAY "My Horse is " MYHORSE ";".
+           DISPLAY "My little pony is " PONY ".".
+           STOP RUN.
+])
+
+# OpenCOBOL/GnuCOBOL extension (deprecated): >>SET CONSTANT
+AT_DATA([prog2.cob], [
+       >>SET CONSTANT DOGGY "Barky"
+       >>SET CONSTANT PONY "Blacky"
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog2.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  THEDOG    PIC X(6) VALUE DOGGY.
+       77  MYHORSE   PIC X(7) VALUE PONY.
+       >>SET CONSTANT PONY "White"
+      *
+       PROCEDURE DIVISION.
+       MAIN.
+           DISPLAY "Your Dog's name is " DOGGY ";".
+           DISPLAY "The Dog's name is " THEDOG ";".
+           DISPLAY "My Horse is " MYHORSE ";".
+           DISPLAY "My little pony is " PONY ".".
+           STOP RUN.
+])
+
+# OpenCOBOL/GnuCOBOL extension: >>DEFINE CONSTANT
+AT_DATA([prog3.cob], [
+       >>DEFINE CONSTANT DOGGY "Barky"
+       >>DEFINE CONSTANT PONY "Blacky"
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog3.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  THEDOG    PIC X(6) VALUE DOGGY.
+       77  MYHORSE   PIC X(7) VALUE PONY.
+       >>DEFINE CONSTANT PONY "White" OVERRIDE
+      *
+       PROCEDURE DIVISION.
+       MAIN.
+           DISPLAY "Your Dog's name is " DOGGY ";".
+           DISPLAY "The Dog's name is " THEDOG ";".
+           DISPLAY "My Horse is " MYHORSE ";".
+           DISPLAY "My little pony is " PONY ".".
+           STOP RUN.
+])
+
+# Note: MF does not redefine a value via SET CONSTANT
+# the first definitions wins (we should add a warning)
+AT_CHECK([$COMPILE_ONLY -std=mf prog.cob], [0], [], [])
+# FIXME: Should raise an error or at least a warning
+# AT_CHECK([$COMPILE_ONLY -std=cobol2002 prog.cob], [0], [], [])
+
+# Note: MF does not redefine a value via SET CONSTANT
+# the first definitions wins (we should add a warning)
+AT_CHECK([$COMPILE_ONLY prog2.cob], [0], [], [])
+# FIXME: Should raise an error or at least a warning
+# AT_CHECK([$COMPILE_ONLY -std=cobol2002 prog2.cob], [0], [], [])
+
+AT_CHECK([$COMPILE_ONLY -fdefine-constant-directive=ok prog3.cob], [0], [], [])
+# CHECKME: Replace the syntax error by explicit "is not defined".
+AT_CHECK([$COMPILE_ONLY -std=cobol2002 prog3.cob], [1], [],
+[prog3.cob:2: error: >> DEFINE CONSTANT var used
+prog3.cob:3: error: >> DEFINE CONSTANT var used
+prog3.cob:10: error: >> DEFINE CONSTANT var used
+prog3.cob:8: error: syntax error, unexpected Identifier
+prog3.cob:9: error: syntax error, unexpected Identifier
+prog3.cob: in paragraph 'MAIN':
+prog3.cob:14: error: 'DOGGY' is not defined
+prog3.cob:17: error: 'PONY' is not defined
+])
+
 AT_CLEANUP
 
 
@@ -7399,6 +7055,8 @@ AT_CLEANUP
 AT_SETUP([error handling in conditional directives])
 AT_KEYWORDS([misc directive])
 
+# TODO: add missing tests for syntax errors in >>IF/ELSE/END
+
 AT_DATA([prog.cob], [
        IDENTIFICATION DIVISION.
        PROGRAM-ID.    prog.
@@ -7428,7 +7086,7 @@ AT_KEYWORDS([misc extensions directive])
 # MicroFocus format; checks that level 78 are applied
 
 # FIXME - not done yet:
-AT_XFAIL_IF(true)
+AT_XFAIL_IF([true])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION  DIVISION.
@@ -7463,7 +7121,7 @@ AT_KEYWORDS([misc extensions directive])
 # MicroFocus format; checks that level 78 are applied with correct values
 
 # FIXME - not done yet:
-AT_XFAIL_IF(true)
+AT_XFAIL_IF([true])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION  DIVISION.
@@ -7506,5 +7164,1181 @@ correct X > Y
 ])
 AT_CLEANUP
 
-# TODO: add missing tests for syntax errors in >>IF/ELSE/END
+
+AT_SETUP([Missing reserved word with DEBUGGING MODE])
+AT_KEYWORDS([misc COBOL-85])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. my-prog.
+
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SOURCE-COMPUTER. GNU-Linux WITH DEBUGGING MODE.
+
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT gen-file ASSIGN "f.txt".
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  gen-file.
+       01  gen-file-rec PIC X.
+
+       PROCEDURE DIVISION.
+           OPEN INPUT gen-file
+           .
+])
+
+AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [0], [])
+AT_CLEANUP
+
+
+AT_SETUP([Invalid PERFORM statement])
+AT_KEYWORDS([misc])
+
+# TODO: likely more to add here when inspecting code-coverage
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DEMOUNSTRING.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  Full-Name               PIC X(40).
+       01  SUB1                    USAGE BINARY-SHORT.
+       PROCEDURE DIVISION.
+           MOVE 1                  TO SUB1
+           PERFORM LENGTH(Full-Name) TIMES
+           IF Full-Name(SUB2:1) = SPACE
+              IF Full-Name(SUB2 + 1:1) = SPACE
+                 DISPLAY 'IN'
+                 EXIT PERFORM CYCLE 
+              END-IF
+           END-IF
+           ADD 1 TO SUB1.
+])
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
+[[prog.cob:10: error: syntax error, unexpected (
+prog.cob:17: error: syntax error, unexpected ., expecting TIMES
+]])
+AT_CLEANUP
+
+
+AT_SETUP([PERFORM THRU syntax checks])
+AT_KEYWORDS([misc warning])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+       PROCEDURE DIVISION.
+       MAIN SECTION.
+       MAIN-00.
+           PERFORM SUB1
+           PERFORM SUB1 THRU SUB1-EX
+           PERFORM SUB1-00 THRU SUB1-EX
+           PERFORM SUB1 THRU SUB1
+           PERFORM SUB1 THRU SUB2
+           GOBACK.
+       MAIN-EX. EXIT.
+      *
+       SUB1 SECTION.
+       SUB1-00.
+           PERFORM SUB1-01 THRU SUB1-02.
+       SUB1-01.
+           CONTINUE.
+       SUB1-02.
+           CONTINUE.
+       SUB1-EX. EXIT.
+      *
+       SUB2 SECTION.
+       SUB2-00.
+           PERFORM SUB1-02 THRU SUB1-01.
+       SUB2-01.
+           CONTINUE.
+       SUB2-02.
+           CONTINUE.
+       SUB2-EX. EXIT.
+])
+
+AT_CHECK([$COMPILE_ONLY -Wno-suspicious-perform-thru prog.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -Wall -fsection-exit-check prog.cob], [0], [],
+[prog.cob: in section 'SUB2':
+prog.cob: in paragraph 'SUB2-00':
+prog.cob:11: warning: PERFORM ... THROUGH SECTION and -fsection-exit-check are mutually exclusive
+prog.cob:26: warning: SUB1-01 is defined before SUB1-02
+prog.cob:20: note: 'SUB1-02' defined here
+prog.cob:18: note: 'SUB1-01' defined here
+])
+AT_CLEANUP
+
+
+AT_SETUP([VALIDATE parsing])
+AT_KEYWORDS([misc 2002 BIT TYPEDEF STRONG VALIDATE-STATUS PRESENT WHEN DESTINATION])
+
+# Note: so far the VALIDATE statement is only partial implemented in the
+#       compiler, but it is planned to completely add it
+# This syntax example also show-cases a bunch of other COBOL 2002 options
+# which would otherwise be not checked elsewhere so far
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+       DATA  DIVISION.
+       WORKING-STORAGE SECTION.
+   *> D.22.7.1    Example of validation of USAGE DISPLAY items
+   *>
+   *>*************************************************************
+   *>Description of target record (note: should be possible to define later)
+   *>*************************************************************
+   *>This is set up by the optional DESTINATION clauses defined
+   *>in the input record;
+   *>if a format error is found, a default value is stored instead.
+    01  TARGET-AREA.
+        05  OUT-NAME       PIC X(20).
+        05  OUT-WEEK       PIC 99 COMP   OCCURS 5.
+   *>*************************************************************
+   *>Validated items
+   *>*************************************************************
+    01  INPUT-RECORD.
+   *>PIC 99 checks that IN-TYPE is 2 characters numeric;
+        03  IN-TYPE         PIC 99
+   *>if IN-TYPE fails the PICTURE check, it is assumed to be 1;
+   *>without a DEFAULT clause, the assumed value would here be 0.
+                                DEFAULT 1.
+   *>PRESENT WHEN states the condition for this format to be used.
+        03  IN-REC-FORMAT-1 PRESENT WHEN IN-TYPE = 0 OR 1 OR 2.
+   *>PICTURE A(20) checks for 20 alphabetic (or space) characters.
+            05  IN-NAME       PIC A(20)
+   *>PRESENT WHEN defines when the validation clauses for this data item apply:
+                                 PRESENT WHEN IN-TYPE = 0 OR 1
+   *>CLASS checks each character for a class defined in SPECIAL-NAMES
+   *>or a predefined class
+                                 CLASS IS ALPHABETIC-UPPER 
+   *>DESTINATION moves this item (or spaces if not alpha) to OUT-NAME.
+                                 DESTINATION OUT-NAME.
+   *>PRESENT WHEN checks whether the item is "blank" under this condition
+            05  FILLER REDEFINES IN-NAME  PIC X(20) *> should PIC be optional?
+                                 PRESENT WHEN IN-TYPE = 2
+                                 DESTINATION OUT-NAME.
+                88               VALUE SPACES IS VALID.
+   *>The values of IN-WEEK are checked to be in non-descending order.
+            05  IN-WEEK       PIC 99  OCCURS 5
+                VARYING IN-WEEK-NO FROM 1, IN-NEXT-WEEK-NO FROM 2
+                INVALID WHEN IN-WEEK-NO < 5
+                AND IN-WEEK (IN-WEEK-NO) > IN-WEEK (IN-NEXT-WEEK-NO)
+   *>OUT-WEEK (1) to (5) will hold the values of IN-WEEK (1) to (5),
+   *>or zero for any one that failed the format (PICTURE) test.
+                DESTINATION OUT-WEEK (IN-WEEK-NO).
+   *>The 88-level INVALID entries check for invalid ranges of values.
+               88  VALUES 0, 53 THRU 99 ARE INVALID.
+   *>REDEFINES and another PRESENT WHEN define an alternate format.
+        03  IN-REC-FORMAT-2 REDEFINES IN-REC-FORMAT-1
+                                        PRESENT WHEN IN-TYPE > 2.
+   *>IN-PAY has insertion characters that must be present on input.
+            05  IN-PAY                PIC ZZ,ZZZ.ZZ.
+   *>The 88-level VALID entries check for valid ranges of values;
+   *>the condition-name, if present, may be used in the usual way.
+   *>The following assume that DECIMAL POINT IS COMMA is not specified.
+                 88  IN-PAY-OK  VALUES "10,000.00" THRU "20,000.00" ARE VALID.
+   *>88-level entries may also have a condition attached.
+                 88                    VALUES "20,000.01" THRU "30,000.00" ARE VALID
+                                       WHEN IN-TYPE = 8.
+   *>exceptional cases can be specified using PRESENT WHEN
+            05  IN-CODE                PIC AX(3)9(4) 
+                                       PRESENT WHEN IN-CODE NOT = "UNKNOWN".
+            05  FILLER           PIC X(13).
+   *>
+   *>*************************************************************
+   *> Description of error messages
+   *>*************************************************************
+   *>Error messages or flags are set up or cleared automatically 
+   *>when the VALIDATE statement is executed; the programmer chooses
+   *>where they go and what messages or values they contain;
+   *>they need not be contiguous as they are in this example.
+   01  VALIDATE-MESSAGES.
+       03  PIC X(40)  VALIDATE-STATUS "Unknown Record Type - 1 assumed" 
+                        WHEN ERROR FOR IN-TYPE
+   *> more than one VALIDATE-STATUS clause may be defined in one entry;
+   *> a NO ERROR  phrase produces a message when the item is valid.
+                      VALIDATE-STATUS "Record type Accepted"
+                        WHEN NO ERROR FOR IN-TYPE.
+   *> The VALIDATE-STATUS clause can pinpoint the stage of the failed check.
+       03  PIC X(40)  VALIDATE-STATUS "Name not alphabetic"
+                        WHEN ERROR ON FORMAT FOR IN-NAME
+                      VALIDATE-STATUS "Lower-case not allowed in name"
+                        WHEN ERROR ON CONTENT FOR IN-NAME
+                      VALIDATE-STATUS "Name not allowed in this case"
+                        WHEN ERROR ON RELATION FOR IN-NAME.
+   *> If no message is stored, spaces will be stored in these cases.
+   *> Errors may also be indicated by flags;
+   *> they may also refer to a table of input items.
+       03  W-ERROR-FLAG   PIC 9   COMP  OCCURS 5
+                      VALIDATE-STATUS 1 WHEN ERROR FOR IN-WEEK.
+   *>An EC-VALIDATE (nonfatal) exception is also set if the
+   *>VALIDATE statement detects an invalid condition.
+   
+
+   *> From D.22.7.2    Example of validation of non-display items:
+      01  MIXED-GROUP TYPEDEF STRONG.
+          05  FLD-1             PIC S9(4)  USAGE COMP.
+          05  FLD-2             PIC S9(7)  USAGE PACKED-DECIMAL.
+          05  FLD-3             PIC 1(8)   USAGE BIT ALIGNED.
+          05  PTR-1             USAGE INDEX.
+          05  PTR-2             USAGE OBJECT REFERENCE.
+          05  TXT-1             PIC N(12)  USAGE NATIONAL.
+    01 MY-MIXED-GROUP TYPE MIXED-GROUP.
+   
+   
+   *>
+   *>*************************************************************
+   *>Execution of the VALIDATE statement
+   *>*************************************************************
+    PROCEDURE DIVISION.
+    
+   *>A single VALIDATE statement performs all the actions implied
+   *>in the above data descriptions.
+        VALIDATE INPUT-RECORD
+   *>After this statement has been executed:
+   *>(1) the input record is unchanged;
+   *>(2) input items are moved automatically to the target area;
+   *>(3) error messages are set up wherever specified in the program.
+   *>
+   
+   *> From D.22.7.2    Example of validation of non-display items:
+   *>A declarative section could be used instead of VALIDATE-STATUS clauses
+   *>especially if errors are not expected.
+   *>> TURN EC-VALIDATE CHECKING ON
+        VALIDATE MY-MIXED-GROUP
+        
+     GOBACK.
+])
+
+AT_CHECK([$COMPILE_ONLY -Wno-pending -Wno-unfinished -free prog.cob], [0], [], [])
+
+AT_CLEANUP
+
+
+
+AT_SETUP([field-tree via COBC_GEN_DUMP_COMMENTS])
+AT_KEYWORDS([misc binaries dump])
+
+# Note: this is a feature which is used in external tools, primarily
+#       cobcd from COBOLworx debugging extensions, this test does only
+#       verify that modules compiled with that can be compiled and
+#       that the expected content is found in the dump code (everything
+#       which is not related to the actual dump is included as comment
+# Note2: This feature will vanish if/when cobc gets an option to output
+#       its (parse) trees.
+
+AT_DATA([prog.cob], [
+       identification division.
+       program-id. debugme.
+       data division.
+       working-storage section.
+       01  numeric-data.
+           05 disp     usage display        pic s99v999  value -12.34.
+           05 disp-u   usage display        pic  99v999  value  12.34.
+           05 dispp    usage display        pic sppp9999 value -.000123.
+           05 dispp-u  usage display        pic  ppp9999 value  .000123.
+           05 disppp   usage display        pic s9999ppp value -1234000.
+           05 disppp-u usage display        pic  9999ppp value  1234000.
+           05 bin      usage binary         pic s99v999  value -12.34.
+           05 bin-u    usage binary         pic  99v999  value  12.34.
+           05 cmp3     usage packed-decimal pic s99v999  value -12.34.
+           05 cmp3-u   usage packed-decimal pic  99v999  value  12.34.
+           05 cmp5     usage comp-5         pic s99v999  value -12.34.
+           05 cmp5-u   usage comp-5         pic  99v999  value  12.34.
+           05 cmp6     usage comp-6         pic  99v999  value  12.34.
+           05 cmpx     usage comp-x         pic s99v999  value -12.34.
+           05 cmpx-u   usage comp-x         pic  99v999  value  12.34.
+           05 cmpn     usage comp-n         pic s99v999  value -12.34.
+           05 cmpn-u   usage comp-n         pic  99v999  value  12.34.
+           05 chr      usage binary-char    signed    value -128.
+           05 chr-u    usage binary-char    unsigned  value  254.
+           05 shrt     usage binary-short   signed    value -32768.
+           05 shrt-u   usage binary-short   unsigned  value  65535.
+           05 long     usage binary-long    signed    value -2147483648.
+           05 long-u   usage binary-long    unsigned  value  4294967295.
+           05 dble     usage binary-double  signed    value -4294967295.
+           05 dble-u   usage binary-double  unsigned  value  8294967295.
+      *   05 cmp0       usage comp-0.  TODO
+       01  floating-data.
+           05 dbl       usage float-long      value -3.40282e+038.
+           05 flt       usage float-short     value 3.40282e+038.
+      *   05 b32        usage FLOAT-BINARY-32  signed.      TODO
+      *   05 b64        usage FLOAT-BINARY-64  signed.      TODO
+      *   05 b128       usage FLOAT-BINARY-128 signed.      TODO
+      *   05 b32-u      usage FLOAT-BINARY-32  unsigned.    TODO
+      *   05 b64-u      usage FLOAT-BINARY-64  unsigned.    TODO
+      *   05 b128-u     usage FLOAT-BINARY-128 unsigned.    TODO
+      *
+      *  --> missing:   floating point edited pictures,
+      *                 those are left to the reader as excercise :-)
+       77 x36            pic x(36) is typedef.
+      * In the following block, "sync" prevents SIGBUS errors on SOLARIS systems.
+       01  special-data.
+           05 r2d2       usage bit pic 111 value b'110'.
+      *>   disabled for now because of varying size
+      *>   05 point      usage pointer         sync.
+      *>   05 ppoint     usage program-pointer sync.
+      *>   05 idx        usage index           sync.
+      *>   05 hnd        usage handle          sync.
+       01  alphanumeric-data.
+           05 alpnum     usage x36 value "some numb3rs 4 n00bs l1k3 m3".
+           05 alpha      pic a(36) value "thats some text".
+           05 edit-num1  pic --9.999.
+           05 edit-num2  pic ++9.999.
+           05 edit-num3  pic zz9.999.
+           05 edit-num4  pic -zz9.999   blank when zero.
+       01  national-data.
+           05 nat        pic n(36) value "data shown here will change.".
+           05 nat-num    pic 9(12)v9(3) usage national.
+           05 net-num1   pic --9.999    usage national.
+           05 net-num2   pic ++9.999    usage national.
+           05 net-num3   pic zz9.999    usage national.
+           05 net-num4   pic -zz9.999   usage national blank when zero.
+      *
+       01 occurs 2 to 5 times depending on chr indexed by x-idx.
+         03 x-basis.
+           05  x-a                 pic x(01) value space.
+           05  x-b                 pic x(01) value space.
+           05  x-c                 pic x(01) value space.
+         03 filler redefines x-basis pic x(03).
+           88  sw-x-basis-full     value "xxx".
+       01  x-rms.                  
+           05  x-rms-a             pic x(01) value space.
+       01 filler redefines x-rms   pic x(01).
+           88  sw-x-rms-full       value "X" or "A" thru "C" or QUOTE.
+
+       local-storage section.
+       01  var1       pic x.
+       01  var2.
+          03  var2a   pic x.
+          03  var2b   pic 9.
+           88 yay     values zero, 2 through 5, 9.
+])
+
+AT_CAPTURE_FILE([prog.c])
+
+AT_CHECK([COBC_GEN_DUMP_COMMENTS=1 \
+  $COMPILE -C -fdump=all -w prog.cob], [0], [])
+# TODO: only execute this piece when extended $GREP works
+AT_CHECK([($GREP -A 200 "P_dump:" prog.c | $GREP -B 200 "END OF DUMP") || exit 77], [0],
+[  P_dump:
+  /* Dump WORKING-STORAGE */
+  cob_dump_output ("WORKING-STORAGE");
+  cob_dump_field_ext (77, "RETURN-CODE", COB_SET_FLD (f0, 4, (cob_u8_t *)&b_2, &a_46), 0, 0);
+  cob_dump_field_ext ( 1, "numeric-data", COB_SET_FLD (f0, 93, b_17, &a_47), 0, 0);
+  cob_dump_field_ext ( 5, "disp", COB_SET_FLD (f0, 5, b_17, &a_2), 0, 0);
+  cob_dump_field_ext ( 5, "disp-u", COB_SET_FLD (f0, 5, b_17 + 5, &a_4), 0, 0);
+  cob_dump_field_ext ( 5, "dispp", COB_SET_FLD (f0, 4, b_17 + 10, &a_6), 0, 0);
+  cob_dump_field_ext ( 5, "dispp-u", COB_SET_FLD (f0, 4, b_17 + 14, &a_8), 0, 0);
+  cob_dump_field_ext ( 5, "disppp", COB_SET_FLD (f0, 4, b_17 + 18, &a_10), 0, 0);
+  cob_dump_field_ext ( 5, "disppp-u", COB_SET_FLD (f0, 4, b_17 + 22, &a_12), 0, 0);
+  cob_dump_field_ext ( 5, "bin", COB_SET_FLD (f0, 4, b_17 + 26, &a_13), 0, 0);
+  cob_dump_field_ext ( 5, "bin-u", COB_SET_FLD (f0, 4, b_17 + 30, &a_14), 0, 0);
+  cob_dump_field_ext ( 5, "cmp3", COB_SET_FLD (f0, 3, b_17 + 34, &a_15), 0, 0);
+  cob_dump_field_ext ( 5, "cmp3-u", COB_SET_FLD (f0, 3, b_17 + 37, &a_16), 0, 0);
+  cob_dump_field_ext ( 5, "cmp5", COB_SET_FLD (f0, 4, b_17 + 40, &a_17), 0, 0);
+  cob_dump_field_ext ( 5, "cmp5-u", COB_SET_FLD (f0, 4, b_17 + 44, &a_18), 0, 0);
+  cob_dump_field_ext ( 5, "cmp6", COB_SET_FLD (f0, 3, b_17 + 48, &a_19), 0, 0);
+  cob_dump_field_ext ( 5, "cmpx", COB_SET_FLD (f0, 3, b_17 + 51, &a_20), 0, 0);
+  cob_dump_field_ext ( 5, "cmpx-u", COB_SET_FLD (f0, 3, b_17 + 54, &a_21), 0, 0);
+  cob_dump_field_ext ( 5, "cmpn", COB_SET_FLD (f0, 3, b_17 + 57, &a_20), 0, 0);
+  cob_dump_field_ext ( 5, "cmpn-u", COB_SET_FLD (f0, 3, b_17 + 60, &a_21), 0, 0);
+  cob_dump_field_ext ( 5, "chr", &f_35, 0, 0);
+  cob_dump_field_ext ( 5, "chr-u", COB_SET_FLD (f0, 1, b_17 + 64, &a_25), 0, 0);
+  cob_dump_field_ext ( 5, "shrt", COB_SET_FLD (f0, 2, b_17 + 65, &a_27), 0, 0);
+  cob_dump_field_ext ( 5, "shrt-u", COB_SET_FLD (f0, 2, b_17 + 67, &a_29), 0, 0);
+  cob_dump_field_ext ( 5, "long", COB_SET_FLD (f0, 4, b_17 + 69, &a_31), 0, 0);
+  cob_dump_field_ext ( 5, "long-u", COB_SET_FLD (f0, 4, b_17 + 73, &a_33), 0, 0);
+  cob_dump_field_ext ( 5, "dble", COB_SET_FLD (f0, 8, b_17 + 77, &a_34), 0, 0);
+  cob_dump_field_ext ( 5, "dble-u", COB_SET_FLD (f0, 8, b_17 + 85, &a_35), 0, 0);
+  cob_dump_field_ext ( 1, "floating-data", COB_SET_FLD (f0, 12, b_43, &a_47), 0, 0);
+  cob_dump_field_ext ( 5, "dbl", COB_SET_FLD (f0, 8, b_43, &a_37), 0, 0);
+  cob_dump_field_ext ( 5, "flt", COB_SET_FLD (f0, 4, b_43 + 8, &a_39), 0, 0);
+  cob_dump_field_ext ( 1, "special-data", COB_SET_FLD (f0, 1, b_47, &a_47), 0, 0);
+  cob_dump_field_ext ( 5, "r2d2", COB_SET_FLD (f0, 1, b_47, &a_41), 0, 0);
+  cob_dump_field_ext ( 1, "alphanumeric-data", COB_SET_FLD (f0, 101, b_49, &a_47), 0, 0);
+  cob_dump_field_ext ( 5, "alpnum", COB_SET_FLD (f0, 36, b_49, &a_48), 0, 0);
+  cob_dump_field_ext ( 5, "alpha", COB_SET_FLD (f0, 36, b_49 + 36, &a_48), 0, 0);
+  cob_dump_field_ext ( 5, "edit-num1", COB_SET_FLD (f0, 7, b_49 + 72, &a_42), 0, 0);
+  cob_dump_field_ext ( 5, "edit-num2", COB_SET_FLD (f0, 7, b_49 + 79, &a_43), 0, 0);
+  cob_dump_field_ext ( 5, "edit-num3", COB_SET_FLD (f0, 7, b_49 + 86, &a_44), 0, 0);
+  cob_dump_field_ext ( 5, "edit-num4", COB_SET_FLD (f0, 8, b_49 + 93, &a_45), 0, 0);
+  cob_dump_field_ext ( 1, "national-data", COB_SET_FLD (f0, 160, b_56, &a_47), 0, 0);
+  cob_dump_field_ext ( 5, "nat", COB_SET_FLD (f0, 72, b_56, &a_49), 0, 0);
+  cob_dump_field_ext ( 5, "nat-num", COB_SET_FLD (f0, 30, b_56 + 72, &a_50), 0, 0);
+  cob_dump_field_ext ( 5, "net-num1", COB_SET_FLD (f0, 14, b_56 + 102, &a_42), 0, 0);
+  cob_dump_field_ext ( 5, "net-num2", COB_SET_FLD (f0, 14, b_56 + 116, &a_43), 0, 0);
+  cob_dump_field_ext ( 5, "net-num3", COB_SET_FLD (f0, 14, b_56 + 130, &a_44), 0, 0);
+  cob_dump_field_ext ( 5, "net-num4", COB_SET_FLD (f0, 16, b_56 + 144, &a_45), 0, 0);
+  cob_dump_field_ext ( 0, "x-idx", COB_SET_FLD (f0, 4, (cob_u8_t *)&b_64, &a_46), 0, 0);
+  {
+    int i_1;
+    int max_1 = (*(cob_s8_ptr) (b_17 + 63));
+    if (max_1 > 5) max_1 = 5;
+    for (i_1=0; i_1 < max_1; i_1++)
+    {
+      cob_dump_field_ext ( 1, "FILLER", COB_SET_FLD (f0, 3, b_63, &a_47), 0, 1, i_1, 3UL); /* OCCURS 2 5 */
+      cob_dump_field_ext ( 3, "x-basis", COB_SET_FLD (f0, 3, b_63, &a_47), 0, 1, i_1, 3UL);
+      cob_dump_field_ext ( 5, "x-a", COB_SET_FLD (f0, 1, b_63, &a_48), 0, 1, i_1, 3UL);
+      cob_dump_field_ext ( 5, "x-b", COB_SET_FLD (f0, 1, b_63 + 1, &a_48), 0, 1, i_1, 3UL);
+      cob_dump_field_ext ( 5, "x-c", COB_SET_FLD (f0, 1, b_63 + 2, &a_48), 0, 1, i_1, 3UL);
+      /* cob_dump_field_ext ( 3, "FILLER", COB_SET_FLD (f0, 3, b_63, &a_48), 0, 1, i_1, 3UL); REDEFINES */
+      /* cob_dump_field_ext (88, "sw-x-basis-full", COB_SET_FLD (f0, 3, b_63, &a_48), 0, 1, i_1, 3UL); VALUE (cob_field *)&c_18 */
+    }
+  }
+  cob_dump_field_ext ( 1, "x-rms", COB_SET_FLD (f0, 1, b_71, &a_47), 0, 0);
+  cob_dump_field_ext ( 5, "x-rms-a", COB_SET_FLD (f0, 1, b_71, &a_48), 0, 0);
+  /* cob_dump_field_ext ( 1, "FILLER", COB_SET_FLD (f0, 1, b_71, &a_48), 0, 0); REDEFINES */
+  /* cob_dump_field_ext (88, "sw-x-rms-full", COB_SET_FLD (f0, 1, b_71, &a_48), 0, 0); VALUE (cob_field *)&c_19 OR (cob_field *)&c_20 OR (cob_field *)&c_21 THRU (cob_field *)&c_22 OR (cob_field *)&c_20 OR &cob_all_quote */
+
+  /* Dump LOCAL-STORAGE SECTION */
+  cob_dump_output ("LOCAL-STORAGE");
+  cob_dump_field_ext ( 1, "var1", COB_SET_FLD (f0, 1, cob_local_ptr, &a_48), 0, 0);
+  cob_dump_field_ext ( 1, "var2", COB_SET_FLD (f0, 2, cob_local_ptr + 16, &a_47), 0, 0);
+  cob_dump_field_ext ( 3, "var2a", COB_SET_FLD (f0, 1, cob_local_ptr + 16, &a_48), 0, 0);
+  cob_dump_field_ext ( 3, "var2b", COB_SET_FLD (f0, 1, cob_local_ptr + 16 + 1, &a_52), 0, 0);
+  /* cob_dump_field_ext (88, "yay", COB_SET_FLD (f0, 1, cob_local_ptr + 16 + 1, &a_52), 0, 0); VALUE &cob_all_zero OR (cob_field *)&c_23 THRU (cob_field *)&c_24 OR (cob_field *)&c_25 */
+
+  cob_dump_output ("END OF DUMP - debugme");
+])
+
+AT_CHECK([COBC_GEN_DUMP_COMMENTS=1 \
+  $COMPILE -C -w prog.cob], [0], [])
+# TODO: only execute this piece when extended $GREP works
+AT_CHECK([($GREP -A 200 "P_dump:" prog.c | $GREP -B 200 "END OF DUMP") || exit 77], [0],
+[  P_dump:
+  /* Dump WORKING-STORAGE (informational) */
+  /* cob_dump_output ("WORKING-STORAGE"); */
+  /* cob_dump_field_ext (77, "RETURN-CODE", COB_SET_FLD (f0, 4, (cob_u8_t *)&b_2, &a_46), 0, 0); */
+  /* cob_dump_field_ext ( 1, "numeric-data", COB_SET_FLD (f0, 93, b_17, &a_47), 0, 0); */
+  /* cob_dump_field_ext ( 5, "disp", COB_SET_FLD (f0, 5, b_17, &a_2), 0, 0); */
+  /* cob_dump_field_ext ( 5, "disp-u", COB_SET_FLD (f0, 5, b_17 + 5, &a_4), 0, 0); */
+  /* cob_dump_field_ext ( 5, "dispp", COB_SET_FLD (f0, 4, b_17 + 10, &a_6), 0, 0); */
+  /* cob_dump_field_ext ( 5, "dispp-u", COB_SET_FLD (f0, 4, b_17 + 14, &a_8), 0, 0); */
+  /* cob_dump_field_ext ( 5, "disppp", COB_SET_FLD (f0, 4, b_17 + 18, &a_10), 0, 0); */
+  /* cob_dump_field_ext ( 5, "disppp-u", COB_SET_FLD (f0, 4, b_17 + 22, &a_12), 0, 0); */
+  /* cob_dump_field_ext ( 5, "bin", COB_SET_FLD (f0, 4, b_17 + 26, &a_13), 0, 0); */
+  /* cob_dump_field_ext ( 5, "bin-u", COB_SET_FLD (f0, 4, b_17 + 30, &a_14), 0, 0); */
+  /* cob_dump_field_ext ( 5, "cmp3", COB_SET_FLD (f0, 3, b_17 + 34, &a_15), 0, 0); */
+  /* cob_dump_field_ext ( 5, "cmp3-u", COB_SET_FLD (f0, 3, b_17 + 37, &a_16), 0, 0); */
+  /* cob_dump_field_ext ( 5, "cmp5", COB_SET_FLD (f0, 4, b_17 + 40, &a_17), 0, 0); */
+  /* cob_dump_field_ext ( 5, "cmp5-u", COB_SET_FLD (f0, 4, b_17 + 44, &a_18), 0, 0); */
+  /* cob_dump_field_ext ( 5, "cmp6", COB_SET_FLD (f0, 3, b_17 + 48, &a_19), 0, 0); */
+  /* cob_dump_field_ext ( 5, "cmpx", COB_SET_FLD (f0, 3, b_17 + 51, &a_20), 0, 0); */
+  /* cob_dump_field_ext ( 5, "cmpx-u", COB_SET_FLD (f0, 3, b_17 + 54, &a_21), 0, 0); */
+  /* cob_dump_field_ext ( 5, "cmpn", COB_SET_FLD (f0, 3, b_17 + 57, &a_20), 0, 0); */
+  /* cob_dump_field_ext ( 5, "cmpn-u", COB_SET_FLD (f0, 3, b_17 + 60, &a_21), 0, 0); */
+  /* cob_dump_field_ext ( 5, "chr", &f_35, 0, 0); */
+  /* cob_dump_field_ext ( 5, "chr-u", COB_SET_FLD (f0, 1, b_17 + 64, &a_25), 0, 0); */
+  /* cob_dump_field_ext ( 5, "shrt", COB_SET_FLD (f0, 2, b_17 + 65, &a_27), 0, 0); */
+  /* cob_dump_field_ext ( 5, "shrt-u", COB_SET_FLD (f0, 2, b_17 + 67, &a_29), 0, 0); */
+  /* cob_dump_field_ext ( 5, "long", COB_SET_FLD (f0, 4, b_17 + 69, &a_31), 0, 0); */
+  /* cob_dump_field_ext ( 5, "long-u", COB_SET_FLD (f0, 4, b_17 + 73, &a_33), 0, 0); */
+  /* cob_dump_field_ext ( 5, "dble", COB_SET_FLD (f0, 8, b_17 + 77, &a_34), 0, 0); */
+  /* cob_dump_field_ext ( 5, "dble-u", COB_SET_FLD (f0, 8, b_17 + 85, &a_35), 0, 0); */
+  /* cob_dump_field_ext ( 1, "floating-data", COB_SET_FLD (f0, 12, b_43, &a_47), 0, 0); */
+  /* cob_dump_field_ext ( 5, "dbl", COB_SET_FLD (f0, 8, b_43, &a_37), 0, 0); */
+  /* cob_dump_field_ext ( 5, "flt", COB_SET_FLD (f0, 4, b_43 + 8, &a_39), 0, 0); */
+  /* cob_dump_field_ext ( 1, "special-data", COB_SET_FLD (f0, 1, b_47, &a_47), 0, 0); */
+  /* cob_dump_field_ext ( 5, "r2d2", COB_SET_FLD (f0, 1, b_47, &a_41), 0, 0); */
+  /* cob_dump_field_ext ( 1, "alphanumeric-data", COB_SET_FLD (f0, 101, b_49, &a_47), 0, 0); */
+  /* cob_dump_field_ext ( 5, "alpnum", COB_SET_FLD (f0, 36, b_49, &a_48), 0, 0); */
+  /* cob_dump_field_ext ( 5, "alpha", COB_SET_FLD (f0, 36, b_49 + 36, &a_48), 0, 0); */
+  /* cob_dump_field_ext ( 5, "edit-num1", COB_SET_FLD (f0, 7, b_49 + 72, &a_42), 0, 0); */
+  /* cob_dump_field_ext ( 5, "edit-num2", COB_SET_FLD (f0, 7, b_49 + 79, &a_43), 0, 0); */
+  /* cob_dump_field_ext ( 5, "edit-num3", COB_SET_FLD (f0, 7, b_49 + 86, &a_44), 0, 0); */
+  /* cob_dump_field_ext ( 5, "edit-num4", COB_SET_FLD (f0, 8, b_49 + 93, &a_45), 0, 0); */
+  /* cob_dump_field_ext ( 1, "national-data", COB_SET_FLD (f0, 160, b_56, &a_47), 0, 0); */
+  /* cob_dump_field_ext ( 5, "nat", COB_SET_FLD (f0, 72, b_56, &a_49), 0, 0); */
+  /* cob_dump_field_ext ( 5, "nat-num", COB_SET_FLD (f0, 30, b_56 + 72, &a_50), 0, 0); */
+  /* cob_dump_field_ext ( 5, "net-num1", COB_SET_FLD (f0, 14, b_56 + 102, &a_42), 0, 0); */
+  /* cob_dump_field_ext ( 5, "net-num2", COB_SET_FLD (f0, 14, b_56 + 116, &a_43), 0, 0); */
+  /* cob_dump_field_ext ( 5, "net-num3", COB_SET_FLD (f0, 14, b_56 + 130, &a_44), 0, 0); */
+  /* cob_dump_field_ext ( 5, "net-num4", COB_SET_FLD (f0, 16, b_56 + 144, &a_45), 0, 0); */
+  /* cob_dump_field_ext ( 0, "x-idx", COB_SET_FLD (f0, 4, (cob_u8_t *)&b_64, &a_46), 0, 0); */
+  {
+    /* int max_1 = (*(cob_s8_ptr) (b_17 + 63)); */
+    {
+      /* cob_dump_field_ext ( 1, "FILLER", COB_SET_FLD (f0, 3, b_63, &a_47), 0, 1, i_1, 3UL); OCCURS 2 5 */
+      /* cob_dump_field_ext ( 3, "x-basis", COB_SET_FLD (f0, 3, b_63, &a_47), 0, 1, i_1, 3UL); */
+      /* cob_dump_field_ext ( 5, "x-a", COB_SET_FLD (f0, 1, b_63, &a_48), 0, 1, i_1, 3UL); */
+      /* cob_dump_field_ext ( 5, "x-b", COB_SET_FLD (f0, 1, b_63 + 1, &a_48), 0, 1, i_1, 3UL); */
+      /* cob_dump_field_ext ( 5, "x-c", COB_SET_FLD (f0, 1, b_63 + 2, &a_48), 0, 1, i_1, 3UL); */
+      /* cob_dump_field_ext ( 3, "FILLER", COB_SET_FLD (f0, 3, b_63, &a_48), 0, 1, i_1, 3UL); REDEFINES */
+      /* cob_dump_field_ext (88, "sw-x-basis-full", COB_SET_FLD (f0, 3, b_63, &a_48), 0, 1, i_1, 3UL); VALUE (cob_field *)&c_18 */
+    }
+  }
+  /* cob_dump_field_ext ( 1, "x-rms", COB_SET_FLD (f0, 1, b_71, &a_47), 0, 0); */
+  /* cob_dump_field_ext ( 5, "x-rms-a", COB_SET_FLD (f0, 1, b_71, &a_48), 0, 0); */
+  /* cob_dump_field_ext ( 1, "FILLER", COB_SET_FLD (f0, 1, b_71, &a_48), 0, 0); REDEFINES */
+  /* cob_dump_field_ext (88, "sw-x-rms-full", COB_SET_FLD (f0, 1, b_71, &a_48), 0, 0); VALUE (cob_field *)&c_19 OR (cob_field *)&c_20 OR (cob_field *)&c_21 THRU (cob_field *)&c_22 OR (cob_field *)&c_20 OR &cob_all_quote */
+
+  /* Dump LOCAL-STORAGE SECTION (informational) */
+  /* cob_dump_output ("LOCAL-STORAGE"); */
+  /* cob_dump_field_ext ( 1, "var1", COB_SET_FLD (f0, 1, cob_local_ptr, &a_48), 0, 0); */
+  /* cob_dump_field_ext ( 1, "var2", COB_SET_FLD (f0, 2, cob_local_ptr + 16, &a_47), 0, 0); */
+  /* cob_dump_field_ext ( 3, "var2a", COB_SET_FLD (f0, 1, cob_local_ptr + 16, &a_48), 0, 0); */
+  /* cob_dump_field_ext ( 3, "var2b", COB_SET_FLD (f0, 1, cob_local_ptr + 16 + 1, &a_52), 0, 0); */
+  /* cob_dump_field_ext (88, "yay", COB_SET_FLD (f0, 1, cob_local_ptr + 16 + 1, &a_52), 0, 0); VALUE &cob_all_zero OR (cob_field *)&c_23 THRU (cob_field *)&c_24 OR (cob_field *)&c_25 */
+
+  /* cob_dump_output ("END OF DUMP - debugme"); */
+])
+
+AT_CHECK([$COMPILE -C -w prog.cob], [0], [])
+# TODO: only execute this piece when extended $GREP works
+AT_CHECK([($GREP -A 200 "P_dump:" prog.c | $GREP -B 200 " CANCEL ") || exit 77], [0],
+[  P_dump:
+    return 0;
+
+
+  /* CANCEL callback handling */
+])
+AT_CLEANUP
+
+
+AT_SETUP([CONTROL DIVISION])
+AT_KEYWORDS([control gcos])
+
+AT_DATA([empty.cob], [
+       CONTROL          DIVISION.
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      empty.
+])
+
+AT_CHECK([$COMPILE_ONLY -fcontrol-division=ok empty.cob], [0], [], [])
+
+AT_DATA([replace.cob], [
+       CONTROL          DIVISION.
+       SUBSTITUTION     SECTION.
+           REPLACE ==TEST-VAR== BY ==VAR==.
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      replace.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 TEST-VAR PIC X(2) VALUE "OK".
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -fcontrol-division=ok replace.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./replace], [0], [OK], [])
+AT_CHECK([$COMPILE replace.cob], [1], [],
+[replace.cob:2: error: CONTROL DIVISION does not conform to GnuCOBOL
+])
+
+AT_DATA([replace.cob], [
+       CONTROL          DIVISION.
+       REPLACE ==TEST-VAR== BY ==VAR==.
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      replace.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 TEST-VAR PIC X(2) VALUE "OK".
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -fcontrol-division=ok replace.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./replace], [0], [OK], [])
+
+AT_CLEANUP
+
+
+AT_SETUP([CONTROL: empty default section])
+AT_KEYWORDS([control gcos])
+
+AT_DATA([prog.cob], [
+       CONTROL		DIVISION.
+       DEFAULT		SECTION.
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 VAR PIC X(2) VALUE "OK".
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -fcontrol-division=ok prog.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [OK], [])
+AT_CHECK([$COMPILE prog.cob], [1], [],
+[prog.cob:2: error: CONTROL DIVISION does not conform to GnuCOBOL
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([CONTROL: default section])
+AT_KEYWORDS([control gcos])
+
+AT_DATA([prog.cob], [
+       CONTROL		DIVISION.
+       DEFAULT		SECTION.
+           ACCEPT ALTERNATE CONSOLE
+           DISPLAY IS TERMINAL
+	   .
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 VAR PIC X(2) VALUE "OK".
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -fcontrol-division=ok prog.cob], [0], [],
+[prog.cob:4: warning: ACCEPT statement in DEFAULT SECTION is not implemented
+prog.cob:5: warning: DISPLAY statement in DEFAULT SECTION is not implemented
+])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [OK], [])
+AT_CHECK([$COMPILE prog.cob], [1], [],
+[prog.cob:2: error: CONTROL DIVISION does not conform to GnuCOBOL
+prog.cob:4: warning: ACCEPT statement in DEFAULT SECTION is not implemented
+prog.cob:5: warning: DISPLAY statement in DEFAULT SECTION is not implemented
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([CONTROL: substitution & default section])
+AT_KEYWORDS([control gcos])
+
+AT_DATA([empties.cob], [
+       CONTROL		DIVISION.
+       SUBSTITUTION	SECTION.
+       DEFAULT		SECTION.
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      empties.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -fcontrol-division=ok empties.cob], [0], [], [])
+
+AT_DATA([empty0.cob], [
+       CONTROL		DIVISION.
+       SUBSTITUTION	SECTION.
+       DEFAULT		SECTION.
+           ACCEPT ALTERNATE CONSOLE
+	   .
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      empty0.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -fcontrol-division=ok empty0.cob], [0], [],
+[empty0.cob:5: warning: ACCEPT statement in DEFAULT SECTION is not implemented
+])
+
+AT_DATA([empty1.cob], [
+       CONTROL		DIVISION.
+       SUBSTITUTION	SECTION.
+           REPLACE "KO" BY "OK".
+       DEFAULT		SECTION.
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      empty1.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 VAR PIC X(2) VALUE "KO".
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -fcontrol-division=ok empty1.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./empty1], [0], [OK], [])
+
+AT_DATA([prog.cob], [
+       CONTROL		DIVISION.
+       SUBSTITUTION	SECTION.
+           REPLACE IISS BY IS
+	           TERM BY TERMINAL
+	           "KO" BY "OK".
+       DEFAULT		SECTION.
+           ACCEPT ALTERNATE CONSOLE
+           DISPLAY IISS TERM
+	   .
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 VAR PIC X(2) VALUE "KO".
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -fcontrol-division=ok prog.cob], [0], [],
+[prog.cob:8: warning: ACCEPT statement in DEFAULT SECTION is not implemented
+prog.cob:9: warning: DISPLAY statement in DEFAULT SECTION is not implemented
+])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [OK], [])
+
+AT_CLEANUP
+
+
+AT_SETUP([CONTROL DIVISION & AREACHECK])
+AT_KEYWORDS([gcos])
+
+AT_DATA([prog.cob], [
+       CONTROL          DIVISION.
+       SUBSTITUTION     SECTION.
+      *> This REPLACE in Area A is ignored for now:
+          REPLACE IISS BY IS
+                  TERM BY TERMINAL
+                  "KO" BY "OK".
+       DEFAULT          SECTION.
+          ACCEPT ALTERNATE CONSOLE
+          DISPLAY IISS TERM
+       .
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 VAR PIC X(2) VALUE "KO".
+       PROCEDURE        DIVISION.
+          DISPLAY VAR
+          STOP RUN.
+])
+
+AT_CHECK([$COMPILE -std=gcos-strict prog.cob], [0], [],
+[prog.cob:9: warning: start of statement in Area A
+prog.cob:9: warning: ACCEPT statement in DEFAULT SECTION is not implemented
+prog.cob:10: warning: start of statement in Area A
+prog.cob:10: warning: DISPLAY statement in DEFAULT SECTION is not implemented
+prog.cob:18: warning: start of statement in Area A
+prog.cob:19: warning: start of statement in Area A
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([PICTURE L])
+AT_KEYWORDS([extensions gcos picture-l])
+
+AT_DATA([prog_extraneous_depending.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog_extraneous_depending.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       1 L              COMP-1.
+       1 F-DAT          PICTURE X(10) DEPENDING ON L.
+       PROCEDURE        DIVISION.
+           MOVE SPACES TO F-DAT
+           STOP RUN.
+])
+AT_CHECK([$COMPILE_ONLY prog_extraneous_depending.cob], [1], [],
+[prog_extraneous_depending.cob:7: error: DEPENDING clause needs either an OCCURS clause or a variable-length PICTURE
+])
+
+AT_DATA([prog_missing_depending.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog_missing_depending.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       1 F-DAT          PICTURE LX(10).
+       PROCEDURE        DIVISION.
+           MOVE SPACES TO F-DAT
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE_ONLY prog_missing_depending.cob], [1], [],
+[prog_missing_depending.cob:6: error: variable-length PICTURE requires DEPENDING clause
+])
+
+AT_DATA([prog_value.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog_value.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       1 L              COMP-1 VALUE 10.
+       1 F-DAT          PICTURE LX(10) DEPENDING ON L
+                        VALUE "0123456789".
+       1 F-DAT2         PICTURE LX(10) DEPENDING ON L
+                        BLANK WHEN ZERO.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+AT_CHECK([$COMPILE_ONLY prog_value.cob], [1], [],
+[prog_value.cob:7: error: variable-length PICTURE and VALUE are mutually exclusive
+prog_value.cob:9: error: 'F-DAT2' cannot have BLANK WHEN ZERO clause
+])
+
+AT_DATA([prog_errs.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog_errs.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       1 W-LGS.
+         2 LGS          PICTURE X(10).
+       1 W-DATA.
+         2 L-DAT        PICTURE LX(10)    DEPENDING ON LGS.
+         2 L-ERR1       PICTURE L9        DEPENDING ON LGS.
+         2 L-ERR2       PICTURE XXXXLA(2) DEPENDING ON LGS.
+         2 L-ERR3       PICTURE LX(1)     DEPENDING ON LGS JUSTIFIED.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE_ONLY prog_errs.cob], [1], [],
+[prog_errs.cob:10: error: only USAGE DISPLAY may specify a variable-length PICTURE
+prog_errs.cob:11: error: L must be at start of PICTURE string
+prog_errs.cob:11: error: L cannot follow A or X
+prog_errs.cob:11: error: only USAGE DISPLAY may specify a variable-length PICTURE
+prog_errs.cob:12: error: 'L-ERR3' cannot have JUSTIFIED RIGHT clause
+prog_errs.cob:9: error: 'LGS' is not numeric
+prog_errs.cob:12: error: 'LGS' is not numeric
+])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       1 LGS            PICTURE 9(10).
+       1 L-DAT          PICTURE LX(10) DEPENDING ON LGS.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE_ONLY -fpicture-l=warning prog.cob], [0], [],
+[prog.cob:7: warning: PICTURE string with 'L' character used
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([AREACHECK / NOAREACHECK directives])
+AT_KEYWORDS([misc directive CONTINUE])
+
+ # note: the following does an _extra_ check for the CONTINUE
+ # statement, as this internally is post-created (= on the next token)
+ # and therefore keeps its starting position "extra",
+ # see parser.y (begin_statement_at_tree_pos)
+
+AT_DATA([prog.cob], [
+       $SET NO-AREA-CHECK
+       IDENTIFICATION  DIVISION.
+       PROGRAM-ID.     prog.
+       DATA            DIVISION.
+       WORKING-STORAGE SECTION.
+       PROCEDURE       DIVISION.
+       MAIN-1 SECTION.
+       DISPLAY "SOMETHING".
+       $SET AREA-CHECK
+       MAIN-2 SECTION.
+           CONTINUE.
+       CONTINUE.
+       DISPLAY "SOMETHING ELSE"
+       STOP RUN.
+])
+
+AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [1], [],
+[prog.cob: in section 'MAIN-2':
+prog.cob:13: error: start of statement in Area A
+prog.cob:14: error: start of statement in Area A
+prog.cob:15: error: start of statement in Area A
+])
+AT_CHECK([$COMPILE_ONLY -std=cobol85 -frelax-syntax-checks prog.cob], [0], [],
+[prog.cob: in section 'MAIN-2':
+prog.cob:13: warning: start of statement in Area A
+prog.cob:14: warning: start of statement in Area A
+prog.cob:15: warning: start of statement in Area A
+])
+
+AT_CLEANUP
+
+AT_SETUP([AREACHECK / NOAREACHECK directives (2)])
+AT_KEYWORDS([misc directive missing-periods])
+
+AT_DATA([prog.cob], [
+       $SET NOAREACHECK
+       IDENTIFICATION  DIVISION.
+       PROGRAM-ID.     prog.
+       DATA            DIVISION.
+       $SET AREACHECK
+       WORKING-STORAGE SECTION.
+       01 X.
+           02 Y PIC X.
+           01 Z PIC X
+       01 T PIC 9.
+       $SET NOAREACHECK
+       PROCEDURE       DIVISION.
+       MAIN-1 SECTION.
+       DISPLAY "SOMETHING"
+       $SET AREACHECK
+       MAIN-2 SECTION.
+       DISPLAY "SOMETHING ELSE"
+       STOP RUN.
+])
+
+AT_CHECK([$COMPILE_ONLY -std=cobol85 prog.cob], [1], [],
+[prog.cob:10: error: '01' should start in Area A
+prog.cob:11: error: optional period used
+prog.cob: in section 'MAIN-1':
+prog.cob:17: error: optional period used
+prog.cob: in section 'MAIN-2':
+prog.cob:18: error: start of statement in Area A
+prog.cob:19: error: start of statement in Area A
+])
+AT_CHECK([$COMPILE_ONLY -std=cobol85 -fmissing-period=ok prog.cob], [1], [],
+[prog.cob:10: error: '01' should start in Area A
+prog.cob: in section 'MAIN-2':
+prog.cob:18: error: start of statement in Area A
+prog.cob:19: error: start of statement in Area A
+])
+AT_CHECK([$COMPILE_ONLY -fformat=cobol85 prog.cob], [1], [],
+[prog.cob:10: error: '01' should start in Area A
+prog.cob:11: warning: optional period used
+prog.cob: in section 'MAIN-1':
+prog.cob:17: warning: optional period used
+prog.cob: in section 'MAIN-2':
+prog.cob:18: error: start of statement in Area A
+prog.cob:19: error: start of statement in Area A
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([optional dots])
+AT_KEYWORDS([misc missing-periods])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION  DIVISION
+       PROGRAM-ID.     prog.
+       DATA            DIVISION
+       WORKING-STORAGE SECTION.
+       01 X PIC X.
+       01 Y PIC X.
+       PROCEDURE       DIVISION.
+       MAIN SECTION.
+           PERFORM P
+           STOP RUN.
+       P.
+           GOBACK
+])
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
+[prog.cob:3: warning: optional period used
+prog.cob:5: warning: optional period used
+prog.cob: in section 'MAIN':
+prog.cob: in paragraph 'P':
+prog.cob:14: warning: optional period used
+])
+
+AT_DATA([cobol85.cob], [
+       IDENTIFICATION  DIVISION
+       PROGRAM-ID.     cobol85.
+       DATA            DIVISION
+       WORKING-STORAGE SECTION
+       01 X PIC X *> dot optional here because of cobol85 format
+       01 Y PIC X.
+       PROCEDURE       DIVISION.
+       MAIN SECTION.
+           PERFORM P
+           STOP RUN *> dot optional here because of cobol85 format
+       P.
+           GOBACK
+])
+
+AT_CHECK([$COMPILE_ONLY -fformat=cobol85 cobol85.cob], [0], [],
+[cobol85.cob:3: warning: optional period used
+cobol85.cob:5: warning: optional period used
+cobol85.cob:6: warning: optional period used
+cobol85.cob:7: warning: optional period used
+cobol85.cob: in section 'MAIN':
+cobol85.cob:12: warning: optional period used
+cobol85.cob: in paragraph 'P':
+cobol85.cob:14: warning: optional period used
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([optional dots before PROCEDURE DIVISION])
+AT_KEYWORDS([misc missing-periods])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION
+       PROGRAM-ID. prog.
+       DATA DIVISION
+       WORKING-STORAGE SECTION
+       77 PMODE   PIC X
+       PROCEDURE DIVISION.
+          STOP RUN.
+])
+
+# The syntax error below is hard to avoid, and can be missleading.
+# The error is actually on the `77`, which is only parsed as a
+# LEVEL_NUMBER if the preceding token is a `.`.
+#
+# TODO: To avoid this, we need to unput the WORD/Literal when dealing
+# with optional periods outside of PROCEDURE DIVISION, and ensure it
+# is reparsed as a LEVEL_NUMBER.
+AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
+[prog.cob:3: warning: optional period used
+prog.cob:5: warning: optional period used
+prog.cob:6: error: syntax error, unexpected Literal
+])
+
+# Here the AREACHECK helps us recover from all missing periods
+AT_CHECK([$COMPILE_ONLY -fformat=cobol85 prog.cob], [0], [],
+[prog.cob:3: warning: optional period used
+prog.cob:5: warning: optional period used
+prog.cob:6: warning: optional period used
+prog.cob:7: warning: optional period used
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([AREACHECK])
+AT_KEYWORDS([misc])
+
+AT_DATA([pgm1.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PGM1.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+       SELECT FILE01 ASSIGN "file01.dat".
+       DATA DIVISION.
+       FILE SECTION.
+       FD FILE01.
+       01 RECORD-FILE01 PIC X(50).
+       WORKING-STORAGE SECTION.
+       01 W-DATA01.
+      * 02 items may still lie in Area A for now:
+       02 W-CH01       PIC X(10).
+       PROCEDURE DIVISION.
+       MAIN-PROCEDURE.
+       DISPLAY "Hello"
+           STOP RUN
+           .
+       END PROGRAM PGM1.
+])
+
+AT_CHECK([$COMPILE_ONLY -std=mvs pgm1.cob], [0], [],
+[pgm1.cob:7: warning: start of statement in Area A
+pgm1.cob: in paragraph 'MAIN-PROCEDURE':
+pgm1.cob:18: warning: start of statement in Area A
+])
+
+AT_CHECK([$COMPILE_ONLY -std=mvs-strict pgm1.cob], [1], [],
+[pgm1.cob:7: error: start of statement in Area A
+pgm1.cob: in paragraph 'MAIN-PROCEDURE':
+pgm1.cob:18: error: start of statement in Area A
+])
+
+AT_CLEANUP
+
+AT_SETUP([autodetect format])
+AT_KEYWORDS([cobc free fixed format])
+
+AT_DATA([free.cob], [
+  IDENTIFICATION   DIVISION.
+  PROGRAM-ID.      prog.
+  PROCEDURE        DIVISION.
+     DISPLAY "OK" NO ADVANCING
+     END-DISPLAY.
+     STOP RUN.
+])
+
+AT_DATA([fixed1.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+      * this is a comment
+       PROCEDURE        DIVISION.
+          DISPLAY "OK" NO ADVANCING
+          END-DISPLAY.
+          STOP RUN.
+])
+
+AT_DATA([fixed2.cob], [
+      * this is a comment
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       PROCEDURE        DIVISION.
+          DISPLAY "OK" NO ADVANCING
+          END-DISPLAY.
+          STOP RUN.
+])
+
+# Generate source files with DOM
+AT_CHECK([printf '\357\273\277' > header.dom])
+AT_CHECK([cat header.dom free.cob >> domfree.cob])
+AT_CHECK([cat header.dom fixed1.cob >> domfixed.cob])
+
+AT_CHECK([$COMPILE_ONLY -fformat=auto free.cob fixed1.cob fixed2.cob], [0], [],
+[free.cob:2: note: free format detected
+])
+AT_CHECK([$COMPILE_ONLY -fformat=auto domfree.cob domfixed.cob], [0], [],
+[domfree.cob:2: note: free format detected
+])
+
+# In case we decide to have a disabled warning at some point
+# AT_CHECK([$COMPILE_ONLY -fformat=auto -w free.cob fixed1.cob fixed2.cob], [0], [], [])
+# AT_CHECK([$COMPILE_ONLY -fformat=auto -w domfree.cob domfixed.cob], [0], [], [])
+
+AT_CHECK([$COMPILE_ONLY -fformat=fixed free.cob], [1], [],
+[free.cob:2: error: invalid indicator 'T' at column 7
+free.cob:3: error: invalid indicator 'R' at column 7
+free.cob:4: error: invalid indicator 'E' at column 7
+free.cob:5: error: invalid indicator 'I' at column 7
+free.cob:6: error: invalid indicator 'N' at column 7
+free.cob:7: error: invalid indicator 'T' at column 7
+free.cob:8: error: PROGRAM-ID header missing
+])
+
+AT_CHECK([$COMPILE_ONLY -fformat=fixed domfree.cob], [1], [],
+[domfree.cob:2: error: invalid indicator 'T' at column 7
+domfree.cob:3: error: invalid indicator 'R' at column 7
+domfree.cob:4: error: invalid indicator 'E' at column 7
+domfree.cob:5: error: invalid indicator 'I' at column 7
+domfree.cob:6: error: invalid indicator 'N' at column 7
+domfree.cob:7: error: invalid indicator 'T' at column 7
+domfree.cob:8: error: PROGRAM-ID header missing
+])
+
+AT_CHECK([$COMPILE_ONLY -fformat=fixed fixed1.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -fformat=fixed fixed2.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -fformat=fixed domfixed.cob], [0], [], [])
+
+AT_CLEANUP
+
+AT_SETUP([context sensitive alias])
+AT_KEYWORDS([misc context alias])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  XX  PIC 9.
+       01  X            CONSTANT AS XX OF XX.
+       PROCEDURE        DIVISION.
+           MOVE X TO XX.
+           DISPLAY XX NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE -freserved="XX*=BYTE-LENGTH" prog.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [1])
+
+AT_CLEANUP
 

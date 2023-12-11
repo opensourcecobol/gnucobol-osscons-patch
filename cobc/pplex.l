@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2001-2012, 2014-2020 Free Software Foundation, Inc.
+   Copyright (C) 2001-2012, 2014-2023 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch, Dave Pitts
 
    This file is part of GnuCOBOL.
@@ -73,7 +73,7 @@ static int ppwrap (void) {
 	requires_listing_line = 1;					\
 	comment_allowed = 1;
 
-#include <config.h>
+#include "config.h"
 
 #ifdef	HAVE_UNISTD_H
 #include <unistd.h>
@@ -83,11 +83,15 @@ static int ppwrap (void) {
 #include <ctype.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <string.h>
+#ifdef	HAVE_STRINGS_H
+#include <strings.h>
+#endif
 
 #define	COB_IN_PPLEX	1
 #include "cobc.h"
 #include "tree.h"
-#include <ppparse.h>
+#include "ppparse.h"
 
 #ifdef	_WIN32
 #include <io.h>	/* for access */
@@ -124,7 +128,6 @@ struct plex_stack {
 
 /* Global variables */
 
-
 /* Local variables */
 static char			*plexbuff1 = NULL;
 static char			*plexbuff2 = NULL;
@@ -139,17 +142,20 @@ static size_t			comment_allowed;
 static unsigned int		plex_skip_input = 0;
 static unsigned int		plex_nest_depth = 0;
 static int			quotation_mark = 0;
+static int			echo_newline = 0;
 static int			listing_line = 0;
 static int			requires_listing_line;
-static int			requires_new_line = 0;
+static enum cb_format		source_format = CB_FORMAT_AUTO;
+static int	indicator_column = 7;
+static int	text_column = 72;	   /* end of area B (in single-byte
+					      characters) */
+static int	floating_area_b = 0;	   /* whether indicator is optional */
+static int	fill_continued_alnums = 1; /* whether continued alphanumeric
+					      literals should be filled with
+					      spaces up to text column */
+static int	emit_area_a_tokens = 0;
 
 static char	display_msg[PPLEX_BUFF_LEN];
-
-static struct cb_replace_list	*current_replace_list = NULL;
-static struct cb_replace_list	*save_current_replace = NULL;
-static struct cb_replace_list	*base_replace_list = NULL;
-
-static struct cb_text_list	*text_queue = NULL;
 
 static struct copy_info		*copy_stack = NULL;
 
@@ -157,28 +163,41 @@ static struct plex_stack	plex_cond_stack[PLEX_COND_DEPTH];
 
 /* Function declarations */
 static int	ppinput			(char *, const size_t);
-static void	ppecho			(const char *, const cob_u32_t,
-					 const int);
-static void	ppecho_direct			(const char *);
+static void	ppecho                  (const char *text, const char *token );
+
 static void	switch_to_buffer	(const int, const char *,
 					 const YY_BUFFER_STATE);
 static void	check_listing		(const char *, const unsigned int);
 static void	skip_to_eol		(void);
+static void	count_newlines		(const char *);
 static void	display_finish		(void);
-static void	set_print_replace_list	(struct cb_replace_list *list);
 static void	get_new_listing_file	(void);
+static void	output_pending_newlines	(FILE *);
+
+static struct cb_text_list	*pp_text_list_add (struct cb_text_list *,
+					 const char *, const size_t);
 
 %}
 
 WORD		[_0-9A-Z\x80-\xFF-]+
 NUMRIC_LITERAL	[+-]?[0-9,.]*[0-9]
-ALNUM_LITERAL	"\""[^""\n]*"\""|"\'"[^''\n]*"\'"
+ALNUM_LITERAL_Q	"\""([^""\n]|("\""[0-9][0-9, ]*"\""))*"\""
+ALNUM_LITERAL_A	"\'"([^''\n]|("\'"[0-9][0-9, ]+"\'"))*"\'"
+ALNUM_LITERAL	{ALNUM_LITERAL_Q}|{ALNUM_LITERAL_A}
 SET_PAREN_LIT	\([^()\n]*\)
 DEFNUM_LITERAL	[+-]?[0-9]*[\.]*[0-9]+
 
+AREA_A		[ ]?#
+MAYBE_AREA_A	[ ]?#?
+
 %x CALL_DIRECTIVE_STATE
+%x COBOL_WORDS_DIRECTIVE_STATE
 %x COPY_STATE
+%x REPLACING_STATE
 %x PSEUDO_STATE
+%x REPLACE_STATE
+%x CONTROL_DIVISION_STATE
+%x SUBSTITUTION_SECTION_STATE
 %x SOURCE_DIRECTIVE_STATE
 %x DEFINE_DIRECTIVE_STATE
 %x ON_OFF_DIRECTIVE_STATE
@@ -200,32 +219,42 @@ DEFNUM_LITERAL	[+-]?[0-9]*[\.]*[0-9]+
 	/* 2002+: inline comment */
 	#if	0	/* RXWRXW - Directive state */
 	if (YY_START != DIRECTIVE_STATE && YY_START != SET_DIRECTIVE_STATE) {
-		ppecho (" ", 0, 1);
+		ppecho (" ", NULL);
 	}
 	#endif
 }
 
-^[ ]*">>"[ ]?"DEFINE"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"COBOL-WORDS"	{
+	/* 202x+: directive for setting source format */
+	BEGIN COBOL_WORDS_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
+	return COBOL_WORDS_DIRECTIVE;
+}
+
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"DEFINE"	{
 	/* 2002+: definition of compiler constants display message during compilation */
 	/* Define here to preempt next debug rule below */
 	BEGIN DEFINE_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return DEFINE_DIRECTIVE;
 }
 
-^[ ]*">>"[ ]?"DISPLAY"[ ]+ {
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"DISPLAY"[ ]+ {
 	/* previous OpenCOBOL/GnuCOBOL 2.x extension, added in COBOL 202x with slightly different syntax:
 	   display message during compilation --> needs a dialect option to switch to the appropriate state */
 	display_msg[0] = 0;
+	output_pending_newlines (ppout);
 	BEGIN DISPLAY_DIRECTIVE_STATE;
 }
 
-^[ ]*">>"[ ]?"REF-MOD-ZERO-LENGTH"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"REF-MOD-ZERO-LENGTH"	{
 	/* 202x: directive to allow zero ref-mod */
 	BEGIN ON_OFF_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return REFMOD_DIRECTIVE;
 }
 
-^[ ]*">>D"		{
+^{MAYBE_AREA_A}[ ]*">>D"		{
 	/* 2002 (only) floating debug line */
 	/* Remove line if debugging lines not activated */
 	/* Otherwise ignore the directive part of the line */
@@ -235,82 +264,92 @@ DEFNUM_LITERAL	[+-]?[0-9]*[\.]*[0-9]+
 	}
 }
 
-^[ ]*">>"[ ]?"PAGE"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"PAGE"	{
 	/* 2002+: listing directive for page eject with optional comment
 	   Note: processed in cobc.c */
 	skip_to_eol ();
 }
 
-^[ ]*">>"[ ]?"LISTING"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"LISTING"	{
 	/* 2002+: listing directive for (de-)activating the listing,
 	   ON implied for empty value
 	   Note: further checks in ppparse.y, processed in cobc.c */
 	BEGIN ON_OFF_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return LISTING_DIRECTIVE;
 }
 
-^[ ]*">>"[ ]?"SOURCE"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"SOURCE"	{
 	/* 2002+: directive for setting source format */
 	BEGIN SOURCE_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return SOURCE_DIRECTIVE;
 }
 
-^[ ]*">>"[ ]?"SET"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"SET"	{
 	/* OpenCOBOL/GnuCOBOL 2.0 extension: MF SET directive in 2002+ style format */
 	BEGIN SET_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return SET_DIRECTIVE;
 }
 
-^[ ]*">>"[ ]?"TURN"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"TURN"	{
 	/* 2002+: directive for (de-)activating exception checks */
 	BEGIN TURN_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return TURN_DIRECTIVE;
 }
 
-^[ ]*">>"[ ]?"IF"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"IF"	{
 	/* 2002+: conditional compilation */
 	BEGIN IF_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return IF_DIRECTIVE;
 }
-^[ ]*">>"[ ]?"ELIF" |
-^[ ]*">>"[ ]?"ELSE-IF"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"ELIF" |
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"ELSE-IF"	{
 	/* OpenCOBOL extension: conditional compilation combined ELSE IF,
 	   2002+ style format */
 	BEGIN IF_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return ELIF_DIRECTIVE;
 }
-^[ ]*">>"[ ]?"ELSE"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"ELSE"	{
 	/* 2002+: conditional compilation */
 	BEGIN ELSE_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return ELSE_DIRECTIVE;
 }
-^[ ]*">>"[ ]?"END-IF"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"END-IF"	{
 	/* 2002+: conditional compilation */
 	BEGIN ENDIF_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return ENDIF_DIRECTIVE;
 }
 
-^[ ]*">>"[ ]?"LEAP-SECOND"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"LEAP-SECOND"	{
 	/* 2002+: more then 60 seconds per minute (currently always set to off),
 	          OFF implied for empty value */
 	BEGIN ON_OFF_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return LEAP_SECOND_DIRECTIVE;
 }
 
-^[ ]*">>"[ ]?"CALL-CONVENTION"	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]?"CALL-CONVENTION"	{
 	/* 2002+: convention for CALL/CANCEL */
 	BEGIN CALL_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return CALL_DIRECTIVE;
 }
 
-^[ ]*">>"[ ]*\n		{
+^{MAYBE_AREA_A}[ ]*">>"[ ]*\n		{
 	/* empty 2002+ style directive */
 	cb_plex_warning (COBC_WARN_FILLER, newline_count,
 			_("ignoring empty directive"));
 	unput ('\n');
 }
 
-^[ ]*">>"[ ]*[_0-9A-Z-]+	{
+^{MAYBE_AREA_A}[ ]*">>"[ ]*[_0-9A-Z-]+	{
 	/* unknown 2002+ style directive */
 	char	*s;
 
@@ -320,57 +359,70 @@ DEFNUM_LITERAL	[+-]?[0-9]*[\.]*[0-9]+
 	skip_to_eol ();
 }
 
-^[ ]*">>"		{
+^{MAYBE_AREA_A}[ ]*">>"		{
 	/* unknown 2002+ style directive */
 	cb_plex_warning (COBC_WARN_FILLER, newline_count,
 			_("ignoring invalid directive"));
 	skip_to_eol ();
 }
 
-^[ ]*"$DISPLAY"[ ]+"VCS"[ ]+"="[ ]+	{
+^{MAYBE_AREA_A}[ ]*"$DISPLAY"[ ]+"VCS"[ ]+"="[ ]+	{
 	/* MF extension: include @(#)text\0 in the object file */
 	/* we just add a warning for now, maybe implement it later */
 	CB_PENDING (_("VCS directive"));
 	skip_to_eol ();
 }
 
-^[ ]*"$DISPLAY"[ ]+		{
+^{MAYBE_AREA_A}[ ]*"$DISPLAY"[ ]+		{
 	/* MF extension: display message during compilation */
 	display_msg[0] = 0;
 	BEGIN DISPLAY_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 }
 
-^[ ]*"$SET"		{
+^{MAYBE_AREA_A}[ ]*$[ \t]*"SET"		{
 	/* MF extension: SET directive */
+	/* TODO: check position of the $SET directive */
 	BEGIN SET_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return SET_DIRECTIVE;
 }
 
-^[ ]*"$IF"		{
+^{MAYBE_AREA_A}[ ]*$[ \t]*"IF"		{
 	/* MF extension: conditional compilation */
 	BEGIN IF_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return IF_DIRECTIVE;
 }
-^[ ]*"$ELIF" |
-^[ ]*"$ELSE-IF"		{
+^{MAYBE_AREA_A}[ ]*$[ \t]*"ELIF" |
+^{MAYBE_AREA_A}[ ]*$[ \t]*"ELSE-IF"		{
 	/* OpenCOBOL/GnuCOBOL 2.0 extension: conditional compilation combined ELSE IF,
 	   MF style format */
 	BEGIN IF_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return ELIF_DIRECTIVE;
 }
-^[ ]*"$ELSE"		{
+^{MAYBE_AREA_A}[ ]*$[ \t]*"ELSE"		{
 	/* MF extension: conditional compilation */
 	BEGIN ELSE_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return ELSE_DIRECTIVE;
 }
-^[ ]*"$END"		|
-^[ ]*"$END-IF"	{
+^{MAYBE_AREA_A}[ ]*$[ \t]*"END"		|
+^{MAYBE_AREA_A}[ ]*$[ \t]*"END-IF"	{
 	/* MF extension: conditional compilation, second undocumented */
 	BEGIN ENDIF_DIRECTIVE_STATE;
+	output_pending_newlines (ppout);
 	return ENDIF_DIRECTIVE;
 }
+^{MAYBE_AREA_A}[ ]*$[ \t]*"REGION"		|
+^{MAYBE_AREA_A}[ ]*$[ \t]*"END-$REGION"	{
+	/* MF extension for logical marking of a block in the editor */
+	/* _possibly_ check: MF rule "$REGION and $IF statements must not overlap." */
+	skip_to_eol ();
+}
 
-^[ ]*"$"[_0-9A-Z-]+	{
+^{MAYBE_AREA_A}[ ]*$[ \t]*[_0-9A-Z-]+	{
 	/* unknown MF style directive */
 	char	*s;
 
@@ -380,34 +432,53 @@ DEFNUM_LITERAL	[+-]?[0-9]*[\.]*[0-9]+
 	skip_to_eol ();
 }
 
-^......"$"		{
-	/* Allow $ in column 7 for acucomment in fixed format */
-	if (cb_source_format == CB_FORMAT_FREE) {
-		cb_plex_warning (COBC_WARN_FILLER, newline_count,
-			_("spurious '$' detected - ignored"));
-		skip_to_eol ();
-	}
-}
-
-^......."@OPTIONS"	{
+^{MAYBE_AREA_A}.{7}"@OPTIONS"[ ][A-Z0-9() ,;'"=]* {
 	/* Fujitsu COBOL extension for specifying command line options */
-	char * s = strchr (yytext, '@');
-	cb_plex_warning (COBC_WARN_FILLER, newline_count,
+	/* TODO: check position of the @OPTIONS directive */
+	char *s = strchr (yytext, '@');
+	cb_plex_warning (COBC_WARN_FILLER, newline_count - 1,
 		_("ignoring unknown directive: '%s'"), s);
 	skip_to_eol ();
 }
 
-^[ ]*"$"		{
-	cb_plex_warning (COBC_WARN_FILLER, newline_count,
-		_("spurious '$' detected - ignored"));
+^{MAYBE_AREA_A}[ ]*("PROCESS"|"CBL")[ ,;]*[\n] {
+	/* IBM COBOL extension for specifying compiler options */
+	/* TODO: The CBL (PROCESS) statement must be placed before any
+	   comment lines, IDENTIFICATION DIVISION, or other
+	   compiler-directing statements. */
+	/* empty - so ignored */
 	skip_to_eol ();
 }
 
-"PROCESS"		{
-	cb_plex_warning (COBC_WARN_FILLER, newline_count,
-		_("PROCESS statement ignored"));
+^{MAYBE_AREA_A}[ ]*("PROCESS"|"CBL")[ ][A-Z0-9() ,;'"=]* {
+	/* IBM COBOL extension for specifying compiler options */
+	/* TODO: The CBL (PROCESS) statement must be placed before any
+	   comment lines, IDENTIFICATION DIVISION, or other
+	   compiler-directing statements. */
+	char *s = yytext;
+	while (*s == ' ') s++;
+	cb_plex_warning (COBC_WARN_FILLER, newline_count - 1,
+		_("ignoring unknown directive: '%s'"), s);
 	skip_to_eol ();
+/*
 }
+   This test was deemed to produce more issues than it is useful,
+   see bug #839 and others
+
+^{MAYBE_AREA_A}[ ]*"$"		{
+	cb_plex_warning (COBC_WARN_FILLER, newline_count,
+		_("spurious '$' detected - ignored"));
+	skip_to_eol ();
+*/
+}
+
+%{/* Strip any Area A marker leading to COPY, INCLUDE, and REPLACE right now as
+     at this stage they may not be seen on the line that directly follows the
+     marker.  However, we still need to count the lines we are skipping this
+     way. */%}
+^{AREA_A}[ \n]*/"COPY"[ ,;\n]    { count_newlines (yytext); }
+^{AREA_A}[ \n]*/"INCLUDE"[ ,;\n] { count_newlines (yytext); }
+^{AREA_A}[ \n]*/"REPLACE"[ ,;\n] { count_newlines (yytext); }
 
 "COPY"/[ ,;\n]			{
 	yy_push_state (COPY_STATE);
@@ -428,44 +499,120 @@ DEFNUM_LITERAL	[+-]?[0-9]*[\.]*[0-9]+
 }
 
 "REPLACE"/[ ,;\n]		{
-	yy_push_state (COPY_STATE);
+	yy_push_state (REPLACE_STATE);
 	return REPLACE;
 }
 
-^[ ]*"*CONTROL"		|
-^[ ]*"*CBL"		{
+^{MAYBE_AREA_A}.{6}[ ]*"*CONTROL" |
+^{MAYBE_AREA_A}.{6}[ ]*"*CBL"	{
 	BEGIN CONTROL_STATEMENT_STATE;
+	output_pending_newlines (ppout);
 	return CONTROL_STATEMENT;
 }
 
+<*>^{AREA_A}		{
+	/* Output a special marker that precedes lines starting in area A.  This
+	   is required to detect some missing periods.
+
+	   See "(*area-a*)" in `ppinput' function below for the code that emits
+	   the `#'.
+
+	   The optional space before '#' in the definition of AREA_A is only
+	   needed to properly handle the first line in each buffer, that for
+	   some reason always starts with a space.
+	*/
+	fprintf (ppout, "#area_a\n");
+}
+
+"CONTROL"[ ,;\n]+"DIVISION" {
+	/* Syntax extension for GCOS: such a division may include a SUBSTITUTION
+	   SECTION that records source text replacement statements, along with a
+	   DEFAULT SECTION where compile-time defaults are specified. */
+	/* cf `ppparse.y`, grammar entry `program_with_control_division`, along
+	   with `parser.y`, entry `_control_division`. */
+	ppecho (yytext, NULL);
+	yy_push_state (CONTROL_DIVISION_STATE);
+	return CONTROL_DIVISION;
+}
+
+<CONTROL_DIVISION_STATE>{
+  "SUBSTITUTION"[ ,;\n]+"SECTION" {
+	  yy_push_state (SUBSTITUTION_SECTION_STATE);
+	  return SUBSTITUTION_SECTION;
+  }
+  \. 			{
+	  /* Pass dots to the parser to handle DEFAULT SECTION. */
+	  ppecho (yytext, NULL);
+	  return DOT;
+  }
+}
+
+<SUBSTITUTION_SECTION_STATE,
+CONTROL_DIVISION_STATE>{
+  "REPLACE"	       {
+	  yy_push_state (REPLACE_STATE);
+	  return REPLACE;
+  }
+}
+<SUBSTITUTION_SECTION_STATE>{
+  \. 			{
+	  /* Intercept dots within the SUBSTITUTION SECTION */
+	  return DOT;
+  }
+}
+
+<CONTROL_DIVISION_STATE,
+SUBSTITUTION_SECTION_STATE>{
+  "DEFAULT"[ ,;\n]+"SECTION" {
+	  /* Pop any control division-related start condition state. */
+	  while (YY_START == CONTROL_DIVISION_STATE ||
+		 YY_START == SUBSTITUTION_SECTION_STATE)
+		  yy_pop_state ();
+	  ppecho (yytext, NULL);
+  }
+  [,;]?\n		{
+	  ECHO;
+	  check_listing (yytext, 0);
+	  cb_source_line++;
+  }
+  [,;]?[ ]+		{ /* ignore */ }
+}
+
+<INITIAL,
+CONTROL_DIVISION_STATE,
+SUBSTITUTION_SECTION_STATE>
 ("ID"|"IDENTIFICATION")[ ,;\n]+"DIVISION" {
+	/* Pop any control division-related start condition state. */
+	while (YY_START == CONTROL_DIVISION_STATE ||
+	       YY_START == SUBSTITUTION_SECTION_STATE)
+		yy_pop_state ();
 	/* Allow comment sentences/paragraphs */
 	comment_allowed = 1;
-	ppecho (yytext, 0, (int)yyleng);
+	ppecho (yytext, NULL);
 }
 
 "PROGRAM-ID"/[ .,;\n]	{
 	/* Allow comment sentences/paragraphs */
 	comment_allowed = 1;
-	ppecho (yytext, 0, (int)yyleng);
+	ppecho (yytext, NULL);
 }
 
 "DIVISION"/[ .,;\n]	{
 	/* Disallow comment sentences/paragraphs */
 	comment_allowed = 0;
-	ppecho (yytext, 0, (int)yyleng);
+	ppecho (yytext, NULL);
 }
 
 "SECTION"/[ .,;\n]	{
 	/* Disallow comment sentences/paragraphs */
 	comment_allowed = 0;
-	ppecho (yytext, 0, (int)yyleng);
+	ppecho (yytext, NULL);
 }
 
-^[ ]*"EJECT"([ ]*\.)? |
-^[ ]*"SKIP1"([ ]*\.)? |
-^[ ]*"SKIP2"([ ]*\.)? |
-^[ ]*"SKIP3"([ ]*\.)?	{
+^{MAYBE_AREA_A}[ ]*"EJECT"([ ]*\.)? |
+^{MAYBE_AREA_A}[ ]*"SKIP1"([ ]*\.)? |
+^{MAYBE_AREA_A}[ ]*"SKIP2"([ ]*\.)? |
+^{MAYBE_AREA_A}[ ]*"SKIP3"([ ]*\.)?	{
 	/* These words can either be a listing-directive statement,
 	   a reserved word, or a user-defined word...
 	   some implementations (dis-)allow the (optional) "."
@@ -484,7 +631,7 @@ DEFNUM_LITERAL	[+-]?[0-9]*[\.]*[0-9]+
 	}
 }
 
-^[ ]*"TITLE"[ ,;\n]	{
+^{MAYBE_AREA_A}[ ]*"TITLE"[ ,;\n]	{
 	/* This word can either be a listing-directive statement,
 	   a reserved word, or a user-defined word...
 	   some implementations (dis-)allow the (optional) "."
@@ -494,6 +641,7 @@ DEFNUM_LITERAL	[+-]?[0-9]*[\.]*[0-9]+
 	if (cb_verify (cb_title_statement, yytext)) {
 		/* handle as listing-directive statement */
 		BEGIN ALNUM_LITERAL_STATE;
+		output_pending_newlines (ppout);
 		return TITLE_STATEMENT;
 	} else if (cb_title_statement == CB_SKIP) {
 		/* handle later (normal reserved / user defined word) */
@@ -508,43 +656,43 @@ DEFNUM_LITERAL	[+-]?[0-9]*[\.]*[0-9]+
 	/* Pick up early - Also activates debugging lines */
 	cb_verify (cb_debugging_mode, "DEBUGGING MODE");
 	cb_flag_debugging_line = 1;
-	ppecho (yytext, 0, (int)yyleng);
+	ppecho (yytext, NULL);
 }
 
 [,;]?\n		{
-	ppecho ("\n", 0, 1);
+	ppecho ("\n", NULL);
 	cb_source_line++;
 }
 
 [;]?[ ]+	{
-	ppecho (" ", 1U, 1);
+	ppecho (" ", yytext);
 }
 
 [,]?[ ]+	{
 	if (inside_bracket) {
-		ppecho (", ", 0, 2);
+		ppecho (", ", NULL);
 	} else {
-		ppecho (" ", 1U, 1);
+		ppecho (" ", yytext);
 	}
 }
 
 "("		{
 	inside_bracket++;
-	ppecho ("(", 0, 1);
+	ppecho (yytext, NULL);
 }
 
 ")"		{
 	if (inside_bracket) {
 		inside_bracket--;
 	}
-	ppecho (")", 0, 1);
+	ppecho (yytext, NULL);
 }
 
 {WORD} |
 {NUMRIC_LITERAL} |
 {ALNUM_LITERAL} |
 .		{
-	ppecho (yytext, 0, (int)yyleng);
+	ppecho (yytext, NULL);
 }
 
 <CALL_DIRECTIVE_STATE,
@@ -557,7 +705,8 @@ IF_DIRECTIVE_STATE,
 ELSE_DIRECTIVE_STATE,
 ENDIF_DIRECTIVE_STATE,
 ALNUM_LITERAL_STATE,
-CONTROL_STATEMENT_STATE>{
+CONTROL_STATEMENT_STATE,
+COBOL_WORDS_DIRECTIVE_STATE>{
   \n			{
 	BEGIN INITIAL;
 	unput ('\n');
@@ -590,12 +739,27 @@ CONTROL_STATEMENT_STATE>{
   "OFF"			{ return OFF; }
 }
 
+<COBOL_WORDS_DIRECTIVE_STATE>{
+  "EQUATE"		{ return EQUATE; }
+  "WITH"		{ return WITH; }
+  "UNDEFINE"	{ return UNDEFINE; }
+  "SUBSTITUTE"	{ return SUBSTITUTE; }
+  "BY"			{ return BY; }
+  "RESERVE"		{ return RESERVE; }
+  {NUMRIC_LITERAL} |
+  {ALNUM_LITERAL}	{
+	pplval.s = cobc_plex_strdup (yytext);
+	return LITERAL;
+  }
+}
+
 <SOURCE_DIRECTIVE_STATE>{
   "FORMAT"		{ return FORMAT; }
   "IS"			{ return IS; }
-  "FIXED"		{ return FIXED; }
-  "FREE"		{ return FREE; }
-  "VARIABLE"		{ return VARIABLE; }
+  {WORD}		{
+	pplval.s = cobc_plex_strdup (yytext);
+	return VARIABLE_NAME;
+  }
 }
 
 <CALL_DIRECTIVE_STATE>{
@@ -654,6 +818,10 @@ CONTROL_STATEMENT_STATE>{
   "ADD-SYN"	{
 	return ADDSYN;
   }
+  "AREACHECK"	|
+  "AREA-CHECK"	{
+	return AREACHECK;
+  }
   "ASSIGN"	{
 	return ASSIGN;
   }
@@ -690,6 +858,11 @@ CONTROL_STATEMENT_STATE>{
   "NO-BOUND"		{
 	return NOBOUND;
   }
+  "NOAREACHECK"		|
+  "NO-AREACHECK"	|
+  "NO-AREA-CHECK"	{
+	return NOAREACHECK;
+  }
   "NOCHECKNUM"  	|
   "NO-CHECKNUM" 	|
   "NO-CHECK-NUM"	{
@@ -706,6 +879,10 @@ CONTROL_STATEMENT_STATE>{
   "NO-FOLD-COPY-NAME"	{
 	return NOFOLDCOPYNAME;
   }
+  "NOODOSLIDE"	|
+  "NO-ODOSLIDE"	{
+	return NOODOSLIDE;
+  }
   "NOSSRANGE"	|
   "NO-SSRANGE"	{
 	return NOSSRANGE;
@@ -713,6 +890,9 @@ CONTROL_STATEMENT_STATE>{
   "NOSPZERO"	|
   "NO-SPZERO"	{
 	return NOSPZERO;
+  }
+  "ODOSLIDE"	{
+	return ODOSLIDE;
   }
   "OVERRIDE"	{
 	return OVERRIDE;
@@ -743,7 +923,8 @@ CONTROL_STATEMENT_STATE>{
 	pplval.s = cobc_plex_strdup (yytext);
 	return VARIABLE_NAME;
   }
-  "="			{
+  " = "			{
+	/* MF rule: "The equals signs must be surrounded by spaces." */
 	return EQ;
   }
 }
@@ -844,27 +1025,66 @@ ENDIF_DIRECTIVE_STATE>{
 	return TEXT_NAME;
   }
   \. 			{
+	/* note: if we get into the REPLACING state, then
+	   that one handles the dot and pops this state */
 	yy_pop_state ();
 	return DOT;
   }
-  "=="			{ yy_push_state (PSEUDO_STATE); return EQEQ; }
-  "("			{ return '('; }
-  ")"			{ return ')'; }
-  "BY"			{ return BY; }
+  /* for COPY IN/OF lib */
   "IN"			{ return IN; }
   "OF"			{ return OF; }
-  "OFF"			{ return OFF; }
+
   "SUPPRESS"		{ return SUPPRESS; }
   "PRINTING"		{ return PRINTING; }
-  "REPLACING"		{ return REPLACING; }
-  "LEADING"		{ return LEADING; }
-  "TRAILING"		{ return TRAILING; }
+  "REPLACING"		{ yy_push_state (REPLACING_STATE); return REPLACING; }
   "ALSO"		{ return ALSO; }
   "LAST"		{ return LAST; }
+
+  /* for error handling only, only used in REPLACING state */
+  "LEADING"		{ return LEADING; }
+  "TRAILING"		{ return TRAILING; }
+  "=="			{ return EQEQ; }
+  "BY"			{ return BY; }
+
   {WORD} |
   {NUMRIC_LITERAL} |
   {ALNUM_LITERAL} |
   .				{
+	pplval.s = cobc_plex_strdup (yytext);
+	return TOKEN;
+  }
+}
+
+<REPLACING_STATE>{
+  [,;]?\n		{
+	ECHO;
+	check_listing (yytext, 0);
+	cb_source_line++;
+  }
+  [,;]?[ ]+		{ /* ignore */ }
+
+  "LEADING"		{ return LEADING; }
+  "TRAILING"		{ return TRAILING; }
+  "=="			{ yy_push_state (PSEUDO_STATE); return EQEQ; }
+  "BY"			{ return BY; }
+  \. 			{
+	  yy_pop_state ();
+	  yy_pop_state ();
+	  return DOT;
+  }
+  /* for qualification and subscripting */
+  "IN"			{ return IN; }
+  "OF"			{ return OF; }
+  "("			{ return '('; }
+  ")"			{ return ')'; }
+
+  /* for error handling only, only used in COPY state */
+  "REPLACING"		{ return REPLACING; }
+
+  {WORD} |
+  {NUMRIC_LITERAL} |
+  {ALNUM_LITERAL} |
+  .			{
 	pplval.s = cobc_plex_strdup (yytext);
 	return TOKEN;
   }
@@ -896,6 +1116,40 @@ ENDIF_DIRECTIVE_STATE>{
   }
 }
 
+<REPLACE_STATE>{
+  [,;]?\n		{
+	ECHO;
+	check_listing (yytext, 0);
+	cb_source_line++;
+  }
+  [,;]?[ ]+		{ /* ignore */ }
+  \. 			{
+	yy_pop_state ();
+	return DOT;
+  }
+  /* for qualification and subscripting */
+  "IN"			{ return IN; }
+  "OF"			{ return OF; }
+  "("			{ return '('; }
+  ")"			{ return ')'; }
+
+  "LEADING"		{ return LEADING; }
+  "TRAILING"		{ return TRAILING; }
+  "=="			{ yy_push_state (PSEUDO_STATE); return EQEQ; }
+  "BY"			{ return BY; }
+  "ALSO"		{ return ALSO; }
+  "LAST"		{ return LAST; }
+  "OFF"			{ return OFF; }
+
+  {WORD} |
+  {NUMRIC_LITERAL} |
+  {ALNUM_LITERAL} |
+  .				{
+	pplval.s = cobc_plex_strdup (yytext);
+	return TOKEN;
+  }
+}
+
 <<EOF>> {
 	struct copy_info *current_copy_info = copy_stack;
 
@@ -903,6 +1157,7 @@ ENDIF_DIRECTIVE_STATE>{
 
 	/* Terminate at the end of all input */
 	if (current_copy_info->next == NULL) {
+		output_pending_newlines (ppout);	/* CHECKME: do we want to drop those? */
 		/* Check dangling IF/ELSE */
 		for (; plex_nest_depth > 0; --plex_nest_depth) {
 			cb_source_line = plex_cond_stack[plex_nest_depth].line;
@@ -913,17 +1168,13 @@ ENDIF_DIRECTIVE_STATE>{
 		cobc_free (current_copy_info);
 		listing_line = 0;
 		requires_listing_line = 1;
-		requires_new_line = 0;
 		need_continuation = 0;
 		buffer_overflow = 0;
 		within_comment = 0;
 		newline_count = 0;
 		inside_bracket = 0;
 		comment_allowed = 1;
-		current_replace_list = NULL;
-		base_replace_list = NULL;
-		save_current_replace = NULL;
-		text_queue = NULL;
+		cb_free_replace ();
 		copy_stack = NULL;
 		quotation_mark = 0;
 		consecutive_quotation = 0;
@@ -945,9 +1196,9 @@ ENDIF_DIRECTIVE_STATE>{
 			  current_copy_info->buffer);
 
 	/* Restore variables */
-	current_replace_list = current_copy_info->replacing;
+	cb_set_copy_replacing_list (current_copy_info->replacing);
 	quotation_mark = current_copy_info->quotation_mark;
-	cb_source_format = current_copy_info->source_format;
+	cobc_set_source_format (current_copy_info->source_format);
 
 	copy_stack = current_copy_info->next;
 	cobc_free (current_copy_info->dname);
@@ -958,33 +1209,134 @@ ENDIF_DIRECTIVE_STATE>{
 
 /* Global functions */
 
-void
-pp_set_replace_list (struct cb_replace_list *list, const cob_u32_t is_pushpop)
+static int
+is_fixed_indicator (char c){
+	switch (c){ /* same indicators as in ppinput() */
+	case ' ':
+	case '-':
+	case 'd':
+	case 'D':
+	case '*':
+	case '/':
+	case '\\':
+	case '$':
+		return 1;
+	default:
+		return 0;
+	}
+}
+
+/* open file with the specified 'name', then check for BOM (skipped) and if
+   in reference-format "auto" also for "likely free-format" */
+static FILE *
+ppopen_get_file (const char *name)
 {
-	/* Handle REPLACE verb */
-	if (!list) {
-		/* REPLACE [LAST] OFF */
-		if (!is_pushpop) {
-			base_replace_list = NULL;
-			return;
+	struct copy_info	*current_copy_info;
+
+	/* special case stdin;
+	   note that we cannot handle BOM or deduce source format in this case
+	   as rewind() clears the input buffer if used on stdin (and output in
+	   console has normally no BOM at all), therefore compile from stdin
+	   _has to_ specify free format if needed (or, more reasonable, use a CDF
+	   directive to specify that) */
+	if (strcmp (name, COB_DASH) == 0) {
+		return stdin;
+	}
+
+	/* check for recursive inclusion */
+	for (current_copy_info = copy_stack; current_copy_info; current_copy_info = current_copy_info->next) {
+		/* FIXME: for WIN32 compare with cleaning / and \ (COPY "lib/file" vs COPY "lib\file"),
+		          ideally open first, then check if we have the same physical file
+		          (would also fix recursion check for symlinked files) */
+		if (!strcmp (name, current_copy_info->dname)) {
+		struct cb_tree_common	loc;
+		for (current_copy_info = current_copy_info->next; current_copy_info; current_copy_info = current_copy_info->prev) {
+			int		line;
+			if (current_copy_info->prev) {
+				line = current_copy_info->prev->line;
+			} else {
+				line = cb_source_line;
+			}
+			cb_inclusion_note (current_copy_info->dname, line);
 		}
-		if (!base_replace_list) {
-			return;
+		loc.source_file = name;
+		loc.source_line = -1;
+		cb_error_x (&loc, _("recursive inclusion"));
+		return 0;		
 		}
-		base_replace_list = base_replace_list->prev;
-		return;
 	}
-	/* REPLACE [ALSO] ... */
-	if (base_replace_list && is_pushpop) {
-		list->last->next = base_replace_list;
-		list->prev = base_replace_list;
-	} else {
-		list->prev = NULL;
+
+	/* try to open the file with the given name */
+#ifdef	__OS400__
+	ppin = fopen (name, "r");
+#else
+	ppin = fopen (name, "rb");
+#endif
+	if (!ppin) {
+		cb_error ("%s: %s", name, cb_get_strerror ());
+		/* Note: postpone error exit as we need the saved buffers later on */
+		return 0;
 	}
-	base_replace_list = list;
-	if (cb_src_list_file) {
-		set_print_replace_list (list);
+
+	/* Check for BOM and, if source-format was not specified, also for free-form */
+	{
+		int fseek_to = 0 ;
+#define COBC_LOOKAHEAD 20
+		unsigned char buffer[COBC_LOOKAHEAD];
+		int nread = fread (buffer, 1, COBC_LOOKAHEAD, ppin);
+
+		/* check for and skip UTF-8 BOM */
+		if (nread >= 3 && buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF) {
+			fseek_to = 3;
+		}
+
+		/* try to deduce source format */
+		if (source_format == CB_FORMAT_AUTO) {
+			int pos = fseek_to;
+			/* if indicator is wrong on first line with source, switch to free format */
+			/* skip empty lines */
+			char last_pos_7 = ' ';
+			int amount_of_0a_seen = 0;
+			int line_pos = 0;
+			while (nread - pos > 7) {
+				switch (buffer[pos]) {
+				case '\r':
+					break;
+				case '\n':
+					amount_of_0a_seen++;
+					line_pos = 0;
+					break;
+				case '\t':
+					buffer[pos] = ' ';
+					line_pos++;
+					while (line_pos % cb_tab_width != 0) {
+						line_pos++;
+					}
+					break;
+				default:
+					line_pos++;
+					break;
+				}
+				if (line_pos >= 7) {
+					last_pos_7 = buffer[pos];
+					break;
+				}
+				pos++;
+			}
+			/* check tab or indicator */
+			if (!is_fixed_indicator (last_pos_7)) {
+				struct cb_tree_common	loc;
+				loc.source_file = name;
+				loc.source_line = 1 + amount_of_0a_seen;
+				loc.source_column = 7;
+				cb_note_x (COB_WARNOPT_NONE, &loc, _("free format detected"));
+				(void)cobc_deciph_source_format ("FREE");
+			}
+		}
+		fseek (ppin, fseek_to, SEEK_SET);
 	}
+
+	return ppin;
 }
 
 /* open file (source or coypbook) for further processing */
@@ -992,11 +1344,8 @@ int
 ppopen (const char *name, struct cb_replace_list *replacing_list)
 {
 	struct copy_info	*current_copy_info;
-#if 0
-	char			*s;
-#endif
 	char			*dname;
-	cb_tree			x = NULL;
+	struct cb_replace_list *current_replace_list;
 
 	if (ppin) {
 		for (; newline_count > 0; newline_count--) {
@@ -1004,77 +1353,44 @@ ppopen (const char *name, struct cb_replace_list *replacing_list)
 		}
 	}
 
-	/* Open copy/source file, or use stdin */
-	if (strcmp (name, COB_DASH) == 0) {
-		ppin = stdin;
-	} else {
-		for (current_copy_info = copy_stack; current_copy_info; current_copy_info = current_copy_info->next) {
-			/* FIXME: for WIN32 compare with cleaning / and \ (COPY "lib/file" vs COPY "lib\file"),
-			*         ideally open first, then check if we have thy physical same file
-			*         (could also fix symlinked files) */
-			if (!strcmp (name, current_copy_info->dname)) {
-				for (current_copy_info = current_copy_info->next; current_copy_info; current_copy_info = current_copy_info->prev) {
-					int		line;
-					if (current_copy_info->prev) {
-						line = current_copy_info->prev->line;
-					} else {
-						line = cb_source_line;
-					}
-					cb_inclusion_note (current_copy_info->dname, line);
-				}
-				x = cobc_malloc (sizeof (struct cb_tree_common));
-				x->source_file = name;
-				x->source_line = -1;
-				cb_error_x (x, _("recursive inclusion"));
-				cobc_free (x);
-				break;
-			}
+	/* open copy/source file, or use stdin */
+	ppin = ppopen_get_file (name);
 
+	/* note: detection of free format in ppopen_get_file above (not for stdin) */
+	if (source_format == CB_FORMAT_AUTO) {
+		cobc_set_source_format (CB_FORMAT_FIXED);
+	}
+
+	/* store listing information if requested */
+	if (cb_current_file) {
+		if (cb_current_file->source_format == CB_FORMAT_AUTO) {
+			cb_current_file->source_format = cobc_get_source_format ();
 		}
-		if (!x) {
-#ifdef	__OS400__
-			ppin = fopen (name, "r");
-#else
-			ppin = fopen (name, "rb");
-#endif
-		} else {
-			ppin = 0;
+		/* this must be delayed until after format detection */
+		cobc_set_listing_header_code ();
+		/* Save name for listing */
+		if (!cb_current_file->name) {
+			cb_current_file->name = cobc_strdup (name);
 		}
+		cb_current_file->copy_line = cb_source_line;
 	}
 
-	if (!ppin && !x) {
-		cb_error ("%s: %s", name, cb_get_strerror ());
-		/* Note: postpone error exit as we need the saved buffers later on */
+	/* add opened file to dependency list */
+	if (cb_depend_file) {
+		cb_depend_list = pp_text_list_add (cb_depend_list, name, strlen (name));
 	}
 
-	/* Check for BOM - *not* for input from stdin as rewind() clears the input
-	  buffer if used on stdin and output in console has normally no BOM at all */
-	if (ppin && strcmp (name, COB_DASH) != 0) {
-		unsigned char		bom[4];
-		if (fread (bom, 3, 1, ppin) == 1) {
-			if (bom[0] != 0xEF || bom[1] != 0xBB || bom[2] != 0xBF) {
-				rewind (ppin);
-			}
-		} else {
-			rewind (ppin);
-		}
-	}
-
-	/* Save name for listing */
-	if (cb_current_file && !cb_current_file->name) {
-		cb_current_file->name = cobc_strdup (name);
-	}
-
-	/* Preserve the current buffer */
+	/* preserve the current buffer */
+	current_replace_list = cb_get_copy_replacing_list();
 	current_copy_info = cobc_malloc (sizeof (struct copy_info));
 	current_copy_info->file = cb_source_file;
 	current_copy_info->buffer = YY_CURRENT_BUFFER;
 
-	/* Save variables */
+	/* save variables */
 	current_copy_info->replacing = current_replace_list;
 	current_copy_info->line = cb_source_line;
 	current_copy_info->quotation_mark = quotation_mark;
-	current_copy_info->source_format = cb_source_format;
+	current_copy_info->source_format = cobc_get_source_format ();
 
 	current_copy_info->next = copy_stack;
 	current_copy_info->containing_files = old_list_file;
@@ -1083,37 +1399,39 @@ ppopen (const char *name, struct cb_replace_list *replacing_list)
 	}
 	copy_stack = current_copy_info;
 
-	if (cb_current_file) {
-		cb_current_file->copy_line = cb_source_line;
-	}
-
-	/* Set replacing list */
+	/* set replacing list */
 	if (replacing_list) {
 		if (current_replace_list) {
 			replacing_list->last->next = current_replace_list;
 			replacing_list->last = current_replace_list->last;
 		}
-		current_replace_list = replacing_list;
+		cb_set_copy_replacing_list (replacing_list);
 		if (cb_src_list_file) {
-			set_print_replace_list (replacing_list);
+			cb_set_print_replace_list (replacing_list);
 		}
 	}
 
 	dname = cobc_strdup (name);
 	current_copy_info->dname = dname;
 #if 0	/* Simon: better adjust the output where needed */
-	for (s = dname; *s; ++s) {
-		if (*s == '\\') {
-			*s = '/';
+	{
+		char *s = dname;
+		while (*s) {
+			if (*s == '\\') {
+				*s = '/';
+			}
+			s++;
 		}
 	}
 #endif
 
-	/* Switch to new buffer */
+	/* switch to new buffer */
 	switch_to_buffer (1, dname, yy_create_buffer (ppin, YY_BUF_SIZE));
 
 	/* postponed errror handling */
-	if (!ppin) return -1;
+	if (!ppin) {
+		return -1;
+	}
 	return 0;
 }
 
@@ -1165,9 +1483,25 @@ ppcopy_try_open (const char *dir, const char *name, int has_ext)
    1 - as is
    2 - all known copybook directories */
 static const char *
-ppcopy_find_file (const char *name, int has_ext)
+ppcopy_find_file (char *name, int has_ext)
 {
-	const char* filename;
+	const char *filename;
+	{
+		const size_t len = strlen (name);
+		size_t i;
+#if defined (_WIN32) || defined (__DJGPP__)
+		const char from = '/';
+		const char to   = '\\';
+#else
+		const char from = '\\';
+		const char to   = '/';
+#endif
+		for (i = 0; i < len; i++) {
+			if (name[i] == from) {
+				name[i] = to;
+			}
+		}
+	}
 
 	/* try name as is + extensions ... */
 	filename = ppcopy_try_open (NULL, name, has_ext);
@@ -1178,10 +1512,10 @@ ppcopy_find_file (const char *name, int has_ext)
 	/* ... if not found, try in copybook directories  */
 	if (*name != SLASH_CHAR
 #if defined (_WIN32) || defined (__DJGPP__)
-	 && *name != '/' && *(name + 1) != ':'
+	 && *(name + 1) != ':'	/* note: the name is at least 2 bytes... */
 #endif
 		) {
-		struct cb_text_list* il;
+		struct cb_text_list *il;
 		for (il = cb_include_list; il; il = il->next) {
 			filename = ppcopy_try_open (il->text, name, has_ext);
 			if (filename) {
@@ -1194,12 +1528,32 @@ ppcopy_find_file (const char *name, int has_ext)
 	return NULL;
 }
 
+static COB_INLINE COB_A_INLINE void
+output_pending_newlines (FILE *stream)
+{
+	if (echo_newline > 9) {
+		/* too much newlines (likely becaue of conditional compilation or
+		   long comment blocks, for example from EXEC SQL preparsers),
+		   so generate source directive from the already adjusted static vars
+		   instead of spitting out possibly hundreds of empty lines */
+		fprintf (stream, "\n#line %d \"%s\"\n", cb_source_line, cb_source_file);
+		echo_newline = 0;
+	} else {
+		while (echo_newline > 1) {
+			fputc ('\n', stream);
+			echo_newline--;
+		}
+		echo_newline = 0;
+	}
+}
+
 int
 ppcopy (const char *name, const char *lib, struct cb_replace_list *replace_list)
 {
-	const char		*s;
 	const char		*filename = NULL;
 	const int 		has_ext = (strchr (name, '.') != NULL);
+
+	output_pending_newlines (yyout);
 
 	if (cb_current_file) {
 		cb_current_file->copy_line = cb_source_line;
@@ -1211,7 +1565,6 @@ ppcopy (const char *name, const char *lib, struct cb_replace_list *replace_list)
 	/* Locate and open COPY file */
 	if (lib) {
 		const char *lib_env = NULL;
-		s = plexbuff1;
 
 		/* check for library-name with directory-name via environment
 		   (as emulation of specifying a library-name via JCL) */
@@ -1229,9 +1582,10 @@ ppcopy (const char *name, const char *lib, struct cb_replace_list *replace_list)
 					snprintf (plexbuff1, (size_t)COB_SMALL_MAX, "%s%c%s",
 						lib_env, SLASH_CHAR, name);
 					plexbuff1[COB_SMALL_MAX] = 0;
-					filename = ppcopy_find_file (s, has_ext);
+					filename = ppcopy_find_file (plexbuff1, has_ext);
 				} else {
-					filename = ppcopy_find_file (name, has_ext);
+					strcpy (plexbuff1, name);
+					filename = ppcopy_find_file (plexbuff1, has_ext);
 				}
 			}
 		}
@@ -1242,12 +1596,13 @@ ppcopy (const char *name, const char *lib, struct cb_replace_list *replace_list)
 			snprintf (plexbuff1, (size_t)COB_SMALL_MAX, "%s%c%s",
 				lib, SLASH_CHAR, name);
 			plexbuff1[COB_SMALL_MAX] = 0;
-			filename = ppcopy_find_file (s, has_ext);
+			filename = ppcopy_find_file (plexbuff1, has_ext);
 		}
 
 		/* try without library name, if not resolved by env */
 		if (!filename && !lib_env) {
-			filename = ppcopy_find_file (name, has_ext);
+			strcpy (plexbuff1, name);
+			filename = ppcopy_find_file (plexbuff1, has_ext);
 			if (filename) {
 				cb_plex_warning (COBC_WARN_FILLER, 0,
 					_("copybook not found in library '%s', library-name ignored"),
@@ -1262,24 +1617,22 @@ ppcopy (const char *name, const char *lib, struct cb_replace_list *replace_list)
 			plexbuff1[COB_SMALL_MAX] = 0;
 		}
 	} else {
-		s = name;
-		filename = ppcopy_find_file (s, has_ext);
+		strcpy (plexbuff1, name);
+		filename = ppcopy_find_file (plexbuff1, has_ext);
 	}
-	
+
 	/* expected case: filename found */
 	if (likely (filename)) {
-		int ret;
-		ret = ppopen (filename, replace_list);
+		if (ppopen (filename, replace_list) == 0) {
 		/* expected case: copybook could be processed */
-		if (likely (ret == 0)) {
 			return 0;
 		}
 		/* otherwise fall-trough to error handling */
 	} else {
 		/* ensure to have errno from name as specified, not from another file */
-		(void)access (s, R_OK);
+		(void)access (plexbuff1, R_OK);
 		/* pass file error as we have no more places to check */
-		cb_error ("%s: %s", s, cb_get_strerror ());
+		cb_error ("%s: %s", plexbuff1, cb_get_strerror ());
 	}
 
 	/* On COPY, open error restore old file */
@@ -1288,10 +1641,161 @@ ppcopy (const char *name, const char *lib, struct cb_replace_list *replace_list)
 	return -1;
 }
 
+/* `newline_count` is one line ahead when the two functions below are called
+   (from `ppparse.y`). */
+
+unsigned int
+ppparse_verify (const enum cb_support tag, const char *feature)
+{
+	return cb_plex_verify (newline_count-1, tag, feature);
+}
+
 void
 ppparse_error (const char *err_msg)
 {
-	cb_plex_error (newline_count, "%s", err_msg);
+	cb_plex_error (newline_count-1, "%s", err_msg);
+}
+
+int
+cobc_has_areacheck_directive (const char * directive) {
+	if (source_format != CB_FORMAT_FIXED &&
+	    source_format != CB_FORMAT_FREE &&
+	    source_format != CB_FORMAT_AUTO ) {
+		return 1;
+	} else {
+		cb_plex_warning (COBC_WARN_FILLER, newline_count,
+				 _("ignoring %s directive because of %s"),
+				 directive, "-fformat=fixed/free");
+		return 0;
+	}
+}
+
+/* Sets `source_format`, `indicator_column`, `text_column`, `floating_area_b`,
+   `fill_continued_alnums`, and `cobc_areacheck`, based on the given source
+   format. */
+void
+cobc_set_source_format (const enum cb_format sf) {
+	source_format = sf;
+
+	switch (source_format) {
+	case CB_FORMAT_XOPEN_FFF:
+	case CB_FORMAT_ICOBOL_CRT:
+	case CB_FORMAT_ACUTERM:
+	case CB_FORMAT_COBOLX:
+		indicator_column = 1;
+		floating_area_b = source_format != CB_FORMAT_COBOLX;
+		fill_continued_alnums = 0;
+		break;
+	default:
+		indicator_column = 7;
+		floating_area_b = 0;
+		fill_continued_alnums = 1;
+		break;
+	}
+
+	switch (source_format) {
+	case CB_FORMAT_FIXED:
+	case CB_FORMAT_AUTO:
+	case CB_FORMAT_COBOL85:
+		text_column = cb_config_text_column; /* 72 by default */
+		break;
+	case CB_FORMAT_VARIABLE:
+		/* This value matches most MF Visual COBOL 4.0 version. */
+		text_column = 250;
+		break;
+	case CB_FORMAT_ACUTERM:
+	case CB_FORMAT_ICOBOL_CRT:
+		/* CHECKME:
+		   https://sf.net/p/gnucobol/feature-requests/29/#c2d0/8d2f */
+		text_column = 320;
+		break;
+	case CB_FORMAT_XOPEN_FFF:
+	case CB_FORMAT_COBOLX:
+	case CB_FORMAT_ICOBOL_XCARD:
+		/* For X/Open, this is the number of "bytes" allowed on single
+		   source line as per the X/Open CAE Specification (1991),
+		   Section 7.4 "Limits". */
+		text_column = 255;
+		break;
+	case CB_FORMAT_FREE:
+		/* text-column should be ignored: put an invalid value to catch
+		   some bugs. */
+		text_column = -1;
+		break;
+	}
+
+	switch (source_format) {
+	case CB_FORMAT_FIXED:
+	case CB_FORMAT_FREE:
+	case CB_FORMAT_AUTO:
+	case CB_FORMAT_XOPEN_FFF:
+		emit_area_a_tokens = 0;
+		cobc_areacheck = 0;
+		break;
+	default:
+		emit_area_a_tokens = 1;
+		cobc_areacheck = cb_areacheck;
+	}
+}
+
+enum cb_format cobc_get_source_format (void) { return source_format; }
+int cobc_get_indicator_column (void) { return indicator_column; }
+int cobc_get_text_column (void) { return text_column; }
+
+/* The three functions below return indexes on the lines (starting from 0), not
+   character positions (counted from 1). */
+int cobc_get_indicator (void) {
+	return indicator_column - 1;
+}
+int cobc_get_margin_a (const int indicator_width) {
+	return indicator_column + indicator_width - 1;
+}
+int cobc_get_margin_b (const int indicator_width) {
+	/* careful, for COBOL 2002 there is no margin B */
+	return indicator_column + indicator_width + 3;
+}
+
+static int
+cobc_parse_source_format (enum cb_format *const out, const char *const sfname) {
+	enum cb_format format;
+	if (!cb_strcasecmp (sfname, "FIXED")) {
+		format = CB_FORMAT_FIXED;
+	} else if (!cb_strcasecmp (sfname, "FREE")) {
+		/* Note: SOURCEFORMAT"FREE" in MicroFocus dialect actually
+		   selects an X/Open-derived free-form format. */
+		format = (cb_std_define == CB_STD_MF)
+			? CB_FORMAT_XOPEN_FFF
+			: CB_FORMAT_FREE;
+	} else if (!cb_strcasecmp (sfname, "COBOL85")) {
+		format = CB_FORMAT_COBOL85;
+	} else if (!cb_strcasecmp (sfname, "VARIABLE")) {
+		format = CB_FORMAT_VARIABLE;
+	} else if (!cb_strcasecmp (sfname, "XOPEN")) {
+		format = CB_FORMAT_XOPEN_FFF;
+	} else if (!cb_strcasecmp (sfname, "XCARD")) {
+		format = CB_FORMAT_ICOBOL_XCARD;
+	} else if (!cb_strcasecmp (sfname, "CRT")) {
+		format = CB_FORMAT_ICOBOL_CRT;
+	} else if (!cb_strcasecmp (sfname, "TERMINAL")) {
+		format = CB_FORMAT_ACUTERM;
+	} else if (!cb_strcasecmp (sfname, "COBOLX")) {
+		format = CB_FORMAT_COBOLX;
+	} else if (!cb_strcasecmp (sfname, "AUTO")) {
+		format = CB_FORMAT_AUTO;
+	} else {
+		return 1;	/* invalid argument */
+	}
+	*out = format;
+	return 0;
+}
+
+int cobc_deciph_source_format (const char *sfname) {
+	enum cb_format format;
+	if (cobc_parse_source_format (&format, sfname) == 0) {
+		cobc_set_source_format (format);
+		return 0;
+	}
+	return 1;
 }
 
 void
@@ -1303,6 +1807,7 @@ plex_clear_vars (void)
 	memset (plex_cond_stack, 0, sizeof(plex_cond_stack));
 	requires_listing_line = 1;
 	comment_allowed = 1;
+	echo_newline = 0;
 }
 
 void
@@ -1326,6 +1831,9 @@ plex_call_destroy (void)
 	while (copy_stack) {
 		ci = copy_stack;
 		copy_stack = ci->next;
+		if (ci->dname) {
+			cobc_free (ci->dname);
+		}
 		cobc_free (ci);
 	}
 
@@ -1333,7 +1841,7 @@ plex_call_destroy (void)
 }
 
 void
-plex_action_directive (const unsigned int cmdtype, const unsigned int is_true)
+plex_action_directive (const enum cb_directive_action cmdtype, const unsigned int is_true)
 {
 	unsigned int	n;
 
@@ -1438,13 +1946,13 @@ get_new_listing_file (void)
 	cb_current_file->copy_tail = newfile;
 
 	newfile->copy_line = cb_source_line;
-	newfile->source_format = cb_source_format;
+	newfile->source_format = cobc_get_source_format ();
 	old_list_file = cb_current_file;
 	cb_current_file = newfile;
 }
 
-static void
-set_print_replace_list (struct cb_replace_list *list)
+void
+cb_set_print_replace_list (struct cb_replace_list *list)
 {
 	struct cb_replace_list		*r;
 	const struct cb_text_list	*l;
@@ -1452,16 +1960,18 @@ set_print_replace_list (struct cb_replace_list *list)
 	size_t				length;
 
 	for (r = list; r; r = r->next) {
+		const struct cb_replace_src *src = r->src;
 		repl = cobc_malloc (sizeof (struct list_replace));
 		repl->firstline = r->line_num;
-		repl->lead_trail = r->lead_trail;
+		repl->lead_trail = src->lead_trail;
+		repl->strict_partial = src->strict;
 		repl->lastline = cb_source_line;
 
-		for (l = r->old_text, length = 0; l; l = l->next) {
+		for (l = src->text_list, length = 0; l; l = l->next) {
 			length += strlen (l->text);
 		}
 		repl->from = cobc_malloc (length + 2);
-		for (l = r->old_text; l; l = l->next) {
+		for (l = src->text_list; l; l = l->next) {
 			strcat (repl->from, l->text);
 		}
 
@@ -1486,35 +1996,108 @@ set_print_replace_list (struct cb_replace_list *list)
 static void
 switch_to_buffer (const int line, const char *file, const YY_BUFFER_STATE buffer)
 {
+	output_pending_newlines (yyout);
+
 	/* Reset file/line */
 	cb_source_line = line;
-	cb_source_file = cobc_plex_strdup (file);
+	cb_source_file = file;
 	fprintf (yyout, "#line %d \"%s\"\n", line, file);
 	/* Switch buffer */
 	yy_switch_to_buffer (buffer);
 }
 
-static int
-is_condition_directive_clause (const char *buff)
-{
-	while (buff && !isalpha ((unsigned char)(*buff))) {
-		++buff;
-	}
-
-	return buff && (strncasecmp (buff, "END", 3) == 0
-			|| strncasecmp (buff, "IF", 2) == 0
-			|| strncasecmp (buff, "ELSE", 4) == 0
-			|| strncasecmp (buff, "ELIF", 4) == 0
-			|| strncasecmp (buff, "EVALUATE", 8) == 0
-			|| strncasecmp (buff, "WHEN", 4) == 0);
-}
-
-static int
+static COB_INLINE COB_A_INLINE int
 is_cobol_word_char (const char c)
 {
 	return c == '-' || c == '_' || isalnum (c);
 }
 
+/* copies the next word in str to word_buff of size buff_len, and
+returns the length of the copy. If the word is longer than buff_len,
+returns 0. */
+static int
+get_word (const char *str, char *word_buff, size_t buff_len)
+{
+	int length = 0;
+	if (str) {
+		while (*str == ' ' || *str == ',' || *str == ';') {
+			++str;
+		}
+		while (is_cobol_word_char(*str)){
+			if (length++ == buff_len) return 0;
+			*word_buff++ = (unsigned char)toupper((unsigned char)*str++);
+		}
+	}
+	return length;
+}
+
+static int
+is_condition_directive_clause (const char *buff)
+{
+	char p[12]; /* size of maximal comparison, here END-EVALUATE */
+	int len;
+
+	if (buff[0] == '$') {
+		buff++;
+	} else if (buff[0] == '>' && buff[1] == '>') {
+		buff += 2;
+	}
+
+	len = get_word (buff, p, sizeof(p));
+	switch (len){
+	case 2:	return !memcmp (p, "IF", len);
+	case 3: return !memcmp (p, "END", len);
+	case 4: return     !memcmp (p, "ELSE", len)
+			|| !memcmp (p, "ELIF", len)
+			|| !memcmp (p, "WHEN", len);
+	case 6: return  !memcmp (p, "END-IF", len);
+	case 8: return  !memcmp (p, "EVALUATE", len);
+	case 12: return !memcmp (p, "END-EVALUATE", len);
+	}
+	return 0;
+}
+
+static int
+next_word_is_comment_paragraph_name (const char *buff)
+{
+	char p[13+1]; /* size of maximal comparison + 1, here
+			 DATE-MODIFIED.  We need +1 because we may
+			 have to add a terminating 0 to pass the
+			 string to cb_plex_verify(). */
+	int len;
+
+	if (cb_comment_paragraphs == CB_IGNORE) return 0;
+
+	len = get_word (buff, p, sizeof(p)-1);
+
+	switch (len){
+	case 6: if (memcmp (p, "AUTHOR", len)) return 0;
+		break;
+	case 7: if (memcmp (p, "REMARKS", len)) return 0;
+		break;
+	case 8: if (memcmp (p, "SECURITY", len)) return 0;
+		break;
+	case 12: if (memcmp (p, "DATE-WRITTEN", len)
+		     && memcmp (p, "INSTALLATION", len)) return 0;
+		break;
+	case 13: if (memcmp (p, "DATE-MODIFIED", len)
+		     && memcmp (p, "DATE-COMPILED", len)) return 0;
+		break;
+	default: return 0;
+	}
+	/* this part is reached only if a comparison above was successful */
+
+	/* check so we get warnings / errors, but leave result unchanged */
+	p[len] = 0;
+	cb_plex_verify (newline_count, cb_comment_paragraphs, p);
+	return 1;
+}
+
+static COB_INLINE COB_A_INLINE int
+is_space_or_nl (const char c)
+{
+	return c == ' ' || c == '\n';
+}
 
 /* FIXME: try to optimize as this function used 25-10% (according to callgrind)
    of the complete time spent in a sample run with
@@ -1529,12 +2112,13 @@ ppinput (char *buff, const size_t max_size)
 	size_t	gotcr;
 	size_t	line_overflow;
 	size_t	continuation;
+	size_t	indicator_width;
 	int	ipchar;
 	int	i;
 	int	n;
 	int	coln;
+	int	in_area_a;
 	struct list_skip *skip;
-	const char	*paragraph_name;
 
 	/* check that we actually have input to process
 	   (isn't the case if something went wrong beforehand) */
@@ -1558,6 +2142,7 @@ start:
 #endif
 		}
 		if (newline_count < max_size) {
+			/* FIXME: this doesn't check the buffer size ! */
 			memset (buff, '\n', newline_count);
 			buff[newline_count] = 0;
 			ipchar = (int)newline_count;
@@ -1595,6 +2180,7 @@ start:
 			if (newline_count == 0) {
 				return YY_NULL;
 			}
+			/* FIXME: this doesn't check the buffer size ! */
 			memset (buff, '\n', newline_count);
 			buff[newline_count] = 0;
 			ipchar = (int)newline_count;
@@ -1634,19 +2220,19 @@ start:
 		}
 		if (likely (line_overflow == 0)) {
 			buff[n++] = (char)ipchar;
-		} else if ((char)ipchar != ' ' && (char)ipchar != '\n') {
+		} else if (!is_space_or_nl ((char)ipchar)) {
 			line_overflow = 2;
 		}
 	}
 
 	if (buff[n - 1] != '\n') {
 		/* FIXME: cb_source_line is one too low when CB_FORMAT_FREE is used
-		   [but only during ppinput() in pplex.l ?] - Workaround for now:
-		   Temporary newline_count + 1
+		   [but only during ppinput() in pplex.l ?]
+		   Workaround for now: Temporary newline_count + 1
 		*/
-		if (cb_source_format == CB_FORMAT_FREE) {
+		if (source_format == CB_FORMAT_FREE) {
 			if (line_overflow == 0) {
-				cb_plex_warning (COBC_WARN_FILLER, newline_count + 1,
+				cb_plex_warning (cb_missing_newline, newline_count + 1,
 						_("line not terminated by a newline"));
 				n++;
 			} else if (line_overflow == 2) {
@@ -1656,7 +2242,7 @@ start:
 			}
 		} else {
 			if (line_overflow == 0) {
-				cb_plex_warning (COBC_WARN_FILLER, newline_count,
+				cb_plex_warning (cb_missing_newline, newline_count,
 						_("line not terminated by a newline"));
 				n++;
 			} else if (line_overflow == 2) {
@@ -1674,47 +2260,46 @@ start:
 		if (memcmp("<<<<<<<", buff, 7) == 0
 		 || memcmp("=======", buff, 7) == 0
 		 || memcmp(">>>>>>>", buff, 7) == 0) {
-			/* FIXME: the different line numbers (see test "conflict markers" 
+			/* FIXME: the different line numbers (see test "conflict markers"
 			   are definitely a bug to solve in short time */
-			if (cb_source_format == CB_FORMAT_FREE) {
+			if (source_format == CB_FORMAT_FREE) {
 				++newline_count;
 			}
 			cb_plex_error (newline_count,
 				_("version control conflict marker in file"));
-			if (cb_source_format != CB_FORMAT_FREE) {
+			if (source_format != CB_FORMAT_FREE) {
 				++newline_count;
 			}
 			goto start;
 		}
 	}
 
-	if (cb_source_format == CB_FORMAT_FREE) {
+	if (source_format == CB_FORMAT_FREE) {
 		bp = buff;
 	} else {
-		if (n < 8) {
+		if (n <= indicator_column) {
 			/* Line too short */
 			newline_count++;
 			goto start;
 		}
 
-		if (cb_flag_mfcomment) {
-			if (buff[0] == '*' || buff[0] == '/') {
-				newline_count++;
-				goto start;
-			}
+		if (buff[0] == '*'
+		 && cb_flag_mfcomment
+		 && CB_MFCOMMENT_APPLIES (source_format)) {
+			newline_count++;
+			goto start;
 		}
 
-		/* Check if text is longer than cb_text_column */
-		if (cb_source_format == CB_FORMAT_FIXED
-		 && n > cb_text_column + 1) {
+		/* Check if text is longer than text_column */
+		if (n > text_column + 1) {
 			/* Show warning if it is not whitespace
 			   (postponed after checking for comments by setting
 			    line_overflow to first column that leads to
-				"source text too long")
+			    "source text too long")
 			*/
-			if (cb_warn_opt_val[cb_warn_column_overflow] && line_overflow == 0) {
-				for (coln = cb_text_column; coln < n; ++coln) {
-					if (buff[coln] != ' ' && buff[coln] != '\n') {
+			if (get_warn_opt_value (cb_warn_column_overflow) && line_overflow == 0) {
+				for (coln = text_column; coln < n; ++coln) {
+					if (!is_space_or_nl (buff[coln])) {
 						line_overflow = coln;
 						break;
 					}
@@ -1723,21 +2308,21 @@ start:
 				line_overflow = 0;
 			}
 			/* Remove it */
-			buff[cb_text_column] = '\n';
-			buff[cb_text_column + 1] = 0;
-			n = cb_text_column + 1;
+			buff[text_column] = '\n';
+			buff[text_column + 1] = 0;
+			n = text_column + 1;
 		} else {
 			line_overflow = 0;
 		}
 
-		memset (buff, ' ', (size_t)6);
-			/* Note we allow directive lines to start at column 7 */
-		bp = &buff[6];
+		memset (buff, ' ', (size_t)(indicator_column - 1));
+		/* Note we allow directive lines to start in the indicator column */
+		bp = &buff[indicator_column - 1];
 
-			/* Special case: acucomment must be checked here as we'd pass comments
-			   as directives otherwise */
-		if (cb_flag_acucomment && buff[6] == '$') {
-			buff[6] = '*';
+		/* Special case: acucomment must be checked here as we'd pass comments
+		   as directives otherwise */
+		if (cb_flag_acucomment && buff[indicator_column - 1] == '$') {
+			buff[indicator_column - 1] = '*';
 		}
 	}
 
@@ -1745,7 +2330,8 @@ start:
 	ipchar = 0;
 	for (; *bp; bp++) {
 		if (*bp != ' ') {
-			if ((*bp == '$' && bp[1] != ' ') || (*bp == '>' && bp[1] == '>')) {
+			if ((*bp == '$' && bp[1] != ' ')
+			 || (*bp == '>' && bp[1] == '>')) {
 				/* Directive */
 				ipchar = 1;
 			} else if (*bp == '*' && bp[1] == '>') {
@@ -1761,9 +2347,10 @@ start:
 		}
 	}
 	if (ipchar && (!plex_skip_input
-		        || is_condition_directive_clause (bp))) {
+	            || is_condition_directive_clause (bp))) {
 		/* Directive - pass complete line with NL to ppparse */
 		if (newline_count) {
+			/* FIXME: this doesn't check the buffer size ! */
 			/* Move including NL and NULL byte */
 			memmove (buff + newline_count, buff, (size_t)n + 1);
 			memset (buff, '\n', newline_count);
@@ -1795,38 +2382,15 @@ start:
 	/*
 	  Check that line isn't start of ID DIVISION comment paragraph.
 	*/
-	if (comment_allowed) {
-		if (!strncasecmp (bp, "AUTHOR", 6)) {
-			paragraph_name = "AUTHOR";
-		} else if (!strncasecmp (bp, "DATE-WRITTEN", 12)) {
-			paragraph_name = "DATE-WRITTEN";
-		} else if (!strncasecmp (bp, "DATE-MODIFIED", 13)) {
-			paragraph_name = "DATE-MODIFIED";
-		} else if (!strncasecmp (bp, "DATE-COMPILED", 13)) {
-			paragraph_name = "DATE-COMPILED";
-		} else if (!strncasecmp (bp, "INSTALLATION", 12)) {
-			paragraph_name = "INSTALLATION";
-		} else if (!strncasecmp (bp, "REMARKS", 7)) {
-			paragraph_name = "REMARKS";
-		} else if (!strncasecmp (bp, "SECURITY", 8)) {
-			paragraph_name = "SECURITY";
-		} else {
-			paragraph_name = NULL;
-		}
-
-		if (paragraph_name
-		    && !is_cobol_word_char (bp[strlen (paragraph_name)])) {
-			cb_plex_verify (newline_count, cb_comment_paragraphs,
-					paragraph_name);
-			/* Skip comments until the end of line. */
-			within_comment = 1;
-			++newline_count;
-			goto start;
-		}
+	if (comment_allowed && next_word_is_comment_paragraph_name (bp)) {
+		/* Skip comments until the end of line. */
+		within_comment = 1;
+		++newline_count;
+		goto start;
 	}
 
 	/* Return when free format (no floating comments removed!) */
-	if (cb_source_format == CB_FORMAT_FREE) {
+	if (source_format == CB_FORMAT_FREE) {
 		within_comment = 0;
 		if (newline_count) {
 			memmove (buff + newline_count, buff, (size_t)n + 1);
@@ -1839,11 +2403,21 @@ start:
 
 	/* Fixed format */
 
-	/* Check the indicator (column 7) */
-	switch (buff[6]) {
+	/* Check the indicator */
+	indicator_width = 1;
+	switch (buff[indicator_column - 1]) {
 	case ' ':
+		if (floating_area_b) { /* indicator is optional */
+			indicator_width = 0;
+		}
 		break;
 	case '-':
+		if (source_format == CB_FORMAT_XOPEN_FFF) {
+			/* X/Open free-form does not interpret '-' as
+			   continuation indicator */
+			indicator_width = 0;
+			break;
+		}
 		if (unlikely (within_comment)) {
 			cb_plex_error (newline_count,
 					_("invalid continuation in comment entry"));
@@ -1857,6 +2431,19 @@ start:
 		break;
 	case 'd':
 	case 'D':
+		if (source_format == CB_FORMAT_ACUTERM) {
+			indicator_width = 0;
+			break; /* ACU terminal: this 'D' denotes a nominal text line */
+		} else if (source_format == CB_FORMAT_XOPEN_FFF) {
+			if (buff[indicator_column - 1] == 'D' &&
+			    buff[indicator_column] == ' ') {
+				indicator_width = 2;
+			} else {
+				/* X/Open free-form: not a debugging line */
+				indicator_width = 0;
+				break;
+			}
+		}
 		/* Debugging line */
 		(void) cb_verify (cb_debugging_mode, _("debugging indicator"));
 		if (cb_flag_debugging_line) {
@@ -1868,10 +2455,32 @@ start:
 	case '/':	/* Comment line requested page-break in listing */
 		newline_count++;
 		goto start;
+	case '\\':
+		if (buff[indicator_column] == 'D' &&
+		    source_format == CB_FORMAT_ACUTERM) {
+			/* ACUTERM debugging line */
+			(void) cb_verify (cb_debugging_mode, _("debugging indicator"));
+			indicator_width = 2;
+			if (cb_flag_debugging_line) {
+				break;
+			}
+		} else {
+			/* Invalid ACU terminal indicator? */
+			cb_plex_error (newline_count,
+				       _("invalid indicator '\\' at column %d"),
+				       indicator_column);
+		}
+		newline_count++;
+		goto start;
 	default:
+		if (floating_area_b) { /* indicator is optional */
+			indicator_width = 0;
+			break;
+		}
 		/* Invalid indicator */
 		cb_plex_error (newline_count,
-				_("invalid indicator '%c' at column 7"), buff[6]);
+				_("invalid indicator '%c' at column %d"),
+				buff[indicator_column - 1], indicator_column);
 		/* Note: Treat as comment line to allow further parsing
 		         instead of aborting compilation */
 		newline_count++;
@@ -1881,13 +2490,13 @@ start:
 	/* Skip comments that follow after AUTHORS, etc. */
 	if (unlikely (within_comment)) {
 		/* Check all of "Area A" */
-		for (ipchar = 7; ipchar < (n - 1) && ipchar < 11; ++ipchar) {
-			if (buff[ipchar] != ' ') {
-				ipchar = 0;
-				break;
-			}
-		}
-		if (ipchar) {
+		const int margin_a = cobc_get_margin_a (indicator_width);
+		const int margin_b = cobc_get_margin_b (indicator_width);
+		const int ipchar_max = (n - 1 < margin_b) ? n - 1 : margin_b;
+		for (ipchar = margin_a;
+		     ipchar < ipchar_max && buff[ipchar] == ' ';
+		     ++ipchar);
+		if (ipchar == ipchar_max) {
 			newline_count++;
 			goto start;
 		}
@@ -1895,17 +2504,27 @@ start:
 	}
 
 	/* Skip blank lines */
-	for (i = 7; buff[i] == ' '; ++i) {
-		;
-	}
-
+	for (i = indicator_column; buff[i] == ' '; ++i);
 	if (buff[i] == '\n') {
 		newline_count++;
 		goto start;
 	}
 
-	buff[6] = ' ';
-	bp = buff + 7;
+	/* Substitute spaces for indicator, and check whether area A is blank */
+	{
+		const int margin_a = cobc_get_margin_a (indicator_width);
+		const int margin_b = cobc_get_margin_b (indicator_width);
+		for (i = indicator_column - 1; i < margin_a; i++) {
+			buff[i] = ' ';
+		}
+		bp = buff + margin_a;
+
+		in_area_a = 0;
+		if (emit_area_a_tokens) {
+			for (i = margin_a; i < margin_b; i++)
+				in_area_a |= buff[i] != ' ';
+		}
+	}
 
 	if (unlikely (continuation)) {
 		/* Line continuation */
@@ -1953,7 +2572,7 @@ start:
 			/* remove indicator "source text too long" if the column
 			   leading to the indicator comes after the floating comment
 			*/
-			if (i < cb_text_column) {
+			if (i < text_column) {
 				line_overflow = 0;
 			}
 			/* Set to null, 'i' is predecremented further below */
@@ -1964,7 +2583,7 @@ start:
 				/* Literal start */
 				quotation_mark = buff[i];
 			} else if (quotation_mark == buff[i]) {
-				if (i == cb_text_column - 1) {
+				if (i == text_column - 1) {
 					/* Consecutive quotation */
 					consecutive_quotation = 1;
 				} else {
@@ -1980,8 +2599,10 @@ start:
 		if (!consecutive_quotation) {
 			need_continuation = 1;
 		}
-		for (; i < cb_text_column;) {
-			buff[i++] = ' ';
+		if (fill_continued_alnums) {
+			for (; i < text_column;) {
+				buff[i++] = ' ';
+			}
 		}
 		buff[i] = 0;
 	} else {
@@ -2000,12 +2621,12 @@ start:
 		buff[i + 1] = 0;
 	}
 
-	/* Show warning if text is longer than cb_text_column
+	/* Show warning if text is longer than text_column
 	   and not whitespace (postponed here) */
 	if (line_overflow != 0) {
 		cb_plex_warning (cb_warn_source_after_code, newline_count,
 				 _("source text after program-text area (column %d)"),
-				cb_text_column);
+				text_column);
 	}
 
 	if (unlikely (continuation)) {
@@ -2015,6 +2636,17 @@ start:
 	} else {
 		/* Insert newlines at the start of the buffer */
 		gotcr = strlen (buff);
+		if (in_area_a) {
+			/* (*area-a*): prepend special marker `#', indicating
+			   the current non-continuation line starts in area A
+			   (see "AREA_A" and "MAYBE_AREA_A"... in lexer rules
+			   above).
+
+			   Assumes `buff' is large enough for one extra char. */
+			memmove (buff + 1, buff, gotcr + 1);
+			buff[0] = '#';
+			gotcr += 1;
+		}
 		if (newline_count != 0) {
 			memmove (buff + newline_count, buff, gotcr + 1);
 			memset (buff, '\n', newline_count);
@@ -2027,7 +2659,7 @@ start:
 
 static struct cb_text_list *
 pp_text_list_add (struct cb_text_list *list, const char *text,
-		  const size_t size)
+		     const size_t size)
 {
 	struct cb_text_list	*p;
 	void			*tp;
@@ -2046,154 +2678,9 @@ pp_text_list_add (struct cb_text_list *list, const char *text,
 }
 
 static void
-ppecho (const char *text, const cob_u32_t alt_space, const int textlen)
+ppecho (const char *text, const char *token)
 {
-	/* performance note: while this function used 5% (according to callgrind)
-	   of the complete time spent in a sample run with
-	   -fsyntax-only on 880 production code files (2,500,000 LOC)
-	   3.8% of this time is spent in fwrite, therefore not much potential
-	   for optimization
-	*/
-	struct cb_replace_list		*r;
-	struct cb_replace_list		*save_ptr;
-	const struct cb_text_list	*lno;
-	struct cb_text_list		*queue;
-	struct cb_text_list		*save_queue;
-	const char			*s;
-	char				*temp_ptr;
-	size_t				size;
-	size_t				size2;
-
-	/* ensure nothing is in the stream buffer */
-	fflush (ppout);
-
-	/* Check for replacement text before outputting */
-	if (alt_space) {
-		s = yytext;
-	} else {
-		s = text;
-	}
-
-	if (text_queue == NULL && (text[0] == ' ' || text[0] == '\n')) {
-		/* No replacement */
-		fwrite (text, (size_t)textlen, (size_t)1, ppout);
-		if (cb_listing_file) {
-			check_listing (s, 0);
-		}
-		return;
-	}
-	if (!current_replace_list && !base_replace_list) {
-		/* Output queue */
-		for (; text_queue; text_queue = text_queue->next) {
-			fputs (text_queue->text, ppout);
-		}
-		fwrite (text, (size_t)textlen, (size_t)1, ppout);
-		if (cb_listing_file) {
-			check_listing (s, 0);
-		}
-		return;
-	}
-	if (!current_replace_list) {
-		current_replace_list = base_replace_list;
-		save_ptr = NULL;
-	} else {
-		current_replace_list->last->next = base_replace_list;
-		save_ptr = current_replace_list->last;
-	}
-
-	/* Do replacement */
-	text_queue = pp_text_list_add (text_queue, text, (size_t)textlen);
-
-	save_queue = NULL;
-	size = 0;
-	size2 = 0;
-	for (r = current_replace_list; r; r = r->next) {
-		queue = text_queue;
-		/* The LEADING/TRAILING code looks peculiar as we use */
-		/* variables after breaking out of the loop BUT */
-		/* ppparse.y guarantees that we have only one token */
-		/* and therefore only one iteration of this loop */
-		for (lno = r->old_text; lno; lno = lno->next) {
-			if (lno->text[0] == ' ' || lno->text[0] == '\n') {
-				continue;
-			}
-			while (queue && (queue->text[0] == ' ' ||
-			       queue->text[0] == '\n')) {
-				queue = queue->next;
-			}
-			if (queue == NULL) {
-				/* Partial match */
-				if (!save_ptr) {
-					current_replace_list = NULL;
-				} else {
-					save_ptr->next = NULL;
-				}
-				return;
-			}
-			if (r->lead_trail == CB_REPLACE_LEADING) {
-				/* Check leading text */
-				size = strlen (lno->text);
-				if (strncasecmp (lno->text, queue->text, size)) {
-					/* No match */
-					break;
-				}
-				save_queue = queue;
-			} else if (r->lead_trail == CB_REPLACE_TRAILING) {
-				/* Check trailing text */
-				size = strlen (lno->text);
-				size2 = strlen (queue->text);
-				if (size2 < size) {
-					/* No match */
-					break;
-				}
-				size2 -= size;
-				if (strncasecmp (lno->text, queue->text + size2, size)) {
-					/* No match */
-					break;
-				}
-				save_queue = queue;
-			} else if (strcasecmp (lno->text, queue->text)) {
-				/* No match */
-				break;
-			}
-			queue = queue->next;
-		}
-		if (lno == NULL) {
-			/* Match */
-			if (r->lead_trail == CB_REPLACE_TRAILING
-				&& save_queue /* <- silence warnings */) {
-				/* Non-matched part of original text */
-				fprintf (ppout, "%*.*s", (int)size2, (int)size2,
-					 save_queue->text);
-				if (cb_listing_file) {
-					temp_ptr = cobc_strdup (save_queue->text);
-					*(temp_ptr + size2) = 0;
-					check_listing (temp_ptr, 0);
-					cobc_free (temp_ptr);
-				}
-			}
-			for (lno = r->new_text; lno; lno = lno->next) {
-				ppecho_direct (lno->text);
-			}
-			if (r->lead_trail == CB_REPLACE_LEADING
-				&& save_queue /* <- silence warnings */) {
-				/* Non-matched part of original text */
-				ppecho_direct (save_queue->text + size);
-			}
-			text_queue = queue;
-			continue;
-		}
-	}
-
-	/* No match */
-	for (; text_queue; text_queue = text_queue->next) {
-		ppecho_direct (text_queue->text);
-	}
-	if (!save_ptr) {
-		current_replace_list = NULL;
-	} else {
-		save_ptr->next = NULL;
-	}
+	cb_ppecho_copy_replace (text, token);
 }
 
 static void
@@ -2213,6 +2700,14 @@ skip_to_eol (void)
 }
 
 static void
+count_newlines (const char *p)
+{
+	for (; *p; p++)
+		if (*p == '\n')
+			newline_count++;
+}
+
+static void
 display_finish (void)
 {
 	if (!plex_skip_input) {
@@ -2226,12 +2721,20 @@ display_finish (void)
 	unput ('\n');
 }
 
-static void
-ppecho_direct (const char *text)
+void cb_ppecho_direct (const char *text, const char *token )
 {
-	fputs (text, ppout);
+	if (text[0] == '\n' && text[1] == 0) {
+		if (echo_newline == 0) {
+			/* always keep one trailing \n */
+			fputc ('\n', ppout);
+		}
+		echo_newline++;
+	} else {
+		output_pending_newlines (ppout);
+		fputs (text, ppout);
+	}
 	if (cb_listing_file) {
-		check_listing (text, 0);
+		check_listing (token != NULL ? token : text, 0);
 	}
 }
 
@@ -2263,16 +2766,18 @@ check_listing (const char *text, const unsigned int comment)
 	}
 
 	if (requires_listing_line) {
-		if (requires_new_line) {
-			requires_new_line = 0;
-			putc ('\n', cb_listing_file);
-		}
 		fprintf (cb_listing_file, "%6d%c", ++listing_line, c);
 	}
 
-	if (requires_listing_line && cb_source_format != CB_FORMAT_FREE &&
-	    strlen (text) > 6) {
-		s = &text[6];
+	if (requires_listing_line
+	 && source_format != CB_FORMAT_FREE) {
+		if (strlen (text) >= (size_t)indicator_column) {
+			s = text + indicator_column - 1;
+		} else if (strchr (text, '\n')) {
+			s = "\n";	/* no sequence area, but line break */
+		} else {
+			s = "";	/* do not output sequence area */
+		}
 	} else {
 		s = text;
 	}

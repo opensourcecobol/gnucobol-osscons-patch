@@ -1,7 +1,7 @@
 #
 # Makefile gnucobol/cobc
 #
-# Copyright (C) 2003-2012, 2014-2020 Free Software Foundation, Inc.
+# Copyright (C) 2003-2012, 2014-2021 Free Software Foundation, Inc.
 # Written by Keisuke Nishida, Roger While, Simon Sobisch
 #
 # This file is part of GnuCOBOL.
@@ -22,11 +22,13 @@
 bin_PROGRAMS = cobc
 cobc_SOURCES = cobc.c cobc.h ppparse.y pplex.c parser.y scanner.c config.c \
 	reserved.c error.c tree.c tree.h field.c typeck.c codegen.c help.c \
-	config.def flag.def warning.def codeoptim.def ppparse.def codeoptim.c
+	config.def flag.def warning.def codeoptim.def ppparse.def \
+	codeoptim.c replace.c 
 
 #cobc_SOURCES = cobc.c cobc.h ppparse.y pplex.l parser.y scanner.l config.c
 
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_builddir)/lib -I$(top_srcdir)/lib
+AM_CPPFLAGS = -I$(top_srcdir) -I$(top_builddir)/lib -I$(top_srcdir)/lib \
+	$(COBC_CPPFLAGS)
 AM_CFLAGS = $(CODE_COVERAGE_CFLAGS)
 cobc_LDADD = $(top_builddir)/libcob/libcob.la \
 	$(top_builddir)/lib/libsupport.la \

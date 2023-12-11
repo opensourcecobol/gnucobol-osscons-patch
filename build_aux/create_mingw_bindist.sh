@@ -1,7 +1,7 @@
 #!/bin/bash
 # create_mingw_bindist.sh gnucobol
 #
-# Copyright (C) 2016-2020 Free Software Foundation, Inc.
+# Copyright (C) 2016-2020, 2022-2023 Free Software Foundation, Inc.
 # Written by Simon Sobisch
 #
 # This file is part of GnuCOBOL.
@@ -25,9 +25,15 @@
 # AND make sure EXTBUILDDIR exists with the right content.
 
 # Check we're in a MinGW environment
-if test ! -d "/mingw/bin"; then
-	echo "binary mingw dist packages can only be created from MSYS/MinGW"
-	echo "directory /mingw/bin not found"
+if test "x$MINGW_PREFIX" != "x" -a -d "$MSYSTEM_PREFIX/bin"; then
+	MINGWDIR="$MSYSTEM_PREFIX"
+	echo "generating binary ${MINGW_PREFIX:1} dist package..."
+elif test -d "/mingw/bin"; then
+	MINGWDIR="/mingw"
+	echo "generating binary mingw dist package..."
+else
+	echo "binary mingw dist packages can only be created from MSYS/MinGW or MSYS2"
+	echo "no matching mingw bin directory found"
 	exit 99
 fi
 
@@ -57,7 +63,7 @@ fi
 
 # getting version information, testing the current build works
 versinfo=$($EXTBUILDDIR/pre-inst-env cobcrun -v --version | tail -n2)
-versinfo_cmds=$(echo "echo. $(echo "$versinfo" | sed -e 's/^/\&\& echo /')" | tr '\n' ' ') 
+versinfo_cmds=$(echo "echo. $(echo "$versinfo" | sed -e 's/^/\&\& echo /')" | tr '\n' ' ')
 
 # Create folder
 echo
@@ -77,36 +83,52 @@ fi
 mkdir "$target_dir" || (echo "cannot create target directory" && exit 97)
 pushd "$target_dir" 1>/dev/null
 if test "$target_dir" != "$(pwd)"; then
-   target_dir="$(pwd)"
+	target_dir="$(pwd)"
 	echo "target (resolved): $target_dir"
 fi
 popd 1>/dev/null
 
 echo && echo copying MinGW files...
 echo "  bin..."
-cp -pr "/mingw/bin"          "$target_dir/"
+if test -f "$MINGWDIR/mingw32/bin"; then
+	cp -pr "$MINGWDIR/mingw32/bin" "$target_dir/"
+fi
+cp -pr "$MINGWDIR/bin"          "$target_dir/"
 echo "  include..."
-cp -pr "/mingw/include"      "$target_dir/"
+if test -f "$MINGWDIR/mingw32/include"; then
+	cp -pr "$MINGWDIR/mingw32/include" "$target_dir/"
+fi
+cp -pr "$MINGWDIR/include"      "$target_dir/"
 echo "  lib..."
-cp -pr "/mingw/lib"          "$target_dir/"
+if test -f "$MINGWDIR/mingw32/lib"; then
+	cp -pr "$MINGWDIR/mingw32/lib" "$target_dir/"
+fi
+cp -pr "$MINGWDIR/lib"          "$target_dir/"
 echo "  libexec..."
-cp -pr "/mingw/libexec"      "$target_dir/"
-echo "  share/locale..."
+cp -pr "$MINGWDIR/libexec"      "$target_dir/"
+echo "  share... (locale and friends)"
 # note: possible copying more of share later
-cp -pr "/mingw/share/locale" "$target_dir/"
+cp -pr "$MINGWDIR/share/locale" "$target_dir/"
+mkdir -p "$target_dir/share"
+cp -pr "$MINGWDIR/share/gdb"    "$target_dir/share/"
+cp -pr "$MINGWDIR/share/gcc"*   "$target_dir/share/"
+cp -pr "$MINGWDIR/share/man"    "$target_dir/share/"
+if test -f "$MINGWDIR/share/zoneinfo"; then
+	cp -pr "$MINGWDIR/share/zoneinfo" "$target_dir/share/"
+fi
 
 echo && echo copying GnuCOBOL files...
 cp -pr "$EXTBUILDDIR/extras" "$target_dir/"
 cp -pr "$EXTSRCDIR/copy"     "$target_dir/"
 cp -pr "$EXTSRCDIR/config"   "$target_dir/"
 
-cp -p "$EXTBUILDDIR/cobc/.libs/cobc.exe" "$target_dir/bin/"
-cp -p "$EXTBUILDDIR/bin/.libs/cobcrun.exe" "$target_dir/bin/"
-cp -p $EXTBUILDDIR/libcob/.libs/libcob*.dll  "$target_dir/bin/"
-cp -p $EXTBUILDDIR/libcob/.libs/libcob.*  "$target_dir/lib/"
-mkdir "$target_dir/include/libcob"
-cp -p $EXTSRCDIR/libcob.h    "$target_dir/include/"
-cp -p $EXTSRCDIR/libcob/*.h  "$target_dir/include/libcob"
+cp -p $EXTBUILDDIR/cobc/.libs/cobc.exe      "$target_dir/bin/"
+cp -p $EXTBUILDDIR/bin/.libs/cobcrun.exe    "$target_dir/bin/"
+cp -p $EXTBUILDDIR/libcob/.libs/libcob*.dll "$target_dir/bin/"
+cp -p $EXTBUILDDIR/libcob/.libs/libcob.*    "$target_dir/lib/"
+mkdir -p "$target_dir/include/libcob"
+cp -p $EXTSRCDIR/libcob.h      "$target_dir/include/"
+cp -p $EXTSRCDIR/libcob/*.h    "$target_dir/include/libcob"
 cp -p $EXTSRCDIR/libcob/*.def  "$target_dir/include/libcob"
 
 echo && echo copying docs...
@@ -128,14 +150,22 @@ sed -e 's/\r*$/\r/' "bin/ChangeLog" > "$target_dir/ChangeLog_bin.txt"
 sed -e 's/\r*$/\r/' "cobc/ChangeLog" > "$target_dir/ChangeLog_cobc.txt"
 sed -e 's/\r*$/\r/' "libcob/ChangeLog" > "$target_dir/ChangeLog_libcob.txt"
 
-# copy manpages (checkme) ...
-#cp bin/cobcrun.1
-#cp cobc/cobc.1
-##cp libcob/libcob.3
-# ... and locales
+if test -f "$EXTBUILDDIR/cobc/cobc.1"; then
+	echo && echo installing manpages...
+	make -C "$EXTBUILDDIR/bin" install-man1 datarootdir="$target_dir/share"
+	make -C "$EXTBUILDDIR/cobc" install-man1 datarootdir="$target_dir/share"
+	#make -C "$EXTBUILDDIR/libcob" install-man3 datarootdir="$target_dir/share"
+else
+	echo "WARNING: GnuCOBOL manpages not found!"
+fi
 
-echo && echo installing locales...
-make -C "$EXTBUILDDIR/po" install-data-yes localedir="$target_dir/locale"
+# note: locales are configured to be created in the srcdir
+if test -f "$EXTSRCDIR/po/fr.po"; then
+	echo && echo installing locales...
+	make -C "$EXTBUILDDIR/po" install-data-yes datarootdir="$target_dir"
+else
+	echo "WARNING: GnuCOBOL locales not found!"
+fi
 
 popd 1>/dev/null
 
@@ -164,21 +194,39 @@ fi
 popd 1>/dev/null
 
 cat > "$target_dir/set_env.cmd" << _FEOF
+:: Copyright (C) 2016-2020, 2022 Free Software Foundation, Inc.
+:: Written by Simon Sobisch
+::
+:: This file is part of GnuCOBOL.
+::
+:: The GnuCOBOL compiler is free software: you can redistribute it
+:: and/or modify it under the terms of the GNU General Public License
+:: as published by the Free Software Foundation, either version 3 of the
+:: License, or (at your option) any later version.
+::
+:: GnuCOBOL is distributed in the hope that it will be useful,
+:: but WITHOUT ANY WARRANTY; without even the implied warranty of
+:: MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+:: GNU General Public License for more details.
+::
+:: You should have received a copy of the GNU General Public License
+:: along with GnuCOBOL.  If not, see <https://www.gnu.org/licenses/>.
+
 @echo off
 
 :: Check if called already
-:: if yes, check if called from here - exit, in any other case 
+:: if yes, check if called from here - exit, in any other case
 :: raise warning and reset env vars
 if not "%COB_MAIN_DIR%" == "" (
    echo.
    if "%COB_MAIN_DIR%" == "%~dp0" (
       echo Information: batch was called alread from "%COB_MAIN_DIR%"
       echo              skipping environment setting...
-	  if not [%1] == [] goto :call_if_needed
+      if not [%1] == [] goto :call_if_needed
       goto :cobcver
    ) else (
       echo Warning: batch was called before from "%COB_MAIN_DIR%"
-      echo          resetting COB_CFLAGS, COB_LDFLAGS 
+      echo          resetting COB_CFLAGS, COB_LDFLAGS
       set "COB_CFLAGS="
       set "COB_LDLAGS="
    )
@@ -202,6 +250,11 @@ set "PATH=%COB_MAIN_DIR%bin;%PATH%"
 :: Locales
 set "LOCALEDIR=%COB_MAIN_DIR%locale"
 
+:: Timezone database
+if exist "%COB_MAIN_DIR%share\zoneinfo" (
+  set "TZDIR=%COB_MAIN_DIR%share\zoneinfo"
+)
+
 :: start executable as requested
 :call_if_needed
 if not [%1] == [] (
@@ -212,17 +265,17 @@ if not [%1] == [] (
   goto :eof
 )
 
-:: new cmd to stay open if not started directly from cmd.exe window 
-echo %cmdcmdline% | find /i "%~0" >nul
+:: new cmd to stay open if not started directly from cmd.exe window
+echo %cmdcmdline% | %windir%\system32\find.exe /i "%~0" >nul
 if %errorlevel% equ 0 (
-  cmd /k "cobc --version && $versinfo_cmds"
+  cmd /k "cobc.exe --version && $versinfo_cmds"
   goto :eof
 )
 
 :: Compiler and package version output
 :cobcver
 echo.
-cobc --version
+cobc.exe --version
 $versinfo_cmds
 
 _FEOF
@@ -256,12 +309,39 @@ same source tarball don't have.
 Important: See BUGS.txt for possible known issues in this distribution!
 
 For running GnuCOBOL simply double-click set_env.cmd found next to this file, or,
-if already in cmd, call setenv.cmd once.
-You can use cobc/cobcrun in the command prompt afterwards.
+if already in cmd, call set_env.cmd once.
+You can use cobc and cobcrun in the command prompt afterwards.
 
 _FEOF
 } >> "$target_dir/README.txt"
 sed -i 's/$/\r/' "$target_dir/README.txt"
+
+
+echo && echo removing some unneeded files
+pushd "$target_dir/bin" 1>/dev/null
+rm -rf auto*
+rm -rf aclocal*
+
+# Note: perl may be used in the distribution for
+#       test coverage via lcov, so leave in
+#rm -rf *perl*
+cd ../lib 1>/dev/null
+#rm -rf *perl*
+
+rm -rf *.la
+
+rm -rf terminfo*
+
+rm -rf tcl*
+rm -rf tkl*
+rm -rf tdbc*
+
+rm -rf cmake*
+rm -rf pkgconfig*
+
+cd .. 1>/dev/null
+rm -rf libexec/mingw-get
+popd 1>/dev/null
 
 
 echo && echo duplicating for debug version...

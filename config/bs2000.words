@@ -1,6 +1,6 @@
 # GnuCOBOL compiler - list of reserved words
 #
-# Copyright (C) 2016-2017 Free Software Foundation, Inc.
+# Copyright (C) 2016-2017,2021-2023 Free Software Foundation, Inc.
 # Written by Simon Sobisch, Edward Hart
 #
 # This file is part of GnuCOBOL.
@@ -36,6 +36,7 @@ reserved:	ACCEPT
 reserved:	ACCESS
 reserved:	ACTIVE-CLASS
 reserved:	ADD
+reserved:	ADDR		# BS2000 intrinsic function, not known to GnuCOBOL
 reserved:	ADDRESS
 reserved:	ADVANCING
 reserved:	AFTER
@@ -119,11 +120,11 @@ reserved:	COMP-1
 reserved:	COMP-2
 reserved:	COMP-3
 reserved:	COMP-5
-reserved:	COMPUTATIONAL
-reserved:	COMPUTATIONAL-1
-reserved:	COMPUTATIONAL-2
-reserved:	COMPUTATIONAL-3
-reserved:	COMPUTATIONAL-5
+reserved:	COMPUTATIONAL=COMP
+reserved:	COMPUTATIONAL-1=COMP-1
+reserved:	COMPUTATIONAL-2=COMP-2
+reserved:	COMPUTATIONAL-3=COMP-3
+reserved:	COMPUTATIONAL-5=COMP-5
 reserved:	COMPUTE
 reserved:	CONDITION
 reserved:	CONFIGURATION
@@ -135,7 +136,7 @@ reserved:	CONTROL
 reserved:	CONTROLS
 reserved:	CONVERTING
 reserved:	COPY
-reserved:	CORR
+reserved:	CORR=CORRESPONDING
 reserved:	CORRESPONDING
 reserved:	COUNT
 reserved:	CREATING
@@ -287,7 +288,7 @@ reserved:	INTRINSIC*
 reserved:	INVALID
 reserved:	INVOKE
 reserved:	IS
-reserved:	JUST
+reserved:	JUST=JUSTIFIED
 reserved:	JUSTIFIED
 reserved:	KEY
 reserved:	LABEL
@@ -388,7 +389,7 @@ reserved:	PROPERTY
 reserved:	PROTOTYPE
 reserved:	PURGE
 reserved:	QUOTE
-reserved:	QUOTES
+reserved:	QUOTES=QUOTE
 reserved:	RAISE
 reserved:	RAISING
 reserved:	RANDOM
@@ -457,9 +458,9 @@ reserved:	SIGN
 reserved:	SIGNED*
 reserved:	SIZE
 reserved:	SORT
-reserved:	SORT-CCSN # note: this is a register, move as soon as supported
+reserved:	SORT-CCSN      # note: this is a register, move as soon as supported
 reserved:	SORT-CORE-SIZE # note: this is a register, move as soon as supported
-reserved:	SORT-EOW # note: this is a register, move as soon as supported
+reserved:	SORT-EOW       # note: this is a register, move as soon as supported
 reserved:	SORT-FILE-SIZE # note: this is a register, move as soon as supported
 reserved:	SORT-MERGE
 reserved:	SORT-MODE-SIZE # note: this is a register, move as soon as supported
@@ -488,7 +489,7 @@ reserved:	SUPER
 reserved:	SUPPRESS
 reserved:	SYMBOL*
 reserved:	SYMBOLIC
-reserved:	SYNC
+reserved:	SYNC=SYNCHRONIZED
 reserved:	SYNCHRONIZED
 reserved:	SYSTEM-DEFAULT
 reserved:	TABLE
@@ -500,7 +501,7 @@ reserved:	TERMINATE
 reserved:	TEST
 reserved:	THAN
 reserved:	THEN
-reserved:	THROUGH
+reserved:	THROUGH=THRU
 reserved:	THRU
 reserved:	TIME
 reserved:	TIMES
@@ -536,7 +537,7 @@ reserved:	VALIDATE
 reserved:	VALIDATE-STATUS
 reserved:	VALIDITY*
 reserved:	VALUE
-reserved:	VALUES=VALUE
+reserved:	VALUES
 reserved:	VARYING
 reserved:	VERSION-XML
 reserved:	WHEN
@@ -545,13 +546,6 @@ reserved:	WORDS
 reserved:	WORKING-STORAGE
 reserved:	WRITE
 reserved:	XML
-reserved:	XML-EVENT # note: this is a register, move as soon as supported
-reserved:	XML-NAMESPACE # note: this is a register, move as soon as supported
-reserved:	XML-NAMESPACE-PREFIX # note: this is a register, move as soon as supported
-reserved:	XML-NNAMESPACE # note: this is a register, move as soon as supported
-reserved:	XML-NNAMESPACE-PREFIX # note: this is a register, move as soon as supported
-reserved:	XML-NTEXT # note: this is a register, move as soon as supported
-reserved:	XML-TEXT # note: this is a register, move as soon as supported
 reserved:	YYYYDDD*
 reserved:	YYYYMMDD*
 reserved:	ZERO
@@ -577,13 +571,13 @@ register:	RETURN-CODE
 register:	SORT-RETURN
 register:	TALLY
 register:	XML-CODE
-# register:	XML-EVENT
-# register:	XML-NAMESPACE
-# register:	XML-NAMESPACE-PREFIX
-# register:	XML-NNAMESPACE
-# register:	XML-NNAMESPACE-PREFIX
-# register:	XML-NTEXT
-# register:	XML-TEXT
+register:	XML-EVENT
+register:	XML-NAMESPACE
+register:	XML-NAMESPACE-PREFIX
+register:	XML-NNAMESPACE
+register:	XML-NNAMESPACE-PREFIX
+register:	XML-NTEXT
+register:	XML-TEXT
 
 # TO-DO: Add all printer mnemonics and special variables
 # (e.g. DATE-ISO4, CPU-TIME).

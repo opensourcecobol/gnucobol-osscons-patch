@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2001-2012, 2014-2020 Free Software Foundation, Inc.
+   Copyright (C) 2001-2012, 2014-2023 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch, Edward Hart
 
    This file is part of GnuCOBOL.
@@ -49,10 +49,10 @@ CB_CONFIG_STRING (cb_reserved_words, "reserved-words", _("use of complete/fixed 
 /* Integer flags */
 
 CB_CONFIG_INT (cb_tab_width, "tab-width", 1, 12, CB_XRANGE(1,12),
-	_("set number of spaces that are assumed for tabs"))
+	_("number of spaces that are assumed for tabs"))
 
 CB_CONFIG_INT (cb_config_text_column, "text-column", 72, 255, CB_XRANGE(72,255),
-	_("set right margin for source (fixed format only)"))
+	_("right margin column number for fixed-form reference-format"))
 
 CB_CONFIG_INT (cb_pic_length, "pic-length", 1, COB_MINI_MAX, _("<number>"),
 	_("maximum number of characters allowed in the PICTURE character-string"))
@@ -69,7 +69,18 @@ CB_CONFIG_INT (cb_numlit_length, "numeric-literal-length", 1, COB_MAX_DIGITS, CB
 
 /* Flags with required parameter and special values */
 
+CB_CONFIG_ANY (signed int, cb_default_byte, "defaultbyte",
+	_("default initialization for fields without VALUE, may be one of\n"
+	  "                         * character in quotes\n"
+	  "                         * decimal 0..255 representing a character\n"
+	  "                         * \"init\" to initialize to PICTURE/USAGE\n"
+	  "                         * \"none\" to do no explicit initialization\n"
+	  "                         * default: \"init\""))
+
 CB_CONFIG_ANY (enum cb_std_def, cb_std_define, "standard-define", NULL) /* Used Standard (set via -std) */
+
+CB_CONFIG_ANY (enum cb_format, cb_source_format, "format",
+	_("default reference-format, may be one of: " CB_SF_ALL_NAMES))
 
 CB_CONFIG_ANY (enum cb_binary_size_options, cb_binary_size, "binary-size",
 	_("binary byte size - defines the allocated bytes according to PIC, may be one of: 2-4-8, 1-2-4-8, 1--8"))
@@ -86,6 +97,9 @@ CB_CONFIG_ANY (enum cb_screen_clauses_rules, cb_screen_section_clauses, "screen-
 CB_CONFIG_ANY (enum cb_dpc_in_data_options, cb_dpc_in_data, "dpc-in-data",
 	_("whether DECIMAL-POINT IS COMMA has effect in XML/JSON GENERATE, may be one of: none, xml, json, all"))
 
+CB_CONFIG_ANY (enum cb_sub_check, cb_subscript_check, "subscript-check",
+	_("checking for subscript (only done with EC-BOUND-SUBSCRIPT active), may be one of: full, max, record"))
+
 /* Normal boolean flags */
 
 CB_CONFIG_BOOLEAN (cb_filename_mapping, "filename-mapping",
@@ -98,13 +112,16 @@ CB_CONFIG_BOOLEAN (cb_binary_truncate, "binary-truncate",
 	_("numeric truncation according to ANSI"))
 
 CB_CONFIG_BOOLEAN (cb_complex_odo, "complex-odo",
-	_("allow complex OCCURS DEPENDING ON"))
+	_("allow non-standard OCCURS DEPENDING ON syntax"))
+
+CB_CONFIG_BOOLEAN (cb_odoslide, "odoslide",
+	_("adjust items following OCCURS DEPENDING (implies complex-odo)"))
+
+CB_CONFIG_BOOLEAN (cb_initial_justify, "init-justify",
+	_("applies JUSTIFY with VALUE clause"))
 
 CB_CONFIG_BOOLEAN (cb_indirect_redefines, "indirect-redefines",
 	_("allow REDEFINES to other than last equal level number"))
-
-CB_CONFIG_BOOLEAN (cb_larger_redefines_ok, "larger-redefines-ok", /* TO-DO: change to CB_CONFIG_SUPPORT */
-	_("allow larger REDEFINES items"))
 
 CB_CONFIG_BOOLEAN (cb_relaxed_syntax_checks, "relax-syntax-checks",
 	_("allow certain syntax variations (e.g. REDEFINES position)"))
@@ -172,10 +189,33 @@ CB_CONFIG_BOOLEAN (cb_move_nonnumlit_to_numeric_is_zero, "move-non-numeric-lit-t
 CB_CONFIG_BOOLEAN (cb_implicit_assign_dynamic_var, "implicit-assign-dynamic-var",
 	_("implicitly define a variable if an ASSIGN DYNAMIC does not match any data item"))
 
+CB_CONFIG_BOOLEAN (cb_device_mnemonics, "device-mnemonics",
+	_("specifying device by mnemonic"))
+
+CB_CONFIG_BOOLEAN (cb_xml_parse_xmlss, "xml-parse-xmlss",
+	"XML PARSE XMLSS")
+
+CB_CONFIG_BOOLEAN (cb_areacheck, "areacheck",
+	_("check contents of Area A (when reference format supports Area A enforcement),\n"
+	  "                         enabled checks include:\n"
+	  "                         * division, section, paragraph names, level indicators (FD, SD, RD, and CD),\n"
+	  "                           and toplevel numbers (01 and 77) must start in Area A;\n"
+	  "                         * statements must not start in Area A; and\n"
+	  "                         * separator periods must not be within Area A"))
+
 /* Support flags */
 
 CB_CONFIG_SUPPORT (cb_comment_paragraphs, "comment-paragraphs",
 	_("comment paragraphs in IDENTIFICATION DIVISION (AUTHOR, DATE-WRITTEN, ...)"))
+
+
+CB_CONFIG_SUPPORT (cb_control_division, "control-division",
+	"CONTROL DIVISION")
+
+/* Enables literals as replacement operands. */
+CB_CONFIG_SUPPORT (cb_partial_replace_when_literal_src, "partial-replace-when-literal-src",
+	_("apply partial replacing with literal source operand even when it replaces with spaces only;\n"
+	  "                         * \"skip\" prevents such replacements"))
 
 CB_CONFIG_SUPPORT (cb_memory_size_clause, "memory-size-clause",
 	_("MEMORY-SIZE clause"))
@@ -207,17 +247,23 @@ CB_CONFIG_SUPPORT (cb_usage_type_name, "usage-type",
 CB_CONFIG_SUPPORT (cb_synchronized_clause, "synchronized-clause",
 	_("SYNCHRONIZED clause"))
 
+CB_CONFIG_SUPPORT (cb_sync_left_right, "sync-left-right",
+	_("LEFT/RIGHT phrases in SYNCHRONIZED clause"))
+
 CB_CONFIG_SUPPORT (cb_special_names_clause, "special-names-clause",
 	_("SPECIAL-NAMES clause"))
 
 CB_CONFIG_SUPPORT (cb_goto_statement_without_name, "goto-statement-without-name",
-	_("GOTO statement without name"))
+	_("GO TO statement without name"))
 
 CB_CONFIG_SUPPORT (cb_stop_literal_statement, "stop-literal-statement",
 	_("STOP-literal statement"))
 
 CB_CONFIG_SUPPORT (cb_stop_identifier_statement, "stop-identifier-statement",
 	_("STOP-identifier statement"))
+
+CB_CONFIG_SUPPORT (cb_stop_error_statement, "stop-error-statement",
+	_("STOP ERROR statement"))
 
 CB_CONFIG_SUPPORT (cb_debugging_mode, "debugging-mode",
 	_("DEBUGGING MODE and debugging indicator"))
@@ -285,6 +331,9 @@ CB_CONFIG_SUPPORT (cb_hp_octal_literals, "hp-octal-literals",
 CB_CONFIG_SUPPORT (cb_acu_literals, "acu-literals",
 	_("ACUCOBOL-GT literals (#B #O #H #X)"))
 
+CB_CONFIG_BOOLEAN (cb_gcos_ebcdic_literals, "ebcdic-symbolic-characters",
+	_("EBCDIC symbolic characters in literals (\" \"135,151,151\"bar\"195, 194\"Z\" for \" foobarBAZ\")"))
+
 CB_CONFIG_SUPPORT (cb_word_continuation, "word-continuation",
 	_("continuation of COBOL words"))
 
@@ -296,6 +345,10 @@ CB_CONFIG_SUPPORT (cb_accept_display_extensions, "accept-display-extensions",
 
 CB_CONFIG_SUPPORT (cb_renames_uncommon_levels, "renames-uncommon-levels",
 	_("RENAMES of 01-, 66- and 77-level items"))
+
+/* larger REDEFINES items other than 01 non-external */
+CB_CONFIG_SUPPORT (cb_larger_redefines, "larger-redefines",
+	_("allow larger REDEFINES items"))
 
 CB_CONFIG_SUPPORT (cb_symbolic_constant, "symbolic-constant",
 	_("constants defined in SPECIAL-NAMES"))
@@ -320,6 +373,9 @@ CB_CONFIG_SUPPORT (cb_call_convention_mnemonic, "call-convention-mnemonic",
 
 CB_CONFIG_SUPPORT (cb_call_convention_linkage, "call-convention-linkage",
 	_("specifying call-convention by WITH ... LINKAGE"))
+
+CB_CONFIG_SUPPORT (cb_using_optional, "using-optional",
+	_("support for PROCEDURE DIVISION USING OPTIONAL"))
 
 CB_CONFIG_SUPPORT (cb_numeric_value_for_edited_item, "numeric-value-for-edited-item",
 	_("numeric literals in VALUE clause of numeric-edited items"))
@@ -348,6 +404,9 @@ CB_CONFIG_SUPPORT (cb_record_delim_with_fixed_recs, "record-delim-with-fixed-rec
 CB_CONFIG_SUPPORT (cb_missing_statement, "missing-statement",
 	_("missing statement (e.g. empty IF / PERFORM)"))
 
+CB_CONFIG_SUPPORT (cb_missing_period, "missing-period",
+	_("missing period in PROCEDURE DIVISION (when reference format supports Area A enforcement)"))
+
 CB_CONFIG_SUPPORT (cb_zero_length_lit, "zero-length-literals",
 	_("zero-length literals, e.g. '' and \"\""))
 
@@ -358,7 +417,7 @@ CB_CONFIG_SUPPORT (cb_continue_after, "continue-after",
 	_("AFTER phrase in CONTINUE statement"))
 
 CB_CONFIG_SUPPORT (cb_goto_entry, "goto-entry",
-	_("ENTRY FOR GOTO and GOTO ENTRY statements"))
+	_("ENTRY FOR GO TO and GO TO ENTRY statements"))
 
 CB_CONFIG_SUPPORT (cb_assign_variable, "assign-variable",
 	_("ASSIGN [TO] variable in SELECT"))
@@ -374,3 +433,12 @@ CB_CONFIG_SUPPORT (cb_assign_disk_from, "assign-disk-from",
 
 CB_CONFIG_SUPPORT (cb_vsam_status, "vsam-status",
 	_("VSAM status in FILE STATUS"))
+		
+CB_CONFIG_SUPPORT (cb_self_call_recursive, "self-call-recursive",
+	_("CALL to own PROGRAM-ID implies RECURSIVE attribute"))
+
+CB_CONFIG_SUPPORT (cb_record_contains_depending_clause, "record-contains-depending-clause",
+	_("DEPENDING clause in RECORD CONTAINS"))
+
+CB_CONFIG_SUPPORT (cb_picture_l, "picture-l",
+	_("PICTURE string with 'L' character"))

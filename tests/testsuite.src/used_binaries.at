@@ -1,4 +1,4 @@
-## Copyright (C) 2014-2020 Free Software Foundation, Inc.
+## Copyright (C) 2014-2023 Free Software Foundation, Inc.
 ## Written by Simon Sobisch, Brian Tiffin
 ##
 ## This file is part of GnuCOBOL.
@@ -44,6 +44,7 @@ AT_CHECK([$COBC -std=acu --list-registers], [0], [ignore], [])
 AT_CHECK([$COBC -std=cobol2002 --list-intrinsics], [0], [ignore], [])
 AT_CHECK([$COBC -std=ibm --list-mnemonics], [0], [ignore], [])
 AT_CHECK([$COBC --list-system], [0], [ignore], [])
+AT_CHECK([$COBC --list-exceptions], [0], [ignore], [])
 AT_CLEANUP
 
 
@@ -67,20 +68,20 @@ AT_DATA([prog.cob],[
 ])
 AT_CHECK([$COBC -fsyntax-only prog.cob], [0], [], [])
 # increasing to more warnings
-AT_CHECK([$COBC -fsyntax-only -Wadditional prog.cob], [0], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -Wadditional prog.cob], [0], [],
 [prog.cob:9: warning: PERFORM FOREVER since UNTIL is always FALSE [[-Wadditional]]
 ])
-AT_CHECK([$COBC -fsyntax-only -fno-diagnostics-show-option -Wadditional prog.cob], [0], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -fno-diagnostics-show-option -Wadditional prog.cob], [0], [],
 [prog.cob:9: warning: PERFORM FOREVER since UNTIL is always FALSE
 ])
 # which in this case is also included in -Wall
-AT_CHECK([$COBC -fsyntax-only -Wall prog.cob], [0], [],
-[prog.cob:9: warning: expression '0' EQUALS '1' is always FALSE [[-Wconstant-expression]]
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -Wall prog.cob], [0], [],
+[prog.cob:9: warning: expression '0' EQUALS '1' is always FALSE [[-Wconstant-numlit-expression]]
 prog.cob:9: warning: PERFORM FOREVER since UNTIL is always FALSE [[-Wadditional]]
 ])
 # -Wextra is more descriptive ...
-AT_CHECK([$COBC -fsyntax-only -Wextra prog.cob], [0], [],
-[prog.cob:9: warning: expression '0' EQUALS '1' is always FALSE [[-Wconstant-expression]]
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -Wextra prog.cob], [0], [],
+[prog.cob:9: warning: expression '0' EQUALS '1' is always FALSE [[-Wconstant-numlit-expression]]
 prog.cob:9: warning: PERFORM FOREVER since UNTIL is always FALSE [[-Wadditional]]
 prog.cob:10: warning: DISPLAY statement not terminated by END-DISPLAY [[-Wterminator]]
 prog.cob:13: warning: some digits may be truncated [[-Wpossible-truncate]]
@@ -88,8 +89,8 @@ prog.cob:7: note: 'var2' defined here as PIC 99 [[-Wpossible-truncate]]
 prog.cob:6: note: 'var1' defined here as PIC 9 [[-Wpossible-truncate]]
 ])
 # ... the old -W is in for backwards portability
-AT_CHECK([$COBC -fsyntax-only -W prog.cob], [0], [],
-[prog.cob:9: warning: expression '0' EQUALS '1' is always FALSE [[-Wconstant-expression]]
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -W prog.cob], [0], [],
+[prog.cob:9: warning: expression '0' EQUALS '1' is always FALSE [[-Wconstant-numlit-expression]]
 prog.cob:9: warning: PERFORM FOREVER since UNTIL is always FALSE [[-Wadditional]]
 prog.cob:10: warning: DISPLAY statement not terminated by END-DISPLAY [[-Wterminator]]
 prog.cob:13: warning: some digits may be truncated [[-Wpossible-truncate]]
@@ -99,26 +100,26 @@ prog.cob:6: note: 'var1' defined here as PIC 9 [[-Wpossible-truncate]]
 # a global "error" use implies no warning settings
 AT_CHECK([$COBC -fsyntax-only -Werror prog.cob], [0], [], [])
 # a concrete "error" use implies setting the warning
-AT_CHECK([$COBC -fsyntax-only -Werror=additional prog.cob], [1], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -Werror=additional prog.cob], [1], [],
 [prog.cob:9: error: PERFORM FOREVER since UNTIL is always FALSE [[-Werror=additional]]
 ])
-AT_CHECK([$COBC -fsyntax-only -fno-diagnostics-show-option -Werror=additional prog.cob], [1], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -fno-diagnostics-show-option -Werror=additional prog.cob], [1], [],
 [prog.cob:9: error: PERFORM FOREVER since UNTIL is always FALSE
 ])
 # a "no-error" use implies nothing
 AT_CHECK([$COBC -fsyntax-only -Wno-error=additional prog.cob], [0], [], [])
 # ... now combined
 AT_CHECK([$COBC -fsyntax-only -Werror -Wno-error=additional prog.cob], [0], [], [])
-AT_CHECK([$COBC -fsyntax-only -Werror=additional -Wno-error prog.cob], [1], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -Werror=additional -Wno-error prog.cob], [1], [],
 [prog.cob:9: error: PERFORM FOREVER since UNTIL is always FALSE [[-Werror=additional]]
 ])
-AT_CHECK([$COBC -fsyntax-only -w -Werror=additional prog.cob], [1], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -w -Werror=additional prog.cob], [1], [],
 [prog.cob:9: error: PERFORM FOREVER since UNTIL is always FALSE [[-Werror=additional]]
 ])
-AT_CHECK([$COBC -fsyntax-only -w -Wadditional prog.cob], [0], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -w -Wadditional prog.cob], [0], [],
 [prog.cob:9: warning: PERFORM FOREVER since UNTIL is always FALSE [[-Wadditional]]
 ])
-AT_CHECK([$COBC -fsyntax-only -w -Wpossible-truncate prog.cob], [0], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -w -Wpossible-truncate prog.cob], [0], [],
 [prog.cob:13: warning: some digits may be truncated [[-Wpossible-truncate]]
 prog.cob:7: note: 'var2' defined here as PIC 99 [[-Wpossible-truncate]]
 prog.cob:6: note: 'var1' defined here as PIC 9 [[-Wpossible-truncate]]
@@ -149,19 +150,19 @@ AT_DATA([prog2.cob], [
            STOP RUN.
 ])
 
-AT_CHECK([$COBC -Wall -fsyntax-only prog2.cob], [1], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -Wall prog2.cob], [1], [],
 [prog2.cob:7: error: CRUD.CPY: No such file or directory
 prog2.cob:6: warning: numeric value is expected [[-Wothers]]
 ])
 
-AT_CHECK([$COBC -fsyntax-only -fmax-errors=0 prog2.cob], [97], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -fmax-errors=0 prog2.cob], [97], [],
 [prog2.cob:7: error: CRUD.CPY: No such file or directory
 cobc: too many errors [[-fmax-errors=0]]
 
 cobc: aborting compile of prog2.cob at line 7 (unknown: unknown)
 ])
 
-AT_CHECK([$COBC -fsyntax-only -Wfatal-errors prog2.cob], [97], [],
+AT_CHECK([$COBC -fsyntax-only -fdiagnostics-plain-output -Wfatal-errors prog2.cob], [97], [],
 [prog2.cob:7: error: CRUD.CPY: No such file or directory
 cobc: too many errors [[-Wfatal-errors]]
 
@@ -216,7 +217,7 @@ AT_CLEANUP
 
 
 AT_SETUP([compiler outputs (file specified)])
-AT_KEYWORDS([runmisc cobc gen-c-line-directives gen-c-labels gen line labels])
+AT_KEYWORDS([runmisc cobc gen-c-line-directives gen-c-labels gen line labels copy])
 
 AT_DATA([prog.cob],[
         IDENTIFICATION DIVISION.
@@ -226,37 +227,73 @@ AT_DATA([prog.cob],[
         01 BLA PIC X(5) VALUE 'bluBb'.
         PROCEDURE DIVISION.
         MAIN-PROC SECTION.
+        00.
         COPY PROC.
         END-PROC  SECTION.
-        STOP RUN.
+        COPY PROCE in "sub".
+        EX.
+            STOP RUN.
 ])
 
 AT_CHECK([mkdir -p sub/copy], [0], [], [])
 
 AT_DATA([sub/copy/PROC.cpy],[
-        DISPLAY BLA NO ADVANCING.
+           DISPLAY BLA NO ADVANCING.
 ])
+AT_DATA([sub/PROCE.cpy],[
+           DISPLAY ' END' NO ADVANCING.
+])
+
+AT_CAPTURE_FILE([prog.i])
+AT_CAPTURE_FILE([prog.c])
 
 AT_CHECK([$COBC -I sub/copy prog.cob -o prog.c], [0], [], [])
 AT_CHECK([$COBC -I sub/copy prog.c -o prog.$COB_OBJECT_EXT], [0], [], [])
-AT_CHECK([$COBC -I sub/copy prog.$COB_OBJECT_EXT -o prog])
-AT_CHECK([$COBCRUN prog], [0], [bluBb], [])
+AT_CHECK([$COBC -I sub/copy prog.$COB_OBJECT_EXT -o prog.$COB_MODULE_EXT])
+AT_CHECK([$COBCRUN prog], [0], [bluBb END], [])
 AT_CHECK([$COBC -I sub/copy -x prog.cob -o prog.c], [0], [], [])
 AT_CHECK([$COBC -I sub/copy -x prog.c -o prog.$COB_OBJECT_EXT], [0], [], [])
 AT_CHECK([$COBC -I sub/copy -x prog.$COB_OBJECT_EXT -o progo$COB_EXE_EXT], [0], [], [])
-AT_CHECK([$COBCRUN_DIRECT ./progo], [0], [bluBb], [])
+AT_CHECK([$COBCRUN_DIRECT ./progo], [0], [bluBb END], [])
 # making the extension explicit here to not let case-insensitive file-systems catch a .CPY...
 AT_CHECK([$COBC -I sub/copy prog.cob -ext=cpy -o prog.i], [0], [], [])
 AT_CHECK([$COBC -x prog.i -o prog$COB_EXE_EXT], [0], [], [])
-AT_CHECK([$COBCRUN_DIRECT ./prog$COB_EXE_EXT], [0], [bluBb], [])
+AT_CHECK([$COBCRUN_DIRECT ./prog$COB_EXE_EXT], [0], [bluBb END], [])
 AT_CHECK([$COBC -x prog.i -fgen-c-line-directives -fgen-c-labels -save-temps], [0], [], [])
 AT_CHECK([$GREP 'prog.i'   prog.c], [0], ignore, [])
 AT_CHECK([$GREP 'prog.i'   prog.c | $GREP '#line'], [1], ignore, ignore)
 AT_CHECK([$GREP 'prog.cob' prog.c | $GREP '#line'], [0], ignore, [])
 AT_CHECK([$GREP 'PROC.cpy' prog.c | $GREP '#line'], [0], ignore, [])
-AT_CHECK([$GREP 'ENTRY_PROG:'        prog.c], [0], ignore, [])
-AT_CHECK([$GREP 'SECTION_END__PROC:' prog.c], [0], ignore, [])
-AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [bluBb], [])
+AT_CHECK([$GREP 'ENTRY_PROG:'          prog.c], [0], ignore, [])
+AT_CHECK([$GREP 'SECTION_END__PROC:'   prog.c], [0], ignore, [])
+AT_CHECK([$GREP 'PARAGRAPH_00_l_4:'    prog.c], [0], ignore, [])
+AT_CHECK([$GREP 'PARAGRAPH_EX_l_7:'    prog.c], [0], ignore, [])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [bluBb END], [])
+
+AT_CAPTURE_FILE([prog.d])
+AT_CHECK([$COBC -I sub/copy prog.cob -ext=cpy -o prog.i -MF prog.d -MT "prog.c prog.h" -MT prog$COB_EXE_EXT -MT prog.$COB_OBJECT_EXT -MT prog.i  -fsyntax-only], [0], [], [])
+AT_CHECK([$GREP 'prog.c prog.h '       prog.d], [0], ignore, [])
+AT_CHECK([$GREP ' prog.i:'             prog.d], [0], ignore, [])
+AT_CHECK([$GREP 'sub/copy/PROC.cpy'    prog.d], [0], ignore, [], [
+  # Previous test "failed" --> no entry with slash available, check backslash for this and following tests
+  AT_CHECK([$GREP ' sub\\copy\\PROC.cpy \\'  prog.d], [0], ignore, [])
+  AT_CHECK([$GREP ' sub\\PROCE.cpy'          prog.d], [0], ignore, [])
+  AT_CHECK([$GREP 'sub\\copy\\PROC.cpy:'     prog.d], [0], ignore, [])
+  AT_CHECK([$GREP 'sub\\PROCE.cpy:'          prog.d], [0], ignore, [])
+], [
+  AT_CHECK([$GREP ' sub/copy/PROC.cpy \\'    prog.d], [0], ignore, [])
+  AT_CHECK([$GREP ' sub/PROCE.cpy'           prog.d], [0], ignore, [])
+  AT_CHECK([$GREP 'sub/copy/PROC.cpy:'       prog.d], [0], ignore, [])
+  AT_CHECK([$GREP 'sub/PROCE.cpy:'           prog.d], [0], ignore, [])
+])
+
+# test again with trailing slash which should not result in different files
+AT_CHECK([$COBC -I sub/copy/ prog.cob -ext=cpy -o prog.i -MF prog.d -MT "prog.c prog.h" -MT prog$COB_EXE_EXT -MT prog.$COB_OBJECT_EXT -MT prog.i  -fsyntax-only], [0], [], [])
+AT_CHECK([$GREP 'sub/copy/PROC.cpy'    prog.d], [0], ignore, [], [
+  # Previous test "failed" --> no entry with slash available, check backslash for this test
+  AT_CHECK([$GREP 'sub\\copy\\PROC.cpy'  prog.d], [0], ignore, [])
+])
+
 AT_CLEANUP
 
 
@@ -456,6 +493,7 @@ AT_CHECK([$COBCRUN --info], [0], [ignore], [])
 # we explicit do not want to run this here, as it initializes curses
 # AT_CHECK([$COBCRUN -v --info], [0], [ignore], [])
 AT_CHECK([$COBCRUN -q --info], [0], [ignore], [])
+AT_CHECK([$COBCRUN --dumpversion], [0], [ignore], [])
 AT_CLEANUP
 
 
@@ -500,7 +538,11 @@ AT_CLEANUP
 
 
 AT_SETUP([cobcrun -M DSO entry argument])
-AT_KEYWORDS([runmisc])
+AT_KEYWORDS([runmisc preload])
+
+AT_CHECK([$COBCRUN -M "" nope], [1], [],
+[invalid module argument ''
+])
 
 AT_DATA([callee.cob], [
        IDENTIFICATION   DIVISION.
@@ -543,6 +585,20 @@ AT_DATA([caller.cob], [
        END PROGRAM inside.
 ])
 
+AT_DATA([caller2.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      inside2.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 EXT-VAR       PIC X(5) EXTERNAL.
+       01 CLA-VAR       PIC X(5).
+       PROCEDURE        DIVISION.
+           DISPLAY "Aloha2".
+           CALL "inside".
+           GOBACK. *> never gets here
+       END PROGRAM inside2.
+])
+
 AT_CHECK([$COMPILE_MODULE callee.cob], [0], [], [])
 AT_CHECK([$COMPILE_MODULE caller.cob], [0], [], [])
 AT_CHECK([$COBCRUN -M ./caller inside again], [0],
@@ -551,11 +607,19 @@ World
 again
 ], [])
 
+AT_CHECK([$COMPILE_MODULE caller2.cob], [0], [], [])
+AT_CHECK([COB_PRE_LOAD=caller2 $COBCRUN -M ./caller inside2 again], [0],
+[Aloha2
+Aloha
+World
+again
+], [])
+
 AT_CLEANUP
 
 
 ## FIXME: missing tests:
-## * combining $COBCRUN -M with COB_PRE_LOAD / COB_LIBRARY_PATH
+## * combining $COBCRUN -M with COB_PRE_LOAD + COB_LIBRARY_PATH
 ## * $COBCRUN -m
 
 
@@ -599,7 +663,7 @@ AT_CLEANUP
 
 
 AT_SETUP([cobcrun -M directory/dso alternate])
-AT_KEYWORDS([runmisc])
+AT_KEYWORDS([runmisc preload])
 
 AT_DATA([callee.cob], [
        IDENTIFICATION   DIVISION.
@@ -650,7 +714,7 @@ AT_CLEANUP
 
 
 AT_SETUP([cobcrun -M DSO entry multiple arguments])
-AT_KEYWORDS([runmisc])
+AT_KEYWORDS([runmisc preload])
 
 # Test that modules can be called with ARGUMENT-VALUES
 AT_DATA([called.cob], [
@@ -711,9 +775,39 @@ AT_CHECK([$COBCRUN noprog], [1], [],
 AT_CHECK([$COBCRUN -q -M], [1], [],
 [cobcrun: option requires an argument -- 'M'
 ])
-# FIXME - The following doesn't seem to work correct,
-#         we expect an error about missing module name
-#AT_CHECK([$COBCRUN -q -M noprog], [1], [], [])
+AT_CHECK([$COBCRUN -q -M noprog], [1], [],
+[cobcrun: missing PROGRAM name
+Try 'cobcrun --help' for more information.
+])
+# this was previously checked in cobcrun, now only done in the runtime
+AT_CHECK([$COBCRUN ThisIsANameThatIsReallyNotAllowedAsProgIdInCOBOL], [1], [],
+[libcob: error: ThisIsANameThatIsReallyNotAllowedAsProgIdInCOBOL: PROGRAM name exceeds 31 characters
+])
+# it would be allowed for preloading
+# this was previously checked in cobcrun, now only done in the runtime
+AT_CHECK([$COBCRUN -q -M ThisIsANameThatIsReallyNotAllowedAsProgIdInCOBOL noprog], [1], [],
+[libcob: warning: preloading of 'ThisIsANameThatIsReallyNotAllowedAsProgIdInCOBOL' failed
+libcob: error: module 'noprog' not found
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([run job with unsuccessful compilation])
+AT_KEYWORDS([runmisc cobcrun])
+
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       PROCEDURE        DIVISION.
+           DISPLAY "jobby"
+           EXIT HERE.
+])
+
+AT_CHECK([$COMPILE -j prog.cob], [1], [],
+[prog.cob:6: error: syntax error, unexpected Identifier
+])
 
 AT_CLEANUP
 
@@ -724,8 +818,6 @@ AT_KEYWORDS([runmisc cobcrun])
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
-       DATA             DIVISION.
-       WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
            DISPLAY "job" WITH NO ADVANCING END-DISPLAY
            STOP RUN WITH NORMAL STATUS.
@@ -743,8 +835,6 @@ AT_KEYWORDS([runmisc cobcrun])
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
-       DATA             DIVISION.
-       WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
            DISPLAY "job" WITH NO ADVANCING END-DISPLAY
            STOP RUN WITH NORMAL STATUS.
@@ -785,8 +875,6 @@ AT_KEYWORDS([runmisc cobc cobcrun])
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      a.
-       DATA             DIVISION.
-       WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
            STOP RUN WITH NORMAL STATUS.
 ])
@@ -815,8 +903,6 @@ AT_KEYWORDS([runmisc cobc cobcrun])
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      a.
-       DATA             DIVISION.
-       WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
            DISPLAY "job" WITH NO ADVANCING END-DISPLAY
            STOP RUN WITH NORMAL STATUS.
@@ -833,3 +919,86 @@ AT_CHECK([cat prog.cob | $COMPILE_MODULE -j -], [0], [job], [],
 )
 
 AT_CLEANUP
+
+
+AT_SETUP([cobc diagnostics show caret])
+#AT_KEYWORDS([cobc diagnostics])
+
+AT_DATA([progprep.cob],[
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.	  	#
+       01 TEST-VAR PIC 9(2) VALUE 'A'.
+       COPY 'CRUD.CPY'.
+       PROCEDURE        DIVISION.
+           DISPLAY TEST-VAR NO ADVANCING
+           END-DISPLAY
+           MOVE 12 TO TEST-VAR
+           DISPLAY TEST-VAR NO ADVANCING
+           END-DISPLAY
+           STOP RUN...
+])
+
+# Testcase includes trailing whitespace, setup by dropping '#'
+AT_CHECK([cat progprep.cob | tr -d '#' > prog.cob])
+
+AT_CHECK([$COBC -fdiagnostics-plain-output -Wall prog.cob], [1], [],
+[[prog.cob:7: error: CRUD.CPY: No such file or directory
+prog.cob:6: warning: numeric value is expected [-Wothers]
+prog.cob:14: warning: ignoring redundant . [-Wothers]
+]])
+AT_CHECK([$COBC -fdiagnostics-show-caret -fdiagnostics-show-line-numbers prog.cob], [1], [],
+[[prog.cob:7: error: CRUD.CPY: No such file or directory
+    5 |        WORKING-STORAGE  SECTION.
+    6 |        01 TEST-VAR PIC 9(2) VALUE 'A'.
+    7 >        COPY 'CRUD.CPY'.
+    8 |        PROCEDURE        DIVISION.
+    9 |            DISPLAY TEST-VAR NO ADVANCING
+prog.cob:6: warning: numeric value is expected [-Wothers]
+    4 |        DATA             DIVISION.
+    5 |        WORKING-STORAGE  SECTION.
+    6 >        01 TEST-VAR PIC 9(2) VALUE 'A'.
+    7 |        COPY 'CRUD.CPY'.
+    8 |        PROCEDURE        DIVISION.
+prog.cob:14: warning: ignoring redundant . [-Wothers]
+   12 |            DISPLAY TEST-VAR NO ADVANCING
+   13 |            END-DISPLAY
+   14 >            STOP RUN...
+   15 | <EOF>
+]])
+
+AT_CHECK([$COBC -fdiagnostics-plain-output -fdiagnostics-show-caret prog.cob], [1], [],
+[[prog.cob:7: error: CRUD.CPY: No such file or directory
+          WORKING-STORAGE  SECTION.
+          01 TEST-VAR PIC 9(2) VALUE 'A'.
+ >        COPY 'CRUD.CPY'.
+          PROCEDURE        DIVISION.
+              DISPLAY TEST-VAR NO ADVANCING
+prog.cob:6: warning: numeric value is expected [-Wothers]
+          DATA             DIVISION.
+          WORKING-STORAGE  SECTION.
+ >        01 TEST-VAR PIC 9(2) VALUE 'A'.
+          COPY 'CRUD.CPY'.
+          PROCEDURE        DIVISION.
+prog.cob:14: warning: ignoring redundant . [-Wothers]
+              DISPLAY TEST-VAR NO ADVANCING
+              END-DISPLAY
+ >            STOP RUN...
+   <EOF>
+]])
+
+# Testcase for line too long and printing only one line
+AT_DATA([longgy.cob],[ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+])
+
+# note: this is actually an error in the parser line number,
+#       but until that is solved, it is a nice edge case of "line not available"
+AT_CHECK([$COBC -fdiagnostics-plain-output -fdiagnostics-show-caret -Wno-others longgy.cob], [1], [],
+[[longgy.cob:2: error: PROGRAM-ID header missing
+   dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd..
+ > <EOF>
+]])
+
+AT_CLEANUP
+

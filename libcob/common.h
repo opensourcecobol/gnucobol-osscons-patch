@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2012, 2014-2020 Free Software Foundation, Inc.
+   Copyright (C) 2002-2012, 2014-2023 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch, Ron Norman,
    Edward Hart
 
@@ -22,6 +22,8 @@
 #ifndef COB_COMMON_H
 #define COB_COMMON_H
 
+#include <stddef.h>		/* for size_t */
+
 /* Only define cob_decimal if we have the necessary mpz_t from gmp.h/mpir.h
    (or can self-define it from mp.h) */
 #if !defined (__GMP_H__)
@@ -31,7 +33,6 @@
 typedef __mpz_struct mpz_t[1];
 #endif
 #endif
-
 
 /* General type defines */
 #define	cob_c8_t		char
@@ -106,54 +107,6 @@ typedef __mpz_struct mpz_t[1];
 #define	cob_module_ptr		cob_module *
 #define	cob_screen_ptr		cob_screen *
 #define	cob_file_key_ptr	cob_file_key *
-
-/* Readable compiler version defines */
-
-#if defined(_MSC_VER)
-
-/*
-_MSC_VER == 1400 (Visual Studio 2005, VS8 , MSVC 8) since OS-Version 2000
-_MSC_VER == 1500 (Visual Studio 2008, VS9 , MSVC 9) since OS-Version XP / 2003
-_MSC_VER == 1600 (Visual Studio 2010, VS10, MSVC10) since OS-Version XP / 2003
-_MSC_VER == 1700 (Visual Studio 2012, VS11, MSVC11) since OS-Version 7(XP) / 2008 R2(2003)
-_MSC_VER == 1800 (Visual Studio 2013, VS12, MSVC12) since OS-Version 7(XP) / 2008 R2(2003)
-_MSC_VER == 1900 (Visual Studio 2015, VS14, MSVC14) since OS-Version 7(XP) / 2008 R2(2003)
-_MSC_VER == 1910 (Visual Studio 2017, VS15, MSVC14.1) since OS-Version 7 / 2012 R2
-_MSC_VER == 1920 (Visual Studio 2019, VS16, MSVC14.2) since OS-Version 7 / 2012 R2
-
-Note: also defined together with __clang__ in both frontends:
-   __llvm__ Clang LLVM frontend for Visual Studio by LLVM Project (via clang-cl.exe [cl build options])
-   __c2__   Clang C2 frontend with MS CodeGen (via clang.exe [original clang build options])
-*/
-
-#if _MSC_VER >= 1500
-#define COB_USE_VC2008_OR_GREATER 1
-#else
-#define COB_USE_VC2008_OR_GREATER 0
-#if _MSC_VER < 1400
-#error Support for Visual Studio 2003 and older Visual C++ compilers dropped with GnuCOBOL 2.0
-#endif
-#endif
-
-#if _MSC_VER >= 1700
-#define COB_USE_VC2012_OR_GREATER 1
-#else
-#define COB_USE_VC2012_OR_GREATER 0
-#endif
-
-#if _MSC_VER >= 1800
-#define COB_USE_VC2013_OR_GREATER 1
-#else
-#define COB_USE_VC2013_OR_GREATER 0
-#endif
-
-#if _MSC_VER >= 1900
-#define COB_USE_VC2015_OR_GREATER 1
-#else
-#define COB_USE_VC2015_OR_GREATER 0
-#endif
-
-#endif /* _MSC_VER */
 
 /* Byte swap functions */
 
@@ -299,15 +252,16 @@ Note: also defined together with __clang__ in both frontends:
 
 #endif
 
-#elif defined(_MSC_VER)
-
+#elif 0 && defined(_MSC_VER)	
+/* shown to not work correctly in some cases, so fall-back
+   to our generic inline version, which works */ 
 #define COB_BSWAP_16(val) (_byteswap_ushort (val))
 #define COB_BSWAP_32(val) (_byteswap_ulong (val))
 #define COB_BSWAP_64(val) (_byteswap_uint64 (val))
 
 #elif defined(__ORANGEC__)
 
-#define COB_BSWAP_16(val) (COB_BSWAP_16_CONSTANT (val))
+#define COB_BSWAP_16(val) (__builtin_bswap16 (val))
 #define COB_BSWAP_32(val) (__builtin_bswap32 (val))
 #define COB_BSWAP_64(val) (__builtin_bswap64 (val))
 
@@ -579,7 +533,7 @@ only usable with COB_USE_VC2013_OR_GREATER */
 #define PATHSEP_CHAR (char) ':'
 #define PATHSEP_STR (char *) ":"
 #endif
-#ifndef	_WIN32 /* note: needs to be \ for MinGW, needed for cobc -j */
+#if !defined(_WIN32) && !defined(__DJGPP__) /* note: needs to be \ for MinGW, needed for cobc -j */
 #define SLASH_CHAR	(char) '/'
 #define SLASH_STR	(char *) "/"
 #else
@@ -593,6 +547,7 @@ only usable with COB_USE_VC2013_OR_GREATER */
 
 /* End compiler stuff */
 
+
 /* EBCDIC determination */
 
 #if ' ' == 0x40
@@ -602,7 +557,7 @@ only usable with COB_USE_VC2013_OR_GREATER */
 #endif
 
 /* Macro to prevent compiler warning "conditional expression is constant" */
-#if defined (_MSC_VER) && COB_USE_VC2008_OR_GREATER
+#if defined (_MSC_VER) && _MSC_VER >= 1500 /* COB_USE_VC2008_OR_GREATER */
 #define ONCE_COB \
 	__pragma( warning(push) )		\
 	__pragma( warning(disable:4127) )	\
@@ -657,14 +612,7 @@ only usable with COB_USE_VC2013_OR_GREATER */
 /* Maximum exponent digits (both in literals and floating-point numeric-edited item */
 #define COB_FLOAT_DIGITS_MAX         36
 
-/* Maximum bytes in a single/group field,
-   which doesn't contain UNBOUNDED items */
-/* TODO: add compiler configuration for limiting this */
-#define	COB_MAX_FIELD_SIZE	268435456
-
-/* Maximum bytes in an unbounded table entry
-   (IBM: 999999998) */
-#define	COB_MAX_UNBOUNDED_SIZE	999999998
+/* note: more (internal-only) limits in coblocal.h */
 
 /* Maximum number of cob_decimal structures */
 #define	COB_MAX_DEC_STRUCT	32
@@ -678,7 +626,8 @@ only usable with COB_USE_VC2013_OR_GREATER */
 /* Maximum length of COBOL program names */
 #define	COB_MAX_NAMELEN		31
 
-/* Maximum number of subscripts */
+/* Maximum number of subscripts;
+   TODO: add compiler configuration for limiting this */
 #define COB_MAX_SUBSCRIPTS	16
 
 /* Memory size for sorting */
@@ -823,17 +772,15 @@ enum cob_fatal_error {
 /* Exception identifier enumeration */
 
 #undef	COB_EXCEPTION
-#ifndef COB_WITHOUT_EXCEPTIONS
 #define	COB_EXCEPTION(code,tag,name,critical)	tag,
 
 enum cob_exception_id {
 	COB_EC_ZERO = 0,
-#include <libcob/exception.def>
+#include "exception.def"	/* located and installed next to common.h */
 	COB_EC_MAX
 };
 
 #undef	COB_EXCEPTION
-#endif
 
 /* File attributes */
 
@@ -853,21 +800,24 @@ enum cob_exception_id {
 
 #define COB_FILE_MODE		0666
 
-/* Organization, FIXME: change to enum */
+/* file ORGANIZATION IS */
+enum cob_file_org {
+	COB_ORG_SEQUENTIAL = 0,
+	COB_ORG_LINE_SEQUENTIAL = 1,
+	COB_ORG_RELATIVE = 2,
+	COB_ORG_INDEXED = 3,
+	COB_ORG_SORT = 4,
+	COB_ORG_MAX = 5,
+	COB_ORG_MESSAGE = 6 /* only for syntax checks */
+};
 
-#define COB_ORG_SEQUENTIAL	0
-#define COB_ORG_LINE_SEQUENTIAL	1
-#define COB_ORG_RELATIVE	2
-#define COB_ORG_INDEXED		3
-#define COB_ORG_SORT		4
-#define COB_ORG_MAX		5
-#define COB_ORG_MESSAGE	6 /* only for syntax checks */
-
-/* Access mode, FIXME: change to enum */
-
-#define COB_ACCESS_SEQUENTIAL	1
-#define COB_ACCESS_DYNAMIC	2
-#define COB_ACCESS_RANDOM	3
+/* file ACCESS MODE IS */
+enum cob_file_access_mode {
+	COB_ACCESS_UNDEFINED = 0,
+	COB_ACCESS_SEQUENTIAL = 1,
+	COB_ACCESS_DYNAMIC = 2,
+	COB_ACCESS_RANDOM = 3
+};
 
 /* SELECT features */
 
@@ -897,12 +847,14 @@ enum cob_exception_id {
 
 /* Open mode */
 
-#define COB_OPEN_CLOSED		0
-#define COB_OPEN_INPUT		1
-#define COB_OPEN_OUTPUT		2
-#define COB_OPEN_I_O		3
-#define COB_OPEN_EXTEND		4
-#define COB_OPEN_LOCKED		5
+enum cob_open_mode {
+	COB_OPEN_CLOSED	= 0,
+	COB_OPEN_INPUT	= 1,
+	COB_OPEN_OUTPUT	= 2,
+	COB_OPEN_I_O	= 3,
+	COB_OPEN_EXTEND	= 4,
+	COB_OPEN_LOCKED	= 5
+};
 
 /* Close options */
 
@@ -940,42 +892,51 @@ enum cob_exception_id {
 #define COB_READ_MASK		\
 	(COB_READ_NEXT | COB_READ_PREVIOUS | COB_READ_FIRST | COB_READ_LAST)
 
-/* I-O status */
+/* I-O status - TODO: these should have internal only values; and then
+   map later to an i-o status "per dialect", inluding alphanumeric 0x
+   and 9/123 status values,
+   will be move to fileio.h in 4.x on remove of OC extfh */ 
 
-#define COB_STATUS_00_SUCCESS			00
-#define COB_STATUS_02_SUCCESS_DUPLICATE		02
-#define COB_STATUS_04_SUCCESS_INCOMPLETE	04
-#define COB_STATUS_05_SUCCESS_OPTIONAL		05
-#define COB_STATUS_07_SUCCESS_NO_UNIT		07
-#define COB_STATUS_10_END_OF_FILE		10
+#define COB_STATUS_00_SUCCESS				0
+#define COB_STATUS_02_SUCCESS_DUPLICATE		2
+#define COB_STATUS_04_SUCCESS_INCOMPLETE	4
+#define COB_STATUS_05_SUCCESS_OPTIONAL		5
+#define COB_STATUS_06_READ_TRUNCATE			6
+#define COB_STATUS_07_SUCCESS_NO_UNIT		7
+#ifdef COB_EXPERIMENTAL
+#define COB_STATUS_0P_NOT_PRINTABLE			8
+#endif
+#define COB_STATUS_09_READ_DATA_BAD			9
+#define COB_STATUS_10_END_OF_FILE			10
 #define COB_STATUS_14_OUT_OF_KEY_RANGE		14
-#define COB_STATUS_21_KEY_INVALID		21
-#define COB_STATUS_22_KEY_EXISTS		22
+#define COB_STATUS_21_KEY_INVALID			21
+#define COB_STATUS_22_KEY_EXISTS			22
 #define COB_STATUS_23_KEY_NOT_EXISTS		23
-#define COB_STATUS_24_KEY_BOUNDARY		24
+#define COB_STATUS_24_KEY_BOUNDARY			24
 #define COB_STATUS_30_PERMANENT_ERROR		30
 #define COB_STATUS_31_INCONSISTENT_FILENAME	31
 #define COB_STATUS_34_BOUNDARY_VIOLATION	34
-#define COB_STATUS_35_NOT_EXISTS		35
+#define COB_STATUS_35_NOT_EXISTS			35
 #define COB_STATUS_37_PERMISSION_DENIED		37
 #define COB_STATUS_38_CLOSED_WITH_LOCK		38
 #define COB_STATUS_39_CONFLICT_ATTRIBUTE	39
-#define COB_STATUS_41_ALREADY_OPEN		41
-#define COB_STATUS_42_NOT_OPEN			42
-#define COB_STATUS_43_READ_NOT_DONE		43
+#define COB_STATUS_41_ALREADY_OPEN			41
+#define COB_STATUS_42_NOT_OPEN				42
+#define COB_STATUS_43_READ_NOT_DONE			43
 #define COB_STATUS_44_RECORD_OVERFLOW		44
 #define COB_STATUS_45_IDENTIFICATION_FAILURE	45	/* currently not implemented */
-#define COB_STATUS_46_READ_ERROR		46
-#define COB_STATUS_47_INPUT_DENIED		47
-#define COB_STATUS_48_OUTPUT_DENIED		48
-#define COB_STATUS_49_I_O_DENIED		49
-#define COB_STATUS_51_RECORD_LOCKED		51
-#define COB_STATUS_52_DEAD_LOCK			52	/* currently not implemented (patch available) */
-#define COB_STATUS_53_MAX_LOCKS			53	/* currently not implemented */
-#define COB_STATUS_54_MAX_LOCKS_FD		54	/* currently not implemented */
-#define COB_STATUS_57_I_O_LINAGE		57
-#define COB_STATUS_61_FILE_SHARING		61
-#define COB_STATUS_91_NOT_AVAILABLE		91
+#define COB_STATUS_46_READ_ERROR			46
+#define COB_STATUS_47_INPUT_DENIED			47
+#define COB_STATUS_48_OUTPUT_DENIED			48
+#define COB_STATUS_49_I_O_DENIED			49
+#define COB_STATUS_51_RECORD_LOCKED			51
+#define COB_STATUS_52_DEAD_LOCK				52	/* currently not implemented (patch available) */
+#define COB_STATUS_53_MAX_LOCKS				53	/* currently not implemented */
+#define COB_STATUS_54_MAX_LOCKS_FD			54	/* currently not implemented */
+#define COB_STATUS_57_I_O_LINAGE			57
+#define COB_STATUS_61_FILE_SHARING			61
+#define COB_STATUS_71_BAD_CHAR				71
+#define COB_STATUS_91_NOT_AVAILABLE			91
 
 /* Special status */
 /* Used by extfh handler */
@@ -998,20 +959,24 @@ enum cob_exception_id {
 #define COB_STORE_TOWARD_LESSER		(1 << 10)
 #define COB_STORE_TRUNCATION		(1 << 11)
 
+#define COB_STORE_NO_SIZE_ERROR		(1 << 15)
+
 #define COB_STORE_MASK					\
 	(COB_STORE_ROUND | COB_STORE_KEEP_ON_OVERFLOW |	\
-	 COB_STORE_TRUNC_ON_OVERFLOW)
+	 COB_STORE_TRUNC_ON_OVERFLOW | COB_STORE_NO_SIZE_ERROR)
 
 /* Screen attribute defines */
 
-#define COB_SCREEN_BLACK		0
-#define COB_SCREEN_BLUE			1
-#define COB_SCREEN_GREEN		2
-#define COB_SCREEN_CYAN			3
-#define COB_SCREEN_RED			4
-#define COB_SCREEN_MAGENTA		5
-#define COB_SCREEN_YELLOW		6
-#define COB_SCREEN_WHITE		7
+enum cob_colors {
+	COB_SCREEN_BLACK	= 0,
+	COB_SCREEN_BLUE		= 1,
+	COB_SCREEN_GREEN	= 2,
+	COB_SCREEN_CYAN		= 3,
+	COB_SCREEN_RED		= 4,
+	COB_SCREEN_MAGENTA	= 5,
+	COB_SCREEN_YELLOW	= 6,
+	COB_SCREEN_WHITE	= 7
+};
 
 typedef cob_s64_t cob_flags_t;
 
@@ -1045,11 +1010,13 @@ typedef cob_s64_t cob_flags_t;
 #define COB_SCREEN_EMULATE_NL		((cob_flags_t)1 << 27)
 #define COB_SCREEN_UPPER		((cob_flags_t)1 << 28)
 #define COB_SCREEN_LOWER		((cob_flags_t)1 << 29)
-#define COB_SCREEN_GRID			((cob_flags_t)1 << 30)
-/*#define COB_SCREEN_reserved		((cob_flags_t)1 << 31) /+ reserved for next flag used in screenio */
-#define COB_SCREEN_TAB			((cob_flags_t)1 << 32) /* used for syntax checking */
-#define COB_SCREEN_NO_UPDATE		((cob_flags_t)1 << 33) /* used for syntax checking */
-#define COB_SCREEN_SCROLL_UP		((cob_flags_t)1 << 34) /* used for syntax checking */
+#define COB_SCREEN_CONV			((cob_flags_t)1 << 30)
+#define COB_SCREEN_GRAPHICS		((cob_flags_t)1 << 31)
+#define COB_SCREEN_RIGHTLINE	((cob_flags_t)1 << 32)
+#define COB_SCREEN_TAB			((cob_flags_t)1 << 33) /* used for syntax checking */
+#define COB_SCREEN_NO_UPDATE		((cob_flags_t)1 << 34) /* used for syntax checking */
+#define COB_SCREEN_SCROLL_UP		((cob_flags_t)1 << 35) /* used for syntax checking */
+#define COB_SCREEN_GRID			((cob_flags_t)1 << 36) /* used for syntax checking */
 
 #define COB_SCREEN_TYPE_GROUP		0
 #define COB_SCREEN_TYPE_FIELD		1
@@ -1098,8 +1065,22 @@ typedef cob_s64_t cob_flags_t;
 
 /* End Report attribute defines */
 
+/* Statement enum */
+
+#define COB_STATEMENT(name,str)	name,
+enum cob_statement {
+	STMT_UNKNOWN = 0, 
+#include "statement.def"	/* located and installed next to common.h */
+	STMT_MAX_ENTRY /* always the last entry */
+};
+#undef COB_STATEMENT
+
+
 #define COB_JSON_CJSON			1
 #define COB_JSON_JSON_C			2
+
+#define COB_XML_PARSE_XMLNSS	(1U << 0)
+#define COB_XML_PARSE_NATIONAL	(1U << 1)
 
 /* Structure/union declarations */
 
@@ -1114,7 +1095,7 @@ typedef struct __cob_pic_symbol {
 /* Field attribute structure */
 
 typedef struct __cob_field_attr {
-	unsigned short		type;		/* Field type */
+	unsigned short		type;		/* Field type [TODO GC4: enum] */
 	unsigned short		digits;		/* Digit count */
 	signed short		scale;		/* Field scale */
 	unsigned short		flags;		/* Field flags */
@@ -1171,6 +1152,17 @@ struct cob_frame {
 	unsigned int	return_address_num;	/* Return address number */
 };
 
+/* Extended perform stack structure (available since GC 3.2) */
+struct cob_frame_ext {
+	void		*return_address_ptr;	/* Return address pointer */
+	unsigned int	perform_through;	/* Perform number */
+	unsigned int	return_address_num;	/* Return address number */
+	unsigned int	module_stmt;		/* return statement location */
+	const char	*section_name;		/* Return section name, empty on
+	          	                       "first" entry of a module */
+	const char	*paragraph_name;	/* Return paragraph name */
+};
+
 /* Call union structures */
 
 typedef union __cob_content {
@@ -1186,8 +1178,7 @@ typedef union __cob_call_union {
 	cob_field	*(*funcfld)();	/* Function returning "cob_field *" */
 	int		(*funcint)();	/* Function returning "int" */
 	void		*funcvoid;	/* Redefine to "void *" */
-#ifdef	_WIN32
-							/* stdcall variants */
+#ifdef	_WIN32				/* stdcall variants */
 	void		*(__stdcall *funcptr_std)();
 	void		(__stdcall *funcnull_std)();
 	cob_field	*(__stdcall *funcfld_std)();
@@ -1220,8 +1211,10 @@ typedef struct __cob_screen {
 } cob_screen;
 
 /* Module structure */
-#define COB_MODULE_TYPE_PROGRAM		0
-#define COB_MODULE_TYPE_FUNCTION	1
+enum cob_module_type {
+	COB_MODULE_TYPE_PROGRAM		= 0,
+	COB_MODULE_TYPE_FUNCTION	= 1
+};
 
 /*
   For backwards compatibility of the libcob ABI, the size of existing members
@@ -1272,9 +1265,12 @@ typedef struct __cob_module {
 #endif
 #define COB_MODULE_TRACE	2
 #define COB_MODULE_TRACEALL	4
+
 	unsigned char		unused[1];		/* Use these flags up later, added for alignment */
 
-	unsigned int		module_stmt;		/* Last statement executed */
+	unsigned int		module_stmt;		/* Position of last statement executed
+											   as modulated source line
+											   and index to module_sources for source file */
 	const char		**module_sources;	/* Source module names compiled */
 
 	cob_field		*xml_code;		/* XML-CODE */
@@ -1289,6 +1285,20 @@ typedef struct __cob_module {
 
 	cob_field		*json_code;		/* JSON-CODE */
 	cob_field		*json_status;		/* JSON-STATUS */
+
+	const char	*gc_version;	/* module version, until 3.1.2: set by cob_check_version */
+
+	unsigned char		xml_mode;		/* Mode to handle XML PARSE (may be extended) */
+#define COB_XML_XMLNSS		1			/* similar to XMLPARSE(XMLNSS) Micro Focus,
+											   IBM may be different (_very_ likely for error codes);
+											   but the main difference is to "COMPAT" */
+	struct cob_frame_ext *frame_ptr;	/* current frame ptr, note: if set then cob_frame in this
+										   module is of type "struct cob_frame_ext",
+										   otherwise "struct cob_frame" */
+	const char		*section_name;		/* name of current active section */
+	const char		*paragraph_name;		/* name of current active pagagraph */
+	enum cob_statement	statement;		/* statement currently executed */
+
 } cob_module;
 
 
@@ -1304,7 +1314,9 @@ struct cob_func_loc {
 	int			save_num_params;
 };
 
-/* File connector */
+
+/** File connector **/
+
 
 /* Key structure */
 
@@ -1312,14 +1324,17 @@ struct cob_func_loc {
 
 typedef struct __cob_file_key {
 	cob_field	*field;	/* Key field */
-	int		flag;				/* ASCENDING/DESCENDING (for SORT) */
+	int		flag;				/* ASCENDING/DESCENDING (for SORT) [3.x only] */
 	int		tf_duplicates;			/* WITH DUPLICATES (for RELATIVE/INDEXED) */
-	int		tf_ascending;			/* ASCENDING/DESCENDING (for SORT)*/
+	int		tf_ascending;			/* ASCENDING/DESCENDING (for SORT) [4.x only, for now: unused] */
 	int		tf_suppress;			/* supress keys where all chars = char_suppress */
 	int		char_suppress;			/* key supression character  */
 	unsigned int	offset;			/* Offset of field */
 	int		count_components;		/* 0..1::simple-key  2..n::split-key   */
 	cob_field	*component[COB_MAX_KEYCOMP];	/* key-components iff split-key   */
+#if 0	/* TODO (for file keys, not for SORT/MERGE) */
+	const unsigned char *collating_sequence;	/* COLLATING */
+#endif
 } cob_file_key;
 
 
@@ -1342,19 +1357,19 @@ typedef struct __cob_file {
 	cob_file_key		*keys;			/* ISAM/RANDOM/SORT keys */
 	void			*file;			/* File specific pointer */
 	void			*linorkeyptr;		/* LINAGE or SPLIT KEY */
-	const unsigned char	*sort_collating;	/* SORT collating */
+	const unsigned char	*sort_collating;	/* SORT collating / CODE-SET (used for RE-/WRITE) */
 	void			*extfh_ptr;		/* For EXTFH usage */
 	size_t			record_min;		/* Record min size */
 	size_t			record_max;		/* Record max size */
 	size_t			nkeys;			/* Number of keys */
 	int			fd;			/* File descriptor */
 
-	unsigned char		organization;		/* ORGANIZATION */
-	unsigned char		access_mode;		/* ACCESS MODE */
+	unsigned char		organization;		/* ORGANIZATION, read as cob_file_org */
+	unsigned char		access_mode;		/* ACCESS MODE, read as cob_file_access_mode  */
 	unsigned char		lock_mode;		/* LOCK MODE */
-	unsigned char		open_mode;		/* OPEN MODE */
+	unsigned char		open_mode;		/* OPEN MODE - GC4: cob_open_mode */
 	unsigned char		flag_optional;		/* OPTIONAL */
-	unsigned char		last_open_mode;		/* Mode given by OPEN */
+	unsigned char		last_open_mode;		/* Mode given by OPEN - GC4: cob_open_mode */
 	unsigned char		flag_operation;		/* File type specific */
 	unsigned char		flag_nonexistent;	/* Nonexistent file */
 
@@ -1371,6 +1386,17 @@ typedef struct __cob_file {
 	short				curkey;			/* Current file index read sequentially */
 	short 				mapkey;			/* Remapped index number, when FD does not match file */
 
+	struct __fcd3		*fcd;			/* FCD created via SET ... TO ADDRESS OF FH--FCD */
+
+	cob_s64_t			record_off;		/* Starting position of last record read/written
+	         			           		   (in 3.x: [LINE] SEQUENTIAL ONLY!) */
+	char				*org_filename;	/* Full concatenated file name */
+	char				*nxt_filename;	/* Next position in org_filename */
+	unsigned int		flag_is_concat:1;	/* SEQUENTIAL concatenated file names */
+
+	const unsigned char* code_set_read;	/* CODE-SET conversion for READs */
+	size_t			nconvert_fields;	/* Number of logical fields to convert */
+	cob_field	*convert_field;		/* logical fields to convert for CODE-SET */
 } cob_file;
 
 
@@ -1535,7 +1561,7 @@ typedef struct __cob_ml_tree {
 typedef struct __cob_global {
 	cob_file		*cob_error_file;	/* Last error file */
 	cob_module		*cob_current_module;	/* Current module */
-	const char		*last_exception_statement;	/* SLast exception: tatement */
+	enum cob_statement	last_exception_statement;	/* Last exception: Statement */
 	const char		*last_exception_id;	/* Last exception: PROGRAMM-ID / FUNCTION-ID*/
 	const char		*last_exception_section;	/* Last exception: Section */
 	const char		*last_exception_paragraph;	/* Last exception: Paragraph */
@@ -1570,12 +1596,15 @@ typedef struct __cob_global {
 	unsigned int		cob_stmt_exception;	/* Statement has 'On Exception' */
 
 	unsigned int		cob_debugging_mode;	/* activation of USE ON DEBUGGING code */
+#if 0	/* consider addition for 4.x, possibly with getting rid of last_exception_line */
+	const char		*last_exception_source;	/* Last exception: Source */
+#endif
 
 } cob_global;
 
-/* File I/O function pointer structure */
+/* File I/O function pointer structure (left here as it needs to be "external" for GC 4.x) */
 struct cob_fileio_funcs {
-	int	(*open)		(cob_file *, char *, const int, const int);
+	int	(*open)		(cob_file *, char *, const enum cob_open_mode, const int);
 	int	(*close)	(cob_file *, const int);
 	int	(*start)	(cob_file *, const int, cob_field *);
 	int	(*read)		(cob_file *, cob_field *, const int);
@@ -1595,12 +1624,8 @@ struct cobjmp_buf {
 };
 #endif
 
-#define __LIBCOB_VERSION	3
-#define __LIBCOB_VERSION_MINOR		1
-#define __LIBCOB_VERSION_PATCHLEVEL	2	/* Note: possibly differs from patchelvel shown with cobc --version! */
-
-#define __LIBCOB_RELEASE (__LIBCOB_VERSION * 10000 + __LIBCOB_VERSION_MINOR * 100 + __LIBCOB_VERSION_PATCHLEVEL)
-
+/* version definition and related functions from common.c */
+#include "version.h"	/* located and installed next to common.h */
 
 /*******************************/
 
@@ -1608,17 +1633,18 @@ struct cobjmp_buf {
 
 /*******************************/
 /* Functions in common.c */
-COB_EXPIMP const char*	libcob_version (void);
-COB_EXPIMP int		set_libcob_version (int *, int *, int *);
+COB_EXPIMP const char*	cob_get_sig_name (int);
+COB_EXPIMP const char*	cob_get_sig_description (int);
 COB_EXPIMP void		print_info	(void);
 COB_EXPIMP void		print_info_detailed	(const int);
-COB_EXPIMP void		print_version	(void);
-COB_EXPIMP void		print_version_summary (void);
 COB_EXPIMP int		cob_load_config	(void);
 COB_EXPIMP void		print_runtime_conf	(void);
 
 COB_EXPIMP void		cob_set_exception	(const int);
 COB_EXPIMP int		cob_last_exception_is	(const int);
+
+COB_EXPIMP int		cob_last_exit_code	(void);
+COB_EXPIMP const char*	cob_last_runtime_error	(void);
 
 COB_EXPIMP void		cob_runtime_hint	(const char *, ...) COB_A_FORMAT12;
 COB_EXPIMP void		cob_runtime_error	(const char *, ...) COB_A_FORMAT12;
@@ -1642,7 +1668,9 @@ COB_EXPIMP void	cob_module_leave		(cob_module *);
 COB_EXPIMP void	cob_module_free	(cob_module **);
 
 DECLNORET COB_EXPIMP void	cob_stop_run	(const int) COB_A_NORETURN;
+DECLNORET COB_EXPIMP void	cob_stop_error	(void) COB_A_NORETURN;
 DECLNORET COB_EXPIMP void	cob_fatal_error	(const enum cob_fatal_error) COB_A_NORETURN;
+DECLNORET COB_EXPIMP void	cob_hard_failure_internal (const char *) COB_A_NORETURN;
 
 COB_EXPIMP void	*cob_malloc			(const size_t) COB_A_MALLOC;
 COB_EXPIMP void	*cob_realloc			(void *, const size_t, const size_t) COB_A_MALLOC;
@@ -1658,7 +1686,7 @@ COB_EXPIMP void	cob_set_locale			(cob_field *, const int);
 COB_EXPIMP int 	cob_setenv		(const char *, const char *, int);
 COB_EXPIMP int 	cob_unsetenv		(const char *);
 COB_EXPIMP char	*cob_getenv_direct		(const char *);
-COB_EXPIMP char* cob_expand_env_string	(char*);
+COB_EXPIMP char *cob_expand_env_string	(char *);
 COB_EXPIMP char	*cob_getenv			(const char *);
 COB_EXPIMP int	cob_putenv			(char *);
 
@@ -1680,6 +1708,7 @@ COB_EXPIMP void	cob_accept_day_of_week		(cob_field *);
 COB_EXPIMP void	cob_accept_environment		(cob_field *);
 COB_EXPIMP void	cob_accept_exception_status	(cob_field *);
 COB_EXPIMP void	cob_accept_time			(cob_field *);
+COB_EXPIMP void	cob_accept_microsecond_time (cob_field *);
 COB_EXPIMP void	cob_accept_user_name		(cob_field *);
 COB_EXPIMP void	cob_display_command_line	(cob_field *);
 COB_EXPIMP void	cob_display_environment		(const cob_field *);
@@ -1705,6 +1734,7 @@ COB_EXPIMP void	cob_temp_name			(char *, const char *);
 /* System routines */
 COB_EXPIMP int	cob_sys_exit_proc	(const void *, const void *);
 COB_EXPIMP int	cob_sys_error_proc	(const void *, const void *);
+COB_EXPIMP int	cob_sys_runtime_error_proc (const void *, const void *);
 COB_EXPIMP int	cob_sys_system		(const void *);
 COB_EXPIMP int	cob_sys_hosted		(void *, const void *);
 COB_EXPIMP int	cob_sys_and		(const void *, void *, const int);
@@ -1758,6 +1788,9 @@ COB_EXPIMP void	cob_trace_sect		(const char *name);
 COB_EXPIMP void	cob_trace_para		(const char *name);
 COB_EXPIMP void	cob_trace_entry		(const char *name);
 COB_EXPIMP void	cob_trace_exit		(const char *name);
+COB_EXPIMP void	cob_trace_statement		(const enum cob_statement);	/* 3.2 + */
+
+/* compatibility functions up to GnuCOBOL before 3.2 */
 COB_EXPIMP void	cob_trace_stmt		(const char *stmt);
 
 COB_EXPIMP void			*cob_external_addr	(const char *, const int);
@@ -1778,6 +1811,7 @@ COB_EXPIMP void			cob_set_runtime_option		(enum cob_runtime_option_switch opt, v
 COB_EXPIMP void			*cob_get_runtime_option		(enum cob_runtime_option_switch opt);
 
 COB_EXPIMP void			cob_stack_trace (void *target);		/* 'target' is FILE *  */
+COB_EXPIMP void			cob_backtrace	(void *target, int count);		/* 'target' is FILE *  */
 
 #define COB_GET_LINE_NUM(n) ( n & 0xFFFFF )
 #define COB_GET_FILE_NUM(n) ( (n >> 20) & 0xFFF)
@@ -1800,7 +1834,9 @@ struct cob_time
 	int is_daylight_saving_time;	/* DST [-1/0/1] */
 };
 
-COB_EXPIMP struct cob_time cob_get_current_date_and_time	(void);
+/* note: these are internal (cobc/libcob -> libcob) only functions */
+COB_EXPIMP struct cob_time cob_get_current_date_and_time	(void);	/* returning datetime without nanos */
+COB_EXPIMP int cob_set_date_from_epoch		(struct cob_time *, unsigned const char *);
 
 /* Registration of external handlers */
 COB_EXPIMP void	cob_reg_sighnd	(void (*sighnd) (int));
@@ -1850,14 +1886,23 @@ COB_EXPIMP void	cob_check_ref_mod_minimal	(const char *,
 					 const int, const int);
 COB_EXPIMP void	cob_check_ref_mod	(const int, const int,
 					 const int, const char *);
+COB_EXPIMP void	cob_check_beyond_exit (const char *);
+COB_EXPIMP void	cob_check_fence 	(const char *, const char *,
+					 const enum cob_statement, const char *);
+COB_EXPIMP int	cob_check_linkage_size	(const char *,
+					 const char *, const unsigned int,
+					 const int, const unsigned long,
+					 const char **, unsigned int);
 
 /* Comparison functions */
 COB_EXPIMP int	cob_numeric_cmp		(cob_field *, cob_field *);
+COB_EXPIMP int	cob_bcd_cmp		(cob_field *, cob_field *);
 
 /*******************************/
 /* Functions in strings.c */
 
 COB_EXPIMP void cob_inspect_init	(cob_field *, const cob_u32_t);
+COB_EXPIMP void cob_inspect_init_converting	(cob_field *);
 COB_EXPIMP void cob_inspect_start	(void);
 COB_EXPIMP void cob_inspect_before	(const cob_field *);
 COB_EXPIMP void cob_inspect_after	(const cob_field *);
@@ -1880,6 +1925,12 @@ COB_EXPIMP void cob_unstring_into	(cob_field *, cob_field *, cob_field *);
 COB_EXPIMP void cob_unstring_tallying	(cob_field *);
 COB_EXPIMP void cob_unstring_finish	(void);
 
+COB_EXPIMP const char *COB_SPACES_ALPHABETIC;	/* PIC X/A/U SPACES */
+#define COB_SPACES_ALPHABETIC_BYTE_LENGTH 1024
+
+COB_EXPIMP const char *COB_ZEROES_ALPHABETIC;	/* PIC X/A/U ZEROES */
+#define COB_ZEROES_ALPHABETIC_BYTE_LENGTH 256
+
 /*******************************/
 /*   Functions in move.c       */
 /*******************************/
@@ -1889,10 +1940,11 @@ COB_EXPIMP void		cob_move_ibm	(void *, void *, const int);
 COB_EXPIMP void		cob_init_table	(void *, const size_t, const size_t);
 COB_EXPIMP void		cob_set_int	(cob_field *, const int);
 COB_EXPIMP int		cob_get_int	(cob_field *);
+COB_EXPIMP void		cob_set_llint	(cob_field *, const cob_s64_t);
 COB_EXPIMP cob_s64_t	cob_get_llint	(cob_field *);
-/**************************************************/
-/* Functions in move.c for C access to COBOL data */
-/**************************************************/
+/*************************************************************************/
+/* Functions in move.c for C access to COBOL data - GnuCOBOL COBOL-C-API */
+/*************************************************************************/
 COB_EXPIMP char *	cob_get_picx( void *cbldata, size_t len, void *charfld, size_t charlen);
 COB_EXPIMP cob_s64_t	cob_get_s64_comp3(void *cbldata, int len);
 COB_EXPIMP cob_s64_t	cob_get_s64_comp5(void *cbldata, int len);
@@ -1930,6 +1982,7 @@ COB_EXPIMP void cob_decimal_set_llint	(cob_decimal *, const cob_s64_t);
 COB_EXPIMP void cob_decimal_set_ullint	(cob_decimal *, const cob_u64_t);
 COB_EXPIMP void	cob_decimal_set_field	(cob_decimal *, cob_field *);
 COB_EXPIMP int	cob_decimal_get_field	(cob_decimal *, cob_field *, const int);
+COB_EXPIMP void	cob_decimal_set		(cob_decimal *, cob_decimal *);	/* to be removed in 4.x */
 COB_EXPIMP void	cob_decimal_add		(cob_decimal *, cob_decimal *);
 COB_EXPIMP void	cob_decimal_sub		(cob_decimal *, cob_decimal *);
 COB_EXPIMP void	cob_decimal_mul		(cob_decimal *, cob_decimal *);
@@ -1937,6 +1990,14 @@ COB_EXPIMP void	cob_decimal_div		(cob_decimal *, cob_decimal *);
 COB_EXPIMP void	cob_decimal_pow		(cob_decimal *, cob_decimal *);
 COB_EXPIMP int	cob_decimal_cmp		(cob_decimal *, cob_decimal *);
 COB_EXPIMP void	cob_decimal_align(cob_decimal *, const int);
+COB_EXPIMP void cob_logical_not (cob_decimal *d0, cob_decimal *d1);
+COB_EXPIMP void cob_logical_and (cob_decimal *d0, cob_decimal *d1);
+COB_EXPIMP void cob_logical_xor (cob_decimal *d0, cob_decimal *d1);
+COB_EXPIMP void cob_logical_or  (cob_decimal *d0, cob_decimal *d1);
+COB_EXPIMP void cob_logical_left  (cob_decimal *d0, cob_decimal *d1);
+COB_EXPIMP void cob_logical_right (cob_decimal *d0, cob_decimal *d1);
+COB_EXPIMP void cob_logical_left_c  (cob_decimal *d0, cob_decimal *d1, int sz);
+COB_EXPIMP void cob_logical_right_c (cob_decimal *d0, cob_decimal *d1, int sz);
 #endif
 
 COB_EXPIMP void	cob_add			(cob_field *, cob_field *, const int);
@@ -1960,11 +2021,16 @@ COB_EXPIMP int	cob_cmp_float		(cob_field *, cob_field *);
 COB_EXPIMP void	cob_set_packed_zero	(cob_field *);
 COB_EXPIMP void	cob_set_packed_int	(cob_field *, const int);
 
+COB_EXPIMP void	cob_move_bcd		(cob_field *, cob_field *);
+
 COB_EXPIMP void	cob_decimal_alloc	(const cob_u32_t, ...);
 COB_EXPIMP void	cob_decimal_push	(const cob_u32_t, ...);
 COB_EXPIMP void	cob_decimal_pop		(const cob_u32_t, ...);
 
 COB_EXPIMP void	cob_gmp_free		(void *);
+
+COB_EXPIMP cob_s32_t	cob_s32_pow	(cob_s32_t, cob_s32_t);
+COB_EXPIMP cob_s64_t	cob_s64_pow (cob_s64_t, cob_s64_t);
 
 
 /*******************************/
@@ -1988,6 +2054,7 @@ COB_EXPIMP void		*cob_call_field		(const cob_field *,
 COB_EXPIMP void		cob_cancel_field	(const cob_field *,
 						 const struct cob_call_struct *);
 COB_EXPIMP void		cob_cancel		(const char *);
+COB_EXPIMP int		cob_call_with_exception_check (const char*, const int, void **);
 COB_EXPIMP int		cob_call		(const char *, const int, void **);
 COB_EXPIMP int		cob_func		(const char *, const int, void **);
 
@@ -1997,6 +2064,9 @@ COB_EXPIMP void		*cob_savenv2		(struct cobjmp_buf *, const int);
 COB_EXPIMP void		cob_longjmp		(struct cobjmp_buf *);
 #endif
 
+/*************************************************************************/
+/* Functions in move.c for C access to COBOL data - GnuCOBOL COBOL-C-API */
+/*************************************************************************/
 COB_EXPIMP int		cob_get_num_params ( void );
 COB_EXPIMP int		cob_get_param_constant ( int num_param );
 COB_EXPIMP int		cob_get_param_digits( int num_param );
@@ -2008,11 +2078,11 @@ COB_EXPIMP void *	cob_get_param_data ( int num_param );
 COB_EXPIMP cob_s64_t	cob_get_s64_param  ( int num_param );
 COB_EXPIMP cob_u64_t	cob_get_u64_param  ( int num_param );
 COB_EXPIMP double	cob_get_dbl_param  ( int num_param );
-COB_EXPIMP char *	cob_get_picx_param ( int num_param, void *charfld, size_t charlen );
-COB_EXPIMP void *	cob_get_grp_param  ( int num_param, void *charfld, size_t charlen );
 COB_EXPIMP void		cob_put_dbl_param  ( int num_param, double value );
 COB_EXPIMP void		cob_put_s64_param  ( int num_param, cob_s64_t value );
 COB_EXPIMP void		cob_put_u64_param  ( int num_param, cob_u64_t value );
+COB_EXPIMP char *	cob_get_picx_param ( int num_param, void *charfld, size_t charlen );
+COB_EXPIMP void *	cob_get_grp_param  ( int num_param, void *charfld, size_t charlen );
 COB_EXPIMP void 	cob_put_picx_param ( int num_param, void *charfld );
 COB_EXPIMP void  	cob_put_grp_param  ( int num_param, void *charfld, size_t charlen );
 
@@ -2050,6 +2120,8 @@ COB_EXPIMP void		cob_screen_display	(cob_screen *, cob_field *,
 COB_EXPIMP void		cob_screen_accept	(cob_screen *, cob_field *,
 					 cob_field *, cob_field *,
 					 const int);
+COB_EXPIMP void		cob_accept_field	(cob_field *, const cob_flags_t, const char *, ...);
+COB_EXPIMP void		cob_display_field	(cob_field *, const cob_flags_t, const char *, ...);
 COB_EXPIMP void		cob_field_display	(cob_field *, cob_field *, cob_field *,
 					 cob_field *, cob_field *, cob_field *,
 					 cob_field *, const cob_flags_t);
@@ -2065,6 +2137,7 @@ COB_EXPIMP void		cob_accept_escape_key	(cob_field *);
 COB_EXPIMP int		cob_sys_clear_screen	(void);
 COB_EXPIMP int		cob_sys_sound_bell	(void);
 COB_EXPIMP int		cob_sys_get_scr_size	(unsigned char *, unsigned char *);
+COB_EXPIMP int		cob_sys_set_scr_size	(unsigned char *, unsigned char *);
 COB_EXPIMP int		cob_sys_get_char	(unsigned char *);
 COB_EXPIMP int		cob_get_text 		(char *, int);
 COB_EXPIMP int		cob_get_scr_cols	(void);
@@ -2138,6 +2211,13 @@ typedef struct {
 } KDB;
 
 typedef struct {
+	unsigned char	kdbLen[2];
+	char		filler[4];
+	unsigned char	nkeys[2];
+	char		filler2[6];
+} KDB_GLOBAL;
+
+typedef struct {
 	unsigned char	desc;
 	unsigned char	type;
 	unsigned char	pos[4];				/* Position in record */
@@ -2172,20 +2252,20 @@ typedef struct {
 /*                                                        */
 /* MF says: FCD 1 is obsolete and should never be used    */
 /**********************************************************/
-typedef struct {
-	unsigned char	fileStatus[2];			/* I/O completion status */
+typedef struct __fcd3 {
+	unsigned char	fileStatus[2];		/* I/O completion status */
 	unsigned char	fcdLen[2];			/* contains length of FCD */
-	char		fcdVer;				/* FCD format version */
+	unsigned char	fcdVer;				/* FCD format version */
 #define FCD_VER_64Bit	1
 	unsigned char	fileOrg;			/* file organization */
 #define ORG_LINE_SEQ		0
 #define ORG_SEQ			1
 #define ORG_INDEXED		2
 #define ORG_RELATIVE		3
-#define ORG_DETERMINE		255		/* not really implemented yet */
-	unsigned char	accessFlags;			/* status byte (bit 7) & file access flags (bits 0-6)*/
+#define ORG_DETERMINE		255			/* not really implemented yet */
+	unsigned char	accessFlags;		/* status byte (bit 7) & file access flags (bits 0-6)*/
 #define ACCESS_SEQ			0
-#define ACCESS_DUP_PRIME		1	/* not implemented yet */
+#define ACCESS_DUP_PRIME	1			/* not implemented yet */
 #define ACCESS_RANDOM		4
 #define ACCESS_DYNAMIC		8
 #define ACCESS_USER_STAT	0x80
@@ -2200,18 +2280,18 @@ typedef struct {
 #define REC_MODE_VARIABLE	1
 	unsigned char	fileFormat;			/* File format */
 #define MF_FF_DEFAULT		0		/* Default format */
-#define MF_FF_CISAM		1		/* C-ISAM format */
-#define MF_FF_LEVELII		2	/* LEVEL II COBOL format */
-#define MF_FF_COBOL		3		/* IDXFORMAT"3" format (COBOL2) */
-#define MF_FF_IDX4		4		/* IDXFORMAT"4" format */
-#define MF_FF_IDX8		8		/* IDXFORMAT"8" format (BIG) */
+#define MF_FF_CISAM			1		/* C-ISAM format */
+#define MF_FF_LEVELII		2		/* LEVEL II COBOL format */
+#define MF_FF_COBOL			3		/* IDXFORMAT"3" format (COBOL2) */
+#define MF_FF_IDX4			4		/* IDXFORMAT"4" format */
+#define MF_FF_IDX8			8		/* IDXFORMAT"8" format (BIG) */
 	unsigned char	deviceFlag;		
 	unsigned char	lockAction;		
 	unsigned char	compType;			/* data compression type */
 	unsigned char	blocking;				
 	unsigned char	idxCacheSz;			/* index cache size */
 	unsigned char	percent;
-	unsigned char	blockSize;
+	unsigned char	blockSize;			/* block-size, fcd-convert only */
 	unsigned char	flags1;
 	unsigned char	flags2;
 	unsigned char	mvsFlags;
@@ -2236,12 +2316,17 @@ typedef struct {
 	unsigned char	lockTypes;
 	unsigned char	fsFlags;
 	unsigned char	confFlags;			/* configuration flags */
-#define MF_CF_WRTHRU		0x80			/* Write through to disk */
-#define MF_CF_RELADRS		0x40			/* Use relative byte address */
+#define MF_CF_WRTHRU	0x80			/* Write through to disk */
+#define MF_CF_RELADRS	0x40			/* Use relative byte address */
 #define MF_CF_UPPTR		0x20			/* Update current record pointer */
 #define MF_CF_REC64		0x10			/* Use 64-bit record address */
 	unsigned char	miscFlags;			/* misc flags */
 	unsigned char	confFlags2;			/* configuration flags */
+#define MF_CF2_EBCDIC		0x80		/* EBCDIC collation*/
+#define MF_CF2_AFTER_ADV	0x40		/* has WRITE AFTER ADVANCING */
+#define MF_CF2_BEFORE_ADV	0x20		/* has WRITE BEFORE ADVANCING */
+#define MF_CF2_ADV		0x10			/* ADV Byte */
+#define MF_CF2_IGN_MIN_LEN	0x08		/* ignore minimal lenght check (auto-fill?) */
 	unsigned char	lockMode;			/* locking flags */
 #define FCD_LOCK_MULTI		0x80
 #define FCD_LOCK_WRITE		0x40
@@ -2252,7 +2337,7 @@ typedef struct {
 #define FCD_LOCK_AUTO_LOCK	0x02
 #define FCD_LOCK_EXCL_LOCK	0x01
 	unsigned char	fsv2Flags;			/* Fileshare V2 flags */
-	unsigned char	idxCacheArea;			/* index cache buffers */
+	unsigned char	idxCacheArea;		/* index cache buffers */
 	unsigned char	fcdInternal1;
 	unsigned char	fcdInternal2;
 	char		res3[14];	
@@ -2264,37 +2349,91 @@ typedef struct {
 	unsigned char	nlsId[2];
 	char		fsv2FileId[2];			/* Fileshare V2 file id */
 	char		retryOpenCount[2];
-	unsigned char	fnameLen[2];			/* file name length */
-	unsigned char	idxNameLen[2];			/* index name length */
+	unsigned char	fnameLen[2];		/* file name length */
+	unsigned char	idxNameLen[2];		/* index name length */
 	char		retryCount[2];
 	unsigned char	refKey[2];			/* key of reference */
 	unsigned char	lineCount[2];	
 	unsigned char	useFiles;	
 	unsigned char	giveFiles;	
-	unsigned char	effKeyLen[2];			/* effective key length */
+	unsigned char	effKeyLen[2];		/* effective key length */
 	char		res5[14];		
 	unsigned char	eop[2];				/* was "res5"; Use for cob_write eop value */
-	char		opt[4];				/* was "res5"; Use for cob_write opts value */
-	unsigned char	curRecLen[4];			/* current record length in bytes */
-	unsigned char	minRecLen[4];			/* min. record length in bytes */
-	unsigned char	maxRecLen[4];			/* max. record length in bytes */
+	char		opt[4];					/* was "res5"; Use for cob_write opts value */
+	unsigned char	curRecLen[4];		/* current record length in bytes */
+	unsigned char	minRecLen[4];		/* min. record length in bytes */
+	unsigned char	maxRecLen[4];		/* max. record length in bytes */
 	char		fsv2SessionId[4];		/* Fileshare V2 session id */
 	char		res6[24];
-	unsigned char	relByteAdrs[8];			/* 64-bit, relative byte address */
-	unsigned char	maxRelKey[8];			/* 64-bit, max relative key/Record num */
+	unsigned char	relByteAdrs[8];		/* 64-bit, relative byte address */
+	unsigned char	maxRelKey[8];		/* 64-bit, max relative key/Record num */
 	unsigned char	relKey[8];			/* 64-bit, (cur) relative key/Record num */
-	pointer_8byte(void,	_fileHandle);			/* file handle */
-	pointer_8byte(unsigned char,	_recPtr);			/* pointer to record area */
+	pointer_8byte(void,	_fileHandle);		/* file handle */
+	pointer_8byte(unsigned char, _recPtr);	/* pointer to record area */
 	pointer_8byte(char,	_fnamePtr);			/* pointer to file name area */
-	pointer_8byte(char,	_idxNamePtr);			/* pointer to index name area */
+	pointer_8byte(char,	_idxNamePtr);		/* pointer to index name area */
 	pointer_8byte(KDB,	_kdbPtr);			/* pointer to key definition block */
 	pointer_8byte(void,	_colPtr);			/* pointer to collating sequence block */
 	pointer_8byte(void,	_fileDef);			/* pointer to filedef */
-	pointer_8byte(void,	_dfSortPtr);			/* pointer to DFSORT */
+	pointer_8byte(void,	_dfSortPtr);		/* pointer to DFSORT */
 } FCD3;
 
+/*******************************************************/
+/* Following is the 32-bit FCD (or also known as FCD2) */
+/**** Newer versions of MF COBOL do not support this ***/
+/*******************************************************/
+typedef struct __fcd2 {
+	unsigned char	fileStatus[2];		/* I/O completion status */
+	unsigned char	fcdLen[2];			/* reserved */
+	unsigned char	fcdVer;				/* reserved */
+#define FCD2_VER	0
+	unsigned char	fileOrg;			/* file organization */
+	unsigned char	accessFlags;		/* status byte (bit 7) & file access flags (bits 0-6)*/
+	unsigned char	openMode;			/* open mode INPUT, I-O, etc. */
+	char			res2[2];			/* reserved */
+	unsigned char	blockSize;			/* block-size, fcd-convert only */
+	unsigned char	fnameLen[2];		/* file name length */
+	unsigned char	relByteAdrs64[8];	/* 64-bit, relative byte address */
+	char			res3[3];			/* reserved */
+	unsigned char	lockMode;			/* lock mode flags for shareable files*/
+	unsigned char	otherFlags;			/* miscellaneous flags */
+	char			res4[2];			/* reserved */
+	void			*fileHandle2;		/* file handle */
+	unsigned char   gcFlags;			/* Flags used in 4.x by extfh.c */
+	unsigned char	fstatusType;		/* file status type */
+	unsigned char	fileFormat;			/* file format */
+	char			res6[3];			/* reserved */
+	unsigned char	maxRecLen[2];		/* max. record length in bytes */
+	char			res7[3];			/* rserved */
+	unsigned char	relRecNum[4];			/* relative record number */
+	unsigned char	recordMode;			/* recording mode */
+	unsigned char	curRecLen[2];		/* current record length in bytes */
+	unsigned char	minRecLen[2];		/* min. record length in bytes */
+	unsigned char	refKey[2];			/* key of reference */
+	unsigned char 	effKeyLen[2];		/* effective key length */
+	unsigned char	*recPtr2;			/* Pointer to record area */
+	char			*fnamePtr2;			/* pointer to file name area */
+	KDB				*kdbPtr2;			/* pointer to key definition block */
+	char			res8[4];			/* reserved */
+	unsigned char	relByteAddr[4];		/* relative byte address */
+	char			res9[2];			/* reserved */
+	unsigned char	compType;			/* data compression type */
+	char			fsv2SessionId[4];	/* Fileshare V2 session id */
+	char			fsv2FileId[2];		/* Fileshare V2 file id */
+	unsigned char	maxRelKeySize[4];	/* Maximum relative Key size */
+	char			res10[2];			/* reserved */
+	unsigned char	lockFlags;			/* locking flags */
+	unsigned char	fsv2Flags;			/* Fileshare V2 flags */
+	unsigned char	confFlags;			/* configuration flags */
+	char			res11;				/* reserved */
+	unsigned char	confFlags2;			/* yet another bunch of flags */
+	unsigned char	idxCacheSz;			/* index cache size */
+	unsigned char	idxCacheArea;		/* index cache area */
+	char			res12[2];			/* reserved */
+} FCD2;
+
 #define fileHandle	_fileHandle.ptr_name	/* EXTFH: file handle */
-#define recPtr		_recPtr.ptr_name	/* EXTFH: pointer to record area */
+#define recPtr		_recPtr.ptr_name		/* EXTFH: pointer to record area */
 #define fnamePtr	_fnamePtr.ptr_name		/* EXTFH: pointer to file name area */
 #define idxNamePtr	_idxNamePtr.ptr_name	/* EXTFH: pointer to index name area */
 #define kdbPtr		_kdbPtr.ptr_name 		/* EXTFH: pointer to key definition block */
@@ -2302,18 +2441,18 @@ typedef struct {
 #define fileDef		_fileDef.ptr_name		/* EXTFH: pointer to filedef */
 #define dfSortPtr	_dfSortPtr.ptr_name		/* EXTFH: pointer to DFSORT */
 
-#define LSUCHAR(f)	((unsigned char*)(f))
+#define LSUCHAR(f)	((unsigned char *)(f))
 /* xxCOMPXn : Big Endian Binary data */
-#define LDCOMPX2(f)	(((f[0] << 8 ) & 0xFF00) | (f[1] & 0xFF))
-#define LDCOMPX4(f)	(((f[0] << 24 ) & 0xFF000000) | ((f[1] << 16 ) & 0xFF0000) | ((f[2] << 8 ) & 0xFF00) | (f[3] & 0xFF))
-#define STCOMPX2(v,f)	(f[1] = (v) & 0xFF, f[0] = ((v) >> 8) & 0xFF)
-#define STCOMPX4(v,f)	(f[3] = (v) & 0xFF, f[2] = ((v) >> 8) & 0xFF, f[1] = ((v) >> 16) & 0xFF, f[0] = ((v) >> 24) & 0xFF)
+#define LDCOMPX2(f)	((((f)[0] << 8 ) & 0xFF00) | ((f)[1] & 0xFF))
+#define LDCOMPX4(f)	((((f)[0] << 24 ) & 0xFF000000) | (((f)[1] << 16 ) & 0xFF0000) | (((f)[2] << 8 ) & 0xFF00) | ((f)[3] & 0xFF))
+#define STCOMPX2(v,f)	((f)[1] = (v) & 0xFF, (f)[0] = ((v) >> 8) & 0xFF)
+#define STCOMPX4(v,f)	((f)[3] = (v) & 0xFF, (f)[2] = ((v) >> 8) & 0xFF, (f)[1] = ((v) >> 16) & 0xFF, (f)[0] = ((v) >> 24) & 0xFF)
 
 /* xxBINLEn : Little Endian Binary data */
-#define LDBINLE2(f)	(((f[1] << 8 ) & 0xFF00) | (f[0] & 0xFF))
-#define LDBINLE4(f)	(((f[3] << 24 ) & 0xFF000000) | ((f[2] << 16 ) & 0xFF0000) | ((f[1] << 8 ) & 0xFF00) | (f[0] & 0xFF))
-#define STBINLE2(v,f)	(f[0] = (v) & 0xFF, f[1] = ((v) >> 8) & 0xFF)
-#define STBINLE4(v,f)	(f[0] = (v) & 0xFF, f[1] = ((v) >> 8) & 0xFF, f[2] = ((v) >> 16) & 0xFF, f[3] = ((v) >> 24) & 0xFF)
+#define LDBINLE2(f)	((((f)[1] << 8 ) & 0xFF00) | ((f)[0] & 0xFF))
+#define LDBINLE4(f)	((((f)[3] << 24 ) & 0xFF000000) | (((f)[2] << 16 ) & 0xFF0000) | (((f)[1] << 8 ) & 0xFF00) | ((f)[0] & 0xFF))
+#define STBINLE2(v,f)	((f)[0] = (v) & 0xFF, (f)[1] = ((v) >> 8) & 0xFF)
+#define STBINLE4(v,f)	((f)[0] = (v) & 0xFF, (f)[1] = ((v) >> 8) & 0xFF, (f)[2] = ((v) >> 16) & 0xFF, (f)[3] = ((v) >> 24) & 0xFF)
 
 /*************************/
 /* EXTFH operation codes */
@@ -2323,12 +2462,14 @@ typedef struct {
 #define OP_FLUSH			0x000C	
 #define OP_UNLOCK_REC			0x000F	
 
-#define OP_CLOSE			0xFA80		/* OP CODES */
-#define OP_CLOSE_LOCK			0xFA81
-#define OP_CLOSE_NO_REWIND		0xFA82
-#define OP_CLOSE_REEL			0xFA84
-#define OP_CLOSE_REMOVE			0xFA85
-#define OP_CLOSE_NOREWIND		0xFA86
+/* standard OP CODES */
+
+#define OP_CLOSE			0xFA80	/* CLOSE */
+#define OP_CLOSE_LOCK			0xFA81	/* CLOSE WITH LOCK */
+#define OP_CLOSE_NO_REWIND		0xFA82	/* CLOSE WITH NO REWIND */
+#define OP_CLOSE_REEL			0xFA84	/* CLOSE REEL/UNIT */
+#define OP_CLOSE_REMOVE			0xFA85	/* CLOSE REEL/UNIT FOR REMOVAL */
+#define OP_CLOSE_NOREWIND		0xFA86	/* CLOSE REEL/UNIT WITH NO REWIND */
 
 #define OP_OPEN_INPUT			0xFA00
 #define OP_OPEN_OUTPUT			0xFA01
@@ -2450,6 +2591,8 @@ COB_EXPIMP void cob_extfh_start		(int (*callfh)(unsigned char *opcode, FCD3 *fcd
 COB_EXPIMP void cob_extfh_write		(int (*callfh)(unsigned char *opcode, FCD3 *fcd),
 					cob_file *, cob_field *, const int,
 				 	cob_field *, const unsigned int);
+COB_EXPIMP void cob_file_fcd_adrs		(cob_file *, void *);
+COB_EXPIMP void cob_file_fcdkey_adrs	(cob_file *, void *);
 
 /* File system routines */
 COB_EXPIMP int cob_sys_open_file	(unsigned char *, unsigned char *,
@@ -2485,11 +2628,15 @@ COB_EXPIMP int cob_sys_file_delete	(unsigned char *, unsigned char *);
 COB_EXPIMP void	cob_file_sort_init	(cob_file *, const unsigned int,
 					 const unsigned char *,
 					 void *, cob_field *);
+COB_EXPIMP void	cob_file_sort_options (cob_file *, const char *, ...);
 COB_EXPIMP void	cob_file_sort_init_key	(cob_file *, cob_field *,
 					 const int, const unsigned int);
 COB_EXPIMP void	cob_file_sort_close	(cob_file *);
 COB_EXPIMP void	cob_file_sort_using	(cob_file *, cob_file *);
+COB_EXPIMP void	cob_file_sort_using_extfh	(cob_file *, cob_file *,
+					 int (*callfh)(unsigned char *opcode, FCD3 *fcd));
 COB_EXPIMP void	cob_file_sort_giving	(cob_file *, const size_t, ...);
+COB_EXPIMP void	cob_file_sort_giving_extfh	(cob_file *, const size_t, ...);
 COB_EXPIMP void	cob_file_release	(cob_file *);
 COB_EXPIMP void	cob_file_return		(cob_file *);
 
@@ -2518,6 +2665,8 @@ COB_EXPIMP void	cob_xml_generate_new	(cob_field *, cob_ml_tree *,
 					 cob_field *, const char);
 COB_EXPIMP void cob_json_generate_new	(cob_field *, cob_ml_tree *,
 					 cob_field *, const char);
+COB_EXPIMP int	cob_xml_parse	(cob_field *, cob_field *,
+					 cob_field *, const int, void **);
 
 
 /****************************/
@@ -2668,6 +2817,23 @@ COB_EXPIMP cob_field *cob_intr_integer_of_formatted_date	(cob_field *,
 COB_EXPIMP cob_field *cob_intr_content_length		(cob_field *);
 COB_EXPIMP cob_field *cob_intr_content_of		(const int, const int,
 							 const int, ...);
+COB_EXPIMP cob_field *cob_intr_bit_of		(cob_field *);
+COB_EXPIMP cob_field *cob_intr_bit_to_char		(cob_field *);
+COB_EXPIMP cob_field* cob_intr_hex_of (cob_field*);
+COB_EXPIMP cob_field* cob_intr_hex_to_char (cob_field*);
+
+/************************/
+/* Functions in cconv.c */
+/************************/
+
+/* Load a file that contains a mapping from EBCDIC to ASCII characters
+   and fill the given conversion tables accordingly. Return 0 on
+   success or -1 on error (file unknown or containing invalid data).
+   The `ebcdic_to_ascii' and `ascii_to_ebcdic' arguments may be NULL
+   if one (or both) of the tables is not needed. */
+
+COB_EXPIMP int
+cob_load_collation (const char *, cob_u8_t *, cob_u8_t *);
 
 /*******************************/
 
@@ -2683,15 +2849,13 @@ typedef	char *		cobchar_t;
 #define	cobs64_t	cob_s64_t
 #define	cobuns64_t	cob_u64_t
 
-#ifndef COB_WITHOUT_JMP
 #define	cobsetjmp(x)	setjmp (cob_savenv (x))
 #define	coblongjmp(x)	cob_longjmp (x)
 #define	cobsavenv(x)	cob_savenv (x)
 #define	cobsavenv2(x,z)	cob_savenv2 (x, z)
-#endif
 
-#define	cobfunc(x,y,z)	cob_func (x, y, z)
-#define	cobcall(x,y,z)	cob_call (x, y, z)
+#define	cobfunc(x,y,z)	cob_func (x, y, (void **)z)
+#define	cobcall(x,y,z)	cob_call (x, y, (void **)z)
 #define	cobcancel(x)	cob_cancel (x)
 
 #define	cobgetenv(x)	cob_getenv (x)

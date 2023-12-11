@@ -1,4 +1,4 @@
-## Copyright (C) 2003-2012, 2014-2020 Free Software Foundation, Inc.
+## Copyright (C) 2003-2012, 2014-2023 Free Software Foundation, Inc.
 ## Written by Keisuke Nishida, Roger While, Simon Sobisch, Edward Hart
 ##
 ## This file is part of GnuCOBOL.
@@ -44,7 +44,7 @@ AT_CLEANUP
 
 
 AT_SETUP([FUNCTION ACOS])
-AT_KEYWORDS([functions])
+AT_KEYWORDS([functions PACKED-DECIMAL COMP-3 COMP-6])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
@@ -52,12 +52,22 @@ AT_DATA([prog.cob], [
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
        01  Z   PIC   S9V9(35).
+       01  P   PIC   S9V9(35) PACKED-DECIMAL.
+       01  S   PIC    9V9(35) COMP-6.
+      *01  N   PIC   S9V9(35) COMP-5.  big binary support pending
        PROCEDURE        DIVISION.
            MOVE FUNCTION ACOS ( -0.2345 ) TO Z.
            IF Z NOT = 1.80750052110824343510150043852321026
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY "DISPLAY: " Z.
+           MOVE FUNCTION ACOS ( -0.2345 ) TO P.
+           IF P NOT = 1.80750052110824343510150043852321026
+              DISPLAY "PACKED: " P.
+           MOVE FUNCTION ACOS ( -0.2345 ) TO S.
+           IF S NOT = 1.80750052110824343510150043852321026
+              DISPLAY "COMP-6: " S.
+      *    MOVE FUNCTION ACOS ( -0.2345 ) TO N.
+      *    IF N NOT = 1.80750052110824343510150043852321026
+      *       DISPLAY "PACKED: " N.
            STOP RUN.
 ])
 
@@ -79,9 +89,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION ANNUITY ( 3, 5 ) TO Z.
            IF Z NOT = 3.00293255131964809384164222873900293
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -92,7 +100,7 @@ AT_CLEANUP
 
 
 AT_SETUP([FUNCTION ASIN])
-AT_KEYWORDS([functions])
+AT_KEYWORDS([functions PACKED-DECIMAL COMP-3 COMP-6])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
@@ -100,12 +108,27 @@ AT_DATA([prog.cob], [
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
        01  Y   PIC   S9V9(35).
+       01  P   PIC   S9V9(35) PACKED-DECIMAL.
+       01  S   PIC    9V9(35) COMP-6.
+      *>01  N   PIC   S9V9(35) COMP-5.  big binary support pending
        PROCEDURE        DIVISION.
            MOVE FUNCTION ASIN ( -0.2345 ) TO Y.
            IF Y NOT = -0.23670419431334681587017874688345882
-              DISPLAY Y
-              END-DISPLAY
-           END-IF.
+              DISPLAY "DISPLAY: " Y.
+           MOVE FUNCTION ASIN ( -0.2345 ) TO P.
+           IF P NOT = -0.23670419431334681587017874688345882
+              DISPLAY "PACKED:  " P.
+           MOVE FUNCTION ASIN ( -0.2345 ) TO S.
+           IF S NOT = 0.23670419431334681587017874688345882
+              DISPLAY "COMP-6:  " S.
+      *>    MOVE FUNCTION ASIN ( -0.2345 ) TO N.
+      *>    IF N NOT = -0.23670419431334681587017874688345882
+      *>       DISPLAY "DISPLAY: " N.
+      *>   cheating: we compare a huge internal field
+      *>             (96 digits) here for the testsuite
+           IF FUNCTION ASIN ( -00000.2345 ) NOT =
+              FUNCTION ASIN ( -.234500000 )
+              DISPLAY "ASIN IS NOT ITSELF".
            STOP RUN.
 ])
 
@@ -154,49 +177,35 @@ AT_DATA([prog.cob], [
            MOVE FUNCTION BYTE-LENGTH ( X )
              TO TEST-FLD.
            IF TEST-FLD NOT = 4
-              DISPLAY 'BYTE-LENGTH X(4) wrong: ' TEST-FLD
-              END-DISPLAY
-           END-IF
+              DISPLAY 'BYTE-LENGTH X(4) wrong: ' TEST-FLD.
            MOVE FUNCTION BYTE-LENGTH ( Z )
              TO TEST-FLD
            IF TEST-FLD NOT = 8
-              DISPLAY 'BYTE-LENGTH N(4) wrong: ' TEST-FLD
-              END-DISPLAY
-           END-IF
+              DISPLAY 'BYTE-LENGTH N(4) wrong: ' TEST-FLD.
 
            MOVE FUNCTION BYTE-LENGTH ( '00128' )
              TO TEST-FLD
            IF TEST-FLD NOT = 5
-              DISPLAY 'BYTE-LENGTH "00128" wrong: ' TEST-FLD
-              END-DISPLAY
-           END-IF
+              DISPLAY 'BYTE-LENGTH "00128" wrong: ' TEST-FLD.
       *    note: we currently do not support items of category boolean...
       *>   MOVE FUNCTION BYTE-LENGTH ( b'100' )
       *>     TO TEST-FLD
       *>   IF TEST-FLD NOT = 3
-      *>      DISPLAY 'BYTE-LENGTH b"100" wrong: ' TEST-FLD
-      *>      END-DISPLAY
-      *>   END-IF
+      *>      DISPLAY 'BYTE-LENGTH b"100" wrong: ' TEST-FLD.
            MOVE FUNCTION BYTE-LENGTH ( x'a0' )
              TO TEST-FLD
            IF TEST-FLD NOT = 1
-              DISPLAY 'BYTE-LENGTH x"a0" wrong: ' TEST-FLD
-              END-DISPLAY
-           END-IF
+              DISPLAY 'BYTE-LENGTH x"a0" wrong: ' TEST-FLD.
            MOVE FUNCTION BYTE-LENGTH ( z'a0' )
              TO TEST-FLD
            IF TEST-FLD NOT = 3
-              DISPLAY 'BYTE-LENGTH z"a0" wrong: ' TEST-FLD
-              END-DISPLAY
-           END-IF
+              DISPLAY 'BYTE-LENGTH z"a0" wrong: ' TEST-FLD.
       *    we currently generate national constants as
       *    alphanumeric constants...
       *    MOVE FUNCTION BYTE-LENGTH ( n'a0' )
       *      TO TEST-FLD
       *    IF TEST-FLD NOT = 4
-      *       DISPLAY 'BYTE-LENGTH n"a0" wrong: ' TEST-FLD
-      *       END-DISPLAY
-      *    END-IF
+      *       DISPLAY 'BYTE-LENGTH n"a0" wrong: ' TEST-FLD.
 
            STOP RUN.
 ])
@@ -347,6 +356,194 @@ AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
 AT_CLEANUP
 
 
+AT_SETUP([FUNCTION BIT-OF and BIT-TO-CHAR])
+AT_KEYWORDS([functions literal ibm])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  PAC    PIC   9(4) VALUE 12 COMP-3.
+       01  TXT    PIC   X(4) VALUE "HI.".
+       01  BITX   PIC   X(34).
+           88 BITX-FILLER VALUE ALL "-".
+       PROCEDURE        DIVISION.
+           SET  BITX-FILLER TO TRUE
+           STRING FUNCTION BIT-OF (PAC) DELIMITED BY SIZE INTO BITX.
+           IF BITX NOT = "000000000000000100101111----------"
+              DISPLAY "UNEXPECTED BIT-VALUE OF PAC 0012: " BITX.
+
+           SET  BITX-FILLER TO TRUE
+           STRING FUNCTION BIT-OF (TXT) DELIMITED BY SIZE INTO BITX.
+      *> Discover if running ASCII or EBCDIC
+       >>IF   CHARSET = 'ASCII'
+           IF BITX NOT = "01001000010010010010111000100000--"
+       >>ELIF CHARSET = 'EBCDIC'
+           IF BITX NOT = "11001000110010010100101101000000--"
+       >>ELSE
+           IF 1 = 1 DISPLAY 'CHARSET UNKNOWN! PLEASE REPORT!'
+       >>END-IF
+              DISPLAY "UNEXPECTED BIT-VALUE OF 'HI. ': " BITX.
+
+           SET  BITX-FILLER TO TRUE
+           STRING FUNCTION BIT-OF (z"01") DELIMITED BY SIZE INTO BITX.
+       >>IF   CHARSET = 'ASCII'
+           IF BITX NOT = "001100000011000100000000----------"
+       >>ELSE
+           IF BITX NOT = "111100001111000100000000----------"
+       >>END-IF
+
+           IF FUNCTION BIT-TO-CHAR (BITX(1:24)) NOT = z"01"
+              DISPLAY "UNEXPECTED CHAR VALUE, does not match z'01': "
+                      BITX (1:24).
+           SET  BITX-FILLER TO TRUE
+           STRING FUNCTION BIT-TO-CHAR ("0011000100110010")
+                  DELIMITED BY SIZE INTO BITX.
+           IF NOT (BITX (1:2) = x"3132" AND
+                   BITX (3: ) = "--------------------------------")
+              DISPLAY "UNEXPECTED CHAR VALUE, expected 12-* got: " BITX.
+
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE prog.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
+
+AT_CLEANUP
+
+
+AT_SETUP([FUNCTION HEX-OF and HEX-TO-CHAR])
+AT_KEYWORDS([functions literal ibm national])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  X.
+         03       PIC     X  VALUE SPACE.
+         03       PIC   9(3) VALUE 12.
+       01  Y      PIC   X(4) VALUE "HI.".
+       01  BIN    PIC   9(9) BINARY VALUE 12.
+       01  PAC    PIC   9(5) COMP-3 VALUE 1234.
+       01  N9     PIC   9(2) USAGE NATIONAL VALUE 12.
+       01  NX     PIC   N(2) VALUE N"!".
+       01  HEXX   PIC   X(10).
+           88 HEXX-FILLER VALUE ALL "-".
+       01  FILLER       USAGE BINARY-INT VALUE 0.
+           88 DO-DISP   VALUE 0.
+           88 NO-DISP   VALUE 1.
+       REPLACE ==DISPLAY== BY ==IF DO-DISP  DISPLAY==,
+               ==END-DISPLAY== BY ==END-DISPLAY END-IF==.
+       PROCEDURE        DIVISION.
+       MAIN.
+      *    Test with DISPLAY on error
+           PERFORM DO-CHECK.
+       >> IF CHECK-PERF IS DEFINED
+           SET  NO-DISP    TO TRUE
+      *    some performance checks on the way...
+           PERFORM DO-CHECK 300000 TIMES.
+       >> END-IF
+           GOBACK.
+
+       DO-CHECK.
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-OF (X) DELIMITED BY SIZE INTO HEXX.
+      *> Discover if running ASCII or EBCDIC
+       >>IF   CHARSET = 'ASCII'
+           IF HEXX NOT = "20303132--"
+       >>ELIF CHARSET = 'EBCDIC'
+           IF HEXX NOT = "40F0F1F2--"
+       >>ELSE
+           IF 1 = 1 DISPLAY 'CHARSET UNKNOWN! PLEASE REPORT!'
+       >>END-IF
+              DISPLAY "UNEXPECTED HEX-VALUE OF '0012': " HEXX.
+
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-OF (Y) DELIMITED BY SIZE INTO HEXX.
+       >>IF   CHARSET = 'ASCII'
+           IF HEXX NOT = "48492E20--"
+       >> ELSE
+           IF HEXX NOT = "C8C94B40--"
+       >> END-IF
+              DISPLAY "UNEXPECTED HEX-VALUE OF 'HI! ': " HEXX.
+
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-OF (BIN) DELIMITED BY SIZE INTO HEXX.
+           IF HEXX NOT = "0000000C--"
+              DISPLAY "UNEXPECTED HEX-VALUE OF BIN 12: " HEXX.
+
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-OF (PAC) DELIMITED BY SIZE INTO HEXX.
+           IF HEXX NOT = "01234F----"
+              DISPLAY "UNEXPECTED HEX-VALUE OF PACKED 1234: " HEXX.
+
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-OF (z"01") DELIMITED BY SIZE INTO HEXX.
+       >>IF   CHARSET = 'ASCII'
+           IF HEXX NOT = "303100----"
+       >> ELSE
+           IF HEXX NOT = "F0F100----"
+       >> END-IF
+              DISPLAY "UNEXPECTED HEX-VALUE OF z'01': " HEXX.
+
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-OF (' ') DELIMITED BY SIZE INTO HEXX.
+       >>IF   CHARSET = 'ASCII'
+           IF HEXX NOT = "20--------"
+       >> ELSE
+           IF HEXX NOT = "40--------"
+       >> END-IF
+              DISPLAY "UNEXPECTED HEX-VALUE OF ' ': " HEXX.
+
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-OF (n' ') DELIMITED BY SIZE INTO HEXX.
+           IF HEXX NOT = "0020------"
+              DISPLAY "UNEXPECTED HEX-VALUE OF n' ': " HEXX.
+
+       *>  FIXME: Failing with "3132------" -> missing padding
+       *>         -> codegen issue for initialization / move
+       *>            and libcob issue at least for MOVE
+       *>  SET  HEXX-FILLER TO TRUE
+       *>  STRING FUNCTION HEX-OF (N9) DELIMITED BY SIZE INTO HEXX.
+       *>  IF HEXX NOT = "00310032--"
+       *>     DISPLAY "UNEXPECTED HEX-VALUE OF N9: " HEXX.
+
+       *>  FIXME: Failing with "00212020--" -> bad padding
+       *>         -> codegen issue for initialization / move
+       *>            and libcob issue at least for MOVE
+       *>  SET  HEXX-FILLER TO TRUE
+       *>  STRING FUNCTION HEX-OF (NX) DELIMITED BY SIZE INTO HEXX.
+       *>  IF HEXX NOT = "00210020--"
+       *>     DISPLAY "UNEXPECTED HEX-VALUE OF NX: " HEXX.
+
+       *>  setting up test data:
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-OF (z"01") DELIMITED BY SIZE INTO HEXX.
+
+           IF FUNCTION HEX-TO-CHAR (HEXX(1:6)) NOT = z"01"
+              DISPLAY "UNEXPECTED CHAR VALUE, does not match z'01': "
+                      HEXX (1:6).
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-TO-CHAR ("3132")
+                  DELIMITED BY SIZE INTO HEXX.
+           IF NOT (HEXX (1:2) = x"3132" AND HEXX (3:) = "--------")
+              DISPLAY "UNEXPECTED CHAR VALUE, expected 12-* got: " HEXX.
+
+           SET  HEXX-FILLER TO TRUE
+           STRING FUNCTION HEX-TO-CHAR ("3132")
+                  DELIMITED BY SIZE INTO HEXX.
+           IF NOT (HEXX (1:2) = x"3132" AND HEXX (3:) = "--------")
+              DISPLAY "UNEXPECTED CHAR VALUE, expected 12-* got: " HEXX.
+])
+
+AT_CHECK([$COMPILE -Wno-unfinished prog.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
+
+AT_CLEANUP
+
+
 AT_SETUP([FUNCTION CONTENT-LENGTH])
 AT_KEYWORDS([functions length])
 
@@ -357,7 +554,7 @@ AT_DATA([prog.cob], [
        WORKING-STORAGE  SECTION.
        01  P            USAGE    POINTER.
        01  X            PIC      X(4) VALUE Z"ABC".
-       01  TEST-FLD     USAGE    BINARY-LONG.       
+       01  TEST-FLD     USAGE    BINARY-LONG.
        PROCEDURE        DIVISION.
            MOVE FUNCTION CONTENT-LENGTH ( P )
              TO TEST-FLD.
@@ -465,7 +662,7 @@ AT_DATA([prog.cob], [
 
        PROCEDURE DIVISION.
        PROG-MAIN.
-           CALL "subprog" USING BY CONTENT 
+           CALL "subprog" USING BY CONTENT
                                 FUNCTION CONCATENATE("Abc" "D")
            STOP RUN.
            END PROGRAM prog.
@@ -793,6 +990,8 @@ AT_DATA([prog.cob], [
                    NO ADVANCING
            END-DISPLAY.
            OPEN INPUT TEST-FILE.
+           PERFORM B00-MAIN.
+
        B00-MAIN SECTION.
        B00.
            DISPLAY FUNCTION EXCEPTION-LOCATION
@@ -804,6 +1003,53 @@ AT_DATA([prog.cob], [
 AT_CHECK([$COMPILE prog.cob], [0], [], [])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
 [ |prog; A00 OF A00-MAIN; 21], [])
+
+AT_DATA([caller.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      caller.
+       PROCEDURE        DIVISION.
+       A00-MAIN SECTION.
+       A00.
+           DISPLAY FUNCTION EXCEPTION-LOCATION '|'
+                   NO ADVANCING
+           END-DISPLAY.
+           CALL "sub".
+           CANCEL "sub".
+           PERFORM B00-MAIN.
+
+       B00-MAIN SECTION.
+       B00.
+           DISPLAY FUNCTION EXCEPTION-LOCATION
+                   NO ADVANCING
+           END-DISPLAY.
+           STOP RUN.
+])
+
+AT_DATA([sub.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      sub.
+       ENVIRONMENT      DIVISION.
+       INPUT-OUTPUT     SECTION.
+       FILE-CONTROL.
+           SELECT TEST-FILE ASSIGN "NOTEXIST"
+           FILE STATUS IS TEST-STATUS.
+       DATA             DIVISION.
+       FILE             SECTION.
+       FD  TEST-FILE.
+       01  TEST-REC      PIC X(4).
+       WORKING-STORAGE SECTION.
+       01  TEST-STATUS  PIC XX.
+       PROCEDURE        DIVISION.
+       A00-MAIN SECTION.
+       A00.
+           OPEN INPUT TEST-FILE.
+           GOBACK.
+])
+
+AT_CHECK([$COMPILE_MODULE sub.cob], [0], [], [])
+AT_CHECK([$COMPILE caller.cob], [0], [], [])
+AT_CHECK([COB_PHYSICAL_CANCEL=1 $COBCRUN_DIRECT ./caller], [0],
+[ |sub; A00 OF A00-MAIN; 18], [])
 
 AT_CLEANUP
 
@@ -1563,6 +1809,9 @@ AT_DATA([prog.cob], [
        01  X   PIC      S9(4)V9(4) VALUE -1.5.
        01  N   PIC      N(9).
        01  TEST-FLD     PIC S9(04)V9(02).
+       01  TEST-TAB.
+           05 T-ENTRIES   PIC 99 VALUE 10.
+           05 TEST-ENTRY  PIC X OCCURS 1 TO 10 DEPENDING ON T-ENTRIES.
        PROCEDURE        DIVISION.
            MOVE FUNCTION LENGTH ( X )
              TO TEST-FLD
@@ -1608,13 +1857,24 @@ AT_DATA([prog.cob], [
               DISPLAY 'LENGTH n"a0" wrong: ' TEST-FLD
               END-DISPLAY
            END-IF
+           MOVE 10 TO T-ENTRIES
+           MOVE FUNCTION LENGTH ( TEST-TAB)
+             TO TEST-FLD
+           IF TEST-FLD NOT = 12
+              DISPLAY 'LENGTH TEST-TAB (10 entries): ' TEST-FLD
+              END-DISPLAY
+           END-IF
+           MOVE 1 TO T-ENTRIES
+           MOVE FUNCTION LENGTH ( TEST-TAB)
+             TO TEST-FLD
+           IF TEST-FLD NOT = 3
+              DISPLAY 'LENGTH TEST-TAB (1 entry): ' TEST-FLD
+              END-DISPLAY
+           END-IF
            STOP RUN.
 ])
 
-AT_CHECK([$COMPILE prog.cob], [0], [],
-[prog.cob:7: warning: handling of USAGE NATIONAL is unfinished; implementation is likely to be changed
-prog.cob:48: warning: handling of national literal is unfinished; implementation is likely to be changed
-])
+AT_CHECK([$COMPILE -Wno-unfinished prog.cob], [0], [], [])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
 
 AT_CLEANUP
@@ -2330,20 +2590,62 @@ AT_DATA([prog.cob], [
        PROGRAM-ID.      prog.
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
-       01  X1  PIC   X(12) VALUE " -9876.1234 ".
-       01  X2  PIC   X(18) VALUE " 19876.1234 CR".
-       01  N   PIC   s9(5)v9(5).
+       01  X1     PIC   X(12) VALUE " -9876.1234 ".
+       01  X2     PIC   X(18) VALUE " 19876.1234 CR".
+       01  X2b    PIC   X(18) VALUE " 19876.1234 cR".
+       01  X2c    PIC   X(18) VALUE " 19876.1234 cr".
+       01  X2d    PIC   X(18) VALUE " 19876.1234 Cr".
+       01  X3     PIC   X(09) VALUE "-042.3240".
+       01  X4     PIC   X(09) VALUE "+04232400".
+       01  X5     PIC   X(09) VALUE " 00.00430".
+       01  BAD1   PIC   X(18) VALUE " 1. A-0B4.5".
+       01  BAD2   PIC   X(20) VALUE "+0@0%0=0*0!0&0^0)10-".
+       01  EMPT   PIC   X(20) VALUE SPACE.
+       77  CSZE   PIC   9     VALUE 0.
+       01  VSIZED.
+           03 FILLER  PIC X OCCURS 0 TO 10 DEPENDING ON CSZE.
+       01  N      PIC   s9(8)v9(5).
        PROCEDURE        DIVISION.
            MOVE FUNCTION NUMVAL ( X1 ) TO N
-           IF N NOT = -9876.1234
-              DISPLAY N
-              END-DISPLAY
-           END-IF
+           IF N <> -9876.1234
+              DISPLAY "X1 '" X1 "' : " N.
            MOVE FUNCTION NUMVAL ( X2 ) TO N
-           IF N NOT = -19876.1234
-              DISPLAY N
-              END-DISPLAY
-           END-IF
+           IF N <> -19876.1234
+              DISPLAY "X2 '" X2 "' : " N
+           ELSE IF N
+            <> FUNCTION NUMVAL ( X2b )
+           OR  N
+            <> FUNCTION NUMVAL ( X2c )
+           OR  N
+            <> FUNCTION NUMVAL ( X2d )
+              DISPLAY "NUMVAL not case-insensitive!".
+           MOVE FUNCTION NUMVAL ( X3 ) TO N
+           IF N <> -42.324
+              DISPLAY "X3 '" X3 "' : " N.
+           MOVE FUNCTION NUMVAL ( X4 ) TO N
+           IF N <> 4232400
+              DISPLAY "X4 '" X4 "' : " N.
+           MOVE FUNCTION NUMVAL ( X5 ) TO N
+           IF N <> .0043
+              DISPLAY "X5 '" X5 "' : " N.
+
+      *    Note: the following are "empty" tests
+           MOVE FUNCTION NUMVAL ( EMPT ) TO N
+           IF N <> 0
+              DISPLAY "EMPT '" EMPT "' :  " N.
+           MOVE FUNCTION NUMVAL ( VSIZED ) TO N
+           IF N <> 0
+              DISPLAY "VSIZED '" VSIZED "' :  " N.
+
+      *    Note: the following tests with invalid data, pre 3.2
+      *          return zero, 3.2+ get "whatever is valid there
+      *          (which seem to be what MF is doing)
+           MOVE FUNCTION NUMVAL ( BAD1 ) TO N
+           IF N <> 0 AND N <> -1.045
+              DISPLAY "BAD1 '" BAD1 "' : " N.
+           MOVE FUNCTION NUMVAL ( BAD2 ) TO N
+           IF N <> 0 AND N <> 10
+              DISPLAY "BAD2 '" BAD2 "' : " N.
            STOP RUN.
 ])
 
@@ -2354,27 +2656,57 @@ AT_CLEANUP
 
 
 AT_SETUP([FUNCTION NUMVAL-C])
-AT_KEYWORDS([functions])
+AT_KEYWORDS([functions NUMVAL])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
-       01  X1  PIC   X(14) VALUE " % -9876.1234 ".
-       01  X2  PIC   X(20) VALUE " % 19,876.1234 DB".
-       01  N   PIC   s9(5)v9(5).
+       01  X1     PIC   X(14) VALUE " % -9876.1234 ".
+       01  X2     PIC   X(18) VALUE " % 19,876.1234 DB".
+       01  X2b    PIC   X(18) VALUE " % 19,876.1234 db".
+       01  X2c    PIC   X(18) VALUE " % 19,876.1234 Db".
+       01  X2d    PIC   X(18) VALUE " % 19,876.1234 dB".
+       01  X3     PIC   X(12) VALUE "% -9876.1234".
+       01  X4     PIC   X(12) VALUE "019,876.1234".
+       01  BAD1   PIC   X(18) VALUE " -19,876.1234 %".
+       01  BAD2   PIC   X(18) VALUE "19,87,56.12.34 ".
+       01  BAD3   PIC   X(18) VALUE "+19,8756CR1234".
+       01  N      PIC   s9(8)v9(5).
        PROCEDURE        DIVISION.
            MOVE FUNCTION NUMVAL-C ( X1 , "%" ) TO N
            IF N NOT = -9876.1234
-              DISPLAY N
-              END-DISPLAY
-           END-IF
+              DISPLAY "X1 '" X1 "' : " N.
            MOVE FUNCTION NUMVAL-C ( X2 , "%" ) TO N
            IF N NOT = -19876.1234
-              DISPLAY N
-              END-DISPLAY
-           END-IF
+              DISPLAY "X2 '" X2 "' : " N
+           ELSE IF N
+            <> FUNCTION NUMVAL ( X2b )
+           OR  N
+            <> FUNCTION NUMVAL ( X2c )
+           OR  N
+            <> FUNCTION NUMVAL ( X2d )
+              DISPLAY "NUMVAL not case-insensitive!".
+           MOVE FUNCTION NUMVAL-C ( X3 , "%" ) TO N
+           IF N NOT = -9876.1234
+              DISPLAY "X3 '" X3 "' : " N.
+           MOVE FUNCTION NUMVAL-C ( X4 , "%" ) TO N
+           IF N NOT = 19876.1234
+              DISPLAY "X4 '" X4 "' : " N.
+
+      *    Note: the following tests with invalid data, pre 3.2
+      *          return zero, 3.2+ get "whatever is valid there
+      *          (which seem to be what MF is doing)
+           MOVE FUNCTION NUMVAL ( BAD1 ) TO N
+           IF N <> 0 AND N <> -19876.1234
+              DISPLAY "BAD1 '" BAD1 "' : " N.
+           MOVE FUNCTION NUMVAL ( BAD2 ) TO N
+           IF N <> 0 AND N <> 198756.1234
+              DISPLAY "BAD2 '" BAD2 "' : " N.
+           MOVE FUNCTION NUMVAL ( BAD3 ) TO N
+           IF N <> 0 AND N <> -198756
+              DISPLAY "BAD3 '" BAD3 "' : " N.
            STOP RUN.
 ])
 
@@ -2385,7 +2717,7 @@ AT_CLEANUP
 
 
 AT_SETUP([FUNCTION NUMVAL-C DP.COMMA])
-AT_KEYWORDS([functions])
+AT_KEYWORDS([functions NUMVAL])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
@@ -2397,14 +2729,12 @@ AT_DATA([prog.cob], [
            .
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
-       01  X1  PIC   X(20) VALUE " % 19.876,1234 DB".
-       01  N   PIC   s9(5)v9(5).
+       01  X1     PIC   X(20) VALUE " % 19.876,1234 DB".
+       01  N      PIC   s9(5)v9(5).
        PROCEDURE        DIVISION.
            MOVE FUNCTION NUMVAL-C ( X1 , "%" ) TO N
            IF N NOT = -19876,1234
-              DISPLAY N
-              END-DISPLAY
-           END-IF
+              DISPLAY "X1 '" X1 "' : " N.
            STOP RUN.
 ])
 
@@ -2415,24 +2745,36 @@ AT_CLEANUP
 
 
 AT_SETUP([FUNCTION NUMVAL-F])
-AT_KEYWORDS([functions])
+AT_KEYWORDS([functions NUMVAL])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
-       01  X   PIC   X(12) VALUE " -0.1234E+4 ".
+       01  X1     PIC   X(12) VALUE " -0.1234E+4 ".
+       01  X2     PIC   X(12) VALUE " .1234e-2 ".
+       01  BAD1   PIC   X(18) VALUE " -000E-12".
+       01  N      PIC   s9(8)v9(10).
        PROCEDURE        DIVISION.
-           DISPLAY FUNCTION NUMVAL-F ( X )
-           END-DISPLAY.
+           MOVE FUNCTION NUMVAL-F ( X1 ) TO N
+           IF N NOT = -1234
+              DISPLAY "X1 '" X1 "' : " N.
+           MOVE FUNCTION NUMVAL-F ( X2 ) TO N
+           IF N NOT = .001234
+              DISPLAY "X2 '" X2 "' : " N.
+
+      *    Note: the following tests with invalid data, pre 3.2
+      *          return zero, 3.2+ get "whatever is valid there
+      *          (which seem to be what MF is doing)
+           MOVE FUNCTION NUMVAL-F ( BAD1 ) TO N
+           IF N <> 0
+              DISPLAY "BAD1 '" BAD1 "' : " N.
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE prog.cob], [0], [], [])
-AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
-[-000001234
-])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
 
 AT_CLEANUP
 
@@ -2447,14 +2789,13 @@ AT_DATA([prog.cob], [
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
            DISPLAY FUNCTION ORD ( "k" )
-           END-DISPLAY.
+                   WITH NO ADVANCING.
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE prog.cob], [0], [], [])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
-[000000108
-])
+[000000108])
 
 AT_CLEANUP
 
@@ -2469,14 +2810,13 @@ AT_DATA([prog.cob], [
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
            DISPLAY FUNCTION ORD-MAX ( 3 -14 0 8 -3 )
-           END-DISPLAY.
+                   WITH NO ADVANCING.
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE prog.cob], [0], [], [])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
-[000000004
-])
+[000000004])
 
 AT_CLEANUP
 
@@ -2491,14 +2831,13 @@ AT_DATA([prog.cob], [
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
            DISPLAY FUNCTION ORD-MIN ( 3 -14 0 8 -3 )
-           END-DISPLAY.
+                   WITH NO ADVANCING.
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE prog.cob], [0], [], [])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
-[000000002
-])
+[000000002])
 
 AT_CLEANUP
 
@@ -2515,9 +2854,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE    FUNCTION PI TO Y.
            IF Y NOT = 3.14159265358979323846264338327950288
-              DISPLAY Y
-              END-DISPLAY
-           END-IF.
+              DISPLAY Y.
            STOP RUN.
 ])
 
@@ -2537,14 +2874,13 @@ AT_DATA([prog.cob], [
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
            DISPLAY FUNCTION PRESENT-VALUE ( 3 2 1 )
-           END-DISPLAY.
+                   WITH NO ADVANCING.
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE prog.cob], [0], [], [])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
-[00000.5625
-])
+[00000.5625])
 
 AT_CLEANUP
 
@@ -2561,9 +2897,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION RANDOM ( ) TO Y.
            IF Y < 0
-                   DISPLAY Y
-                   END-DISPLAY
-           END-IF.
+              DISPLAY Y.
            STOP RUN.
 ])
 
@@ -2585,9 +2919,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION RANGE ( 3 -14 0 8 -3 ) TO Z.
            IF Z NOT = 22
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -2609,8 +2941,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION REM ( -11 5 ) TO R
            IF R NOT = -1
-              DISPLAY R END-DISPLAY
-           END-IF
+              DISPLAY R.
            STOP RUN.
 ])
 
@@ -2635,13 +2966,9 @@ AT_DATA([prog.cob], [
            IF FUNCTION TRIM(FUNCTION EXCEPTION-STATUS)
            NOT = 'EC-ARGUMENT-FUNCTION'
               DISPLAY 'Wrong/missing exception: '
-                      FUNCTION EXCEPTION-STATUS
-              END-DISPLAY
-           END-IF
+                      FUNCTION EXCEPTION-STATUS.
            IF R NOT = 0
-              DISPLAY 'result is not zero: ' R
-              END-DISPLAY
-           END-IF
+              DISPLAY 'result is not zero: ' R.
            STOP RUN.
 ])
 
@@ -2664,9 +2991,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION REVERSE ( X ) TO Z.
            IF Z NOT = "$E+D%C.B#A"
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -2689,9 +3014,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION REVERSE ( X ) (1 : 4) TO Z.
            IF Z NOT = "$E+D      "
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -2715,49 +3038,37 @@ AT_DATA([prog.cob], [
                     ("hhmmss", "010203")
                TO result.
            IF result NOT = 3723
-                   DISPLAY "Test 1 failed: " result
-                   END-DISPLAY
-           END-IF.
+              DISPLAY "Test 1 failed: " result.
 
            MOVE FUNCTION SECONDS-FROM-FORMATTED-TIME
                     ("hh:mm:ss", "01:02:03")
                TO result.
            IF result NOT = 3723
-                   DISPLAY "Test 2 failed: " result
-                   END-DISPLAY
-           END-IF.
+              DISPLAY "Test 2 failed: " result.
 
            MOVE FUNCTION SECONDS-FROM-FORMATTED-TIME
                     ("hhmmss.ssssssss", "010203.04050607")
                TO result.
            IF result NOT = 3723.04050607
-                   DISPLAY "Test 3 failed: " result
-                   END-DISPLAY
-           END-IF.
+              DISPLAY "Test 3 failed: " result.
 
            MOVE FUNCTION SECONDS-FROM-FORMATTED-TIME
                     ("hhmmssZ", "010203Z")
                TO result.
            IF result NOT = 3723
-                   DISPLAY "Test 4 failed: " result
-                   END-DISPLAY
-           END-IF.
+               DISPLAY "Test 4 failed: " result.
 
            MOVE FUNCTION SECONDS-FROM-FORMATTED-TIME
                     ("hhmmss+hhmm", "010203+0405")
                TO result.
            IF result NOT = 3723
-                   DISPLAY "Test 5 failed: " result
-                   END-DISPLAY
-           END-IF.
+              DISPLAY "Test 5 failed: " result.
 
            MOVE FUNCTION SECONDS-FROM-FORMATTED-TIME
                     ("YYYYMMDDThhmmss", "16010101T010203")
                TO result.
            IF result NOT = 3723
-                   DISPLAY "Test 6 failed: " result
-                   END-DISPLAY
-           END-IF.
+              DISPLAY "Test 6 failed: " result.
 
            STOP RUN.
 ])
@@ -2780,9 +3091,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION SECONDS-PAST-MIDNIGHT TO Y.
            IF Y NOT < 86402
-                   DISPLAY Y
-                   END-DISPLAY
-           END-IF.
+              DISPLAY Y.
            STOP RUN.
 ])
 
@@ -2801,27 +3110,32 @@ AT_DATA([prog.cob], [
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
        01  Z            USAGE BINARY-LONG SIGNED.
+       01  F            USAGE FLOAT-LONG.
        PROCEDURE        DIVISION.
            MOVE FUNCTION SIGN ( 3.12345 ) TO Z.
            IF Z NOT = 1
-              DISPLAY "Sign 1 " Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY "Sign 1 " Z.
            MOVE FUNCTION SIGN ( -0.0 ) TO Z.
            IF Z NOT = 0
-              DISPLAY "Sign 2 " Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY "Sign 2 " Z.
            MOVE FUNCTION SIGN ( 0.0 ) TO Z.
            IF Z NOT = 0
-              DISPLAY "Sign 3 " Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY "Sign 3 " Z.
            MOVE FUNCTION SIGN ( -3.12345 ) TO Z.
            IF Z NOT = -1
-              DISPLAY "Sign 4 " Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY "Sign 4 " Z.
+           MOVE 3.12345 TO F
+           MOVE FUNCTION SIGN ( F ) TO Z.
+           IF Z NOT = 1
+              DISPLAY "Sign 5 " Z.
+           MOVE -0.0 TO F
+           MOVE FUNCTION SIGN ( F ) TO Z.
+           IF Z NOT = 0
+              DISPLAY "Sign 6 " Z.
+           MOVE -3.12345 TO F
+           MOVE FUNCTION SIGN ( F ) TO Z.
+           IF Z NOT = -1
+              DISPLAY "Sign 7 " Z.
            STOP RUN.
 ])
 
@@ -2843,9 +3157,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION SIN ( 1.5 ) TO Y.
            IF Y NOT = 0.99749498660405443094172337114148732
-                   DISPLAY Y
-                   END-DISPLAY
-           END-IF.
+              DISPLAY Y.
            STOP RUN.
 ])
 
@@ -2867,9 +3179,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION SQRT ( 1.5 ) TO Y.
            IF Y NOT = 1.22474487139158904909864203735294569
-                   DISPLAY Y
-                   END-DISPLAY
-           END-IF.
+              DISPLAY Y.
            STOP RUN.
 ])
 
@@ -2891,9 +3201,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION STANDARD-DEVIATION ( 3 -14 0 8 -3 ) TO Y.
            IF Y NOT = 7.35934779718963954877237043574538183
-                   DISPLAY Y
-                   END-DISPLAY
-           END-IF.
+              DISPLAY Y.
            STOP RUN.
 ])
 
@@ -2917,9 +3225,7 @@ AT_DATA([prog.cob], [
            MOVE "123456789012" TO Y.
            MOVE FUNCTION STORED-CHAR-LENGTH ( Y ) TO Z.
            IF Z NOT = 12
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -2946,9 +3252,7 @@ AT_DATA([prog.cob], [
                   INTO Z
            END-STRING
            IF Z NOT = "zz1114446665defxxzz_"
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -2974,9 +3278,7 @@ AT_DATA([prog.cob], [
                    ( Y "abc" "zz" "55" "666" ) (2 : 9)
                 TO Z.
            IF Z NOT = "z11144466"
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -3001,9 +3303,7 @@ AT_DATA([prog.cob], [
            MOVE FUNCTION SUBSTITUTE-CASE (Y "abc" "zz" "55" "666")
                 TO Z.
            IF Z NOT = "zz1114446665defxxzz"
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -3029,9 +3329,7 @@ AT_DATA([prog.cob], [
                    ( Y "ABC" "zz" "55" "666" ) (2 : 9)
                 TO Z.
            IF Z NOT = "z11144466"
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -3053,9 +3351,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION SUM ( 3 -14 0 8 -3 ) TO Z.
            IF Z NOT = -6
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY Z.
            STOP RUN.
 ])
 
@@ -3077,9 +3373,7 @@ AT_DATA([prog.cob], [
        PROCEDURE        DIVISION.
            MOVE FUNCTION TAN ( 1.5 ) TO Y.
            IF Y NOT = 14.1014199471717193876460836519877564
-                   DISPLAY Y
-                   END-DISPLAY
-           END-IF.
+              DISPLAY Y.
            STOP RUN.
 ])
 
@@ -3098,15 +3392,15 @@ AT_DATA([prog.cob], [
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
-           DISPLAY FUNCTION TEST-DATE-YYYYMMDD ( 20020231 )
-           END-DISPLAY.
+      *> explicit DISPLAY to verify size
+           DISPLAY FUNCTION TEST-DATE-YYYYMMDD (20020231)
+                   WITH NO ADVANCING.
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE prog.cob], [0], [], [])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
-[000000003
-])
+[000000003])
 
 AT_CLEANUP
 
@@ -3120,15 +3414,15 @@ AT_DATA([prog.cob], [
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
-           DISPLAY FUNCTION TEST-DAY-YYYYDDD ( 2002400 )
-           END-DISPLAY.
+      *> explicit DISPLAY to verify size
+           DISPLAY FUNCTION TEST-DAY-YYYYDDD (2002400)
+                   WITH NO ADVANCING.
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE prog.cob], [0], [], [])
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
-[000000002
-])
+[000000002])
 
 AT_CLEANUP
 
@@ -3144,111 +3438,85 @@ AT_DATA([prog.cob], [
         PROCEDURE        DIVISION.
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "16010101") <> 0
-                DISPLAY "Test 1 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 1 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYY-MM-DD", "1601-01-01") <> 0
-                DISPLAY "Test 2 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 2 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYDDD", "1601001") <> 0
-                DISPLAY "Test 3 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 3 failed"
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYY-DDD", "1601-001") <> 0
-                DISPLAY "Test 4 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 4 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYWwwD", "1601W011") <> 0
-                DISPLAY "Test 5 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 5 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYY-Www-D", "1601-W01-1") <> 0
-                DISPLAY "Test 6 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 6 failed".
 
 
             *> How will this work with zero-length items?
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "1") <> 2
-                DISPLAY "Test 7 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 7 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "160A0101") <> 4
-                DISPLAY "Test 8 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 8 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "00000101") <> 1
-                DISPLAY "Test 9 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 9 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "16000101") <> 4
-                DISPLAY "Test 10 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 10 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "16010001") <> 6
-                DISPLAY "Test 11 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 11 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "16011301") <> 6
-                DISPLAY "Test 12 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 12 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "16010190") <> 7
-                DISPLAY "Test 13 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 13 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "18000229") <> 8
-                DISPLAY "Test 14 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 14 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYY-MM-DD", "1601 01 01") <> 5
-                DISPLAY "Test 15 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 15 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "160101010") <> 9
-                DISPLAY "Test 16 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 16 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYWwwD", "1601A011") <> 5
-                DISPLAY "Test 17 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 17 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYWwwD", "1601W531") <> 7
-                DISPLAY "Test 18 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 18 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYWwwD", "1601W601") <> 6
-                DISPLAY "Test 19 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 19 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYWwwD", "2009W531") <> 0
-                DISPLAY "Test 20 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 20 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYWwwD", "1601W018") <> 8
-                DISPLAY "Test 21 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 21 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYDDD", "1601366") <> 7
-                DISPLAY "Test 22 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 22 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYDDD", "1601370") <> 6
-                DISPLAY "Test 23 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 23 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYDDD", "1601400") <> 5
-                DISPLAY "Test 24 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 24 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "01") <> 1
-                DISPLAY "Test 25 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 25 failed".
             IF FUNCTION TEST-FORMATTED-DATETIME
                    ("YYYYMMDD", "1601010") <> 8
-                DISPLAY "Test 26 failed" END-DISPLAY
-            END-IF
+                DISPLAY "Test 26 failed".
 
             STOP RUN
             .
@@ -3443,87 +3711,140 @@ AT_DATA([prog.cob], [
        PROGRAM-ID.      prog.
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
+       77 RESULT        USAGE BINARY-LONG.
+       01 EMPTY.
+        03 PIC X OCCURS 0 TO 5 DEPENDING ON RESULT.
        PROCEDURE        DIVISION.
-           IF FUNCTION TEST-NUMVAL ("+ 1")     NOT = 0
-              DISPLAY "Test 1  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL (" + 1")    NOT = 0
-              DISPLAY "Test 2  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("- 1")     NOT = 0
-              DISPLAY "Test 3  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL (" - 1")    NOT = 0
-              DISPLAY "Test 4  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("+- 1")    NOT = 2
-              DISPLAY "Test 5  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1 +")     NOT = 0
-              DISPLAY "Test 6  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1 -")     NOT = 0
-              DISPLAY "Test 7  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1 +-")    NOT = 4
-              DISPLAY "Test 8  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1 -+")    NOT = 4
-              DISPLAY "Test 9  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("+ 1.1")   NOT = 0
-              DISPLAY "Test 10 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("- 1.1")   NOT = 0
-              DISPLAY "Test 11 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1.1 +")   NOT = 0
-              DISPLAY "Test 12 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1.1 -")   NOT = 0
-              DISPLAY "Test 13 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1.1 CR")  NOT = 0
-              DISPLAY "Test 14 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1.1 DB")  NOT = 0
-              DISPLAY "Test 15 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1.1 -CR") NOT = 6
-              DISPLAY "Test 16 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1.1 +DB") NOT = 6
-              DISPLAY "Test 17 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("1.1 CDB") NOT = 6
-              DISPLAY "Test 18 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("+1.1 CR") NOT = 6
-              DISPLAY "Test 19 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL ("+      ") NOT = 8
-              DISPLAY "Test 20 fail"
-              END-DISPLAY
-           END-IF.
+           MOVE FUNCTION TEST-NUMVAL ("+ 1")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 1  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL (" + 1")    TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 2  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("- 1")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 3  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL (" - 1")    TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 4  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("+- 1")    TO RESULT
+           IF RESULT NOT = 2
+              DISPLAY "Test 5  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1 +")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 6  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1 -")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 7  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1 +-")    TO RESULT
+           IF RESULT NOT = 4
+              DISPLAY "Test 8  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1 -+")    TO RESULT
+           IF RESULT NOT = 4
+              DISPLAY "Test 9  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("+ 1.1")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 10 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("- 1.1")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 11 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1.1 +")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 12 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1.1 -")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 13 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1.1 CR")  TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 14 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1.1 DB")  TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 15 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1.1 -CR") TO RESULT
+           IF RESULT NOT = 6
+              DISPLAY "Test 16 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1.1 +DB") TO RESULT
+           IF RESULT NOT = 6
+              DISPLAY "Test 17 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1.1 CDB") TO RESULT
+           IF RESULT NOT = 6
+              DISPLAY "Test 18 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("+1.1 CR") TO RESULT
+           IF RESULT NOT = 6
+              DISPLAY "Test 19 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("+      ") TO RESULT
+           IF RESULT NOT = 8
+              DISPLAY "Test 20 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("  0.   ") TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 21 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("  .0   ") TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 22 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("  . 0") TO RESULT
+           IF RESULT NOT = 4
+              DISPLAY "Test 23 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("  0 .") TO RESULT
+           IF RESULT NOT = 5
+              DISPLAY "Test 24 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("   0+0") TO RESULT
+           IF RESULT NOT = 6
+              DISPLAY "Test 25 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("   0+  0") TO RESULT
+           IF RESULT NOT = 8
+              DISPLAY "Test 26 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("1.1 D")  TO RESULT
+           IF RESULT NOT = 6
+              DISPLAY "Test 27 fail: " RESULT.
+
+      *    MOVE FUNCTION TEST-NUMVAL ("") TO RESULT
+           MOVE 0 TO RESULT
+           MOVE FUNCTION TEST-NUMVAL (EMPTY) TO RESULT
+           IF RESULT NOT = 1
+              DISPLAY "Test 28 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("   ") TO RESULT
+           IF RESULT NOT = 4
+              DISPLAY "Test 29 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("  .") TO RESULT
+           IF RESULT NOT = 4
+              DISPLAY "Test 30 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL ("    ") TO RESULT
+           IF RESULT NOT = 5
+              DISPLAY "Test 31 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL (" 1  T") TO RESULT
+           IF RESULT NOT = 5
+              DISPLAY "Test 32 fail: " RESULT.
+
            STOP RUN.
 ])
 
@@ -3534,94 +3855,96 @@ AT_CLEANUP
 
 
 AT_SETUP([FUNCTION TEST-NUMVAL-C])
-AT_KEYWORDS([functions])
+AT_KEYWORDS([functions NUMVAL])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
+       77 RESULT        USAGE BINARY-LONG.
        PROCEDURE        DIVISION.
-           IF FUNCTION TEST-NUMVAL-C ("+ 1")     NOT = 0
-              DISPLAY "Test 1  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C (" + 1")    NOT = 0
-              DISPLAY "Test 2  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("- 1")     NOT = 0
-              DISPLAY "Test 3  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C (" - 1")    NOT = 0
-              DISPLAY "Test 4  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("+- 1")    NOT = 2
-              DISPLAY "Test 5  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("1 +")     NOT = 0
-              DISPLAY "Test 6  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("1 -")     NOT = 0
-              DISPLAY "Test 7  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("1 +-")    NOT = 4
-              DISPLAY "Test 8  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("1 -+")    NOT = 4
-              DISPLAY "Test 9  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("+ 1.1")   NOT = 0
-              DISPLAY "Test 10 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("- 1.1")   NOT = 0
-              DISPLAY "Test 11 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("1.1 +")   NOT = 0
-              DISPLAY "Test 12 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("1.1 -")   NOT = 0
-              DISPLAY "Test 13 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("1.1 CR")  NOT = 0
-              DISPLAY "Test 14 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("1.1 DB")  NOT = 0
-              DISPLAY "Test 15 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("1.1 -CR") NOT = 6
-              DISPLAY "Test 16 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("+ $1.1 ") NOT = 0
-              DISPLAY "Test 17 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("- $1.1 ") NOT = 0
-              DISPLAY "Test 18 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("+ X1.1 ", "X") NOT = 0
-              DISPLAY "Test 19 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-C ("- X1.1 ", "X") NOT = 0
-              DISPLAY "Test 20 fail"
-              END-DISPLAY
-           END-IF.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("+ 1")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 1  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C (" + 1")    TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 2  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("- 1")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 3  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C (" - 1")    TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 4  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("+- 1")    TO RESULT
+           IF RESULT NOT = 2
+              DISPLAY "Test 5  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("1 +")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 6  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("1 -")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 7  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("1 +-")    TO RESULT
+           IF RESULT NOT = 4
+              DISPLAY "Test 8  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("1 -+")    TO RESULT
+           IF RESULT NOT = 4
+              DISPLAY "Test 9  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("+ 1.1")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 10 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("- 1.1")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 11 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("1.1 +")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 12 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("1.1 -")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 13 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("1.1 CR")  TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 14 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("1.1 DB")  TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 15 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("1.1 -CR") TO RESULT
+           IF RESULT NOT = 6
+              DISPLAY "Test 16 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("+ $1.1 ") TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 17 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("- $1.1 ") TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 18 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("+ X1.1 ", "X") TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 19 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-C ("- X1.1 ", "X") TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 20 fail: " RESULT.
+
            STOP RUN.
 ])
 
@@ -3632,94 +3955,96 @@ AT_CLEANUP
 
 
 AT_SETUP([FUNCTION TEST-NUMVAL-F])
-AT_KEYWORDS([functions])
+AT_KEYWORDS([functions NUMVAL])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
+       77 RESULT        USAGE BINARY-LONG.
        PROCEDURE        DIVISION.
-           IF FUNCTION TEST-NUMVAL-F ("+ 1")     NOT = 0
-              DISPLAY "Test 1  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F (" + 1")    NOT = 0
-              DISPLAY "Test 2  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("- 1")     NOT = 0
-              DISPLAY "Test 3  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F (" - 1")    NOT = 0
-              DISPLAY "Test 4  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("+- 1")    NOT = 2
-              DISPLAY "Test 5  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1 +")     NOT = 0
-              DISPLAY "Test 6  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1 -")     NOT = 0
-              DISPLAY "Test 7  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1 +-")    NOT = 4
-              DISPLAY "Test 8  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1 -+")    NOT = 4
-              DISPLAY "Test 9  fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("+ 1.1")   NOT = 0
-              DISPLAY "Test 10 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("- 1.1")   NOT = 0
-              DISPLAY "Test 11 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1.1 +")   NOT = 0
-              DISPLAY "Test 12 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1.1 -")   NOT = 0
-              DISPLAY "Test 13 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1.1   ")  NOT = 0
-              DISPLAY "Test 14 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1.1   ")  NOT = 0
-              DISPLAY "Test 15 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1.1 -CR") NOT = 6
-              DISPLAY "Test 16 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1.1 E+1") NOT = 0
-              DISPLAY "Test 17 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1.1 E -1") NOT = 0
-              DISPLAY "Test 18 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("1.1 EE") NOT = 6
-              DISPLAY "Test 19 fail"
-              END-DISPLAY
-           END-IF.
-           IF FUNCTION TEST-NUMVAL-F ("+1.1 E001") NOT = 7
-              DISPLAY "Test 20 fail"
-              END-DISPLAY
-           END-IF.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("+ 1")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 1  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F (" + 1")    TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 2  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("- 1")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 3  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F (" - 1")    TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 4  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("+- 1")    TO RESULT
+           IF RESULT NOT = 2
+              DISPLAY "Test 5  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1 +")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 6  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1 -")     TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 7  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1 +-")    TO RESULT
+           IF RESULT NOT = 4
+              DISPLAY "Test 8  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1 -+")    TO RESULT
+           IF RESULT NOT = 4
+              DISPLAY "Test 9  fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("+ 1.1")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 10 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("- 1.1")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 11 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1.1 +")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 12 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1.1 -")   TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 13 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1.1   ")  TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 14 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1.1   ")  TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 15 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1.1 -CR") TO RESULT
+           IF RESULT NOT = 6
+              DISPLAY "Test 16 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1.1 E+1") TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 17 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1.1 E -1") TO RESULT
+           IF RESULT NOT = 0
+              DISPLAY "Test 18 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("1.1 EE") TO RESULT
+           IF RESULT NOT = 6
+              DISPLAY "Test 19 fail: " RESULT.
+
+           MOVE FUNCTION TEST-NUMVAL-F ("+1.1 E001") TO RESULT
+           IF RESULT NOT = 7
+              DISPLAY "Test 20 fail: " RESULT.
+
            STOP RUN.
 ])
 
@@ -3859,20 +4184,26 @@ AT_CLEANUP
 
 
 AT_SETUP([FUNCTION VARIANCE])
-AT_KEYWORDS([functions])
+AT_KEYWORDS([functions compute decimal])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
-       01  Z            PIC S9(4)V9(4) COMP-5.
+       01  Z            PIC S9(4)V9(8).
        PROCEDURE        DIVISION.
            MOVE FUNCTION VARIANCE ( 3 -14 0 8 -3 ) TO Z.
            IF Z NOT = 54.16
-              DISPLAY Z
-              END-DISPLAY
-           END-IF.
+              DISPLAY 'EXP 54.16 GOT ' Z.
+      *>   COMPUTE has maximum possible intermediate
+      *>   results via GMP - and thefore a different
+      *>   set of function calls to set Z - this one
+      *>   here is used for "huge decimal number from
+      *>   display"
+           COMPUTE Z = FUNCTION VARIANCE(4, 0, 5).
+           IF Z NOT = 4.66666666
+              DISPLAY 'EXP 4.66666666 GOT ' Z.
            STOP RUN.
 ])
 
@@ -3926,7 +4257,7 @@ AT_DATA([prog.cob], [
                    END-DISPLAY
                END-IF
            END-IF.
-           
+
            STOP RUN.
 ])
 
@@ -4184,7 +4515,7 @@ AT_DATA([prog.cob], [
        DATA DIVISION.
        LINKAGE SECTION.
        01  num PIC 999.
-       
+
        PROCEDURE DIVISION RETURNING num.
            MOVE 100 TO num
            .
@@ -4197,11 +4528,11 @@ AT_DATA([prog.cob], [
        CONFIGURATION SECTION.
        REPOSITORY.
            FUNCTION func.
-           
+
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  x PIC 999.
-       
+
        PROCEDURE DIVISION.
            COMPUTE x = 101 + FUNCTION func
            DISPLAY x
@@ -4245,8 +4576,8 @@ AT_DATA([prog.cob], [
            FUNCTION SUBSTITUTE
            .
        PROCEDURE DIVISION.
-           DISPLAY '"' FUNCTION SUBSTITUTE(" % C%O%B%O%L % ", "_") '"' 
-           DISPLAY '"' FUNCTION SUBSTITUTE(" % C%O%B%O%L % ", "-") '"' 
+           DISPLAY '"' FUNCTION SUBSTITUTE(" % C%O%B%O%L % ", "_") '"'
+           DISPLAY '"' FUNCTION SUBSTITUTE(" % C%O%B%O%L % ", "-") '"'
            .
        END PROGRAM prog.
 ])
@@ -4263,7 +4594,7 @@ AT_CLEANUP
 AT_SETUP([UDF with recursion])
 AT_KEYWORDS([functions LOCAL-STORAGE])
 
-AT_SKIP_IF(true)	# see bug #222 and r2291 - postponed
+AT_SKIP_IF([true])	# see bug #222 and r2291 - postponed
 
 AT_DATA([prog.cob], [
        IDENTIFICATION DIVISION.

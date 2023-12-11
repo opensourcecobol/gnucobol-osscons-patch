@@ -1,7 +1,7 @@
 #
 # Makefile gnucobol
 #
-# Copyright (C) 2003-2012, 2014-2020 Free Software Foundation, Inc.
+# Copyright (C) 2003-2012, 2014-2020, 2023 Free Software Foundation, Inc.
 # Written by Keisuke Nishida, Roger While, Simon Sobisch
 #
 # This file is part of GnuCOBOL.
@@ -22,15 +22,9 @@
 include_HEADERS = libcob.h
 
 SUBDIRS = . lib libcob bin cobc config copy po extras doc tests
-
-bin: libcob
-cobc: libcob
-libcob: lib tarstamp.h
-extras: cobc
-doc po tests: cobc bin
+BUILT_SOURCES = tarstamp.h
 
 ACLOCAL_AMFLAGS = -I m4 --install
-DISTCLEANFILES = $(BUILT_SOURCES)
 # CLEANFILES = $(bin_SCRIPTS)
 dist_noinst_SCRIPTS = autogen.sh build_aux/bootstrap po/update_linguas.sh \
 	build_aux/create_win_dist.sh build_aux/create_mingw_bindist.sh
@@ -47,10 +41,14 @@ clean-local: code-coverage-clean
 dist-clean-local: code-coverage-dist-clean
 
 CODE_COVERAGE_BRANCH_COVERAGE=1
+CODE_COVERAGE_IGNORE_PATTERN= \
+	"*/cobc/pplex.c" "*/cobc/ppparse.c" "*/cobc/scanner.c" "*/cobc/parser.c" \
+	"*/cobc/config.def" "*/cobc/warning.def" \
+	"*/libcob/statement.def"
 
 # files shipped with the package that should be 755'ed:
 FILES_TO_BE_EXECUTABLE = $(dist_noinst_SCRIPTS) \
-	configure tests/testsuite tests/listings-sed.sh \
+	configure tests/testsuite tests/testsuite_manual tests/listings-sed.sh \
 	build_aux/config.guess build_aux/config.sub build_aux/config.rpath \
 	build_aux/depcomp build_aux/install-sh build_aux/ltmain.sh build_aux/mdate-sh \
 	build_aux/missing build_aux/mkinstalldirs build_aux/ylwrap
@@ -100,13 +98,62 @@ distmingwdir: all $(top_srcdir)/build_aux/create_mingw_bindist.sh
 distwin:   distwindir
 distmingw: distmingwdir
 
-$(tarstamps):
+distbindir = $(distdir)_bin
+distbindir: all distdir
+	$(MAKE) $(AM_MAKEFLAGS) DESTDIR=$(abs_builddir)/$(distbindir) install
+	install -d "$(distbindir)/${datarootdir}/licenses/$(PACKAGE)"
+	install -p -m644 $(distdir)/COPYING*          "$(distbindir)/${datarootdir}/licenses/$(PACKAGE)"
+	install -d "$(distbindir)/${datarootdir}/doc/$(PACKAGE)"
+	install -p -m644 $(distdir)/README*           "$(distbindir)/${datarootdir}/doc/$(PACKAGE)"
+	install -p -m644 $(distdir)/NEWS*             "$(distbindir)/${datarootdir}/doc/$(PACKAGE)"
+	install -p -m644 $(distdir)/ChangeLog         "$(distbindir)/${datarootdir}/doc/$(PACKAGE)"
+	install -p -m644 $(distdir)/bin/ChangeLog     "$(distbindir)/${datarootdir}/doc/$(PACKAGE)/ChangeLog_bin"
+	install -p -m644 $(distdir)/cobc/ChangeLog    "$(distbindir)/${datarootdir}/doc/$(PACKAGE)/ChangeLog_cobc"
+	install -p -m644 $(distdir)/libcob/ChangeLog  "$(distbindir)/${datarootdir}/doc/$(PACKAGE)/ChangeLog_libcob"
+	install -p -m644 $(distdir)/doc/gnucobol*.pdf "$(distbindir)/${datarootdir}/doc/$(PACKAGE)"
+
+DISTBIN_TARGETS = distbin-gzip
+gc__remove_bindistdir = rm -rf $(distbindir)
+gc__post_remove_bindistdir = $(gc__remove_bindistdir)
+distbin-gzip: distbindir
+	tardir=$(distbindir) && $(am__tar) | eval GZIP= gzip $(GZIP_ENV) -c >$(distbindir).tar.gz
+	$(gc__post_remove_bindistdir)
+	$(am__post_remove_distdir)
+distbin-bzip2: distbindir
+	tardir=$(distbindir) && $(am__tar) | BZIP2=$${BZIP2--9} bzip2 -c >$(distbindir).tar.bz2
+	$(gc__post_remove_bindistdir)
+	$(am__post_remove_distdir)
+distbin-lzip: distbindir
+	tardir=$(distbindir) && $(am__tar) | lzip -c $${LZIP_OPT--9} >$(distbindir).tar.lz
+	$(gc__post_remove_bindistdir)
+	$(am__post_remove_distdir)
+distbin-xz: distbindir
+	tardir=$(distbindir) && $(am__tar) | XZ_OPT=$${XZ_OPT--e} xz -c >$(distbindir).tar.xz
+	$(gc__post_remove_bindistdir)
+	$(am__post_remove_distdir)
+
+distbin:
+	$(MAKE) $(AM_MAKEFLAGS) $(DISTBIN_TARGETS) gc__post_remove_bindistdir='@:' am__post_remove_distdir='@:'
+	$(gc__post_remove_bindistdir)
+	$(am__post_remove_distdir)
+
+# date from last svn timestamp according to local checkout
+VCSDATE = LC_ALL=C svn info --show-item last-changed-date $(srcdir) 2>/dev/null
+
+# if find -printf is not supported: pass as FILEDATE=false
+FILEDATE_LOOKUP = -name 'NEWS' -o -name 'configure.ac' -o -name 'ChangeLog' -o -name '*.c' -o -name '*.h' -o -name '*.am' -o -name '*.at'
+FILEDATE = (find $(srcdir) -type f \( $(FILEDATE_LOOKUP) \) -printf '%T@ %p\0' | sort -rz  | sed -Ezn '1s/[^ ]* //p' | xargs stat -c %y) 2>/dev/null
+
+# to override, most common as "gdate", if it doesn't support --date, then current date is used
+DATE = date
+TARSTAMP_CONTENT = '\#define COB_TAR_DATE    "%b %d %Y %T UTC"%n\#define COB_NUM_TAR_DATE %Y%m%d%n\#define COB_NUM_TAR_TIME %H%M%S'
+
+$(tarstamps): NEWS configure.ac Makefile.am libcob/version.h
 	@echo "Creating $@..."
-	@{								\
-	  echo "#define COB_TAR_DATE    \"`LC_ALL=C date -u +'%b %d %Y %T'` UTC\""; \
-	  echo "#define COB_NUM_TAR_DATE ` LC_ALL=C date -u +'%Y%m%d'`"; \
-	  echo "#define COB_NUM_TAR_TIME ` LC_ALL=C date -u +'%H%M%S'`"; \
-	} > $@
+	@($(DATE) --date=241225 -u 2>/dev/null 1>&2 && \
+	 LC_ALL=C stamp=$$( $(VCSDATE) || $(FILEDATE) || $(DATE) -u '+%F %T' ) && \
+	 LC_ALL=C $(DATE) --date="$$stamp" -u +$(TARSTAMP_CONTENT) > $@) \
+	|| LC_ALL=C $(DATE) -u +$(TARSTAMP_CONTENT) > $@
 
 # TODO: possibly disable / adjust depending on what
 #       configure.ac founds (currently not checked there)
@@ -115,7 +162,8 @@ vcs-update:
 
 
 # targets that are only logical targets and should always be executed
-.PHONY: test checkall checkmanual vcs-update distwin distmingw
+.PHONY: test checkall checkmanual vcs-update distwin distmingw \
+	distbin distbin-gzip distbin-bzip2 distbin-lzip distbin-xz
 
 test: all
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) test

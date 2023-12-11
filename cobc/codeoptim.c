@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2006-2012, 2013, 2017-2018 Free Software Foundation, Inc.
-   Written by Roger While, Ron Norman
+   Copyright (C) 2006-2012, 2013, 2017-2020, 2022-2023 Free Software Foundation, Inc.
+   Written by Roger While, Ron Norman, Simon Sobisch, Edward Hart
 
    This file is part of GnuCOBOL.
 
@@ -18,7 +18,7 @@
    along with GnuCOBOL.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <config.h>
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,33 +56,26 @@ cob_gen_optim (const enum cb_optim val)
 	switch (val) {
 
 	case COB_SET_SCREEN:
-		output_storage ("static void COB_NOINLINE");
-		output_storage ("cob_set_screen (cob_screen *s, cob_screen *next,");
-		output_storage ("		cob_screen *prev, cob_screen *child, cob_screen *parent,");
-		output_storage ("		cob_field *field, cob_field *value,");
-		output_storage ("		cob_field *line, cob_field *column,");
-		output_storage ("		cob_field *foreg, cob_field *backg, cob_field *prompt,");
-		output_storage ("		const int type, const int occurs, const int attr)");
-		output_storage ("{");
-		output_storage ("	s->next = next;");
-		output_storage ("	s->prev = prev;");
-		output_storage ("	s->child = child;");
-		output_storage ("	s->parent = parent;");
-		output_storage ("	s->field = field;");
-		output_storage ("	s->value = value;");
-		output_storage ("	s->line = line;");
-		output_storage ("	s->column = column;");
-		output_storage ("	s->foreg = foreg;");
-		output_storage ("	s->backg = backg;");
-		output_storage ("	s->prompt = prompt;");
-		output_storage ("	s->type = type;");
-		output_storage ("	s->occurs = occurs;");
-		output_storage ("	s->attr = attr;");
-		output_storage ("}");
+		output_storage ("#define COB_SET_SCREEN(s,typ,att,nxt,prv,chld,p,fld,val,l,c,fg,bg,prmpt,occ) \\");
+		output_storage ("do{	s.next = nxt;     \\");
+		output_storage ("	s.prev = prv;     \\");
+		output_storage ("	s.child = chld;   \\");
+		output_storage ("	s.parent = p;     \\");
+		output_storage ("	s.field = fld;    \\");
+		output_storage ("	s.value = val;    \\");
+		output_storage ("	s.line = l;       \\");
+		output_storage ("	s.column = c;     \\");
+		output_storage ("	s.foreg = fg;     \\");
+		output_storage ("	s.backg = bg;     \\");
+		output_storage ("	s.prompt = prmpt; \\");
+		output_storage ("	s.type = typ;     \\");
+		output_storage ("	s.occurs = occ;   \\");
+		output_storage ("	s.attr = att;     \\");
+		output_storage ("} ONCE_COB");
 		return;
 
 	case COB_SET_REPORT:
-		output_storage ("static void COB_NOINLINE");
+		output_storage ("static void COB_INLINE COB_A_INLINE");
 		output_storage ("cob_set_report (cob_report *r, cob_file *pfile)");
 		output_storage ("{");
 		output_storage ("	r->report_file = pfile;");
@@ -105,67 +98,197 @@ cob_gen_optim (const enum cb_optim val)
 		output_storage ("		cob_field *content, unsigned int is_suppressed,");
 		output_storage ("		cob_ml_tree *children, cob_ml_tree *sibling)");
 		output_storage ("{");
-		output_storage ("       tree->name = name;");
+		output_storage ("	tree->name = name;");
 		output_storage ("	tree->attrs = attrs;");
 		output_storage ("	tree->content = content;");
 		output_storage ("	tree->is_suppressed = is_suppressed;");
 		output_storage ("	tree->children = children;");
 		output_storage ("	tree->sibling = sibling;");
 		output_storage ("}");
-		return;		
+		return;
+
+	case COB_CHK_BASED:
+		/* no need for an expensive function call (at least prevented if inline is honored)
+		   if we know the pointer to be non-null;
+		   may be changed if we do a more expensive check to validate the pointer */
+		output_storage ("static void COB_INLINE COB_A_INLINE");
+		output_storage ("cob_check_based_inline (const unsigned char *ptr, const char *name)");
+		output_storage ("{");
+		output_storage ("	if (!ptr) cob_check_based (NULL, name);");
+		output_storage ("}");
+		output_storage ("#define cob_check_based" "\t" "cob_check_based_inline");
+		return;
+
+	case COB_CHK_LINKAGE:
+		/* no need for an expensive function call (at least prevented if inline is honored)
+		   if we know the pointer to be non-null;
+		   may be changed if we do a more expensive check to validate the pointer */
+		output_storage ("static void COB_INLINE COB_A_INLINE");
+		output_storage ("cob_check_linkage_inline (const unsigned char *ptr, const char *name, const int type)");
+		output_storage ("{");
+		output_storage ("	if (!ptr) cob_check_linkage (NULL, name, type);");
+		output_storage ("}");
+		output_storage ("#define cob_check_linkage" "\t" "cob_check_linkage_inline");
+		return;
+
+	case COB_CHK_SUBSCRIPT:
+		/* no need for an expensive function call (at least prevented if inline is honored)
+		   if we know the subscript to be valid inline function used in any case to prevent
+		   "i" being resolved more than once as it may need unpacking */
+		output_storage ("static void COB_INLINE COB_A_INLINE");
+		output_storage ("cob_check_subscript_inline (const int i, const int max,");
+		output_storage ("			const char* name, const int odo_item)");
+		output_storage ("{");
+		output_storage ("	if (i < 1 || i > max) {");
+		output_storage ("		cob_check_subscript (i, max, name, odo_item);");
+		output_storage ("	}");
+		output_storage ("}");
+		output_storage ("#define cob_check_subscript" "\t" "cob_check_subscript_inline");
+		return;
+
+	case COB_CHK_ODO:
+		/* no need for an expensive function call (at east prevented if inline is honored)
+		   if we know the subscript to be valid, inline function used in any case to prevent
+		   "i" being resolved more than once as it may need unpacking */
+		output_storage ("static void COB_INLINE COB_A_INLINE");
+		output_storage ("cob_check_odo_inline (const int i, const int min, const int max,");
+		output_storage ("			const char* name, const char* dep_name)");
+		output_storage ("{");
+		output_storage ("	if (i < min || i > max) {");
+		output_storage ("		cob_check_odo (i, min, max, name, dep_name);");
+		output_storage ("	}");
+		output_storage ("}");
+		output_storage ("#define cob_check_odo" "\t" "cob_check_odo_inline");
+		return;
+
+	case COB_CHK_REFMOD:
+		/* no need for an expensive function call (at least prevented if inline is honored)
+		   if we know the refmod to be valid, inline function used in any case to prevent
+		   "offset" and "length" being resolved more than once as it may need unpacking */
+		output_storage ("static void COB_INLINE COB_A_INLINE");
+		output_storage ("cob_check_ref_mod_inline (const char* name, const int abend, const int zero_allowed,");
+		output_storage ("	const int size, const int offset, const int length)");
+		output_storage ("{");
+		output_storage ("	const int minimal_length = zero_allowed ? 0 : 1;");
+		output_storage ("	if (offset < 1 || length < minimal_length");
+		output_storage ("	 || offset + length - 1 > size) {");
+		output_storage ("		cob_check_ref_mod_detailed (name, abend, zero_allowed, size, offset, length);");
+		output_storage ("	}");
+		output_storage ("}");
+		output_storage ("#define cob_check_ref_mod_detailed" "\t" "cob_check_ref_mod_inline");
+		return;
+
+	case COB_CHK_REFMOD_MIN:
+		/* no need for an expensive function call (at least prevented if inline is honored)
+		   if we know the refmod to be valid */
+		output_storage ("static void COB_INLINE COB_A_INLINE");
+		output_storage ("cob_check_ref_mod_minimal_inline (const char* name, const int offset, const int length)");
+		output_storage ("{");
+		output_storage ("	if (offset < 1 || length < 1) cob_check_ref_mod_minimal (name, offset, length);");
+		output_storage ("}");
+		output_storage ("#define cob_check_ref_mod_minimal" "\t" "cob_check_ref_mod_minimal_inline");
+		return;
+
+	case COB_CHK_MEMORYFENCE:
+		/* no need for an expensive function call (at least prevented if inline is honored)
+		   if we know the memory fence to be valid */
+		output_storage ("static void COB_INLINE COB_A_INLINE");
+		output_storage ("cob_check_fence_inline (const char *fence_pre, const char *fence_post,");
+		output_storage ("	const enum cob_statement stmt, const char *name)");
+		output_storage ("{");
+		output_storage ("	if (memcmp (fence_pre, \"\\xFF\\xFE\\xFD\\xFC\\xFB\\xFA\\xFF\", 8)");
+		output_storage ("	 || memcmp (fence_post, \"\\xFA\\xFB\\xFC\\xFD\\xFE\\xFF\\xFA\", 8)) {");
+		output_storage ("		cob_check_fence (fence_pre, fence_post, stmt, name);");
+		output_storage ("	}");
+		output_storage ("}");
+		output_storage ("#define cob_check_fence" "\t" "cob_check_fence_inline");
+		return;
+
+	case COB_NOP:
+		/* cob_nop is only used to force something the optimizer does not remove
+		   to have "something" to call; a fast check (module is normally always set)
+		   costs less than a function call; no need for inline function as this is
+		   always a separate generated call */
+		output_storage ("#define cob_nop" "\t" "if (!module) cob_nop");
+		return;
 
 	case COB_POINTER_MANIP:
 		output_storage ("static void COB_NOINLINE");
-		output_storage ("cob_pointer_manip (cob_field *f1, cob_field *f2, const unsigned int addsub)");
+		output_storage ("cob_pointer_manip (void *f1, cob_field *f2, const unsigned int addsub)");
 		output_storage ("{");
 		output_storage ("	unsigned char   *tmptr;");
-		output_storage ("	memcpy (&tmptr, f1->data, sizeof(void *));");
+		output_storage ("	memcpy (&tmptr, f1, sizeof(unsigned char *));");
 		output_storage ("	if (addsub) {");
 		output_storage ("		tmptr -= cob_get_int (f2);");
 		output_storage ("	} else {");
 		output_storage ("		tmptr += cob_get_int (f2);");
 		output_storage ("	}");
-		output_storage ("	memcpy (f1->data, &tmptr, sizeof(void *));");
+		output_storage ("	memcpy (f1, &tmptr, sizeof(unsigned char *));");
 		output_storage ("}");
 		return;
 
 	case COB_GET_NUMDISP:
-		output_storage ("static int COB_NOINLINE");
+		output_storage ("static int COB_INLINE COB_A_INLINE");
 		output_storage ("cob_get_numdisp (const void *data, const int size)");
 		output_storage ("{");
-		output_storage ("	const unsigned char	*p;");
-		output_storage ("	int			n;");
-		output_storage ("	int 			retval;");
-
-		output_storage ("	p = (const unsigned char *)data;");
-		output_storage ("	retval = 0;");
-		output_storage ("	for (n = 0; n < size; ++n, ++p) {");
-		output_storage ("		retval *= 10;");
+		output_storage ("	register const unsigned char	*p = (const unsigned char *)data;");
+		output_storage ("	register int	n;");
+		output_storage ("	register int	val = 0;");
+		/* Improve performance by skipping leading ZEROs */
+		output_storage ("	for (n = 0; n < val; ++n, ++p) {");
 		output_storage ("		if (*p > '0' && *p <= '9')");
-		output_storage ("		    retval += (*p - '0');");
+		output_storage ("			break;");
 		output_storage ("	}");
-		output_storage ("	return retval;");
+		output_storage ("	for (n = 0; n < size; ++n, ++p) {");
+		output_storage ("		val = (val * 10)");
+		output_storage ("		    + (*p & 0x0F);");
+		output_storage ("	}");
+		output_storage ("	return val;");
 		output_storage ("}");
 		return;
 
+	case COB_GET_NUMDISPS:
+		output_storage ("static int COB_INLINE COB_A_INLINE");
+		output_storage ("cob_get_numdisps (const void *data, const int size)");
+		output_storage ("{");
+		output_storage ("	register const unsigned char	*p = (const unsigned char *)data;");
+		output_storage ("	register int	n;");
+		output_storage ("	register int 	val = 0;");
+		/* Improve performance by skipping leading ZEROs */
+		output_storage ("	for (n = 0; n < val; ++n, ++p) {");
+		output_storage ("		if (*p > '0' && *p <= '9')");
+		output_storage ("			break;");
+		output_storage ("	}");
+		output_storage ("	val = 0;");
+		output_storage ("	for (; n < size; ++n, ++p) {");
+		output_storage ("		val = (val * 10)");
+		output_storage ("		    + (*p & 0x0F);");
+		output_storage ("	}");
+		output_storage ("	p--;");
+		output_storage ("	if (*p & 0x40) {");
+		output_storage ("		return -val;");
+		output_storage ("	}");
+		output_storage ("	return val;");
+		output_storage ("}");
+		return;
+
+#if 0	/* libcob's optimized version is not slower, so drop that */
 	case COB_CMP_PACKED_INT:
 		output_storage ("static int COB_NOINLINE");
 		output_storage ("cob_cmp_packed_int (const cob_field *f, const cob_s64_t n)");
 		output_storage ("{");
-		output_storage ("	unsigned char	*p;");
-		output_storage ("	size_t		size;");
-		output_storage ("	cob_s64_t	val;");
+		output_storage ("	register unsigned char		*p = f->data;");
+		output_storage ("	const register unsigned char	*p_end = p + f->size - 1;");
+		output_storage ("	register cob_s64_t	val = 0;");
 
-		output_storage ("	val = 0;");
-		output_storage ("	p = f->data;");
-		output_storage ("	for (size = 0; size < f->size - 1; ++size, ++p) {");
-		output_storage ("		val *= 10;");
-		output_storage ("		val += *p >> 4;");
-		output_storage ("		val *= 10;");
-		output_storage ("		val += *p & 0x0f;");
+		output_storage ("	while (p < p_end) {");
+		output_storage ("		val = val * 10");
+		output_storage ("		    + (*p >> 4);");
+		output_storage ("		val = val * 10");
+		output_storage ("		    + (*p++ & 0x0f);");
 		output_storage ("	}");
-		output_storage ("	val *= 10;");
-		output_storage ("	val += *p >> 4;");
+		output_storage ("	val = val * 10");
+		output_storage ("	    + (*p >> 4);");
 		output_storage ("	if ((*p & 0x0f) == 0x0d) {");
 		output_storage ("		val = -val;");
 		output_storage ("	}");
@@ -177,19 +300,18 @@ cob_gen_optim (const enum cb_optim val)
 		output_storage ("static int COB_NOINLINE");
 		output_storage ("cob_get_packed_int (const cob_field *f)");
 		output_storage ("{");
-		output_storage ("	unsigned char	*p;");
-		output_storage ("	size_t		size;");
-		output_storage ("	int		val = 0;");
+		output_storage ("	register unsigned char		*p = f->data;");
+		output_storage ("	const register unsigned char	*p_end = p + f->size - 1;");
+		output_storage ("	register int	val = 0;");
 
-		output_storage ("	p = f->data;");
-		output_storage ("	for (size = 0; size < f->size - 1; ++size, ++p) {");
-		output_storage ("		val *= 10;");
-		output_storage ("		val += *p >> 4;");
-		output_storage ("		val *= 10;");
-		output_storage ("		val += *p & 0x0f;");
+		output_storage ("	while (p < p_end) {");
+		output_storage ("		val = val * 10");
+		output_storage ("		    + (*p >> 4);");
+		output_storage ("		val = val * 10");
+		output_storage ("		    + (*p++ & 0x0f);");
 		output_storage ("	}");
-		output_storage ("	val *= 10;");
-		output_storage ("	val += *p >> 4;");
+		output_storage ("	val = val * 10");
+		output_storage ("	    + (*p >> 4);");
 		output_storage ("	if ((*p & 0x0f) == 0x0d) {");
 		output_storage ("		val = -val;");
 		output_storage ("	}");
@@ -197,15 +319,84 @@ cob_gen_optim (const enum cb_optim val)
 		output_storage ("}");
 		return;
 
+	case COB_GET_PACKED_INT64:
+		output_storage ("static cob_s64_t COB_NOINLINE");
+		output_storage ("cob_get_packed_int64 (const cob_field *f)");
+		output_storage ("{");
+		output_storage ("	register unsigned char		*p = f->data;");
+		output_storage ("	const register unsigned char	*p_end = p + f->size - 1;");
+		output_storage ("	register cob_s64_t	val = 0;");
+
+		output_storage ("	while (p < p_end) {");
+		output_storage ("		val = val * 10");
+		output_storage ("		    + (*p >> 4);");
+		output_storage ("		val = val * 10");
+		output_storage ("		    + (*p++ & 0x0f);");
+		output_storage ("	}");
+		output_storage ("	val = val * 10");
+		output_storage ("	    + (*p >> 4);");
+		output_storage ("	if ((*p & 0x0f) == 0x0d) {");
+		output_storage ("		val = -val;");
+		output_storage ("	}");
+		output_storage ("	return val;");
+		output_storage ("}");
+		return;
+#endif
+
 	case COB_ADD_PACKED_INT:
 		output_storage ("static int COB_NOINLINE");
 		output_storage ("cob_add_packed_int (cob_field *f, const int val)");
 		output_storage ("{");
-		output_storage ("	unsigned char	*p;");
+		output_storage ("	register unsigned char	*p;");
 		output_storage ("	size_t		size;");
 		output_storage ("	int		carry = 0;");
 		output_storage ("	int		n;");
 		output_storage ("	int		inc;");
+
+		output_storage ("	if (val == 0) {");
+		output_storage ("		return 0;");
+		output_storage ("	}");
+		output_storage ("	p = f->data + f->size - 1;");
+		output_storage ("	if ((*p & 0x0f) == 0x0d) {");
+		output_storage ("		if (val > 0) {");
+		output_storage ("			return cob_add_int (f, val, 0);");
+		output_storage ("		}");
+		output_storage ("		n = -val;");
+		output_storage ("	} else {");
+		output_storage ("		if (val < 0) {");
+		output_storage ("			return cob_add_int (f, val, 0);");
+		output_storage ("		}");
+		output_storage ("		n = val;");
+		output_storage ("	}");
+		output_storage ("	inc = (*p >> 4) + (n %% 10);");
+		output_storage ("	n /= 10;");
+		output_storage ("	carry = inc / 10;");
+		output_storage ("	*p = ((inc %% 10) << 4) | (*p & 0x0f);");
+		output_storage ("	p--;");
+
+		output_storage ("	for (size = 0; size < f->size - 1; ++size, --p) {");
+		output_storage ("		if (!carry && !n) {");
+		output_storage ("			break;");
+		output_storage ("		}");
+		output_storage ("		inc = ((*p >> 4) * 10) + (*p & 0x0f) + carry + (n %% 100);");
+		output_storage ("		carry = inc / 100;");
+		output_storage ("		n /= 100;");
+		output_storage ("		inc %%= 100;");
+		output_storage ("		*p = ((inc / 10) << 4) | (inc %% 10);");
+		output_storage ("	}");
+		output_storage ("	return 0;");
+		output_storage ("}");
+		return;
+
+	case COB_ADD_PACKED_INT64:
+		output_storage ("static int COB_NOINLINE");
+		output_storage ("cob_add_packed_int64 (cob_field *f, const cob_s64_t val)");
+		output_storage ("{");
+		output_storage ("	register unsigned char	*p;");
+		output_storage ("	size_t		size;");
+		output_storage ("	cob_s64_t	carry = 0;");
+		output_storage ("	cob_s64_t	n;");
+		output_storage ("	cob_s64_t	inc;");
 
 		output_storage ("	if (val == 0) {");
 		output_storage ("		return 0;");

@@ -1,4 +1,4 @@
-## Copyright (C) 2007-2012, 2014-2018, 2020 Free Software Foundation, Inc.
+## Copyright (C) 2007-2012, 2014-2018, 2020-2023 Free Software Foundation, Inc.
 ## Written by Roger While, Simon Sobisch, Edward Hart
 ##
 ## This file is part of GnuCOBOL.
@@ -263,14 +263,14 @@ AT_DATA([prog.cob], [
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
            DISPLAY FUNCTION ABS (1).
-           DISPLAY FUNCTION TRIM (" some text here").
+           DISPLAY FUNCTION STORED-CHAR-LENGTH (" some text here").
            DISPLAY FUNCTION SUBSTITUTE ('some text' 'some' 'nice').
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
 AT_CHECK([$COMPILE_ONLY -std=acu-strict prog.cob], [1], [],
-[prog.cob:9: error: FUNCTION 'TRIM' unknown
+[prog.cob:9: error: FUNCTION 'STORED-CHAR-LENGTH' unknown
 prog.cob:10: error: FUNCTION 'SUBSTITUTE' unknown
 ])
 
@@ -365,30 +365,6 @@ AT_SETUP([Intrinsic functions: reference modification])
 AT_KEYWORDS([functions refmod])
 
 # the following should be checked, currently doesn't work
-#AT_DATA([prog.cob], [
-#       IDENTIFICATION   DIVISION.
-#       PROGRAM-ID.      prog.
-#       ENVIRONMENT DIVISION.
-#       DATA             DIVISION.
-#       WORKING-STORAGE  SECTION.
-#       PROCEDURE        DIVISION.
-#           DISPLAY FUNCTION CHAR (66)(1:2).
-#           DISPLAY FUNCTION NUMVAL-C (123)(1:2).
-#           DISPLAY FUNCTION REVERSE ("TESTME")(20:1).
-#           DISPLAY FUNCTION REVERSE ("TESTME")(-1:1).
-#           DISPLAY FUNCTION REVERSE ("TESTME")(1:0).
-#           STOP RUN.
-#])
-#
-#AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-#[prog.cob:8: error: FUNCTION 'PI' can not have reference modification
-#prog.cob:9: error: FUNCTION 'NUMVAL-C' can not have reference modification
-#prog.cob:10: error: FUNCTION 'REVERSE' has invalid reference modification
-#prog.cob:11: error: FUNCTION 'REVERSE' has invalid reference modification
-#prog.cob:12: error: FUNCTION 'REVERSE' has invalid reference modification
-#])
-
-# test what is in already...
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
@@ -396,15 +372,37 @@ AT_DATA([prog.cob], [
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
        PROCEDURE        DIVISION.
+           DISPLAY FUNCTION CHAR (66)(1:2).
+           DISPLAY FUNCTION NUMVAL-C (123)(1:2).
            DISPLAY FUNCTION REVERSE ("TESTME")(-1:1).
            DISPLAY FUNCTION REVERSE ("TESTME")(1:0).
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:8: error: FUNCTION 'REVERSE' has invalid reference modification
-prog.cob:9: error: FUNCTION 'REVERSE' has invalid reference modification
+[prog.cob:8: error: FUNCTION 'CHAR' cannot have reference modification
+prog.cob:9: error: FUNCTION 'NUMVAL-C' cannot have reference modification
+prog.cob:10: error: FUNCTION 'REVERSE' has invalid reference modification
+prog.cob:11: error: FUNCTION 'REVERSE' has invalid reference modification
 ])
+
+# missing: resolving constant values at compile-time, allowing us to
+# catch bad ref-mods
+#AT_DATA([prog2.cob], [
+#       IDENTIFICATION   DIVISION.
+#       PROGRAM-ID.      prog2.
+#       ENVIRONMENT DIVISION.
+#       DATA             DIVISION.
+#       WORKING-STORAGE  SECTION.
+#       PROCEDURE        DIVISION.
+#           DISPLAY FUNCTION REVERSE ("TESTME")(20:1).
+#           STOP RUN.
+#])
+#
+#AT_CHECK([$COMPILE_ONLY prog3.cob], [1], [],
+#[prog.cob:8: error: FUNCTION 'REVERSE' has invalid reference modification
+#prog.cob:8: error: reference modification out of bounds
+#])
 
 AT_CLEANUP
 
@@ -524,24 +522,20 @@ AT_DATA([prog.cob], [
        SPECIAL-NAMES.
            DECIMAL-POINT IS COMMA.
        PROCEDURE        DIVISION.
-           DISPLAY FUNCTION FORMATTED-TIME ("hhmmss,ss", 1)
-           END-DISPLAY
+           DISPLAY FUNCTION FORMATTED-TIME ("hhmmss,ss", 1).
            DISPLAY FUNCTION FORMATTED-DATETIME
-                       ("YYYYMMDDThhmmss,ss", 1, 1)
-           END-DISPLAY
+                       ("YYYYMMDDThhmmss,ss", 1, 1).
 
-           DISPLAY FUNCTION FORMATTED-TIME ("hhmmss.ss", 1)
-           END-DISPLAY
+           DISPLAY FUNCTION FORMATTED-TIME ("hhmmss.ss", 1).
            DISPLAY FUNCTION FORMATTED-DATETIME
-                       ("YYYYMMDDThhmmss.ss", 1, 1)
-           END-DISPLAY
+                       ("YYYYMMDDThhmmss.ss", 1, 1).
 
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:15: error: FUNCTION 'FORMATTED-TIME' has invalid date/time format
-prog.cob:17: error: FUNCTION 'FORMATTED-DATETIME' has invalid date/time format
+[prog.cob:13: error: FUNCTION 'FORMATTED-TIME' has invalid date/time format
+prog.cob:14: error: FUNCTION 'FORMATTED-DATETIME' has invalid date/time format
 ])
 
 AT_CLEANUP
@@ -579,26 +573,19 @@ AT_DATA([prog.cob], [
        PROGRAM-ID.      prog.
        PROCEDURE        DIVISION.
            DISPLAY FUNCTION LENGTH      ("abcd" & "xyz")
-           END-DISPLAY
            DISPLAY FUNCTION BYTE-LENGTH ("abcd" & "xyz")
-           END-DISPLAY
            DISPLAY FUNCTION LENGTH      ("abcd" "xyz")
-           END-DISPLAY
            DISPLAY FUNCTION BYTE-LENGTH (01234)
-           END-DISPLAY
            DISPLAY FUNCTION LENGTH      (567)
-           END-DISPLAY
            DISPLAY FUNCTION LENGTH      ("abcd" & "xyz" PHYSICAL)
-           END-DISPLAY
            DISPLAY FUNCTION BYTE-LENGTH ("abcd" & "xyz" PHYSICAL)
-           END-DISPLAY
            .
 ])
 
 AT_CHECK([$COMPILE -Wno-pending prog.cob], [1], [],
-[prog.cob:9: error: syntax error, unexpected Literal, expecting PHYSICAL or )
-prog.cob:11: error: a non-numeric literal is expected here
-prog.cob:13: error: a non-numeric literal is expected here
+[prog.cob:7: error: syntax error, unexpected Literal, expecting PHYSICAL or )
+prog.cob:8: error: a non-numeric literal is expected here
+prog.cob:9: error: a non-numeric literal is expected here
 ])
 
 AT_CLEANUP

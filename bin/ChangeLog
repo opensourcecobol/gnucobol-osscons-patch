@@ -1,4 +1,40 @@
 
+2023-07-24  Simon Sobisch <simonsobisch@gnu.org>
+
+	* cob-config.in: prevent warning to use datadir, but not datarootdir;
+	  allow abbreviated commands (blatantly copied from configure script)
+
+2023-07-01  Fabrice Le Fessant <fabrice.le_fessant@ocamlpro.com>
+
+	* cob-config.in: echo in same order as arguments; add missing
+	  arguments (--bindir,--libdir,--datadir,--mandir,--includedir)
+
+2022-10-18  Simon Sobisch <simonsobisch@gnu.org>
+
+	* cobcrun.c: minor validation - check for empty parameters
+
+2022-07-15  Simon Sobisch <simonsobisch@gnu.org>
+
+	* cobcrun.c: no module name check (done in libcob now)
+
+2022-06-28  Simon Sobisch <simonsobisch@gnu.org>
+
+	* cobcrun.c: added -dumpversion (called from libcob)
+
+2022-01-03  Simon Sobisch <simonsobisch@gnu.org>
+
+	* cobcrun.c: include libcob headers relative and tarstamp.h early
+
+2021-05-27  Simon Sobisch <simonsobisch@gnu.org>
+
+	* cobcrun.c: use double-dash for long options
+
+2021-01-07  Simon Sobisch <simonsobisch@gnu.org>
+
+	* cobcrun.c (cobcrun_print_version, cobcrun_print_usage): msgid change
+	  moving URLs to parameter per gettext-guidelines
+	* cobcrun.c: removed unused includes
+
 2020-12-06  Simon Sobisch <simonsobisch@gnu.org>
 
 	* Makefile.am (cobcrun_LDADD): fixed ordering, in-tree libraries
@@ -251,7 +287,7 @@
 	  then you can switch easily.
 
 
-Copyright 2004-2008,2010,2012,2014-2020 Free Software Foundation, Inc.
+Copyright 2004-2008,2010,2012,2014-2023 Free Software Foundation, Inc.
 
 Copying and distribution of this file, with or without modification, are
 permitted provided the copyright notice and this notice are preserved.

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2001-2012, 2014-2020 Free Software Foundation, Inc.
+   Copyright (C) 2001-2012, 2014-2022 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch,
    Edward Hart, Ron Norman, Dave Pitts
 
@@ -23,18 +23,18 @@
 #ifndef CB_COBC_H
 #define CB_COBC_H
 
-#include <stdio.h>
+/* inclusion of common.h to get type definitions and some macros
+   TODO: move those out of common.h to a second installed header
+         and include that here */
 #ifdef	HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef	HAVE_STRINGS_H
-#include <strings.h>
-#endif
+#include <stdio.h>	/* for FILE* */
 
-#include "libcob.h"
+#include "../libcob/common.h"
 
 #ifdef	ENABLE_NLS
-#include "gettext.h"	/* from lib/ */
+#include "../lib/gettext.h"
 #define _(s)		gettext(s)
 #define N_(s)		gettext_noop(s)
 #else
@@ -67,6 +67,12 @@
 	#define COB_NO_UNALIGNED_ATTRIBUTE
 #endif
 
+#ifdef HAVE_ATTRIBUTE_PURE
+#define COB_A_PURE	__attribute__((pure))
+#else
+#define COB_A_PURE
+#endif
+
 /* Defines for access() */
 #ifndef	F_OK
 #define	F_OK		0
@@ -88,32 +94,42 @@
 #define YY_FATAL_ERROR(msg)		\
 	flex_fatal_error (msg, __FILE__, __LINE__)
 
-/* Source format enum */
+/* Source reference-format enum */
 enum cb_format {
-	CB_FORMAT_FIXED = 0,
-	CB_FORMAT_FREE
+	CB_FORMAT_FIXED = 0,	/* COBOL2002+ fixed-form */
+	CB_FORMAT_COBOL85,	/* Fixed format with Area A checks (pending) */
+	CB_FORMAT_FREE,		/* COBOL2002+ free-form */
+	CB_FORMAT_VARIABLE,	/* MF's Variable fixed-form format */
+	CB_FORMAT_XOPEN_FFF,	/* X/Open Free-form format */
+	CB_FORMAT_ICOBOL_XCARD,	/* ICOBOL xCard */
+	CB_FORMAT_ICOBOL_CRT,	/* ICOBOL Free-form format (CRT) */
+	CB_FORMAT_ACUTERM,	/* ACU Terminal format, named "TERMINAL" */
+	CB_FORMAT_COBOLX,	/* GCOS's COBOLX */
+	CB_FORMAT_AUTO, 	/* Auto-detect format */
 };
+#define CB_SF_FREE(sf) (sf == CB_FORMAT_FREE)
+#define CB_SF_FIXED(sf) (sf == CB_FORMAT_FIXED || sf == CB_FORMAT_COBOL85)
 
-/* COPY extended syntax defines */
-#define CB_REPLACE_LEADING		1U
-#define CB_REPLACE_TRAILING		2U
+/* Common definition for help output and error messages: */
+#define CB_SF_ALL_NAMES							\
+	"FIXED, FREE, COBOL85, VARIABLE, XOPEN, XCARD, CRT, TERMINAL, COBOLX"
+
+/* Macro to enable/disable features based on source reference-format */
+#define CB_MFCOMMENT_APPLIES(sf) (CB_SF_FIXED (sf) || sf == CB_FORMAT_VARIABLE)
+
+#if 0 /* ancient OSVS registers that need special runtime handling - low priority */
+/* format in CURRENT-DATE register */
+enum cb_current_date {
+	CB_DATE_MDY = 0,
+	CB_DATE_YMD,
+	CB_DATE_DMY
+};
+#endif
 
 /* Stringify macros */
 #define CB_STRINGIFY(s)			#s
 #define CB_XSTRINGIFY(s)		CB_STRINGIFY(s)
 #define CB_XRANGE(min,max)		CB_XSTRINGIFY(min) ".." CB_XSTRINGIFY(max)
-
-/* Flex directive actions */
-#define PLEX_ACT_IF			0
-#define PLEX_ACT_ELSE			1U
-#define PLEX_ACT_END			2U
-#define PLEX_ACT_ELIF			3U
-
-/* Flex value types */
-#define PLEX_DEF_NONE			0
-#define PLEX_DEF_LIT			1U
-#define PLEX_DEF_NUM			2U
-#define PLEX_DEF_DEL			3U
 
 /* Context sensitive keyword defines (trigger words) */
 #define	CB_CS_ACCEPT			(1U << 0)	/* within ACCEPT statement */
@@ -152,12 +168,23 @@ enum cb_format {
 #define	CB_CS_I_O_CONTROL		CB_CS_DAY
 #define	CB_CS_TYPEDEF			CB_CS_DAY
 #define	CB_CS_EXHIBIT			CB_CS_DAY
+#define	CB_CS_MOVE_CONV			CB_CS_DAY
+#define	CB_CS_INSPECT			CB_CS_DAY
+#define	CB_CS_CONVERT			CB_CS_DAY
+#define	CB_CS_MODULE_NAME		CB_CS_DAY
+#define	CB_CS_SPECIAL_NAMES		CB_CS_DAY
+#define	CB_CS_DEFAULT			CB_CS_DAY
+#define	CB_CS_VALIDATE_STATUS	CB_CS_DAY
+#define	CB_CS_USAGE				CB_CS_DAY
 
 /* Support for cobc from stdin */
 #define COB_DASH			"-"
+#ifndef COB_DASH_NAME
 #define COB_DASH_NAME			"a.cob"
+#endif
+#ifndef COB_DASH_OUT
 #define COB_DASH_OUT			"a.out"
-
+#endif
 
 /* Operand operation type */
 enum cb_operation_type {
@@ -238,34 +265,18 @@ enum cb_dpc_in_data_options {
 	CB_DPC_IN_ALL
 };
 
+/* Subscript check */
+enum cb_sub_check {
+	CB_SUB_CHECK_FULL,
+	CB_SUB_CHECK_MAX,
+	CB_SUB_CHECK_RECORD,	/* PENDING */
+};
+
 /* Generic text list structure */
 struct cb_text_list {
 	struct cb_text_list	*next;			/* next pointer */
 	struct cb_text_list	*last;
 	const char		*text;
-};
-
-/* Generic replace list structure */
-struct cb_replace_list {
-	int				line_num;
-	struct cb_replace_list		*next;			/* next pointer */
-	struct cb_replace_list		*last;
-	struct cb_replace_list		*prev;
-	const struct cb_text_list	*old_text;
-	const struct cb_text_list	*new_text;
-	unsigned int			lead_trail;
-};
-
-/* Generic define list structure */
-struct cb_define_struct {
-	struct cb_define_struct	*next;			/* next pointer */
-	struct cb_define_struct	*last;
-	char			*name;
-	char			*value;
-	unsigned int		deftype;
-	int			sign;
-	int			int_part;
-	int			dec_part;
 };
 
 /* Structure for extended filenames */
@@ -301,16 +312,7 @@ struct cb_exception {
 	const char	*name;			/* Exception name */
 	const int	code;			/* Exception code */
 	int		enable;			/* If turned on */
-	int		explicit_enable_val;	/* enable has been set explicitly */
-};
-
-/* >>TURN directive list */
-struct cb_turn_list {
-	struct cb_turn_list	*next;
-	struct cb_text_list	*ec_names;
-	int		line;
-	int		enable;
-	int		with_location;
+	int		fatal;			/* If recognizing this should abort */
 };
 
 /* Type of name to check in cobc_check_valid_name */
@@ -322,64 +324,19 @@ enum cobc_name_type {
 
 /* Listing structures and externals */
 
-/* List of error messages */
-struct list_error {
-	struct list_error	*next;
-	struct list_error	*prev;
-	int			line;		/* Line number for error */
-	char			*file;		/* File name */
-	char			*prefix;	/* Error prefix */
-	char			*msg;		/* Error Message text */
-};
-
-/* List of REPLACE text blocks */
-struct list_replace {
-	struct list_replace	*next;
-	int			firstline;	/* First line for replace */
-	int			lastline;	/* Last line for replace */
-	int			lead_trail;	/* LEADING/TRAILING flag */
-	char			*from;		/* Old (from) text */
-	char			*to;		/* New (to) text */
-};
-
-/* List of skipped lines (conditional compilation) */
-struct list_skip {
-	struct list_skip	*next;
-	int			skipline;	/* line number of skipped line */
-};
-
-/* Listing file control structure */
-struct list_files {
-	struct list_files	*next;
-	struct list_files	*copy_head;	/* COPY book list head */
-	struct list_files	*copy_tail;	/* COPY book list tail */
-	struct list_error	*err_head;	/* Error message list head */
-	struct list_replace	*replace_head;	/* REPLACE list head */
-	struct list_replace	*replace_tail;	/* REPLACE list tail */
-	struct list_skip	*skip_head;	/* Skip list head */
-	struct list_skip	*skip_tail;	/* Skip list tail */
-	int 			copy_line;	/* Line start for copy book */
-	int 			listing_on;	/* Listing flag for this file */
-	enum cb_format		source_format;	/* source format for file */
-	const char		*name;		/* Name of this file */
-};
-
-extern struct list_files	*cb_listing_files;
-extern struct list_files	*cb_current_file;
-
-extern enum cb_format		cb_source_format;
-extern int			cb_text_column;	/* end of area B (in single-byte characters) */
+#if 0 /* ancient OSVS registers that need special runtime handling - low priority */
+extern enum cb_current_date	current_date;
+#endif
 
 extern struct cb_exception	cb_exception_table[];
 extern const struct cb_exception	cb_io_exception_table[];
 extern const size_t		cb_io_exception_table_len;
+extern const size_t		cb_exception_table_len;
 
 #define CB_EXCEPTION_NAME(id)	cb_exception_table[id].name
 #define CB_EXCEPTION_CODE(id)	cb_exception_table[id].code
 #define CB_EXCEPTION_ENABLE(id)	cb_exception_table[id].enable
-#define CB_EXCEPTION_EXPLICIT(id)	cb_exception_table[id].explicit_enable_val
-
-extern struct cb_turn_list	*cb_turn_list;
+#define CB_EXCEPTION_FATAL(id)	cb_exception_table[id].fatal
 
 /* undef macros that are only for internal use with def-files */
 
@@ -426,6 +383,7 @@ extern int cb_old_trace;
 #define	CB_WARNDEF(opt,name,doc)	opt,
 #define	CB_ONWARNDEF(opt,name,doc)	opt,
 #define	CB_NOWARNDEF(opt,name,doc)	opt,
+#define	CB_ERRWARNDEF(opt,name,doc)	opt,
 enum cb_warn_opt
 {
 	COB_WARNOPT_NONE = 0,
@@ -435,17 +393,20 @@ enum cb_warn_opt
 #undef	CB_WARNDEF
 #undef	CB_ONWARNDEF
 #undef	CB_NOWARNDEF
+#undef	CB_ERRWARNDEF
 
 #define COBC_WARN_FILLER  cb_warn_filler
 
 enum cb_warn_val {
 	COBC_WARN_DISABLED = 0,
-	COBC_WARN_ENABLED  = 1,
-	COBC_WARN_AS_ERROR = 2
+	COBC_WARN_DISABLED_EXPL = 1,	/* only active during command line parsing */
+	COBC_WARN_ENABLED_EXPL = 2,	/* only active during command line parsing */
+	COBC_WARN_ENABLED  = 3,
+	COBC_WARN_AS_ERROR = 4
 };
 
-extern int cb_warn_opt_val[COB_WARNOPT_MAX];
-
+extern const enum cb_warn_val	get_warn_opt_value (const enum cb_warn_opt);
+extern void		set_warn_opt_value (const enum cb_warn_opt, const enum cb_warn_val);
 
 #define	CB_OPTIM_DEF(x)			x,
 enum cb_optim {
@@ -510,6 +471,8 @@ extern int			cb_saveargc;
 
 extern FILE			*cb_listing_file;
 extern FILE			*cb_src_list_file;
+extern FILE			*cb_depend_file;
+extern struct cb_text_list	*cb_depend_list;
 extern struct cb_text_list	*cb_include_list;
 extern struct cb_text_list	*cb_intrinsic_list;
 extern struct cb_text_list	*cb_extension_list;
@@ -524,8 +487,8 @@ extern int			cb_exp_line;
 extern int			functions_are_all;
 extern struct cb_tree_common	*defined_prog_list;
 extern int			current_call_convention;
-extern struct cb_field		*external_defined_fields_ws;
-extern struct cb_field		*external_defined_fields_global;
+
+extern const char		*cb_ebcdic_table;
 
 /* Functions */
 
@@ -550,13 +513,19 @@ extern void			cobc_parse_free (void *);
 
 extern void			*cobc_plex_malloc (const size_t);
 extern void			*cobc_plex_strdup (const char *);
+extern void			*cobc_plex_strsub (const char *, const int len);
+extern char                     *cobc_plex_stradd (const char *str1, const char *str2);
 
 extern void			*cobc_check_string (const char *);
 extern void			cobc_err_msg (const char *, ...) COB_A_FORMAT12;
 
+extern char			*cobc_elided_strcpy (char *, const char *, const size_t, const int);
+
 DECLNORET extern void		cobc_abort (const char *,
 					    const int) COB_A_NORETURN;
-DECLNORET extern void		cobc_abort_terminate (int) COB_A_NORETURN;
+DECLNORET extern void		cobc_abort_terminate (const int) COB_A_NORETURN;
+
+DECLNORET extern void		cobc_err_exit (const char *, ...) COB_A_FORMAT12 COB_A_NORETURN;
 
 
 extern size_t			cobc_check_valid_name (const char *,
@@ -579,6 +548,8 @@ extern void		cobc_print_usage_flags (void);
 extern type			var;
 #define	CB_CONFIG_INT(var,name,min,max,odoc,doc)	\
 extern unsigned int		var;
+#define	CB_CONFIG_SINT(var,name,min,max,odoc,doc)	\
+extern int		var;
 #define	CB_CONFIG_STRING(var,name,doc)	\
 extern const char		*var;
 #define	CB_CONFIG_BOOLEAN(var,name,doc)	\
@@ -590,6 +561,7 @@ extern enum				cb_support var;
 
 #undef	CB_CONFIG_ANY
 #undef	CB_CONFIG_INT
+#undef	CB_CONFIG_SINT
 #undef	CB_CONFIG_STRING
 #undef	CB_CONFIG_BOOLEAN
 #undef	CB_CONFIG_SUPPORT
@@ -600,9 +572,11 @@ extern int		cb_load_conf (const char *, const int);
 extern int		cb_load_words (void);
 
 #ifndef	HAVE_DESIGNATED_INITS
-/* Initialization routines in typeck.c and reserved.c */
+/* "static" initialization routines in several files */
 extern void		cobc_init_typeck (void);
 extern void		cobc_init_reserved (void);
+extern void		cobc_init_tree (void);
+extern void		cobc_init_codegen (void);
 #endif
 
 /* preprocessor (in pplex.l, ppparse.y) */
@@ -616,20 +590,18 @@ extern int		pplex (void);
 extern int		ppparse (void);
 #endif
 
-extern int		ppopen (const char *, struct cb_replace_list *);
-extern int		ppcopy (const char *, const char *,
-				struct cb_replace_list *);
-extern void		pp_set_replace_list (struct cb_replace_list *,
-					     const cob_u32_t);
+extern unsigned int	ppparse_verify (const enum cb_support tag,
+					const char *feature);
 extern void		ppparse_error (const char *);
-extern void		ppparse_clear_vars (const struct cb_define_struct *);
-extern struct cb_define_struct *ppp_search_lists (const char *name);
-extern void		ppp_clear_lists (void);
-extern void		plex_clear_vars (void);
-extern void		plex_clear_all (void);
-extern void		plex_call_destroy (void);
-extern void		plex_action_directive (const unsigned int,
-					       const unsigned int);
+
+extern int		cobc_deciph_source_format (const char *);
+extern void		cobc_set_source_format (const enum cb_format);
+extern enum cb_format	cobc_get_source_format (void) COB_A_PURE;
+extern int		cobc_get_indicator_column (void) COB_A_PURE;
+extern int		cobc_get_text_column (void) COB_A_PURE;
+extern int		cobc_get_indicator (void) COB_A_PURE;
+extern int		cobc_get_margin_a (const int indicator_width) COB_A_PURE;
+extern int		cobc_get_margin_b (const int indicator_width) COB_A_PURE;
 
 /* parser (in scanner.l, parser.y) */
 #if	!defined (COB_IN_SCANNER ) && !defined (COB_IN_PPLEX) && \
@@ -643,17 +615,8 @@ extern int		yylex (void);
 extern int		yyparse (void);
 #endif
 
-extern void		ylex_clear_all (void);
-extern void		ylex_call_destroy (void);
-
 /* typeck.c */
 extern size_t		suppress_warn;	/* no warnings for internal generated stuff */
-
-/* codeoptim.c */
-extern void		cob_gen_optim (const enum cb_optim);
-
-/* codegen.c */
-extern void		cb_init_codegen (void);
 
 /* error.c */
 #define CB_MSG_STYLE_GCC	0
@@ -661,13 +624,21 @@ extern void		cb_init_codegen (void);
 
 #define CB_PENDING_X(x,s) \
 	do { cb_warning_x (cb_warn_pending, x, _("%s is not implemented"), s); } ONCE_COB
+#define CB_PENDING(s) \
+	do { cb_warning (cb_warn_pending, _("%s is not implemented"), s); } ONCE_COB
 
 #define CB_UNFINISHED_X(x,s) \
 	do { cb_warning_x (cb_warn_unfinished, x, \
 		_("handling of %s is unfinished; implementation is likely to be changed"), s); \
 	} ONCE_COB
-#define CB_PENDING(s)		CB_PENDING_X	(cb_error_node, s)
-#define CB_UNFINISHED(s)	CB_UNFINISHED_X	(cb_error_node, s)
+#define CB_UNFINISHED(s) \
+	do { cb_warning (cb_warn_unfinished, \
+		_("handling of %s is unfinished; implementation is likely to be changed"), s); \
+	} ONCE_COB
+#define CB_UNSUPPORTED(x) \
+	do { cb_error (_("%s is not supported"), x); } ONCE_COB
+#define CB_UNSUPPORTED_X(x,y) \
+	do { cb_error_x (x, _("%s is not supported"), y); } ONCE_COB
 
 extern size_t		cb_msg_style;
 
@@ -690,12 +661,14 @@ extern void		cb_add_error_to_listing (const char *, int, const char *, char *);
 DECLNORET extern void		flex_fatal_error (const char *, const char *,
 					 const int) COB_A_NORETURN;
 
+extern void		cobc_set_listing_header_code (void);
+
 /* reserved.c */
 extern struct reserved_word_list	*cobc_user_res_list;
 
 extern void		remove_reserved_word (const char *, const char *, const int);
 extern void		add_reserved_word (const char *, const char *, const int);
-extern void		remove_reserved_word_now (char * const);
+extern void		remove_reserved_word_now (const char * const);
 extern void		add_reserved_word_now (char * const, char * const);
 
 extern void		remove_register (const char *, const char *, const int);
@@ -706,5 +679,9 @@ extern void		activate_intrinsic (const char *, const char *, const int);
 
 extern void		deactivate_system_name (const char *, const char *, const int);
 extern void		activate_system_name (const char *, const char *, const int);
+
+extern int		cb_strcasecmp (const void *, const void *);
+extern unsigned char	cb_toupper (const unsigned char);
+extern unsigned char	cb_tolower (const unsigned char);
 
 #endif /* CB_COBC_H */

@@ -1,7 +1,7 @@
 #
 # Makefile gnucobol/tests
 #
-# Copyright (C) 2003-2012, 2014-2019 Free Software Foundation, Inc.
+# Copyright (C) 2003-2012, 2014-2019, 2022-2023 Free Software Foundation, Inc.
 # Written by Keisuke Nishida, Roger While, Simon Sobisch
 #
 # This file is part of GnuCOBOL.
@@ -25,6 +25,8 @@ TESTSUITE = $(srcdir)/testsuite
 TESTSUITE_MANUAL = $(srcdir)/testsuite_manual
 dist_check_SCRIPTS = listings-sed.sh
 
+dist_noinst_SCRIPTS = $(TESTSUITE) $(TESTSUITE_MANUAL)
+
 testsuite_sources = \
 	testsuite.src/used_binaries.at \
 	testsuite.src/configuration.at \
@@ -32,6 +34,7 @@ testsuite_sources = \
 	testsuite.src/syn_definition.at \
 	testsuite.src/syn_file.at \
 	testsuite.src/syn_functions.at \
+	testsuite.src/syn_literals.at \
 	testsuite.src/syn_misc.at \
 	testsuite.src/syn_move.at \
 	testsuite.src/syn_multiply.at \
@@ -66,9 +69,10 @@ testsuite_sources = \
 testsuite_manual_sources = \
 	testsuite.src/run_manual_screen.at
 
-EXTRA_DIST = $(srcdir)/package.m4 $(TESTSUITE) $(TESTSUITE_MANUAL) \
+EXTRA_DIST = $(srcdir)/package.m4 \
 	$(srcdir)/testsuite.at $(srcdir)/testsuite_manual.at \
 	$(srcdir)/listings-sed.sh \
+	$(srcdir)/valgrind.supp \
 	$(testsuite_sources) $(testsuite_manual_sources)
 
 DISTCLEANFILES = atconfig
@@ -90,18 +94,14 @@ localcheck: prereq-testsuite
 	@GNUCOBOL_TEST_LOCAL="1" $(TESTSUITE) $(TESTSUITEFLAGS) || (rm -f testsuite.dir/at-job-fifo; exit 1)
 	@rm -f testsuite.dir/at-job-fifo
 
-prereq-check:
-	@echo testing for working diff && diff - "$(TESTSUITE)" < "$(TESTSUITE)" \
-		|| (echo "Error: no working 'diff' in PATH" && false)
-
-prereq-testsuite: $(TESTSUITE) prereq-check
+prereq-testsuite: $(TESTSUITE) atlocal
 	@rm -rf testsuite.dir
 
-prereq-manual: $(TESTSUITE_MANUAL) prereq-check
+prereq-manual: $(TESTSUITE_MANUAL) atlocal run_prog_manual.sh
 	@rm -rf testsuite_manual.dir
 
 clean-local:
-	rm -rf *.dir *.log *.out valgrind
+	rm -rf *.dir *.log *.out valgrind callgrind perf
 
 checkmanual: prereq-manual
 	@$(TESTSUITE_MANUAL) $(TESTSUITEFLAGS) || (rm -f testsuite_manual.dir/at-job-fifo; exit 1)
@@ -111,9 +111,9 @@ checkmanual: prereq-manual
 .PHONY: test checkall checkmanual localcheck \
 	prereq-check prereq-testsuite prereq-manual
 
-test:
-	@echo testing for perl && perl -v 1>/dev/null \
-		|| (echo "Error: no working 'perl' in PATH" && false)
+test: atlocal
+	@echo testing for perl && $(PERL) -v 1>/dev/null \
+		|| (echo "Error: could not executed $(PERL)" && false)
 	@cd cobol85 && $(MAKE) $(AM_MAKEFLAGS) test
 
 checkall: check test

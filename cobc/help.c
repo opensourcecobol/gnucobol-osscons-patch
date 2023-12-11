@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2001-2020 Free Software Foundation, Inc.
+   Copyright (C) 2001-2023 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch,
    Brian Tiffin, Edward Hart, Dave Pitts
 
@@ -19,12 +19,13 @@
    along with GnuCOBOL.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <config.h>
+#include "config.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include "cobc.h"
-#include "lib/gettext.h"
+#include "tree.h"	/* for COB_INTERNAL_XREF */
 
 void
 cobc_print_usage (char * prog)
@@ -48,46 +49,53 @@ cobc_print_usage (char * prog)
 	          "or (preferably) use the issue tracker via the home page."),
 			"bug-gnucobol@gnu.org");
 	putchar ('\n');
-	puts (_("GnuCOBOL home page: <https://www.gnu.org/software/gnucobol/>"));
-	puts (_("General help using GNU software: <https://www.gnu.org/gethelp/>"));
+	printf (_("GnuCOBOL home page: <%s>"), "https://www.gnu.org/software/gnucobol/");
+	putchar ('\n');
+	printf (_("General help using GNU software: <%s>"), "https://www.gnu.org/gethelp/");
+	putchar ('\n');
 }
 
 void
 cobc_print_usage_common_options (void)
 {
 	puts (_("Options:"));
-	puts (_("  -h, -help             display this help and exit"));
-	puts (_("  -V, -version          display compiler version and exit"));
-	puts (_("  -i, -info             display compiler information (build/environment)\n" 
+	puts (_("  -h, --help            display this help and exit"));
+	puts (_("  -V, --version         display compiler version information and exit"));
+	puts (_("  -dumpversion          display compiler version and exit"));
+	puts (_("  -i, --info            display compiler information (build/environment)\n"
 	        "                        and exit"));
-	puts (_("  -v, -verbose          verbose mode, display additional information;\n"
-		    "                        multiple -v options increase the verbosity,\n"   
-		    "                        the maximum is 3 as follows:\n"                  
-		    "                        (1) display compiler version and the commands\n" 
-	        "                        invoked by the compiler,\n"                      
-		    "                        (2) pass verbose option to assembler/compiler\n" 
+	puts (_("  -v, --verbose         verbose mode, display additional information;\n"
+		    "                        multiple -v options increase the verbosity,\n"
+		    "                        the maximum is 3 as follows:\n"
+		    "                        (1) display compiler version and the commands\n"
+	        "                        invoked by the compiler,\n"
+		    "                        (2) pass verbose option to assembler/compiler\n"
 		    "                        (3) pass verbose option to linker"));
-	puts (_("  -q, -brief            reduced displays, commands invoked not shown"));
+	puts (_("  -q, --brief           reduced displays, commands invoked not shown"));
 	puts (_("  -###                  like -v but commands not executed"));
 	puts (_("  -x                    build an executable program"));
 	puts (_("  -m                    build a dynamically loadable module (default)"));
-	puts (_("  -j [<args>], -job[=<args>]\trun program after build, passing <args>"));
+	puts (_("  -j [<args>], --job[=<args>]\trun program after build, passing <args>"));
 	puts (_("  -std=<dialect>        warnings/features for a specific dialect\n"
 	        "                        <dialect> can be one of:\n"
 	        "                        default, cobol2014, cobol2002, cobol85, xopen,\n"
 	        "                        ibm-strict, ibm, mvs-strict, mvs,\n"
 	        "                        mf-strict, mf, bs2000-strict, bs2000,\n"
-	        "                        acu-strict, acu, rm-strict, rm;\n"
+	        "                        acu-strict, acu, rm-strict, rm, gcos-strict,\n"
+	        "                        gcos;\n"
 	        "                        see configuration files in directory config"));
-	puts (_("  -F, -free             use free source format"));
-	puts (_("  -fixed                use fixed source format (default)"));
+	puts (_("  -F, --free            use free source format (alias for -fformat=free)"));
+	puts (_("  --fixed               use fixed source format (default; alias for\n"
+	        "                        -fformat=fixed)"));
 	puts (_("  -O, -O2, -O3, -Os     enable optimization"));
 	puts (_("  -O0                   disable optimization"));
 	puts (_("  -g                    enable C compiler debug and stack check"));
-	puts (_("  -d, -debug            enable all run-time error checking,\n"
+	puts (_("  -d, --debug           enable all run-time error checking,\n"
 	        "                        equal to -fstack-check -fec=EC-ALL"));
-	/* duplicated here from flags.def to place it next to -debug */
+	/* "duplicated" from flags.def where output is suppressed and untranslated,
+	   to place it next to --debug in the help output */
 	puts (_("  -fec=<exception-name>\tenable code generation for <exception-name>,\n"
+	        "                        see --list-exceptions for the possible values,\n"
 	        "                        sets -fsource-location"));
 	puts (_("  -fno-ec=<exception-name>\tdisable code generation for <exception-name>"));
 	puts (_("  -o <file>             place the output into <file>"));
@@ -100,30 +108,31 @@ cobc_print_usage_common_options (void)
 	puts (_("  -T <file>             generate and place a wide program listing into <file>"));
 	puts (_("  -t <file>             generate and place a program listing into <file>"));
 	puts (_("  --tlines=<lines>      specify lines per page in listing, default = 55"));
-#if 0 /* to be hidden later, use -f[no-]tsymbols instead */
-	puts (_("  --tsymbols            specify symbols in listing, use -ftsymbols instead"));
-#endif
 	puts (_("  -P[=<dir or file>]    generate preprocessed program listing (.lst)"));
 #ifndef COB_INTERNAL_XREF
-	puts (_("  -Xref                 generate cross reference through 'cobxref'\n"
+	puts (_("  -X, --Xref            generate cross reference through 'cobxref'\n"
 	        "                        (V. Coen's 'cobxref' must be in path)"));
 #else
-	puts (_("  -Xref                 specify cross reference in listing"));
+	puts (_("  -X, --Xref            specify cross reference in listing"));
 #endif
 	puts (_("  -I <directory>        add <directory> to copy/include search path"));
 	puts (_("  -L <directory>        add <directory> to library search path"));
 	puts (_("  -l <lib>              link the library <lib>"));
+	puts (_("  -K <entry>            generate CALL to <entry> as static"));
+	puts (_("  -D <define>           define <define> for COBOL compilation"));
 	puts (_("  -A <options>          add <options> to the C compile phase"));
 	puts (_("  -Q <options>          add <options> to the C link phase"));
-	puts (_("  -D <define>           define <define> for COBOL compilation"));
-	puts (_("  -K <entry>            generate CALL to <entry> as static"));
-	puts (_("  -conf=<file>          user-defined dialect configuration; see -std"));
-	puts (_("  -list-reserved        display reserved words"));
-	puts (_("  -list-intrinsics      display intrinsic functions"));
-	puts (_("  -list-mnemonics       display mnemonic names"));
-	puts (_("  -list-system          display system routines"));
-	puts (_("  -save-temps[=<dir>]   save intermediate files\n"
+	puts (_("  --coverage            instrument generated binaries for coverage"));
+	puts (_("  --conf=<file>         user-defined dialect configuration; see -std"));
+	puts (_("  --list-reserved       display reserved words"));
+	puts (_("  --list-intrinsics     display intrinsic functions"));
+	puts (_("  --list-mnemonics      display mnemonic names"));
+	puts (_("  --list-exceptions     display exception names"));
+	puts (_("  --list-system         display system routines"));
+	puts (_("  --save-temps[=<dir>]  save intermediate files\n"
 	        "                        * default: current directory"));
+	puts (_("  -MT <target>          set/add target file used in dependency list"));
+	puts (_("  -MF <file>            place dependency list into <file>"));
 	puts (_("  -ext <extension>      add file extension for resolving COPY"));
 	putchar ('\n');
 }
@@ -146,10 +155,14 @@ cobc_print_usage_warnings (void)
 	puts (doc);							\
 	/* TRANSLATORS: This msgid is appended to msgid for -Wpossible-truncate and others */ \
 	puts (_("                        * NOT set with -Wall"));
+#define	CB_ERRWARNDEF(opt,name,doc)		\
+	puts (doc);
 #include "warning.def"
 #undef	CB_WARNDEF
 #undef	CB_ONWARNDEF
 #undef	CB_NOWARNDEF
+#undef	CB_ERRWARNDEF
+	puts (_("  -fdiagnostics-plain-output\tmake diagnostic output as plain as possible"));
 	puts (_("  -Werror               treat all warnings as errors"));
 	puts (_("  -Wno-error            don't treat warnings as errors"));
 	puts (_("  -Werror=<warning>     treat specified <warning> as error"));
@@ -189,6 +202,9 @@ cobc_print_usage_flags (void)
 	cobc_print_active (
 	_("  -fibmcomp             sets -fbinary-size=2-4-8 -fsynchronized-clause=ok\n"
 	  "  -fno-ibmcomp          sets -fbinary-size=1--8  -fsynchronized-clause=ignore"), 0);
+	cobc_print_active (
+	_("  -falternate-ebcdic    use restricted ASCII to EBCDIC translate\n"
+	  "  -fno-alternate-ebcdic use extended ASCII to EBCDIC translate"), 0);
 	putchar ('\n');
 }
 
@@ -221,6 +237,8 @@ cobc_print_usage_dialect (void)
 	cobc_print_config_flag (name, doc, _("<value>"));
 #define	CB_CONFIG_INT(var,name,min,max,odoc,doc)		\
 	cobc_print_config_flag (name, doc, odoc);
+#define	CB_CONFIG_SINT(var,name,min,max,odoc,doc)		\
+	cobc_print_config_flag (name, doc, odoc);
 #define	CB_CONFIG_ANY(type,var,name,doc)		\
 	cobc_print_config_flag (name, doc, _("<value>"));
 #define	CB_CONFIG_BOOLEAN(var,name,doc)		\
@@ -230,6 +248,7 @@ cobc_print_usage_dialect (void)
 #include "config.def"
 #undef	CB_CONFIG_ANY
 #undef	CB_CONFIG_INT
+#undef	CB_CONFIG_SINT
 #undef	CB_CONFIG_STRING
 #undef	CB_CONFIG_BOOLEAN
 #undef	CB_CONFIG_SUPPORT
@@ -264,6 +283,7 @@ cobc_print_usage_dialect (void)
 	cobc_print_config_flag ("reserved", _("word to be added to reserved words list"), _("<word>"));
 	cobc_print_config_flag ("reserved", _("word to be added to reserved words list as alias"), _("<word>:<alias>"));
 	cobc_print_config_flag ("not-register", _("special register to disable"), _("<word>"));
-	cobc_print_config_flag ("register", _("special register to enable"), _("<word>"));
+	cobc_print_config_flag ("register", _("special register to enable"),
+		_("<word> or <word>:<definition>, where definition uses backslash escaped spaces"));
 	putchar ('\n');
 }

@@ -1,4 +1,225 @@
 
+2023-07-25  Simon Sobisch <simonsobisch@gnu.org>
+
+	* general: add option using-optional
+
+2023-06-25  Chuck Haatvedt  <chuck.haatvedt+cobol@gmail.com>
+
+	FR #439: dialect option to support justify for IBM compatibility
+	* general: add option init-justify
+
+2023-06-20  Nicolas Berthier <nicolas.berthier@ocamlpro.com>
+
+	* general: add option subscript-check
+
+2023-03-22  Simon Sobisch <simonsobisch@gnu.org>
+
+	* rm-strict.conf: enable line-col-zero-default per RM-COBOL Language
+	  Reference for POSITION with implied zero
+
+2023-02-21  Simon Sobisch <simonsobisch@gnu.org>
+
+	* rm-strict.conf: enable indirect-redefines as this was added
+	  with later RM-COBOL versions
+
+2023-02-16  Fabrice Le Fessant <fabrice.le_fessant@ocamlpro.com>
+
+	* gcos.words: remove alias VALUES=VALUE, to correctly parse
+	  "VALUES ARE"
+
+2023-01-25  Simon Sobisch <simonsobisch@gnu.org>
+
+	* ibm.words, mvs.words: re-add BINARY
+
+2023-01-23  David Declerck <david.declerck@ocamlpro.com>
+
+	* ebcdic500_latin1: new translation table from EBCDIC 500 to Latin-1
+	* ebcdic500_ascii7bit: translation table from EBCDIC 500 to 7-bit ASCII
+	  as per IBM, extracted from libcob/cconv.c (cob_ibmebcdic_ascii)
+	* ebcdic500_ascii8bit: translation table from EBCDIC 500 to 7-bit ASCII
+	  as per GCOS7, extracted from libcob/cconv.c (cob_gcos7ebcdic_ascii)
+	* default: the original GnuCOBOL translation table,
+	  extracted from libcob/cconv.c (cob_ebcdic_ascii)
+	* alternate: the original GnuCOBOL "alternate" translation table,
+	  extracted from libcob/cconv.c (cob_ebcdic_ascii_alt)
+
+2023-01-18  Simon Sobisch <simonsobisch@gnu.org>
+
+	* gcos.words: complete update
+	* general: added  missing alias JUST=JUSTIFIED
+
+2023-01-16  Simon Sobisch <simonsobisch@gnu.org>
+
+	* realia-strict.conf: change defaultbyte from space to zero
+
+2022-12-07  Nicolas Berthier <nicolas.berthier@ocamlpro.com>
+
+	* general: rename partial-replacing-with-literal into
+	  partial-replace-when-literal-src, with special semantics of
+	  "skip"
+
+2022-12-03  Simon Sobisch <simonsobisch@gnu.org>
+
+	* runtime.cfg: updated COB_CURRENT_DATE for epoch
+
+2022-11-18  Simon Sobisch <simonsobisch@gnu.org>
+
+	* ibm.words, mvs.words: removed words only reserved with EXEC SQL
+	  coprocessor, fixing bug #810
+	* ibm.words: update for Enterprise COBOL 6.4 (added FUNCTION-ID)
+
+2022-11-18  Simon Sobisch <simonsobisch@gnu.org>
+
+	* ibm.words, acu.words, bs2000.words: enabled JSON + XML registers
+
+2022-10-10  Simon Sobisch <simonsobisch@gnu.org>
+
+	* runtime.cfg: add COB_CORE_FILENAME and adjust COB_CORE_ON_ERROR
+
+2022-10-05  Simon Sobisch <simonsobisch@gnu.org>
+
+	* *.conf: changed top-level-occurs-clause "skip" to "unconformable"
+
+2022-09-30  Simon Sobisch <simonsobisch@gnu.org>
+
+	* runtime.cfg: adjustments for LINE SEQUENTIAL docs
+
+2022-09-21  Simon Sobisch <simonsobisch@gnu.org>
+
+	* runtime.cfg: extend docs for LINE SEQUENTIAL settings
+
+2022-09-15  Nicolas Berthier <nicolas.berther@ocamlpro.com>
+
+	* general: add options areacheck and missing-period
+
+2022-08-03  Fabrice Le Fessant <fabrice.le_fessant@ocamlpro.com>
+
+	* general: do not reserve EXAMINE keyword by default, only in
+	  lax configurations
+
+2022-08-17  Simon Sobisch <simonsobisch@gnu.org>
+
+	* general: add xml-parse-xmlss, note: explicit NOT enabled
+	  in lax.conf-inc as it would change the result for -std=acu
+
+2022-07-28  Nicolas Berthier <nicolas.berthier@ocamlpro.com>
+
+	* general: add option format
+
+2022-07-14  Simon Sobisch <simonsobisch@gnu.org>
+
+	* general: set defaultbyte to "none" for standard COBOL, 32 to " "
+
+2022-07-12  Simon Sobisch <simonsobisch@gnu.org>
+
+	* ibm-strict.conf, mvs-strict.conf, gcos-strict.conf, bs2000-strict.conf:
+	  adjusted defaultbyte to 0
+
+2022-07-12  Nicolas Berthier <nicolas.berthier@ocamlpro.com>
+
+	* general: add option picture-l
+
+2022-07-01  Simon Sobisch <simonsobisch@gnu.org>
+
+	* general: removed alias VALUES=VALUE, now a separate word
+
+2022-06-17  Nicolas Berthier <nicolas.berthier@ocamlpro.com>
+
+	* general: added config option device-mnemonics (boolean)
+
+2022-06-12  Simon Sobisch <simonsobisch@gnu.org>
+
+	* runtime.cfg: add COB_CORE_ON_ERROR
+
+2022-06-10  Ron Norman <rjn@inglenet.com>
+
+	* general: add 'defaultbyte'
+
+2022-05-25  Nicolas Berthier <nicolas.berther@ocamlpro.com>
+
+	* general: added option partial-replacing-with-literal
+
+2022-03-11  Fabrice Le Fessant <fabrice.le_fessant@ocamlpro.com>
+
+	* general: add a stop-error-statement option to allow configuring
+	  the support of the STOP ERROR statement
+
+2022-01-27  Nicolas Berthier <nicolas.berther@ocamlpro.com>
+
+	* general: added option control-division
+
+2022-06-24  Nicolas Berthier <nicolas.berthier@ocamlpro.com>
+
+	* general: remove indicator-column option, which is now a flag
+
+2022-02-07  David Declerck <david.declerck@ocamlpro.com>
+
+	* gcos-strict.conf, gcos.conf, gcos.words: added config files for
+	  GCOS 7 (Bull) dialect
+
+2022-02-07  David Declerck <david.declerck@ocamlpro.com>
+
+	* general: add a record-contains-depending-clause option to allow
+	  configuring the support of the DEPENDING clause in RECORD CONTAINS
+
+2022-02-04  David Declerck <david.declerck@ocamlpro.com>
+
+	* general: add an indicator-column option to allow customizing
+	  the position of the indicator
+
+2021-11-14  Ron Norman <rjn@inglenet.com>
+
+	* mf.words: Add MF specific names B-EXOR, B-LEFT, B-RIGHT for bit
+	  operations
+
+2021-10-19  Simon Sobisch <simonsobisch@gnu.org>
+
+	* general: changed larger-redefines-ok (boolean) to larger-redefines,
+	  now a support option allowing "warning only"
+
+2021-09-28  Simon Sobisch <simonsobisch@gnu.org>
+
+	* lax.conf-inc: set synchronized-clause to be only ignored if the
+	  dialect including this has it set to error/unconformable
+
+2021-09-17  Simon Sobisch <simonsobisch@gnu.org>
+
+	* cobol2002.words, cobol2014.words: fixed missing aliases THROUGH=THRU,
+	  CORR=CORRESPONDING, COMPUTATIONAL*=COMP*, QUOTES=QUOTE, SYNC=SYNCHRONIZED
+
+2021-09-14  Simon Sobisch <simonsobisch@gnu.org>
+
+	* general: added odoslide, active in bs2000, ibm, mvs (previously a
+	  compile flag only)
+	* bs2000-strict.conf: adjusted complex-odo to "yes"
+
+2021-08-31  Simon Sobisch <simonsobisch@gnu.org>
+
+	* acu.words, bs2000.words, cobol85.words, ibm.words, mf.words, mvs.words,
+	  realia.words, rm.words: fixed missing aliases CORR=CORRESPONDING,
+	  COMPUTATIONAL*=COMP*, QUOTES=QUOTE, SYNC=SYNCHRONIZED, THROUGH=THRU
+	* ibm.words: updated to Enterprise COBOL 6.3, now includes a lot of
+	  ISO2002 functions and HEX/BIT conversion functions
+	* mf.words: updated to Visual COBOL 6.0, similar additions to ibm,
+	  removed ISO2002-only words
+	* acu.words: updated to ACUCOBOL-GT 10.4, now with XML and JSON
+	  statements from MF/IBM
+
+2021-07-29  Simon Sobisch <simonsobisch@gnu.org>
+
+	* general: added self-call-recursive, only active (as "warning") for
+	  default.conf, in all other cases no change to RECURSIVE attribute
+	  is happening any more, fixing bug 686
+
+2021-07-05  Ron Norman <rjn@inglenet.com>
+
+	* runtime.cfg: added COB_SEQ_CONCAT_NAME and COB_SEQ_CONCAT_SEP used
+	  for 'concatenated input files'
+
+2021-02-03  Simon Sobisch <simonsobisch@gnu.org>
+
+	* acu-strict.conf: fix settings indirect-redefines + assign-variable
+
 2020-11-08  Simon Sobisch <simonsobisch@gnu.org>
 
 	* general: added ref-mod-zero-length, only active for default.conf
@@ -32,6 +253,10 @@
 2020-04-03  Simon Sobisch <simonsobisch@gnu.org>
 
 	* general: added option numeric-pointer *EXPERIMENTAL*
+
+2020-01-12 Simon Sobisch <simonsobisch@gnu.org>
+
+	* general: bug #513 (partial) added sync-left-right
 
 2020-01-04  Edward Hart <edward.dan.hart@gmail.com>
 
@@ -183,7 +408,7 @@
 
 2017-11-09  Simon Sobisch <simonsobisch@gnu.org>
 
-	* cobol85.words, ibm.words, mvs.words, mf.words rm.words, xopen.conf:
+	* cobol85.words, ibm.words, mf.words, mvs.words, rm.words, xopen.conf:
 	  added DEBUG-ITEM to be handled as register
 
 2017-11-06  Simon Sobisch <simonsobisch@gnu.org>
@@ -443,6 +668,10 @@
 
 2015-03-14  Ron Norman <rjn@inglenet.com>
 
+	* runtime.cfg: add COB_LS_VALIDATE
+
+2015-03-14  Ron Norman <rjn@inglenet.com>
+
 	* runtime.cfg: added all configuration options with documentation
 
 2015-03-10  Simon Sobisch <simonsobisch@gnu.org>
@@ -549,7 +778,7 @@
 	* default.inc, Makefile.am: New files.
 
 
-Copyright 2003,2005-2007-2010,2014-2020 Free Software Foundation, Inc.
+Copyright 2003,2005-2007-2010,2014-2023 Free Software Foundation, Inc.
 
 Copying and distribution of this file, with or without modification, are
 permitted provided the copyright notice and this notice are preserved.

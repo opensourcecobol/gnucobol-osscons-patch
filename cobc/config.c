@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2003-2012, 2014-2017, 2019-2020 Free Software Foundation, Inc.
+   Copyright (C) 2003-2012, 2014-2017, 2019-2023 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch
 
    This file is part of GnuCOBOL.
@@ -19,7 +19,7 @@
 */
 
 
-#include <config.h>
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +48,7 @@ enum cb_config_type {
 
 #define CB_CONFIG_ANY(type,var,name,doc)	type		var = (type)0;
 #define CB_CONFIG_INT(var,name,min,max,odoc,doc)	unsigned int		var = 0;
+#define CB_CONFIG_SINT(var,name,min,max,odoc,doc)	int		var = -1;
 #define CB_CONFIG_STRING(var,name,doc)	const char	*var = NULL;
 #define CB_CONFIG_BOOLEAN(var,name,doc)	int		var = 0;
 #define CB_CONFIG_SUPPORT(var,name,doc)	enum cb_support	var = CB_OK;
@@ -56,19 +57,22 @@ enum cb_config_type {
 
 #undef	CB_CONFIG_ANY
 #undef	CB_CONFIG_INT
+#undef	CB_CONFIG_SINT
 #undef	CB_CONFIG_STRING
 #undef	CB_CONFIG_BOOLEAN
 #undef	CB_CONFIG_SUPPORT
 
 /* Previously done, but currently not actually used,
    recheck this later (possible output on cobc --print-config) */
-#define COBC_STORES_CONFIG_VALUES 0  
+#define COBC_STORES_CONFIG_VALUES 0
 
 #define CB_CONFIG_ANY(type,var,name,doc)	, {CB_ANY, name, (void *)&var}
 #if COBC_STORES_CONFIG_VALUES
 #define CB_CONFIG_INT(var,name,min,max,odoc,doc)	, {CB_INT, name, (void *)&var, NULL, min, max}
+#define CB_CONFIG_SINT(var,name,min,max,odoc,doc)	, {CB_INT, name, (void *)&var, NULL, min, max}
 #else
 #define CB_CONFIG_INT(var,name,min,max,odoc,doc)	, {CB_INT, name, (void *)&var, 0, min, max}
+#define CB_CONFIG_SINT(var,name,min,max,odoc,doc)	, {CB_INT, name, (void *)&var, 0, min, max}
 #endif
 #define CB_CONFIG_STRING(var,name,doc)	, {CB_STRING, name, (void *)&var}
 #define CB_CONFIG_BOOLEAN(var,name,doc)	, {CB_BOOLEAN, name, (void *)&var}
@@ -107,6 +111,7 @@ static struct config_struct {
 
 #undef	CB_CONFIG_ANY
 #undef	CB_CONFIG_INT
+#undef	CB_CONFIG_SINT
 #undef	CB_CONFIG_STRING
 #undef	CB_CONFIG_BOOLEAN
 #undef	CB_CONFIG_SUPPORT
@@ -192,14 +197,12 @@ check_valid_value (const char *fname, const int line, const char *name, const ch
 	return ret;
 }
 
-#if 0	/* unused */
 static void
 unsupported_value (const char *fname, const int line, const char *name, const char *val)
 {
 	configuration_error (fname, line, 1,
 		_("unsupported value '%s' for configuration tag '%s'"), val, name);
 }
-#endif
 
 static void
 split_and_iterate_on_comma_separated_str (
@@ -238,10 +241,13 @@ split_and_iterate_on_comma_separated_str (
 				break;
 			}
 		default:
+			/* TODO: never convert within quotes, needed for
+			         register definitions with VALUE clause:
+			         VALUE "stuff"  /  value N'stuff' */
 			if (transform_case == 1) {
-				word_buff[j++] = (char)toupper ((int)val[i]);
+				word_buff[j++] = (char)cb_toupper ((unsigned char)val[i]);
 			} else if (transform_case == 2) {
-				word_buff[j++] = (char)tolower ((int)val[i]);
+				word_buff[j++] = (char)cb_tolower ((unsigned char)val[i]);
 			} else {;
 				word_buff[j++] = val[i];
 			}
@@ -259,7 +265,6 @@ static int
 cb_load_conf_file (const char *conf_file, const enum cb_include_type include_type)
 {
 	FILE	*fp;
-	char	buff[COB_SMALL_BUFF];
 	char	filename[COB_NORMAL_BUFF];
 	struct	include_list	*c, *cc;
 	int	i, ret;
@@ -276,13 +281,18 @@ cb_load_conf_file (const char *conf_file, const enum cb_include_type include_typ
 			}
 			filename[0] = 0;
 			if (c && c->name) {
-				strncpy (buff, conf_includes->name, (size_t)COB_SMALL_MAX);
-				buff[COB_SMALL_MAX] = 0;
-				for (i = (int)strlen (buff); i != 0 && buff[i] != SLASH_CHAR; i--);
-				if (i != 0) {
-					buff[i] = 0;
-					snprintf (filename, (size_t)COB_NORMAL_MAX, "%s%c%s", buff, SLASH_CHAR, conf_file);
-					filename[COB_NORMAL_MAX] = 0;
+				const size_t conf_file_namelen = strlen (conf_file);
+				size_t i2;
+				/* check for path separator in include name */
+				for (i2 = strlen (conf_includes->name);
+					i2 != 0 && conf_includes->name[i2] != SLASH_CHAR;
+					i2--);
+
+				/* if there is an actuall path and it isn't too long,
+				   then prefix it to get the filename */
+				if (i2 != 0 && i2 < sizeof (filename) - conf_file_namelen - 2) {
+					memcpy (filename, conf_includes->name, i2); /* copy with separator */
+					memcpy (filename + i2, conf_file, conf_file_namelen + 1); /* copy with trailing NULL */
 					if (access (filename, F_OK) == 0) {	/* and prefixed file exist */
 						conf_file = filename;		/* Prefix last directory */
 					} else {
@@ -292,9 +302,10 @@ cb_load_conf_file (const char *conf_file, const enum cb_include_type include_typ
 			}
 			if (filename[0] == 0) {
 				/* check for COB_CONFIG_DIR (use default if not in environment) */
-				snprintf (filename, (size_t)COB_NORMAL_MAX, "%s%c%s", cob_config_dir, SLASH_CHAR, conf_file);
-				filename[COB_NORMAL_MAX] = 0;
-				if (access (filename, F_OK) == 0) {	/* and prefixed file exist */
+				const int size = snprintf (filename, (size_t)COB_NORMAL_MAX,
+					"%s%c%s", cob_config_dir, SLASH_CHAR, conf_file);
+				if (size < COB_NORMAL_MAX	/* no overflow - full name available */
+				 && access (filename, F_OK) == 0) {	/* and prefixed file exist */
 					conf_file = filename;		/* Prefix COB_CONFIG_DIR */
 				}
 			}
@@ -395,7 +406,7 @@ cb_read_conf (const char *conf_file, FILE *fp)
 int
 cb_load_std (const char *name)
 {
-	return cb_load_conf (name, CB_INCLUDE_MANDATORY);
+	return cb_load_conf (name, 1);
 }
 
 int
@@ -424,6 +435,8 @@ cb_load_conf (const char *fname, const int prefix_dir)
 
 	/* Get the name for the configuration file */
 	if (prefix_dir) {
+		/* CHECKME: would it be useful for at least MinGW to use "all slash"
+		            if the first slash is a unix slash? */
 		snprintf (buff, (size_t)COB_NORMAL_MAX,
 			  "%s%c%s", cob_config_dir, SLASH_CHAR, fname);
 		name = buff;
@@ -476,6 +489,8 @@ cb_load_words (void)
 	return ret;
 }
 
+/* set configuration entry 'buff' with 'fname' and 'line' used
+   for error output */
 int
 cb_config_entry (char *buff, const char *fname, const int line)
 {
@@ -577,7 +592,11 @@ cb_config_entry (char *buff, const char *fname, const int line)
 			/* Include another conf file */
 			s = cob_expand_env_string ((char *)val);
 			cobc_main_free ((void *) val);
-			strncpy (buff, s, COB_SMALL_MAX);
+			if (strlen (s) < COB_SMALL_MAX) {
+				strcpy (buff, s);
+			} else {
+				/* otherwise leave unchanged -> likely better to raise a message */
+			}
 			/* special case: use cob_free (libcob) here as the memory
 			   was allocated in cob_expand_env_string -> libcob */
 			cob_free (s);
@@ -590,13 +609,11 @@ cb_config_entry (char *buff, const char *fname, const int line)
 			/* store translated to lower case */
 			cob_u8_t *p;
 			for (p = (cob_u8_t *)val; *p; p++) {
-				if (isupper (*p)) {
-					*p = (cob_u8_t)tolower (*p);
-				}
+				*p = cb_tolower (*p);
 			}
 			/* if explicit requested: disable */
 			if (strcmp (val, "default") == 0
-			    || strcmp (val, "off") == 0) {
+			 || strcmp (val, "off") == 0) {
 				*((const char **)var) = NULL;
 			} else {
 				*((const char **)var) = val;
@@ -695,6 +712,7 @@ cb_config_entry (char *buff, const char *fname, const int line)
 				return -1;
 			}
 			break;
+
 		} else if (strcmp (name, "binary-size") == 0) {
 			if (strcmp (val, "2-4-8") == 0) {
 				cb_binary_size = CB_BINARY_SIZE_2_4_8;
@@ -707,6 +725,7 @@ cb_config_entry (char *buff, const char *fname, const int line)
 				return -1;
 			}
 			break;
+
 		} else if (strcmp (name, "binary-byteorder") == 0) {
 			if (strcmp (val, "native") == 0) {
 				cb_binary_byteorder = CB_BYTEORDER_NATIVE;
@@ -717,6 +736,7 @@ cb_config_entry (char *buff, const char *fname, const int line)
 				return -1;
 			}
 			break;
+
 		} else if (strcmp (name, "screen-section-rules") == 0) {
 			if (strcmp (val, "acu") == 0) {
 				cb_screen_section_clauses = CB_ACU_SCREEN_RULES;
@@ -735,7 +755,7 @@ cb_config_entry (char *buff, const char *fname, const int line)
 				return -1;
 			}
 			break;
-		/* for enums without a string value: set max_value and fall through to CB_INT */
+
 		} else if (strcmp (name, "dpc-in-data") == 0) {
 			if (strcmp (val, "none") == 0) {
 				cb_dpc_in_data = CB_DPC_IN_NONE;
@@ -750,10 +770,72 @@ cb_config_entry (char *buff, const char *fname, const int line)
 				return -1;
 			}
 			break;
+
+		} else if (strcmp (name, "subscript-check") == 0) {
+			if (strcmp (val, "full") == 0) {
+				cb_subscript_check = CB_SUB_CHECK_FULL;
+			} else if (strcmp (val, "max") == 0) {
+				cb_subscript_check = CB_SUB_CHECK_MAX;
+			} else if (strcmp (val, "record") == 0) {
+				cb_subscript_check = CB_SUB_CHECK_RECORD;
+				unsupported_value (fname, line, name, val);
+#if 1				/* TODO: separate check/codegen with an additional entry point
+				   in libcob/common.c - see FR #437 for the details */
+				cb_subscript_check = CB_SUB_CHECK_MAX;	/* at least not check for ODO... */
+#endif
+			} else {
+				invalid_value (fname, line, name, val, "full, max, record", 0, 0);
+				return -1;
+			}
+			break;
+
+		} else if (strcmp (name, "defaultbyte") == 0) {
+			if (strcmp (val, "init") == 0) {
+				/* generate default initialization per INITIALIZE rules */
+				cb_default_byte = CB_DEFAULT_BYTE_INIT;
+				break;
+			}
+			if (strcmp (val, "none") == 0) {
+				cb_default_byte = CB_DEFAULT_BYTE_NONE;
+#if 1			/* TODO: do not generate any default initialization for fields without VALUE,
+				   only the storage (best performance, least reproducibility); for now warn
+				   if specified on command line (allowing config files be correct already) */
+				if (strcmp (fname, "-fdefaultbyte=none") == 0) {
+					unsupported_value (fname, line, name, val);
+				}
+				cb_default_byte = 0; /* at least a single fixed value for now... */
+#endif
+				break;
+			}
+			/* otherwise init by character (transformed to number */
+			/* convert quoted character to number */
+			if (val[0] == '"' && val[1] != 0 && val[2] == '"' && val[3] == 0) {
+				cb_default_byte = val[1];
+				break;
+			} else
+			/* convert character to number (convenience,
+			   as quotes will commonly be removed when given on shell) */
+			if (val[1] == 0 && (val[0] < '0' || val[0] > '9')) {
+				cb_default_byte = val[0];
+				break;
+			}
+			/* just use decimal as character number */
+			config_table[i].min_value = 0;
+			config_table[i].max_value = 255;
+			/* fall through to integer conversion */
+
+		} else if (strcmp (name, "format") == 0) {
+			if (cobc_deciph_source_format (val) != 0) {
+				invalid_value (fname, line, name, val, CB_SF_ALL_NAMES, 0, 0);
+				return -1;
+			}
+			break;
+
 		/* for enums without a string value: set max_value and fall through to CB_INT */
 		} else if (strcmp (name, "standard-define") == 0) {
 			config_table[i].max_value = CB_STD_MAX - 1;
-			/* fall through */
+			/* fall through to integer conversion */
+
 		/* LCOV_EXCL_START */
 		} else {
 			/* note: internal error only (config.def doesn't match config.c),
@@ -762,8 +844,10 @@ cb_config_entry (char *buff, const char *fname, const int line)
 			COBC_ABORT ();
 		}
 		/* LCOV_EXCL_STOP */
+		/* fall through */
 
 	case CB_INT:
+		/* check for number */
 		for (j = 0; val[j]; j++) {
 			if (val[j] < '0' || val[j] > '9') {
 				invalid_value (fname, line, name, val, NULL, 0, 0);

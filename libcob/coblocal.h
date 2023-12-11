@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007-2012, 2014-2020 Free Software Foundation, Inc.
+   Copyright (C) 2007-2012, 2014-2023 Free Software Foundation, Inc.
    Written by Roger While, Simon Sobisch, Ron Norman
 
    This file is part of GnuCOBOL.
@@ -22,29 +22,26 @@
 #ifndef COB_LOCAL_H
 #define COB_LOCAL_H
 
-#ifdef	HAVE_STRINGS_H
-#include <strings.h>
-#endif
-
 /* We use this file to define/prototype things that should not be
    exported to user space
 */
 
+#ifdef	HAVE_STRINGS_H
+#include <strings.h>
+#endif
+
 #ifdef HAVE_ISFINITE
 #define ISFINITE isfinite
+#elif	defined(_MSC_VER) || defined(__BORLANDC__) || defined(__WATCOMC__)
+#include <float.h>
+#define	ISFINITE		_finite
 #else
 #define ISFINITE finite
-#endif
-#if	defined(_MSC_VER) || defined(__BORLANDC__) || defined(__WATCOMC__)
-
-#include <float.h>
-#undef ISFINITE
-#define	ISFINITE		_finite
 #endif
 
 
 #ifdef ENABLE_NLS
-#include "gettext.h"	/* from lib/ */
+#include "../lib/gettext.h"
 #define _(s)		gettext(s)
 #define N_(s)		gettext_noop(s)
 #else
@@ -52,6 +49,8 @@
 #define N_(s)		s
 #endif
 
+#include "common.h"	/* located next to coblocal.h */
+#include <stdio.h>
 
 #if	defined(_WIN32) || defined(__CYGWIN__) || defined(COB_NO_VISIBILITY_ATTRIBUTE)
 #define COB_HIDDEN	extern
@@ -66,6 +65,54 @@
 #else
 #define COB_HIDDEN	extern
 #endif
+
+/* Readable compiler version defines */
+
+#if defined(_MSC_VER)
+
+/*
+_MSC_VER == 1400 (Visual Studio 2005, VS8 , MSVC 8) since OS-Version 2000
+_MSC_VER == 1500 (Visual Studio 2008, VS9 , MSVC 9) since OS-Version XP / 2003
+_MSC_VER == 1600 (Visual Studio 2010, VS10, MSVC10) since OS-Version XP / 2003
+_MSC_VER == 1700 (Visual Studio 2012, VS11, MSVC11) since OS-Version 7(XP) / 2008 R2(2003)
+_MSC_VER == 1800 (Visual Studio 2013, VS12, MSVC12) since OS-Version 7(XP) / 2008 R2(2003)
+_MSC_VER == 1900 (Visual Studio 2015, VS14, MSVC14) since OS-Version 7(XP) / 2008 R2(2003)
+_MSC_VER == 1910 (Visual Studio 2017, VS15, MSVC14.1) since OS-Version 7 / 2012 R2
+_MSC_VER == 1920 (Visual Studio 2019, VS16, MSVC14.2) since OS-Version 7 / 2012 R2
+
+Note: also defined together with __clang__ in both frontends:
+   __llvm__ Clang LLVM frontend for Visual Studio by LLVM Project (via clang-cl.exe [cl build options])
+   __c2__   Clang C2 frontend with MS CodeGen (via clang.exe [original clang build options])
+*/
+
+#if _MSC_VER >= 1500
+#define COB_USE_VC2008_OR_GREATER 1
+#else
+#define COB_USE_VC2008_OR_GREATER 0
+#if _MSC_VER < 1400
+#error Support for Visual Studio 2003 and older Visual C++ compilers dropped with GnuCOBOL 2.0
+#endif
+#endif
+
+#if _MSC_VER >= 1700
+#define COB_USE_VC2012_OR_GREATER 1
+#else
+#define COB_USE_VC2012_OR_GREATER 0
+#endif
+
+#if _MSC_VER >= 1800
+#define COB_USE_VC2013_OR_GREATER 1
+#else
+#define COB_USE_VC2013_OR_GREATER 0
+#endif
+
+#if _MSC_VER >= 1900
+#define COB_USE_VC2015_OR_GREATER 1
+#else
+#define COB_USE_VC2015_OR_GREATER 0
+#endif
+
+#endif /* _MSC_VER */
 
 #ifndef	F_OK
 #define	F_OK		0
@@ -151,24 +198,33 @@
 #define	COB_128_OR_EXTEND	COB_U64_C(0x0002000000000000)
 
 /* Field/attribute initializers */
-#define COB_FIELD_INIT(x,y,z)	do { \
+#define COB_FIELD_INIT_F(field,x,y,z)	do { \
 	field.size = x; \
 	field.data = y; \
 	field.attr = z; \
 	} ONCE_COB
+#define COB_FIELD_INIT(x,y,z)	\
+	COB_FIELD_INIT_F(field,x,y,z)
 
-#define COB_ATTR_INIT(u,v,x,y,z)	do { \
+#define COB_ATTR_INIT_A(attr,u,v,x,y,z)	do { \
 	attr.type = u; \
 	attr.digits = v; \
 	attr.scale = x; \
 	attr.flags = y; \
 	attr.pic = z; \
 	} ONCE_COB
+#define COB_ATTR_INIT(u,v,x,y,z) \
+	COB_ATTR_INIT_A(attr,u,v,x,y,z)
 
 #define COB_GET_SIGN(f)		\
-	(COB_FIELD_HAVE_SIGN (f) ? cob_real_get_sign (f) : 0)
+	(COB_FIELD_HAVE_SIGN (f) ? cob_real_get_sign (f, 0) : 0)
+#define COB_GET_SIGN_ADJUST(f)		\
+	(COB_FIELD_HAVE_SIGN (f) ? cob_real_get_sign (f, 1) : 0)
 #define COB_PUT_SIGN(f,s)	\
 	do { if (COB_FIELD_HAVE_SIGN (f)) cob_real_put_sign (f, s); } ONCE_COB
+#define COB_PUT_SIGN_ADJUSTED(f,s)	\
+	do { if (s == -2 || s == 2) { if (s == 2) cob_real_put_sign (f, 1); \
+	     else cob_real_put_sign (f, -1); }} ONCE_COB
 
 #ifdef	COB_PARAM_CHECK
 #define	COB_CHK_PARMS(x,z)	\
@@ -184,8 +240,8 @@
 #endif
 
 /* Convert between a digit and an integer (e.g., '0' <-> 0) */
-#define COB_D2I(x)		((x) - '0')
-#define COB_I2D(x)		(char) ((x) + '0')
+#define COB_D2I(x)		((x) & 0x0F)
+#define COB_I2D(x)		(char) ('0' + (x))
 
 #define	COB_MODULE_PTR		cobglobptr->cob_current_module
 #define	COB_TERM_BUFF		cobglobptr->cob_term_buff
@@ -201,10 +257,6 @@
 #define	COB_MOUSE_FLAGS	cobsetptr->cob_mouse_flags
 #define	COB_MOUSE_INTERVAL	cobsetptr->cob_mouse_interval
 #define	COB_USE_ESC		cobsetptr->cob_use_esc
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /* Global settings structure */
 
@@ -226,10 +278,11 @@ typedef struct __cob_settings {
 	char		*cob_debug_log;
 	char		*cob_date;		/* Date override for testing purposes / UTC hint */
 	unsigned int		cob_stacktrace;		/* generate a stack trace on abort */
-	struct cob_time	cob_time_constant;
+	struct cob_time	cob_time_constant;		/* prepared time from COB_CURRENT_DATE */
+	unsigned int	cob_time_constant_is_calculated;	/* constant contains full date vars */
 
 	/* call.c */
-	unsigned int	cob_physical_cancel;
+	int	cob_physical_cancel;	/* 0 "= "logical only" (default), 1 "also unload", -1 "never unload" */
 	unsigned int	name_convert;
 	char		*cob_preload_str;
 	char		*cob_library_path;
@@ -244,8 +297,12 @@ typedef struct __cob_settings {
 	unsigned int	cob_do_sync;
 	unsigned int	cob_ls_uses_cr;		/* Line Sequential uses CR LF */
 	unsigned int	cob_ls_fixed;		/* Line Sequential is fixed length */
+	unsigned int	cob_ls_validate;	/* Validate data in Line Sequential */
 	unsigned int	cob_ls_nulls;		/* NUL insert to Line Sequential */
+	unsigned int	cob_ls_split;		/* Split 'too long' record into parts (Default is truncate) */
 	unsigned int	cob_varseq_type;
+	unsigned int	cob_concat_name;	/* Concatenated sequential input file names */
+	unsigned char	cob_concat_sep[4];	/* Concatenated sequential file name separator (+)*/
 	char 		*cob_file_path;
 	char		*bdb_home;
 	size_t		cob_sort_memory;
@@ -291,6 +348,9 @@ typedef struct __cob_settings {
 
 	char		*cob_dump_filename;	/* Place to write dump of variables */
 	int		cob_dump_width;		/* Max line width for dump */
+	unsigned int	cob_core_on_error;		/* signal handling and possible raise of SIGABRT
+											   / creation of coredumps on runtime errors */
+	char		*cob_core_filename;	/* filename for coredump creation */
 } cob_settings;
 
 
@@ -327,7 +387,7 @@ struct config_tbl {
 #define ENV_ENUMVAL	(1 << 10)		/* Value must in 'enum' list as match or value */
 #define ENV_FILE 	(1 << 11)		/* a pointer to a directory/file [single path] */
 
-#define ENV_RESETS 	(1 << 14)		/* Value setting needs additional code */
+/* reserved for future use ENV_SOMETHING 	(1 << 14) */
 
 #define STS_ENVSET	(1 << 15)		/* value set via Env Var */
 #define STS_CNFSET	(1 << 16)		/* value set via config file */
@@ -345,9 +405,34 @@ struct config_tbl {
 
 #define SETPOS(member)	offsetof(cob_settings,member),sizeof(cobsetptr->member),0,0
 
+/* max sizes */
+
+/* Maximum bytes in a single/group field and for OCCURS,
+   which doesn't contain UNBOUNDED items,
+   along with maximum number of OCCURS;
+   TODO: add compiler configuration for limiting this */
+#ifndef COB_64_BIT_POINTER
+#define	COB_MAX_FIELD_SIZE	268435456
+#else
+#define	COB_MAX_FIELD_SIZE	2147483646
+#endif
+#define	COB_MAX_FIELD_SIZE_LINKAGE	(INT_MAX - 1)
+
+/* Maximum bytes in an unbounded table entry
+   (IBM: old 999999998, current 999999999) */
+#ifndef COB_64_BIT_POINTER
+#define	COB_MAX_UNBOUNDED_SIZE	999999999
+#else
+#define	COB_MAX_UNBOUNDED_SIZE	2147483646
+#endif
+
+/* number of digits used when converting from
+  internal float to internal decimal */
+#define COB_MAX_INTERMEDIATE_FLOATING_SIZE 96
 
 /* Local function prototypes */
 COB_HIDDEN void		cob_init_numeric	(cob_global *);
+COB_HIDDEN void		cob_init_cconv		(cob_global *);
 COB_HIDDEN void		cob_init_termio		(cob_global *, cob_settings *);
 COB_HIDDEN void		cob_init_fileio		(cob_global *, cob_settings *);
 COB_HIDDEN char		*cob_get_filename_print	(cob_file *, const int);
@@ -359,7 +444,10 @@ COB_HIDDEN void		cob_init_move		(cob_global *, cob_settings *);
 COB_HIDDEN void		cob_init_screenio	(cob_global *, cob_settings *);
 COB_HIDDEN void		cob_init_mlio		(cob_global * const);
 
+COB_HIDDEN const char *cob_statement_name[STMT_MAX_ENTRY];
+
 COB_HIDDEN void		cob_exit_screen		(void);
+COB_HIDDEN void		cob_exit_screen_from_signal	(int);
 COB_HIDDEN void		cob_exit_numeric	(void);
 COB_HIDDEN void		cob_exit_fileio_msg_only	(void);
 COB_HIDDEN void		cob_exit_fileio		(void);
@@ -372,15 +460,19 @@ COB_HIDDEN void		cob_exit_mlio		(void);
 COB_HIDDEN FILE		*cob_create_tmpfile	(const char *);
 COB_HIDDEN int		cob_check_numval_f	(const cob_field *);
 
-COB_HIDDEN int		cob_real_get_sign	(cob_field *);
+COB_HIDDEN int		cob_real_get_sign	(cob_field *, const int);
 COB_HIDDEN void		cob_real_put_sign	(cob_field *, const int);
 
 #ifndef COB_WITHOUT_DECIMAL
 COB_HIDDEN void		cob_decimal_init2	(cob_decimal *, const cob_uli_t);
+COB_HIDDEN void		cob_decimal_set_mpf (cob_decimal *, const mpf_t);
+COB_HIDDEN void		cob_decimal_get_mpf (mpf_t, const cob_decimal *);
 #endif
 COB_HIDDEN void		cob_decimal_setget_fld	(cob_field *, cob_field *,
 						 const int);
 COB_HIDDEN void		cob_decimal_move_temp	(cob_field *, cob_field *);
+COB_HIDDEN void		cob_move_display_to_packed (cob_field *, cob_field *);
+COB_HIDDEN void		cob_move_packed_to_display (cob_field *, cob_field *);
 
 COB_HIDDEN void		cob_display_common	(const cob_field *, FILE *);
 COB_HIDDEN void		cob_print_ieeedec	(const cob_field *, FILE *);
@@ -390,14 +482,37 @@ COB_HIDDEN void		cob_print_realbin	(const cob_field *, FILE *,
 COB_HIDDEN void		cob_screen_set_mode	(const cob_u32_t);
 COB_HIDDEN void		cob_settings_screenio	(void);
 COB_HIDDEN int		cob_get_last_exception_code	(void);
+COB_HIDDEN void		cob_add_exception (const int);
 COB_HIDDEN int		cob_check_env_true	(char*);
 COB_HIDDEN int		cob_check_env_false	(char*);
 COB_HIDDEN const char	*cob_get_last_exception_name	(void);
-COB_HIDDEN void		cob_field_to_string	(const cob_field *, void *,
-						 const size_t);
 COB_HIDDEN void		cob_parameter_check	(const char *, const int);
 
+enum cob_case_modifier {
+	CCM_NONE,
+	CCM_LOWER,
+	CCM_UPPER,
+	CCM_LOWER_LOCALE,
+	CCM_UPPER_LOCALE
+};
+COB_HIDDEN unsigned char	cob_toupper (const unsigned char);
+COB_HIDDEN unsigned char	cob_tolower (const unsigned char);
+COB_HIDDEN int		cob_field_to_string	(const cob_field *, void *,
+						 const size_t, const enum cob_case_modifier target_case);
+
 COB_HIDDEN cob_settings *cob_get_settings_ptr	(void);
+COB_HIDDEN char	*cob_strndup		(const char *, const size_t);
+
+
+enum cob_datetime_res {
+	DTR_DATE,
+	DTR_TIME_NO_NANO,
+	DTR_FULL
+};
+
+/* internal function with specified internal resolution, used in nearly all places 
+   where the exported cob_get_current_date_and_time was used before */
+COB_EXPIMP struct cob_time cob_get_current_datetime (const enum cob_datetime_res);
 
 /* COB_DEBUG_LOG Macros and routines found in common.c */
 #ifdef COB_DEBUG_LOG
@@ -433,28 +548,26 @@ COB_HIDDEN char		*cob_int_to_formatted_bytestring	(int, char*);
 COB_HIDDEN char		*cob_strcat		(char*, char*, int);
 COB_HIDDEN char		*cob_strjoin		(char**, int, char*);
 
-COB_HIDDEN void	cob_set_field_to_uint	(cob_field *, const cob_u32_t);
+COB_HIDDEN void		cob_runtime_warning_ss (const char *, const char *);
+
+
+DECLNORET COB_HIDDEN void	cob_hard_failure (void) COB_A_NORETURN;
 
 /* static inline of smaller helpers */
 
-static COB_INLINE int
+static COB_INLINE COB_A_INLINE int
 cob_min_int (const int x, const int y)
 {
 	if (x < y) return x;
 	return y;
 }
 
-static COB_INLINE int
+static COB_INLINE COB_A_INLINE int
 cob_max_int (const int x, const int y)
 {
 	if (x > y) return x;
 	return y;
 }
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #undef	COB_HIDDEN
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2001-2012, 2015-2020 Free Software Foundation, Inc.
+   Copyright (C) 2001-2012, 2015-2023 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Simon Sobisch, Edward Hart
 
    This file is part of GnuCOBOL.
@@ -22,9 +22,9 @@
 %expect 0
 
 %defines
-%error-verbose
 %verbose
-%name-prefix="pp" /* recent versions want %api.prefix "pp", older cannot compile this */
+%error-verbose
+%name-prefix="pp"
 
 /* NOTE:
    support without = was added in Bison 2.4 (released 2008-11-02, we currently use 2.3),
@@ -32,12 +32,15 @@
 */
 
 %{
-#include <config.h>
+#include "config.h"
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef	HAVE_STRINGS_H
+#include <strings.h>
+#endif
 #include <ctype.h>
 
 #define	COB_IN_PPPARSE	1
@@ -64,19 +67,49 @@ int				current_call_convention;
 /* Local variables */
 
 static struct cb_define_struct	*ppp_setvar_list = NULL;
-static unsigned int		current_cmd = 0;
+static enum cb_directive_action		current_cmd = PLEX_ACT_IF;
 
 /* Local functions */
 
+/* Strips the given string from its quotation characters, if any.  Returns its
+   argument as is otherwise. */
 static char *
-fix_filename (char *name)
+unquote (char *name)
 {
-	/* remove quotation from alphanumeric literals */
-	if (name[0] == '\'' || name[0] == '\"') {
+	size_t size;
+	if ((name[0] == '\'' || name[0] == '"') && (size = strlen (name)) > 1 &&
+	    (name[0] == name[size - 1])) {
+		name[size - 1] = '\0';
 		name++;
-		name[strlen (name) - 1] = 0;
 	}
 	return name;
+}
+#define fix_filename(filename) unquote (filename)
+
+static int
+literal_is_space_keyword (char *lit)
+{
+	return (strcmp ("SPACE",  lit) == 0
+		 || strcmp ("SPACES", lit) == 0);
+}
+
+static char *
+literal_token (char *t, int allow_spaces)
+{
+	if (t[0] == '\'' || t[0] == '"') {
+		if (cb_partial_replace_when_literal_src != CB_SKIP)
+			(void) ppparse_verify (cb_partial_replace_when_literal_src,
+					       _("partial replacing with literal"));
+	} else if (allow_spaces && literal_is_space_keyword (t)) {
+		if (cb_partial_replace_when_literal_src != CB_SKIP)
+			(void) ppparse_verify (cb_partial_replace_when_literal_src,
+					       _("partial replacing with literal"));
+		t[0] = '\0';
+	} else {
+		ppparse_error (_("unexpected COBOL word in partial replacement "
+				 "phrase"));
+	}
+	return unquote (t);
 }
 
 static char *
@@ -85,9 +118,7 @@ fold_lower (char *name)
 	unsigned char	*p;
 
 	for (p = (unsigned char *)name; *p; p++) {
-		if (isupper (*p)) {
-			*p = (cob_u8_t)tolower (*p);
-		}
+		*p = (cob_u8_t)tolower (*p);
 	}
 	return name;
 }
@@ -98,26 +129,57 @@ fold_upper (char *name)
 	unsigned char	*p;
 
 	for (p = (unsigned char *)name; *p; p++) {
-		if (islower (*p)) {
-			*p = (cob_u8_t)toupper (*p);
-		}
+		*p = (cob_u8_t)toupper (*p);
 	}
 	return name;
 }
 
+static struct cb_replace_src *
+ppp_replace_src (const struct cb_text_list * const text_list,
+		 const unsigned int literal_src)
+{
+	const unsigned int allow_empty_replacement =
+		!literal_src || cb_partial_replace_when_literal_src != CB_SKIP;
+	struct cb_replace_src *s = cobc_plex_malloc (sizeof (struct cb_replace_src));
+	/* Note the two next fields are re-assessed in ppp_replace_list_add below */
+	s->lead_trail = CB_REPLACE_ALL;
+	s->strict = allow_empty_replacement ? 0 : 1;
+	s->text_list = text_list;
+	return s;
+}
+
 static struct cb_replace_list *
 ppp_replace_list_add (struct cb_replace_list *list,
-		     const struct cb_text_list *old_text,
-		     const struct cb_text_list *new_text,
-		     const unsigned int lead_or_trail)
+		      struct cb_replace_src *src,
+		      const struct cb_text_list *new_text,
+		      const unsigned int lead_or_trail)
 {
 	struct cb_replace_list *p;
 
 	p = cobc_plex_malloc (sizeof (struct cb_replace_list));
 	p->line_num = cb_source_line;
-	p->old_text = old_text;
+	src->lead_trail = lead_or_trail;
+	if (!lead_or_trail) {
+		/* Strictness flag is irrelevant for non-LEADING nor TRAILING
+		   replacements */
+		src->strict = 0;
+	} else {
+		/* Use replacement text to decide strictness of partial match */
+		const unsigned char *c;
+		int has_space = new_text->next != NULL;
+		for (c = (unsigned char *) new_text->text; !has_space && *c; c++) {
+			has_space = isspace(*c);
+		}
+		if (has_space) {
+			/* Note: as it appears, multi-word or spaces in
+			   replacing is forbidden on GCOS. */
+			ppparse_error (_("invalid partial replacing operand"));
+			return NULL;
+		}
+		src->strict = src->strict && *new_text->text == '\0';
+	}
+	p->src = src;
 	p->new_text = new_text;
-	p->lead_trail = lead_or_trail;
 	if (!list) {
 		p->last = p;
 		return p;
@@ -133,55 +195,57 @@ ppp_set_value (struct cb_define_struct *p, const char *value)
 	const char	*s;
 	size_t		size;
 	unsigned int	dotseen;
-	int		sign;
-	int		int_part;
-	int		dec_part;
 
-	if (!value) {
-		p->deftype = PLEX_DEF_NONE;
-		p->value = NULL;
-		p->sign = 0;
-		p->int_part = 0;
-		p->dec_part = 0;
-		return 0;
-	}
-
-	if (*value == '"' || *value == '\'') {
-		sign = *value;
-		p->value = cobc_plex_strdup (value + 1);
-		size = strlen (p->value) - 1;
-		if (sign != p->value[size]) {
-			p->value = NULL;
-			p->deftype = PLEX_DEF_NONE;
-			return 1;
-		}
-		p->value[size] = 0;
-		p->deftype = PLEX_DEF_LIT;
-		p->sign = 0;
-		p->int_part = 0;
-		p->dec_part = 0;
-		return 0;
-	}
-
-	p->value = cobc_plex_strdup (value);
-	p->deftype = PLEX_DEF_NUM;
+	p->value = NULL;
 	p->sign = 0;
 	p->int_part = 0;
 	p->dec_part = 0;
 
-	sign = 0;
-	if (*value == '+') {
-		value++;
-	} else if (*value == '-') {
-		value++;
-		sign = 1;
+	if (!value) {
+		p->deftype = PLEX_DEF_NONE;
+		return 0;
 	}
-	int_part = 0;
-	dec_part = 0;
-	size = 0;
+
+	if (*value == '"' || *value == '\'') {
+		s = value + 1;
+		size = strlen (s) - 1;
+		if (s[size] != *value) {
+			p->deftype = PLEX_DEF_NONE;
+			return 1;
+		}
+		p->deftype = PLEX_DEF_LIT;
+		p->value = cobc_plex_strdup (s);
+		p->value[size] = 0;
+		return 0;
+	}
+
+	if (*value == '(') {
+		/* actual MicroFocus Format for numeric values: (numlit) */
+		s = value + 1;
+		size = strlen (s) - 1;
+		if (s[size] != ')') {
+			p->deftype = PLEX_DEF_NONE;
+			return 1;
+		}
+		p->deftype = PLEX_DEF_NUM;
+		p->value = cobc_plex_strdup (s);
+		p->value[size] = 0;
+	} else {
+		/* compatibility because this was supported since OpenCOBOL 2.0 */
+		p->deftype = PLEX_DEF_NUM;
+		p->value = cobc_plex_strdup (value);
+	}
+
+	p->sign = 0;
+	s = p->value;
+	if (*s == '+') {
+		s++;
+	} else if (*s == '-') {
+		s++;
+		p->sign = 1;
+	}
 	dotseen = 0;
-	s = value;
-	for ( ; *s; ++s, ++size) {
+	for ( ; *s; ++s) {
 		if (*s == '.') {
 			if (dotseen) {
 				p->deftype = PLEX_DEF_NONE;
@@ -195,18 +259,15 @@ ppp_set_value (struct cb_define_struct *p, const char *value)
 			return 1;
 		}
 		if (!dotseen) {
-			int_part = (int_part * 10) + (*s - '0');
+			p->int_part = (p->int_part * 10) + (*s - '0');
 		} else {
-			dec_part = (dec_part * 10) + (*s - '0');
+			p->dec_part = (p->dec_part * 10) + (*s - '0');
 		}
 	}
 
-	if (!int_part && !dec_part) {
-		sign = 0;
+	if (!p->int_part && !p->dec_part) {
+		p->sign = 0;	/* zero is unsigned */
 	}
-	p->sign = sign;
-	p->int_part = int_part;
-	p->dec_part = dec_part;
 	return 0;
 }
 
@@ -302,7 +363,7 @@ ppp_define_add (struct cb_define_struct *list, const char *name,
 				l->value = NULL;
 			}
 			if (ppp_set_value (l, text)) {
-				cb_error (_("invalid constant in DEFINE directive"));
+				cb_error (_("invalid constant %s in DEFINE directive"), text);
 				return NULL;
 			}
 			return list;
@@ -312,7 +373,7 @@ ppp_define_add (struct cb_define_struct *list, const char *name,
 	p = cobc_plex_malloc (sizeof (struct cb_define_struct));
 	p->name = cobc_plex_strdup (name);
 	if (ppp_set_value (p, text)) {
-		cb_error (_("invalid constant in DEFINE directive"));
+		cb_error (_ ("invalid constant %s in DEFINE directive"), text);
 		return NULL;
 	}
 
@@ -407,7 +468,7 @@ static unsigned int
 ppp_search_comp_vars (const char *name)
 {
 #undef	CB_PARSE_DEF
-#define	CB_PARSE_DEF(x,z)	if (!strcasecmp (name, x)) return (z);
+#define	CB_PARSE_DEF(x,z)	if (!cb_strcasecmp (name, x)) return (z);
 #include "ppparse.def"
 #undef	CB_PARSE_DEF
 	cb_warning (COBC_WARN_FILLER, _("compiler flag '%s' unknown"), name);
@@ -477,7 +538,7 @@ append_to_turn_list (struct cb_text_list *ec_names, int enable, int with_locatio
 	l->next = NULL;
 	/* The line number is set properly in the scanner */
 	l->line = -1;
-	
+
 	if (cb_turn_list) {
 		for (turn_list_end = cb_turn_list;
 		     turn_list_end->next;
@@ -558,6 +619,7 @@ ppparse_clear_vars (const struct cb_define_struct *p)
 %union {
 	char			*s;
 	struct cb_text_list	*l;
+	struct cb_replace_src	*p;
 	struct cb_replace_list	*r;
 	struct cb_define_struct	*ds;
 	unsigned int		ui;
@@ -588,6 +650,12 @@ ppparse_clear_vars (const struct cb_define_struct *p)
 %token LISTING_STATEMENT
 %token TITLE_STATEMENT
 
+%token COBOL_WORDS_DIRECTIVE
+%token EQUATE
+%token UNDEFINE
+%token SUBSTITUTE
+%token RESERVE
+
 %token CONTROL_STATEMENT
 %token SOURCE
 %token NOSOURCE
@@ -598,12 +666,12 @@ ppparse_clear_vars (const struct cb_define_struct *p)
 
 %token LEAP_SECOND_DIRECTIVE
 
+%token CONTROL_DIVISION		"CONTROL DIVISION"
+%token SUBSTITUTION_SECTION	"SUBSTITUTION SECTION"
+
 %token SOURCE_DIRECTIVE
 %token FORMAT
 %token IS
-%token FIXED
-%token FREE
-%token VARIABLE
 
 %token CALL_DIRECTIVE
 %token COBOL
@@ -621,6 +689,8 @@ ppparse_clear_vars (const struct cb_define_struct *p)
 %token SET_DIRECTIVE
 %token ADDRSV
 %token ADDSYN
+%token AREACHECK
+%token NOAREACHECK
 %token ASSIGN
 %token BOUND
 %token CALLFH
@@ -634,9 +704,11 @@ ppparse_clear_vars (const struct cb_define_struct *p)
 %token NOCHECKNUM
 %token NODPC_IN_DATA	"NODPC-IN-DATA"
 %token NOFOLDCOPYNAME
+%token NOODOSLIDE
 %token NOSPZERO
 %token NOSSRANGE
 /* OVERRIDE token defined above. */
+%token ODOSLIDE
 %token REMOVE
 %token SOURCEFORMAT
 %token SPZERO
@@ -671,28 +743,33 @@ ppparse_clear_vars (const struct cb_define_struct *p)
 
 %token TERMINATOR	"end of line"
 
-%token <s> TOKEN		"Identifier or Literal"
+%token <s> TOKEN		"Word or Literal"
 %token <s> TEXT_NAME	"Text-Name"
 %token <s> VARIABLE_NAME	"Variable"
 %token <s> LITERAL		"Literal"
 
-%type <s>	copy_in
+%type <s>	_copy_in
 %type <s>	copy_source
 %type <s>	_literal
 
 %type <l>	token_list
 %type <l>	identifier
 %type <l>	subscripts
-%type <l>	text_src
+%type <p>	text_src
 %type <l>	text_dst
-%type <l>	text_partial_src
+%type <p>	text_partial_src
 %type <l>	text_partial_dst
 %type <l>	alnum_list
+%type <l>	alnum_with
+%type <l>	alnum_with_list
+%type <l>	alnum_by
+%type <l>	alnum_by_list
 %type <l>	alnum_equality
 %type <l>	alnum_equality_list
 %type <l>	ec_list
+%type <s>	unquoted_literal
 
-%type <r>	copy_replacing
+%type <r>	_copy_replacing
 %type <r>	replacing_list
 
 %type <ds>	object_id
@@ -707,24 +784,55 @@ ppparse_clear_vars (const struct cb_define_struct *p)
 
 %%
 
+program_structure:
+  CONTROL_DIVISION DOT program_with_control_division
+| statement_list
+;
+
+/* GCOS 7 COBOL85 ref. manual p. 136: [...] If the replace-entry is present in
+the Substitution Section of the Control Division of a source program, that
+source program, including all contained programs, must contain no REPLACE
+statement.  Thankfully this helps avoiding some conflicts. */
+program_with_control_division:
+  statement_list
+| control_division_no_replace statement_no_replace statement_list
+| control_division_no_replace
+| control_division_with_replace DOT statement_no_replace_list
+;
+
+control_division_no_replace:
+  SUBSTITUTION_SECTION DOT
+;
+
+control_division_with_replace:
+ /* The period could be optional. */
+  SUBSTITUTION_SECTION DOT replace_statement
+;
+
 statement_list:
 | statement_list statement
 ;
 
+statement_no_replace_list:
+| statement_no_replace_list statement_no_replace
+;
+
 statement:
-  copy_statement DOT
-| replace_statement DOT
+  statement_no_replace
+| replace_statement_with_dot
+;
+
+statement_no_replace:
+  copy_statement
 | directive TERMINATOR
 | listing_statement
 | CONTROL_STATEMENT control_options _dot TERMINATOR
-  {
-	CB_PENDING (_("*CONTROL statement"));
-  }
 ;
 
 directive:
   SOURCE_DIRECTIVE source_directive
 | DEFINE_DIRECTIVE define_directive
+| COBOL_WORDS_DIRECTIVE cobol_words_directive
 | SET_DIRECTIVE set_directive
 | REFMOD_DIRECTIVE refmod_directive
 | TURN_DIRECTIVE turn_directive
@@ -792,14 +900,18 @@ set_choice:
 	p = ppp_define_add (ppp_setvar_list, $2, $3, 1);
 	if (p) {
 		ppp_setvar_list = p;
-		fprintf (ppout, "#DEFLIT %s %s\n", $2, $3);
+		p = p->last;
+		if (p->deftype == PLEX_DEF_NUM) {
+			fprintf (ppout, "#DEFLIT %s %s\n", $2, p->value);
+		} else {
+			fprintf (ppout, "#DEFLIT %s \"%s\"\n", $2, p->value);
+		}
 	}
   }
 | VARIABLE_NAME set_options
 | ADDRSV alnum_list
   {
 	struct cb_text_list	*l;
-
 	for (l = $2; l; l = l->next) {
 		fprintf (ppout, "#ADDRSV %s\n", l->text);
 	}
@@ -807,43 +919,36 @@ set_choice:
 | ADDSYN alnum_equality
   {
 	struct cb_text_list	*l;
-	
 	for (l = $2; l; l = l->next->next) {
 		fprintf (ppout, "#ADDSYN %s %s\n", l->text, l->next->text);
 	}
   }
-| ASSIGN LITERAL
+| AREACHECK
+  {
+	if (cobc_has_areacheck_directive ("AREACHECK")) {
+		fprintf (ppout, "#AREACHECK\n");
+	}
+  }
+| ASSIGN unquoted_literal
   {
 	char	*p = $2;
-	size_t	size;
 
-	/* Remove surrounding quotes/brackets */
-	++p;
-	size = strlen (p) - 1;
-	p[size] = '\0';
-
-	if (!strcasecmp (p, "EXTERNAL")) {
+	if (!cb_strcasecmp (p, "EXTERNAL")) {
 		fprintf (ppout, "#ASSIGN %d\n", (int)CB_ASSIGN_EXT_FILE_NAME_REQUIRED);
-	} else if (!strcasecmp (p, "DYNAMIC")) {
+	} else if (!cb_strcasecmp (p, "DYNAMIC")) {
 		fprintf (ppout, "#ASSIGN %d\n", (int)CB_ASSIGN_VARIABLE_DEFAULT);
 	} else {
 		ppp_error_invalid_option ("ASSIGN", p);
-	}	
+	}
   }
 | BOUND
   {
 	/* Enable EC-BOUND-SUBSCRIPT checking */
 	append_to_turn_list (ppp_list_add (NULL, "EC-BOUND-SUBSCRIPT"), 1, 0);
   }
-| CALLFH LITERAL
+| CALLFH unquoted_literal
   {
-	char	*p = $2;
-	/* Remove surrounding quotes/brackets */
-	size_t	size;
-	++p;
-	size = strlen (p) - 1;
-	p[size] = '\0';
-	fprintf (ppout, "#CALLFH \"%s\"\n", p);
+	fprintf (ppout, "#CALLFH \"%s\"\n", $2);
   }
 | CALLFH
   {
@@ -854,57 +959,39 @@ set_choice:
 	/* Enable EC-DATA-INCOMPATIBLE checking */
 	append_to_turn_list (ppp_list_add (NULL, "EC-DATA-INCOMPATIBLE"), 1, 0);
   }
-| COMP1 LITERAL
+| COMP1 unquoted_literal
   {
 	char	*p = $2;
-	size_t	size;
 
-	/* Remove surrounding quotes/brackets */
-	++p;
-	size = strlen (p) - 1;
-	p[size] = '\0';
-
-	if (!strcasecmp (p, "BINARY")) {
+	if (!cb_strcasecmp (p, "BINARY")) {
 		cb_binary_comp_1 = 1;
-	} else if (!strcasecmp (p, "FLOAT")) {
+	} else if (!cb_strcasecmp (p, "FLOAT")) {
 		cb_binary_comp_1 = 0;
 	} else {
 		ppp_error_invalid_option ("COMP1", p);
 	}
   }
-| DPC_IN_DATA LITERAL
+| DPC_IN_DATA unquoted_literal
   {
 	char	*p = $2;
-	size_t	size;
 
-	/* Remove surrounding quotes/brackets */
-	++p;
-	size = strlen (p) - 1;
-	p[size] = '\0';
-
-	if (!strcasecmp (p, "XML")) {
+	if (!cb_strcasecmp (p, "XML")) {
 		cb_dpc_in_data = CB_DPC_IN_XML;
-	} else if (!strcasecmp (p, "JSON")) {
+	} else if (!cb_strcasecmp (p, "JSON")) {
 		cb_dpc_in_data = CB_DPC_IN_JSON;
-	} else if (!strcasecmp (p, "ALL")) {
+	} else if (!cb_strcasecmp (p, "ALL")) {
 		cb_dpc_in_data = CB_DPC_IN_ALL;
 	} else {
 		ppp_error_invalid_option ("DPC-IN-DATA", p);
 	}
   }
-| FOLDCOPYNAME _as LITERAL
+| FOLDCOPYNAME _as unquoted_literal
   {
 	char	*p = $3;
-	size_t	size;
 
-	/* Remove surrounding quotes/brackets */
-	++p;
-	size = strlen (p) - 1;
-	p[size] = '\0';
-
-	if (!strcasecmp (p, "UPPER")) {
+	if (!cb_strcasecmp (p, "UPPER")) {
 		cb_fold_copy = COB_FOLD_UPPER;
-	} else if (!strcasecmp (p, "LOWER")) {
+	} else if (!cb_strcasecmp (p, "LOWER")) {
 		cb_fold_copy = COB_FOLD_LOWER;
 	} else {
 		ppp_error_invalid_option ("FOLD-COPY-NAME", p);
@@ -913,6 +1000,12 @@ set_choice:
 | MAKESYN alnum_equality
   {
 	fprintf (ppout, "#MAKESYN %s %s\n", $2->text, $2->next->text);
+  }
+| NOAREACHECK
+  {
+	if (cobc_has_areacheck_directive ("NOAREACHECK")) {
+		fprintf (ppout, "#NOAREACHECK\n");
+	}
   }
 | NOBOUND
   {
@@ -932,6 +1025,10 @@ set_choice:
   {
 	cb_fold_copy = 0;
   }
+| NOODOSLIDE
+  {
+	fprintf (ppout, "#ODOSLIDE 0\n");
+  }
 | NOSPZERO
   {
 	CB_PENDING ("SPZERO");
@@ -942,49 +1039,36 @@ set_choice:
 	/* Disable EC-BOUND-SUBSCRIPT and -REF-MOD checking */
 	struct cb_text_list	*txt = ppp_list_add (NULL, "EC-BOUND-SUBSCRIPT");
 	txt = ppp_list_add (txt, "EC-BOUND-REF-MOD");
-	
+
 	append_to_turn_list (txt, 0, 0);
+  }
+| ODOSLIDE
+  {
+	fprintf (ppout, "#ODOSLIDE 1\n");
   }
 | OVERRIDE alnum_equality_list
   {
-      struct cb_text_list	*l;
-
-      for (l = $2; l; l = l->next->next) {
-	      fprintf (ppout, "#OVERRIDE %s %s\n", l->text, l->next->text);
-      }
+	struct cb_text_list	*l;
+	for (l = $2; l; l = l->next->next) {
+		fprintf (ppout, "#OVERRIDE %s %s\n", l->text, l->next->text);
+	}
   }
 | REMOVE alnum_list
   {
 	struct cb_text_list	*l;
-
 	for (l = $2; l; l = l->next) {
 		fprintf (ppout, "#REMOVE %s\n", l->text);
 	}
   }
-| SOURCEFORMAT _as LITERAL
+| SOURCEFORMAT _as unquoted_literal
   {
 	char	*p = $3;
-	size_t	size;
 
-	/* Remove surrounding quotes/brackets */
-	++p;
-	size = strlen (p) - 1;
-	p[size] = '\0';
-
-	if (!strcasecmp (p, "FIXED")) {
-		cb_source_format = CB_FORMAT_FIXED;
-		cb_text_column = cb_config_text_column;
-	} else if (!strcasecmp (p, "FREE")) {
-		cb_source_format = CB_FORMAT_FREE;
-	} else if (!strcasecmp (p, "VARIABLE")) {
-		cb_source_format = CB_FORMAT_FIXED;
-		/* This value matches most MF Visual COBOL 4.0 version. */
-		cb_text_column = 250;
-	} else {
+	if (cobc_deciph_source_format (p) != 0) {
 		ppp_error_invalid_option ("SOURCEFORMAT", p);
 	}
 	if (cb_src_list_file) {
-		cb_current_file->source_format = cb_source_format;
+		cb_current_file->source_format = cobc_get_source_format ();
 	}
   }
 | SOURCEFORMAT _as error
@@ -1001,7 +1085,7 @@ set_choice:
   {
 	char	*p = $2;
 	char	ep = 0;
-	
+
 	/* Remove surrounding quotes/brackets */
 	if (p) {
 		size_t	size;
@@ -1052,12 +1136,44 @@ alnum_equality_list:
   alnum_equality
 | alnum_equality_list alnum_equality
   {
-	  $$ = ppp_list_append ($1, $2);
+	$$ = ppp_list_append ($1, $2);
   }
 ;
 
 alnum_equality:
   LITERAL EQ LITERAL
+  {
+	$$ = ppp_list_add (NULL, $1);
+	$$ = ppp_list_add ($$, $3);
+  }
+;
+
+alnum_with_list:
+  alnum_with
+| alnum_with_list alnum_with
+  {
+	$$ = ppp_list_append ($1, $2);
+  }
+;
+
+alnum_with:
+  LITERAL WITH LITERAL
+  {
+	$$ = ppp_list_add (NULL, $1);
+	$$ = ppp_list_add ($$, $3);
+  }
+;
+
+alnum_by_list:
+  alnum_by
+| alnum_by_list alnum_by
+  {
+	$$ = ppp_list_append ($1, $2);
+  }
+;
+
+alnum_by:
+  LITERAL BY LITERAL
   {
 	$$ = ppp_list_add (NULL, $1);
 	$$ = ppp_list_add ($$, $3);
@@ -1089,32 +1205,18 @@ refmod_directive:
 ;
 
 source_directive:
-  _format _is format_type
+  _format _is VARIABLE_NAME
   {
+	  if (cobc_deciph_source_format ($3) != 0) {
+		  ppp_error_invalid_option ("SOURCE", $3);
+	  }
 	  if (cb_src_list_file) {
-		  cb_current_file->source_format = cb_source_format;
+		  cb_current_file->source_format = cobc_get_source_format ();
 	  }
   }
-;
-
-format_type:
-  FIXED
+| _format _is LITERAL
   {
-	cb_source_format = CB_FORMAT_FIXED;
-	cb_text_column = cb_config_text_column;
-  }
-| FREE
-  {
-	cb_source_format = CB_FORMAT_FREE;
-  }
-| VARIABLE
-  {
-	cb_source_format = CB_FORMAT_FIXED;
-	cb_text_column = 500;
-  }
-| GARBAGE
-  {
-	cb_error (_("invalid %s directive"), "SOURCE");
+	ppp_error_invalid_option ("SOURCE", $3);
 	YYERROR;
   }
 ;
@@ -1190,6 +1292,39 @@ define_directive:
 | variable_or_literal
   {
 	cb_error (_("invalid %s directive"), "DEFINE/SET");
+  }
+;
+
+cobol_words_directive:
+  EQUATE alnum_with_list
+  {
+	struct cb_text_list* l;
+	/* GC-Extension: standard has only one literal combination here */
+	for (l = $2; l; l = l->next->next) {
+		fprintf (ppout, "#ADDSYN-STD %s %s\n", l->text, l->next->text);
+	}
+  }
+| UNDEFINE alnum_list	/* GC-Extension: standard has only one literal here */
+  {
+	struct cb_text_list	*l;
+	for (l = $2; l; l = l->next) {
+		fprintf (ppout, "#REMOVE-STD %s\n", l->text);
+	}
+  }
+| SUBSTITUTE alnum_by_list
+  {
+	struct cb_text_list* l;
+	/* GC-Extension: standard has only one literal combination here */
+	for (l = $2; l; l = l->next->next) {
+		fprintf (ppout, "#OVERRIDE-STD %s %s\n", l->text, l->next->text);
+	}
+  }
+| RESERVE alnum_list	/* GC-Extension: standard has only one literal here */
+  {
+	struct cb_text_list	*l;
+	for (l = $2; l; l = l->next) {
+		fprintf (ppout, "#ADDRSV %s\n", l->text);
+	}
   }
 ;
 
@@ -1436,10 +1571,14 @@ condition_clause:
 ;
 
 copy_statement:
-  COPY copy_source copy_in copy_suppress copy_replacing
+  COPY copy_source _copy_in _copy_suppress _copy_replacing DOT
   {
 	fputc ('\n', ppout);
 	ppcopy ($2, $3, $5);
+  }
+| COPY error DOT
+  {
+	yyerrok;
   }
 ;
 
@@ -1464,7 +1603,7 @@ copy_source:
   }
 ;
 
-copy_in:
+_copy_in:
   /* nothing */
   {
 	$$ = NULL;
@@ -1480,11 +1619,12 @@ in_or_of:
 | OF
 ;
 
-copy_suppress:
+_copy_suppress:
+  /* nothing */
 | SUPPRESS _printing
 ;
 
-copy_replacing:
+_copy_replacing:
   /* nothing */
   {
 	$$ = NULL;
@@ -1495,14 +1635,22 @@ copy_replacing:
   }
 ;
 
+replace_statement_with_dot:
+  replace_statement DOT
+| replace_statement error DOT
+  {
+	yyerrok;
+  }
+;
+
 replace_statement:
   REPLACE _also replacing_list
   {
-	pp_set_replace_list ($3, $2);
+	cb_set_replace_list ($3, $2);
   }
 | REPLACE _last OFF
   {
-	pp_set_replace_list (NULL, $2);
+	cb_set_replace_list (NULL, $2);
   }
 ;
 
@@ -1528,11 +1676,29 @@ replacing_list:
 text_src:
   EQEQ token_list EQEQ
   {
-	$$ = $2;
+	$$ = ppp_replace_src ($2, 0);
   }
 | identifier
   {
-	$$ = $1;
+	$$ = ppp_replace_src ($1, 0);
+/* CHECKME later (parser conflict)
+  }
+| IN
+  {
+	/ * as we need this word, which is valid as replacement,
+	   also for qualification, we need to explicit make it
+	   a word if given alone * /
+	$$ = ppp_list_add (NULL, "IN");
+	$$ = ppp_replace_src ($$, 0);
+  }
+| OF
+  {
+	/ * as we need this word, which is valid as replacement,
+	   also for qualification, we need to explicit make it
+	   a word if given alone * /
+	$$ = ppp_list_add (NULL, "OF");
+	$$ = ppp_replace_src ($$, 0);
+*/
   }
 ;
 
@@ -1549,12 +1715,31 @@ text_dst:
   {
 	$$ = $1;
   }
+| IN
+  {
+	/* as we need this word, which is valid as replacement,
+	   also for qualification, we need to explicit make it
+	   a word if given alone */
+	$$ = ppp_list_add (NULL, "IN");
+  }
+| OF
+  {
+	/* as we need this word, which is valid as replacement,
+	   also for qualification, we need to explicit make it
+	   a word if given alone */
+	$$ = ppp_list_add (NULL, "OF");
+  }
 ;
 
 text_partial_src:
   EQEQ TOKEN EQEQ
   {
-	$$ = ppp_list_add (NULL, $2);
+	$$ = ppp_replace_src (ppp_list_add (NULL, $2), 0);
+  }
+| TOKEN
+  {
+	$$ = ppp_replace_src (ppp_list_add (NULL, literal_token ($1, 0)),
+			      ($1[0] == '\'' || $1[0] == '"'));
   }
 ;
 
@@ -1566,6 +1751,10 @@ text_partial_dst:
 | EQEQ TOKEN EQEQ
   {
 	$$ = ppp_list_add (NULL, $2);
+  }
+| TOKEN
+  {
+	$$ = ppp_list_add (NULL, literal_token ($1, 1));
   }
 ;
 
@@ -1633,6 +1822,23 @@ lead_trail:
 | TRAILING
   {
 	$$ = CB_REPLACE_TRAILING;
+  }
+;
+
+unquoted_literal:
+  LITERAL
+  {
+	/* Do not reuse unquote as some literals here may be delimited with
+	   parentheses */
+	char	*p = $1;
+	size_t	size;
+
+	/* Remove surrounding quotes/brackets */
+	++p;
+	size = strlen (p) - 1;
+	p[size] = '\0';
+
+	$$ = p;
   }
 ;
 

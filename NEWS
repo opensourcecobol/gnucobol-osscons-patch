@@ -1,5 +1,555 @@
 NEWS - user visible changes				-*- outline -*-
 
+ GnuCOBOL 3.2     (20230728)
+ GnuCOBOL 3.2rc1  (20230118)
+ GnuCOBOL 3.2rc2  (20230210)
+
+* New GnuCOBOL features
+
+** Support for LINE SEQUENTIAL file type as per COBOL 2023
+  * OPEN INPUT-OUTPUT and REWRITE are allowed (note that INPUT-OUTPUT
+    leads to slower IO for LINE SEQUENTIAL files)
+  * validation of data on (RE-)WRITE and READ, active by default,
+    can be adjusted with the new runtime option COB_LS_VALIDATE
+
+** New intrinsic functions
+
+  BIT-OF, BIT-TO-CHAR, HEX-OF, HEX-TO-CHAR
+
+** Support for COBOL 2023 directive COBOL-WORDS
+
+** Support for bit operations according to COBOL 2023 with MF compatibility
+
+** Support for additional $SET directives: ODOSLIDE
+
+** Support for the EXTFH has been greatly enhanched and now includes support
+   for FH--FCD and FH--KEYDEF, fixed use of different attributes and changing
+   pointers and now supports - for 32-bit builds - an internal conversion
+   between FCD2 and FCD3 for cases where existing programs are coded with FCD2
+
+** OCCURS with multiple VALUEs supported (BS2000 format, FROM and TO pending)
+
+** new function to call COBOL from C that doesn't abort the program in case
+   of runtime errors or STOP RUN: cob_call_with_exception_check()
+
+** Support for the GCOS 7 (Bull) dialect, including:
+   * PICTURE strings with L character (variable length fields)
+   * CONTROL DIVISION with SUBSTITUTION SECTION (full support) and DEFAULT
+     SECTION (partial support)
+
+** Multiple sequential files can be concatenated by specifying multiple
+   files with a separator in the ASSIGN name (either directly or via
+   environment), see the new runtime options
+   COB_SEQ_CONCAT_NAME (defaults to false) and COB_SEQ_CONCAT_SEP
+
+** Initial "testing support" of CODE-SET clause to convert between ASCII and
+   EBCDIC on READ/WRITE/REWRITE for sequential and line-sequential files
+
+** Initial "testing support" of FLOAT-EXTENDED (long double type)
+
+** minimal "parsing support" for USAGE UTF-8 and UTF-8 literals
+
+** Support to exit the runtime from COBOL as hard error (including possible
+   [core-]dump and stacktrace) with "STOP ERROR" statement or by
+   CALL "CBL_RUNTIME_ERROR"
+
+** COB_PHYSICAL_CANCEL can now be configured as "never" to prevent unloading
+   of COBOL modules, both on CANCEL and on process exit, which is useful for
+   analysis tools such as callgrind or perf to keep all symbols until the end
+   of the COBOL process
+
+** the system function x'91' has been extended to support more functions
+
+* Changes that potentially effect existing programs:
+
+** ALLOCATE statement: earlier versions of GnuCOBOL initialized the memory
+   (to binary zero) if the INITIALIZED clause was not specified,
+   this isn't done anymore so if you need the memory to be initialized
+   specify that explicit in the source and recompile
+
+** variable-length RECORD SEQUENTIAL files, data validation on READ:
+   the length of the record as stored in the file is now checked for correct
+   format and is then compared against the record size defined in the program;
+   if the minimal record size specified is bigger, then the data is only
+   written up to the record length for that record, the other data is
+   undefined and io status 04 returned; if the record length is bigger than
+   the record size the record from the file is truncated, io status 04 set
+   and the following READ will start at the next record;
+   additionally on OPEN the length of the first record is read and if it
+   isn't within the above rulesan io status 39 is returned; as the default
+   format "COB_VARSEQ_TYPE = 0" contains two NULL bytes this will likely
+   make most LINE SEQUENTIAL files not declared as this type fail on OPEN
+
+** LINE SEQUENTIAL files, data validation: in case of bad printable data
+   (less than SPACE) a READ may result in io status 09 and WRITE may error
+   with io status 71; see the new runtime option COB_LS_VALIDATE to disable
+   this validation (= old behavior) and to increase performance on line
+   sequential file io;
+   if LS_NULLS is active and invalid data (bad encoded or missing encoding)
+   is found io status 71 is returned
+
+** LINE SEQUENTIAL files, handling of records that are "too long":
+   in case of "overflowing" records previous versions of GnuCOBOL cut the
+   data, set io status 00 and skipped the file until the next line
+   terminator is found;
+   the default changed (per COBOL 2023 and other compilers) so the data is
+   returned as "multiple" records and a warning (status 06) is issued;
+   setting COB_LS_SPLIT = false will have the old behaviour of truncating
+   the record, but will now set status 04
+
+** FUNCTION RANDOM: the internal randomizer was changed from "C" to "GMP"
+   this means that the sequence of random numbers are different when using
+   the same seed as versions before 3.2
+   while the changed use has the downside of taking longer for each seeding,
+   it provides a much better distributed sequence and increases portability
+   (switching to a different "C" runtime or operating system won't change the
+   sequences); additional the implementor-defined default seeding was changed
+   from "0 in most cases" to a random seed;
+   if you _want_ the return values to be identical you always need to specify
+   a seed (including possibly 0);
+   the old behaviour can be enforced by compiling GnuCOBOL with
+   LIBCOB_CPPFLAGS=-DDISABLE_GMP_RANDOM
+
+** FUNCTION EXCEPTION-LOCATION: if the source raising an exception was not
+   compiled with location information this function previously returned
+   a single space; GnuCOBOL now always returns the module name, a procedure-
+   name " " and the source (line) identifier "0"
+
+** FUNCTIONs NUMVAL, NUMVAL-C, NUMVAL-F: if the argument does not match the
+   argument rules previous versions returned zero; now invalid data is skipped;
+   for example: "1. A-0B4.5" now returns -1.045 (or -1045 when the
+   DECIMAL-POINT IS COMMA clause is in effect);
+   as with previous versions the argument can be validated before using the
+   FUNCTIONs TEST-NUMVAL, TEST-NUMVAL-C, TEST-NUMVAL-F or the exception can
+   be checked afterwards using the EXCEPTION related functions;
+   the old behaviour can be enforced by compiling GnuCOBOL with
+   LIBCOB_CPPFLAGS=-DINVALID_NUMVAL_IS_ZERO
+
+** Handling of invalid numeric USAGE DISPLAY data:
+   previously the complete character was inspected and adjusted for conversion,
+   now only the second half-byte is used;
+   this yields in different results, for example both the zero and space
+   character in both ASCII and EBCDIC charset will now result in a numeric
+   zero; previously invalid data could result in huge or negative numbers in
+   internal intermediate items;
+   as this was both adjusted in the runtime and in the the generated modules
+   invalid data may have additional unexpected results if programs are not
+   recompiled
+
+** ORGANIZATION INDEXED (with BDB backend): internal changes in record and
+   file locking, fixing some related bugs
+
+** extended screen io with PDCurses (most Win32 builds): blink and bolding
+   are now enabled, when supported
+
+** extended screen io: support for color codes 8-15 (implied highlight/blink
+   attribute); only the three lower bits are now considered during evaluation
+   of the color-number, leading to a previous value of 21 (which was ignored
+   until now) being interpreted as 5, see FR #387
+
+** extended screen io with single-fields: runtime-adjustable attributes by
+   support of extension clauses COLOR and CONTROL for ACCEPT and DISPLAY
+   statements, see FR #189 + FR #355; note: while COLOR and CONTROL are parsed
+   for SCREEN SECTION they are ignored at runtime
+
+** extended screen io with single-fields: the ACCEPT statement now supports
+   the extension CURSOR clause, additional to the standard-defined
+   CONTROL phrase in SPECIAL-NAMES
+
+** the programmable runtime switches "SWITCH A" through "SWITCH Z" internally
+   used 1-26 and now use 11-36 to be able to combine then with switches 0-7;
+   if you set those via COB_SWITCH environment variables you need to adjust
+   their numbers
+
+* Changes that potentially effect recompilation of existing programs:
+
+** the reserved word list and intrinsic functions was updated, especially
+   to cater for new features of COBOL 2023; if compiling with any non-strict
+   dialect you may need to unreserve any conflicting words / functions
+
+** in 64-bit environments, the default size for BY VALUE parameters has changed:
+   If no explicit SIZE IS clause is specified,
+	old behavior: parameter passed as 32-bit value
+	new behavior: parameter passed as 64-bit value
+   To specify a 32-bit BY VALUE parameter, change the COBOL source to use
+   SIZE IS 4.  To continue to rely on the default size, both caller and
+   callee modules that use BY VALUE must be compiled with the same version of
+   GnuCOBOL, either prior this release, or since.
+
+** cobc now uses a two-pass preprocessing algorithm, where replacements for
+   COPY-REPLACING are done in a first pass, and the replacements for
+   REPLACE are done in a second pass. Note that, however, both
+   statements are parsed before the first replacement pass, so
+   COPY-REPLACING cannot impact a REPLACE statement itself.
+
+* Changes to the COBOL compiler (cobc) options:
+
+** new -fformat dialect option, and extended SOURCE FORMAT directives,
+   with the following newly supported reference-formats (in addition
+   to FIXED/FREE):
+
+   COBOL85      Fixed-form format with enforcement of Area A
+   COBOLX       GCOS 7 extended format
+   CRT          ICOBOL Free-form format
+   TERMINAL     ACUCOBOL-GT Terminal format
+   VARIABLE     Micro Focus Variable Fixed-form format
+   XCARD        ICOBOL xCard (extended card) format
+   XOPEN        X/Open Free-form format
+
+   These formats come with Area A enforcement (except for XOPEN), that
+   checks whether division, section, and paragraph names start in Area
+   A (i.e, before margin B), and so do level indicators FD, SD, RD,
+   and CD, and level numbers 01, and 77.  The underlying checks are
+   enabled or disabled by default using dialect option `areacheck`,
+   and then with `$SET AREACHECK` and `$SET NOAREACHECK` compiler
+   directives.
+
+   As a result of reference format being a dialect option, Area A
+   enforcement is available and enabled by default for dialects BS2000
+   COBOL, CA Realia II, COBOL85, GCOS COBOL, IBM COBOL, MVS/VM COBOL,
+   RM-COBOL, and X/Open COBOL.
+
+   Area A enforcement additionally enables detection of missing
+   periods before level numbers that lie in Area A in the DATA
+   DIVISION, and before paragraph and section names in the PROCEDURE
+   DIVISION.  More generally, some, but not all, missing periods can
+   be reported and recovered from.  This is configurable with option
+   `missing-period`.
+
+   If not specified, the compiler tries to automatically recognize the format,
+   using either fixed or free, depending on column 7 in the first non-space
+   line. This feature can be disabled by setting the format manually
+   with `-free`, `-fixed` or `-fformat`.
+
+** the new -febcdic-table option enables one to specify the
+   translation table used when dealing with EBCDIC codeset;
+   these translation tables are stored as new configuration files with
+   an extension of ".ttbl", currently available tables are:
+
+   default    translation to extended ASCII as per MF
+   alternate  translation from restricted ASCII only
+   ebcdic500_ascii7bit   EBCDIC 500 <-> 7-bit ASCII as per IBM
+   ebcdic500_ascii8bit   EBCDIC 500 <-> 8-bit ASCII as per GCOS7
+   ebcdic500_latin1      EBCDIC 500 <-> latin-1 as per iconv
+
+   This option supersedes the -falternate-ebcdic flag (still available
+   for backwards compatibility), which is equivalent to
+   -febcdic-table=alternate.
+
+** the compile flag -fodoslide was moved to a dialect configuration,
+   while -fodoslide still works as before it is now implied with
+   -std=ibm/mvs/bs2000, if you use those dialects consider to recompile
+   affected programs (with OCCURS DEPENDING ON) or compile with additional
+   -fno-odoslide to get the same results as with older GnuCOBOL versions
+
+** the compile flag -fdefaultbyte (initialization for data-items without
+   an explicit VALUE) was moved to a dialect configuration;
+   while -fdefaultbyte still works as before it is now implied as binary
+   zero with -std=ibm/mvs/bs2000/realia, space for -std=mf/acu/rm, and
+   no defined initialization for -std=cobol85/cobol2002/cobol2014/xopen,
+   it is unchanged for -std=default (initialize to PICTURE/USAGE);
+   for compatibility to previous behavior compile with -fdefaultbyte=init;
+   note that initialization for INDEXED BY items honors the defaultbyte
+   configuration now, too
+
+** new dialect init-justified that applies right justification by JUSTIFIED
+   clause for VALUE clause; this is applied to IBM dialects, if you want
+   the previous behavior compile with -fno-init-justified
+
+** depending on the new dialect option "using-optional" (included in the
+   the default dialect), checks for arguments not passed are now done (only)
+   on CALL, not on their (possibly many) references; if you want the old
+   "postponed" check either specify the parameter as OPTIONAL or use
+   -fusing-optional=skip; note: the non-strict dialects will raise a warning
+   on the first use of this feature, then automatically enable it
+
+** the dialect configuration option larger-redefines-ok was replaced by
+   the support option larger-redefines; if specified on the command-line
+   it is now -f[no-]larger-redefines instead of -f[no-]larger-redefines-ok,
+   which allows to also raise a warning for those with -flarger-redefines=warn
+   Note: the short one works both in current and older versions of cobc
+
+** the subscript checking enabled with -fec=bound-subscript (implied with
+   --debug) now generates checks depending on the new dialect configuration
+   option subscript-check if OCCURS DEPNDING ON is used;
+   the full check according to ISO COBOL, which checks against the ODO item
+   is still used in the default dialect, but several dialects now only check
+   against the maximum only
+
+** the GnuCOBOL extension of auto-adding the RECURSIVE attribute
+   if a program potentially calls its own PROGRAM-ID was moved
+   to a dialect option; it is now only active with -std=default
+   (and raises a warning as previously with -Wextra); if you want
+   to use this extension for other dialects use the new
+   -fself-call-recursive=warning (or "ok")
+
+** the option -g does no longer imply -fsource-location; but it auto-includes
+   references to the COBOL-paragraphs to further ease source level debugging
+
+** -fsource-location generates source references to copyboooks in DATA
+   DIVISION, enabling to inspect the initial VALUE setting as well as
+   "list"ing those copybooks with a source level debugger
+
+** new flag -fstack-extended (implied with --debug and --dump) to include
+   the origin of entrypoints and PERFORM, this is used for the internal
+   stack trace on abort and can be used for improved source level debugging
+
+** new flag -fmemory-check (implied with --debug) to do some validation
+   of internal memory used during CALL; this can help in finding otherwise
+   hard to diagnose overwrite of memory and as it is only done on CALL
+   has a much smaller footprint than -fec=bounds (as both check different
+   aspects at different places it is also reasonable to use both);
+   to disable it use -fmemory-check=none or limit by -fmemory-check=pointer
+
+** the option -g does no longer imply -fno-remove-unreachable; if you want to
+   keep those in you need to explicit specify this
+
+** the option -O0 now implies -fno-remove-unreachable
+
+** new options to ensure structured code-flow:
+   -fsection-exit-check to ensure sections don't "fall through" (are always
+    entered and left by PERFORM)
+   -fimplicit-goback-check to ensure modules are not left by implicit GOBACK
+    at end of PROCEDURE DIVISION
+
+** adjustments to warning options:
+   -Wconstant-expression was changed to a group warning and includes
+    the new, previously integrated, -Wconstant-numlit-expression
+   -Wtyping as a new warning raises only very suspicious MOVEs,
+   -Wstrict-typing, which will warn as before even for MOVE 1 TO PICX-FLD
+    is not included in -Wall any more
+   -Wlarger-01-redefines as new warning (enabled by -Wextra) to check for
+    the only larger REDEFINES that is explicit allowed by the COBOL standard
+   -Wno-unsupported -Wunsupported new option to disable or only warn
+    on use of features the runtime is not configured for;
+    this new option defaults to an error (= -Werror=unsupported)
+   -Wgoto-different-section as new warning (enabled by -Wall) to check for
+    GO TO that are likely to break the flow of PERFORM some-section
+   -Wgoto-section as new warning (enabled by default) to check for
+    GO TO a section instead of a paragraph; while allowed this is often
+    a coding error
+   -Wsuspicious-perform-thru (enabled by default) to check for PERFORM ranges
+    that are likely to create unwanted behaviour
+   -Wother now  warns for suspicious reference-modification which is likely to
+    create out-of-bounds access at runtime
+
+** new compiler command line option to list the known runtime exception names
+   and fatality `cobc --list-exceptions`
+
+** new compiler command line option -ftcmd to enable printing of the command
+   line in the source listing, -fno-timestamp to suppress printing of the time
+   and -ftittle to set a title instead of GnuCOBOL and version (_ chars are
+   replaced by spaces in the title)
+
+** new compiler command line option --coverage to instrument binaries
+   for coverage checks
+
+** the command line options -MT and -MF, which are used for creating a
+   dependency list (used copybooks) to be used for inclusion in Makefiles
+   or other processes, and which were removed in GnuCOBOL 2 are back in their
+   original version; note: their use will be adjusted where they don't match
+   GCC's same options in later versions, including addition of -M and -MD
+
+** new -std options:
+
+   gcos            GCOS compatibility
+   gcos-strict     GCOS compatibility                - strict
+
+   We define the GCOS dialect based on the COBOL85 standard, with new
+   dialect configuration options accompanying each specificity
+   introduced by the dialect.
+
+** new diagnostic format for errors: the diagnostics now print the source
+   code context with a left margin showing line numbers, configurable with
+   -fno-diagnostics-show-line-numbers, and possible to disable completely
+   with -fno-diagnostics-show-caret;
+
+   the option -fdiagnostics-plain-output was added to request that diagnostic
+   output look as plain as possible and stay more stable over time
+
+** the -P flag accepts - as argument for stdout
+
+* Important Bugfixes:
+
+** for dialects other than the GnuCOBOL default different reserved "alias" words
+   were not usable, for example SYNCHRONIZED or COMPUTATIONAL. This was fixed
+   and reserved words updated for the dialects "acu" (to ACUCOBOL-GT 10.4),
+   "ibm" (to Enterprise COBOL 6.3) and "mf" (to Micro Focus Visual COBOL 6.0)
+
+** for all "lax" varants SYNC was handled even if commonly ignored by the strict
+   dialects, this was fixed so SYNC is ignored depending on the dialect
+
+** COBOL programs compiled with versions before GnuCOBOL 3 that used files with
+   ORGANIZATION INDEXED or RELATIVE crashed when executed with newer versions,
+   this has been fixed so that all modules compiled with GnuCOBOL 2.2 can be
+   executed with GnuCOBOL 3.2
+
+** FUNCTION RANDOM could return 1 in rare cases (more likely on win32),
+   it now returns a value in the range 0 <= x < 1, as defined
+
+** the internal signal handler could crash or deadlock the process on hard
+   errors (either in called library functions or when running COBOL without
+   runtime checks); the signal handling is now completely rewritten to fix
+   this issue and all executed code from the signal handler but the COBOL data
+   dump is now signal and thread safe
+
+** TYPEDEF items got storage and attribute assigned, leading to bigger modules,
+   longer loading time and longer compile times; if you use those a recompile
+   is highly suggested
+
+** several bugs in COPY REPLACING / REPLACING were fixed along with adding
+   support for exensions related to REPLACING LEADING / TRAILING
+
+** for PICTURE P several fixes were made, so results may vary compared with
+   previous versions; sources with *leading* P never worked correct before,
+   and *must* be recompiled after upgrading
+
+** since its addition to GnuCOBOL ROUNDING MODE PROHIBITED just prevented
+   rounding; its behaviour changed to match the specification by doing that,
+   raising EC-SIZE-TRUNCATION and changed: not adjust the target field if
+   rounding would be necessary to store the data
+
+* Listing changes
+
+** the timestamp in the header was changed from ANSI date format like
+   "Tue Sep 28 09:49:43 2021" to formatted time (year after day); this may be
+   changed during `configure` with adding a define to COBC_CPPFLAGS;
+   to either use the old format, adding add `-DLISTING_TIMESTAMP_ANSI`,
+   or to use an explicit format (cut at 26 characters, may raise false-positives
+   in listing tests) e.g. date only `-DLISTING_TIMESTAMP_FORMAT="%Y-%m-%d"`
+
+** new compile options to adjust the listing, see above
+
+* More notable changes
+
+** in general, the maximum field size in LINKAGE SECTION was increased from
+   268435456 bytes (999999998 bytes for OCCURS UNBOUNDED) to the system
+   specific INT_MAX - 1, which is commonly 2 GB
+
+** in 64-bit environments, the maximum field size outside of LINKAGE SECTION
+   was increased from 268435456 bytes to 2 GB
+
+** numeric DISPLAY can store and may contain a positive zero after arithmetic,
+   PACKED-DECIMAL may contain negative zero (x'0D') after arithmetic; as before
+   numeric comparisions to ZERO / 0 / +0 / -0 will all be identical
+
+** quotes around filenames and parts that are resolved by environment variables
+   are internally ignored
+
+** the exception check for EC-PROGRAM-ARG-MISMATCH is now generated, validating
+   that non-optional PROCEDURE DIVISION USING items are passed and that their
+   size in the caller is at least as big as in the program
+
+** in case of any runtime features being used that are not available an error
+   is generated during compile (may be reduced to a warning by -Wunsupported
+   or be suppressed by -Wno-unsupported) and if the feature is actually used
+   at runtime a related exception status is set
+
+** the call-stack show on error and/or in the dump file now contains all
+   parameters given to the program via command line options, if any;
+   if full debugging information is available it includes all PERFORMs executed
+
+** the dump that is created on abort for all programs that were compiled with
+   -fdump can be explicit disabled by setting COB_DUMP_FILE=NONE; it is
+   automatically disabled if the process ends upon signals SIGINT/SIGTERM and
+   now also disabled upon SIGHUP/SIGPIPE
+
+** additional or instead of the internal COBOL dump a coredump file may be
+   created on runtime errors and when configured in the system also after
+   the signal handler; see the new runtime option COB_CORE_ON_ERROR for
+   details (the default is a best match to the old behavior)
+
+** source references shown in diagnostic messages and for trace at runtime
+   as well as during debugging were extended, for example each executed WHEN,
+   VARYING and UNTIL phrases are now seen
+
+** condition-names are made available for source-level debugging
+
+** cobc's parsing time was significantly reduced for big programs
+
+** execution times were significantly reduced for the following:
+	INSPECT that use big COBOL fields (multiple KB)
+	MOVE and comparisions in general (especially with enabled runtime
+	   checks, to optimize those a re-compile is needed)
+	CALL data-item, and first time for each CALL
+	ACCEPT DATE/TIME/DAY, most if numeric items are accepted
+	datetime related FUNCTIONs
+	runtime checks for use of LINKAGE/BASED fields and/or
+	  subscripts/reference-modification (re-compile needed)
+	general: execution of programs generated with -fsource-location
+	  (implied with --debug and -fec), especially when many "simple"
+	  statements or lot of sections/paragraphs are used (re-compile needed)
+
+* New system functions
+
+  CBL_GC_SET_SCR_SIZE  option to resize extended screen
+
+* New build features
+
+** configure now honors BDB_LIBS and BDB_CFLAGS
+** configure now honors MATH_LIBS
+** configure now checks for XCurses and allows --with-curses=xcurses
+   (experimental)
+** configure now checks for PERL and passes that as default to make test
+** cobc handles SOURCE_DATE_EPOCH now, allowing to override timestamps in
+   generated code and listing files, allowing reproducible builds of both
+   GnuCOBOL (extras folder) and COBOL programs
+
+* Obsolete features (will be removed in the next version if no explicit user
+  requests are raised)
+
+** use of old non-GMP randomizer for FUNCTION RANDOM
+
+** undocumented option -tsymbols, which was replaced by -ftsymbols in 3.0
+
+
+* Known issues in 3.2 (and 3.1)
+
+** testsuite:
+  * if built with vbisam, cisam or disam, depending on the version used, some
+    tests will lead to UNEXPECTED PASS, while others may fail
+  * possibly failing tests (false positives):
+    * temporary path invalid
+    * compiler outputs (assembler)
+    * compile from stdin
+  * NIST: OBNC1M.CBL false positive (the test runner uses a nonportable way of
+    emulating a program kill)
+  * if build with -fsanitize, then some tests will fail; while we accept patches
+    to improve that, we don't consider the failing tests as bug in GnuCOBOL
+
+** the recent additions of ">> TURN" and "variable LIKE variable" may not work
+   as expected in all cases
+
+** floating-point comparison for equality may return unexpected results as it
+   involves a necessary tolerance; you may adjust the default tolerance of
+   0.0000001 by compiling GnuCOBOL for example with
+   LIBCOB_CPPFLAGS="-DCOB_FLOAT_DELTA=0.0000000000001";
+   we seek input for a reasonable default for GnuCOBOL 4 (use the mailing list
+   or discussion board to share your comments on this topic, keeping in mind
+   that this has to take both mathematical and "C compiler portability" into
+   account)
+
+** variables containing PICTURE symbol P may lead to wrong results in rare
+   cases (especially screenio) - please send a bug report if you catch a case;
+   since GC 3.2 rc3 all arithmetic operations and MOVE are believed to be
+   correct
+
+** features that are known to not be portable to every environment yet
+   (especially when using a different compiler than GCC)
+    * function with variable-length RETURNING item
+    * USAGE POINTER, which may need to be manually aligned
+
+** all versions of GnuCOBOL so far: EVALUATE evaluates all subjects on *each*
+   WHEN (the standard explicit requests a one-time evaluation of the subjects,
+   then comparing the value); to work around possible issues move more complex
+   subjects like variables with subscripts and reference-modification, as well
+   as calculated subjects and function calls to a temporary variable and use
+   this as subject for the EVALUATE
+
+For more known issues see the bug tracker.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
  GnuCOBOL 3.1.2 released (20201223)
  GnuCOBOL 3.1.1 released (20201208) containing INITIALIZE bug #694
  GnuCOBOL 3.1 released   (20201111) had build issues that were fixed
@@ -11,10 +561,10 @@ NEWS - user visible changes				-*- outline -*-
 
 ** JSON GENERATE statement
    (note: runtime support needs additional library cJSON or JSON-C)
-   
-** CONTINUE AFTER statement (COBOL 202x) implemented, also handle fractions
+
+** CONTINUE AFTER statement (COBOL 2023) implemented, also handle fractions
    of seconds in C$SLEEP now
-   
+
 ** TYPEDEF and SAME AS (COBOL 2002) implemented, including the MicroFocus
    and RM/COBOL variants
 
@@ -27,7 +577,7 @@ NEWS - user visible changes				-*- outline -*-
 ** file handling: include support for a callable EXTFH interface also provided
    by several compilers including Micro Focus
    This allows users to insert an external file handler while retaining
-   all of the normal COBOL I/O functions with a possible callback to libcob.
+   all the normal COBOL I/O functions with a possible callback to libcob.
    To have the compiled program call `yourfh()` for file I/O use:
    `cobc -fcallfh=yourfh`
    In turn `yourfh()` may call `EXTFH()` to use I/O functions from GnuCOBOL.
@@ -40,17 +590,17 @@ NEWS - user visible changes				-*- outline -*-
 ** file handling: name mapping adjusted (improved MF and ACU-compatibility):
    entries starting with a period or number are not resolved any more,
    periods in the external identifier are always replaced by underscore
-    -> MY.FILE is resolved by DD_MY_FILE, dd_MY_FILE, MIFILE now;
+    -> MY.FILE is resolved by DD_MY_FILE, dd_MY_FILE, MYFILE now;
    prefixes "-F " and "-D " are removed from external names;
    if filename is not absolute after translation, COB_FILE_PATH is now
    still applied;
    File name mapping now applies both to COBOL statements and CALLable
    CBL_ and C$ file routines.
-   
+
 ** Screen I/O: initial mouse support (for details see runtime.cfg),
    use of CURSOR clause in SPECIAL-NAMES for positioning on ACCEPT
 
-** on abort a stack trace will be genereated, this can be suppressed by
+** on abort a stack trace will be generated, this can be suppressed by
    runtime configuration option COB_STRACK_TRACE
 
 ** the dump that is generated on abort (depending on -fdump at compile-time)
@@ -59,10 +609,10 @@ NEWS - user visible changes				-*- outline -*-
 
 ** changes in handling COPY statement:
    * copybook names that contain an extension aren't searched with additional
-     extensions [as post-rc1-change this may be set to old behaviour by
+     extensions [as post-rc1-change this may be set to old behavior by
      defining COB_MULTI_EXTENSION when building GnuCOBOL/cobc]
    * library names are now tested for environment "COB_COPY_LIB_libname",
-     allowing the directory to specified externally (also as no-directory 
+     allowing the directory to specified externally (also as no-directory
      by exporting with empty value) and has a fallback (with a warning) to
      be effectively ignored (as previous versions did this)
 
@@ -93,7 +643,8 @@ NEWS - user visible changes				-*- outline -*-
        specific (this option used to be called -W)
    -Wadditional  new warning group for all warnings that don't have a group
        on their own
-   -Wno-error and -Wno-error=<warning> to treat (specific <warning>s) not as error
+   -Wno-error and -Wno-error=<warning> to treat all or a specific <warning>
+       not as error
    -Wdangling-text for raising the warning "source text after program area",
        not included in -Wall any more
    -Wno-ignored-error allows to suppress messages that normally would be an
@@ -105,10 +656,10 @@ NEWS - user visible changes				-*- outline -*-
 
    extra information to a warning (or error) is now marked as "note:"
 
-** the interal Xref got a huge speedup, has all references in ascending order
-   now and includes the total amount of direct references
+** the internal Xref performance has improved, has all references in ascending
+   order now and includes the total amount of direct references
 
-** the interal listing got a speedup and has all error references in
+** the internal listing got a speedup and has all error references in
    ascending order now
 
 ** cobc -g (and configure --enable-debug) use the most expressive
@@ -116,25 +667,31 @@ NEWS - user visible changes				-*- outline -*-
 
 ** cobc -g now auto-includes references to the COBOL source file and to
    all ENTRY and SECTION elements to ease source level debugging
-   
+
+** allow 3-byte CRT STATUS variable according to X/Open standard
+
 
 
 * Changes in the COBOL runtime (libcob)
 
-** Messages from the COBOL runtime are also translated now (if installed).
-   To prevent this disable translations in general with using the configure
-   option --disable-nls (or by deactivating ENABLE_NLS in config.h).
+** messages from the COBOL runtime are also translated now (if installed);
+   to prevent this, disable translations in general with using the configure
+   option --disable-nls (or by deactivating ENABLE_NLS in config.h)
+
+** first-time file-locking under Win32
+
+** handle CRT STATUS either numerically, alphanumerically (4 digits) or as 3
+   bytes according to X/Open standard, depending on format and size
+
+** execution times of INSPECT and INITIALIZE with OCCURS were heavily cut down,
+   to fully benefit from this a recompile is necessary
 
 ** libcob.h does no longer auto-include gmp.h (behavior since 2.x), if you link
    against libcob and need cob_decimal include gmp.h/mpir.h yourself before;
-   otherwise you do not need it in your include path any more
-
-** execution times of INSPECT and INITIALIZE with OCCURS were heavily cut down
+   otherwise you do not need it in your include path anymore
 
 ** convenience functions for direct C access to COBOL fields and for debugging
    were added, see new C-API documentation
-
-** first-time file-locking under Win32
 
 ** Breaking change: previously the return-code of registered error handlers
    (by CBL_ERROR_PROC) were ignored. This was changed according to the
@@ -181,7 +738,7 @@ NEWS - user visible changes				-*- outline -*-
    hardening options or leave as-is, or disable (which previous versions
    effectively did)
 
-** build system: defaults.h is not created or included any more, all configure
+** build system: defaults.h is not created or included anymore, all configure
    provided defines are now found in the single header config.h
 
 ** Any time after `make` you can call `pre-inst-env` script to use the still-
@@ -192,38 +749,18 @@ NEWS - user visible changes				-*- outline -*-
    session with the environment adjusted to use the uninstalled version.
 
 
-* Too much bug fixes to list here (please check ChangeLogs for full details),
+* Too many bug fixes to list here (please check ChangeLogs for full details),
   includes the following CVEs:
-  
+
 ** compiler (may be triggered with special crafted source files)
    CVE-2019-14468, CVE-2019-14486, CVE-2019-14528, CVE-2019-14541,
    CVE-2019-16396, CVE-2019-16395
 
 * GnuCOBOL's getopt implementation honors POSIXLY_CORRECT now:
   if set to any value the option parsing in cobc, cobcrun and CBL_GC_GETOPT
-  stops at the first nonoption, otherwise it stays with the old behaviour and
+  stops at the first nonoption, otherwise it stays with the old behavior and
   re-orders nonoptions to the end)
 
-
-* Known issues in 3.1
-
-** testsuite:
-  * if built with vbisam, cisam or disam, depending on the version used, some
-    tests will lead to UNEXPECTED PASS, while others may fail
-  * possibly failing tests (false positives):
-    * temporary path invalid
-    * compiler outputs (assembler)
-    * compile from stdin
-  * NIST: OBNC1M.CBL false positive (the test runner uses a nonportable way of
-    emulating a program kill)
-
-** the recent additions of ">> TURN" and "variable LIKE variable" may not work
-   as expected in all cases
-
-** features that are known to not be portable to every environment yet
-   (especially when using a different compiler than GCC)
-    * function with variable-length RETURNING item
-    * USAGE POINTER, which may need to be manually aligned
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -322,7 +859,7 @@ NEWS - user visible changes				-*- outline -*-
 ** new configure option --enable-debug-log to allow *internal* tracing
    of GnuCOBOL (intended for developers of GnuCOBOL only)
 
-* Too much bug fixes to list here (please check ChangeLogs for full details).
+* Too many bug fixes to list here (please check ChangeLogs for full details).
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -330,7 +867,7 @@ NEWS - user visible changes				-*- outline -*-
 
 * Move to GPL/LGPL 3
 
-* New GnuCOBOL features (too much to list)
+* Most noteworthy new GnuCOBOL features (too many to list them all)
 
 ** User Defined Functions, FUNCTION-ID.
 
@@ -384,7 +921,7 @@ NEWS - user visible changes				-*- outline -*-
   x'E4'                            clear terminal screen
   x'E5'                            ring the bell
 
-** full support of ANSI 85 debugging module:
+** full support for ANSI 85 debugging module:
    USE FOR DEBUGGING declarative procedures (only part of the generation if
    WITH DEBUGGING MODE is active during compilation) and special register:
    01 DEBUG-ITEM.
@@ -546,7 +1083,7 @@ NEWS - user visible changes				-*- outline -*-
  GnuCOBOL 1.1 released (20140118)
 
 * Change unix package name to gnu-cobol, and project to GnuCOBOL
-* list of changes see
+* for a full list of changes see
   https://gnucobol.sourceforge.io/faq/
   #what-are-the-differences-between-opencobol-1-1-and-gnucobol-1-1
 

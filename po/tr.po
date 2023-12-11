@@ -1,0 +1,7315 @@
+# GnuCOBOL Turkish translations
+# Copyright (C) 2022 Free Software Foundation, Inc.
+# This file is distributed under the same license as the gnucobol package.
+# Emir SARI <emir_sari@icloud.com>, 2022, 2023.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gnucobol 3.2-rc1\n"
+"Report-Msgid-Bugs-To: gnucobol-messages@gnu.org\n"
+"POT-Creation-Date: 2023-07-28 19:20+0200\n"
+"PO-Revision-Date: 2023-01-26 12:00+0300\n"
+"Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
+"Language-Team: Turkish <gnome-turk@gnome.org>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
+
+#: cobc/cobc.c:116 cobc/codegen.c:2655 cobc/scanner.l:1375
+#, c-format
+msgid "invalid parameter: %s"
+msgstr "geçersiz parametre: %s"
+
+#: cobc/cobc.c:171 cobc/cobc.c:2392 cobc/cobc.c:2395 cobc/parser.y:895
+#: cobc/reserved.c:4039 libcob/common.c:235 libcob/common.c:1369
+#: libcob/common.c:2698 libcob/common.c:2702 libcob/common.c:2740
+#: libcob/common.c:2778 libcob/common.c:2939 libcob/common.c:8159
+#: libcob/common.c:9191 libcob/common.c:10209 libcob/common.c:10284
+#: libcob/common.c:10731
+msgid "unknown"
+msgstr "bilinmiyor"
+
+#: cobc/cobc.c:905
+msgid "internal compiler error"
+msgstr "iç derleyici hatası"
+
+#: cobc/cobc.c:971 cobc/cobc.c:1058 cobc/cobc.c:1120 cobc/cobc.c:1196
+#: cobc/cobc.c:1236 cobc/cobc.c:1312
+#, c-format
+msgid "cannot allocate %d bytes of memory"
+msgstr "%d bayt bellek ayrılamıyor"
+
+#: cobc/cobc.c:984 cobc/cobc.c:1000 cobc/cobc.c:1020 cobc/cobc.c:1079
+#: cobc/cobc.c:1098 cobc/cobc.c:1216 cobc/cobc.c:1331 cobc/cobc.c:1415
+#: cobc/field.c:2346 libcob/common.c:9012
+#, c-format
+msgid "call to %s with NULL pointer"
+msgstr "%s konumuna NULL işaretçisi ile çağrı"
+
+#: cobc/cobc.c:1041
+#, c-format
+msgid "cannot reallocate %d bytes of memory"
+msgstr "%d bayt bellek yeniden ayrılamıyor"
+
+#: cobc/cobc.c:1137 cobc/cobc.c:1253
+msgid "attempt to reallocate non-allocated memory"
+msgstr "ayrılmamış belleği ayırma denemesi"
+
+#: cobc/cobc.c:1170 cobc/cobc.c:1286
+#, c-format
+msgid "call to %s with invalid pointer, as it is missing in list"
+msgstr "%s konumuna geçersiz işaretçili çağrı; çünkü listede yok"
+
+#: cobc/cobc.c:1540
+#, c-format
+msgid "assuming literal for unquoted '%s'"
+msgstr "tırnak içine alınmamış '%s' harfi harfine varsayılıyor"
+
+#: cobc/cobc.c:1587
+msgid " - length exceeds maximum"
+msgstr " - uzunluk izin verilen en fazlayı aşıyor"
+
+#: cobc/cobc.c:1591
+msgid " - name cannot be empty"
+msgstr " - ad, boş olamaz"
+
+#: cobc/cobc.c:1594
+#, fuzzy
+#| msgid " - name cannot begin with space or underscore"
+msgid " - name cannot begin with space or hyphen"
+msgstr " - ad, boşluk veya alt çizgi ile başlayamaz"
+
+#: cobc/cobc.c:1597
+msgid " - name cannot begin with 'cob_' or 'COB_'"
+msgstr " - ad, 'cob_' veya 'COB_' ile başlayamaz"
+
+#: cobc/cobc.c:1600
+msgid " - name duplicates a 'C' keyword"
+msgstr " - ad, bir 'C' anahtar sözcüğüne çoğaltılıyor"
+
+#: cobc/cobc.c:1603
+msgid " - name cannot contain a directory separator"
+msgstr " - ad, bir dizin ayırıcısı içeremez"
+
+#: cobc/cobc.c:1612
+#, c-format
+msgid "invalid file base name '%s'%s"
+msgstr "geçersiz dosya taban adı '%s'%s"
+
+#: cobc/cobc.c:1616
+#, c-format
+msgid "invalid ENTRY '%s'%s"
+msgstr "geçersiz ENTRY '%s'%s"
+
+#: cobc/cobc.c:1619
+#, c-format
+msgid "invalid PROGRAM-ID '%s'%s"
+msgstr "geçersiz PROGRAM-ID '%s'%s"
+
+#: cobc/cobc.c:1751
+#, c-format
+msgid "file '%s' does not exist"
+msgstr "'%s' dosyası yok"
+
+#: cobc/cobc.c:1777
+#, c-format
+msgid "duplicate exception '%s'"
+msgstr "yinelenmiş istisna '%s'"
+
+#: cobc/cobc.c:1825
+#, c-format
+msgid "invalid exception-name: %s"
+msgstr "geçersiz istisna adı: %s"
+
+#: cobc/cobc.c:1998 cobc/cobc.c:9211
+msgid "please check environment variables as noted above"
+msgstr "yukarıda belirtildiği üzere çevre değişkenlerini denetleyin"
+
+#: cobc/cobc.c:2010 cobc/error.c:140
+msgid "error: "
+msgstr "hata: "
+
+#: cobc/cobc.c:2033
+#, c-format
+msgid "duplicate DEFINE '%s' - ignored"
+msgstr "yinelenmiş DEFINE '%s' - yok sayıldı"
+
+#: cobc/cobc.c:2086
+#, c-format
+msgid "environment variable '%s' is '%s'; should not contain '%c'"
+msgstr "çevre değişkeni '%s', %s; '%c' içermemeli"
+
+#: cobc/cobc.c:2116
+msgid "parameter buffer size exceeded"
+msgstr "parametre arabellek boyutu aşıldı"
+
+#: cobc/cobc.c:2156
+#, c-format
+msgid "warning: could not move temporary file to %s"
+msgstr "uyarı: geçici dosya %s konumuna taşınamadı"
+
+#: cobc/cobc.c:2329
+#, fuzzy, c-format
+#| msgid "environment variable '%s' is '%s'; should not contain '%c'"
+msgid "environment variable '%s' has invalid content"
+msgstr "çevre değişkeni '%s', %s; '%c' içermemeli"
+
+#: cobc/cobc.c:2398
+#, c-format
+msgid "aborting compile of %s at line %d (%s: %s)"
+msgstr "%s derlenmesi %d satırında iptal ediliyor (%s: %s)"
+
+#: cobc/cobc.c:2402
+#, c-format
+msgid "aborting codegen for %s, last statement at line %d (%s: %s)"
+msgstr "%s için kod oluşturması iptal ediliyor, son ifade %d. satırda (%s: %s)"
+
+#: cobc/cobc.c:2405
+#, c-format
+msgid "aborting codegen for %s (%s: %s)"
+msgstr "%s için kod oluşturması iptal ediliyor (%s: %s)"
+
+#: cobc/cobc.c:2410
+msgid "aborting"
+msgstr "iptal ediliyor"
+
+#: cobc/cobc.c:2488 libcob/common.c:3107 libcob/common.c:8970 bin/cobcrun.c:373
+#, c-format
+msgid "Please report this!"
+msgstr "Lütfen bunu bildirin!"
+
+#: cobc/cobc.c:2505 bin/cobcrun.c:100
+#, c-format
+msgid "License GPLv3+: GNU GPL version 3 or later <%s>"
+msgstr "GPLv3+ lisansı: GNU GPL sürüm 3 veya sonrası <%s>"
+
+#: cobc/cobc.c:2507 libcob/common.c:9558 bin/cobcrun.c:102
+msgid ""
+"This is free software; see the source for copying conditions.  There is NO\n"
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+msgstr ""
+"Bu, özgür yazılımdır; kopyalama koşulları için kaynağa bakın.\n"
+"PAZARLANABİLİRLİK veya BELİRLİ BİR AMAÇ İÇİN UYGUNLUK da dahil\n"
+"olmak üzere herhangi bir garantisi YOKTUR."
+
+#: cobc/cobc.c:2509 libcob/common.c:9560 bin/cobcrun.c:104
+#, c-format
+msgid "Written by %s"
+msgstr "%s tarafından yazıldı"
+
+#. TRANSLATORS: This msgid is intended as the "Packaged" msgid, %s expands to date and time
+#: cobc/cobc.c:2511 cobc/cobc.c:2524 libcob/common.c:9564 bin/cobcrun.c:106
+#, c-format
+msgid "Built     %s"
+msgstr "Yapım     %s"
+
+#. TRANSLATORS: This msgid is intended as the "Built" msgid, %s expands to date and time
+#: cobc/cobc.c:2513 cobc/cobc.c:2526 libcob/common.c:9567 bin/cobcrun.c:108
+#, c-format
+msgid "Packaged  %s"
+msgstr "Paketleme %s"
+
+#: cobc/cobc.c:2515 cobc/cobc.c:2528 cobc/cobc.c:2637 libcob/common.c:9604
+msgid "C version"
+msgstr "C sürümü"
+
+#: cobc/cobc.c:2541 libcob/common.c:1075
+msgid "executing:"
+msgstr "yürütülüyor:"
+
+#: cobc/cobc.c:2543
+msgid "to be executed:"
+msgstr "yürütülecek:"
+
+#: cobc/cobc.c:2581 cobc/cobc.c:2582 libcob/common.c:7632 libcob/common.c:7633
+#: libcob/common.c:7664 libcob/common.c:7665
+msgid "env"
+msgstr "çevre"
+
+#: cobc/cobc.c:2633 libcob/common.c:9600
+msgid "build information"
+msgstr "yapı bilgisi"
+
+#: cobc/cobc.c:2634 libcob/common.c:9601
+msgid "build environment"
+msgstr "yapı ortamı"
+
+#: cobc/cobc.c:2643 libcob/common.c:9611
+msgid "GnuCOBOL information"
+msgstr "GnuCOBOL bilgisi"
+
+#: cobc/cobc.c:2651 cobc/cobc.c:2739 cobc/cobc.c:2755 libcob/common.c:9233
+#: libcob/common.c:9594 libcob/common.c:9595 libcob/common.c:9629
+#: libcob/common.c:9695 libcob/common.c:9717 libcob/common.c:9751
+msgid "disabled"
+msgstr "devre dışı"
+
+#: cobc/cobc.c:2687 cobc/cobc.c:2705 libcob/common.c:8179 libcob/common.c:9221
+#: libcob/common.c:9230 libcob/common.c:9633 libcob/common.c:9651
+msgid "yes"
+msgstr "evet"
+
+#: cobc/cobc.c:2689 cobc/cobc.c:2707 libcob/common.c:8181 libcob/common.c:9223
+#: libcob/common.c:9635 libcob/common.c:9653
+msgid "no"
+msgstr "hayır"
+
+#: cobc/cobc.c:2693 libcob/common.c:9639
+msgid "8 bytes"
+msgstr "8 bayt"
+
+#: cobc/cobc.c:2695 libcob/common.c:9641
+msgid "4 bytes"
+msgstr "4 bayt"
+
+#: cobc/cobc.c:2699 cobc/cobc.c:2701 libcob/common.c:9645 libcob/common.c:9647
+msgid "endianness"
+msgstr "hanelik"
+
+#: cobc/cobc.c:2699 libcob/common.c:9645
+msgid "big-endian"
+msgstr "yüksek son haneli"
+
+#: cobc/cobc.c:2701 libcob/common.c:9647
+msgid "little-endian"
+msgstr "düşük son haneli"
+
+#: cobc/cobc.c:2705 cobc/cobc.c:2707 libcob/common.c:9651 libcob/common.c:9653
+msgid "native EBCDIC"
+msgstr "yerel EBCDIC"
+
+#: cobc/cobc.c:2710 libcob/common.c:9754
+msgid "extended screen I/O"
+msgstr "genişletilmiş ekran girdisi-çıktısı"
+
+#: cobc/cobc.c:2713 libcob/common.c:9657
+msgid "variable file format"
+msgstr "değişken dosya biçimi"
+
+#: cobc/cobc.c:2719 cobc/cobc.c:2721 libcob/common.c:9663 libcob/common.c:9665
+msgid "sequential file handler"
+msgstr "ardışık dosya işleyicisi"
+
+#: cobc/cobc.c:2721 libcob/common.c:9665
+msgid "built-in"
+msgstr "yapılı"
+
+#: cobc/cobc.c:2725 cobc/cobc.c:2727 cobc/cobc.c:2729 cobc/cobc.c:2731
+#: cobc/cobc.c:2734 cobc/cobc.c:2736 cobc/cobc.c:2739 libcob/common.c:9669
+#: libcob/common.c:9683 libcob/common.c:9685 libcob/common.c:9687
+#: libcob/common.c:9690 libcob/common.c:9692 libcob/common.c:9695
+msgid "indexed file handler"
+msgstr "indekslenmiş dosya işleyicisi"
+
+#: cobc/cobc.c:2744 cobc/cobc.c:2746 cobc/cobc.c:2749 libcob/common.c:9701
+msgid "mathematical library"
+msgstr "matematik kitaplığı"
+
+#: cobc/cobc.c:2753 cobc/cobc.c:2755 libcob/common.c:9712 libcob/common.c:9717
+msgid "XML library"
+msgstr "XML kitaplığı"
+
+#: cobc/cobc.c:2758 libcob/common.c:9734 libcob/common.c:9749
+#: libcob/common.c:9751
+msgid "JSON library"
+msgstr "JSON kitaplığı"
+
+#: cobc/cobc.c:2761 libcob/common.c:9627 libcob/common.c:9758
+msgid "enabled"
+msgstr "etkin"
+
+#: cobc/cobc.c:2768
+msgid "only one of options 'E', 'S', 'C', 'c' may be specified"
+msgstr "yalnızca 'E', 'S', 'C', 'c' seçeneklerinden biri belirtilebilir"
+
+#: cobc/cobc.c:2774
+msgid "only one of options 'm', 'x', 'b' may be specified"
+msgstr "yalnızca 'm', 'x', 'b' seçeneklerinden biri belirtilebilir"
+
+#: cobc/cobc.c:2816
+#, c-format
+msgid "option requires one of 'ALL', 'FD', 'WS', 'LS', 'RD', 'FD', 'SC', 'LO' - not '%s'"
+msgstr "seçenek, 'ALL', 'FD', 'WS', 'LS', 'RD', 'FD', 'SC', 'LO' arasından birini gerektiriyor; %s değil"
+
+#: cobc/cobc.c:2846
+#, c-format
+msgid "'%s' is not an intrinsic function"
+msgstr "'%s', yerleşik bir işlev değil"
+
+#: cobc/cobc.c:2889 cobc/cobc.c:8507 cobc/cobc.c:8626 cobc/codegen.c:3761
+#: cobc/codegen.c:3864 cobc/codegen.c:5671 cobc/codegen.c:5816
+#: cobc/codegen.c:13429 cobc/parser.y:391 cobc/tree.c:1397 cobc/tree.c:4565
+#: cobc/tree.c:5135 cobc/tree.c:5392 cobc/typeck.c:4497 cobc/typeck.c:9504
+#: cobc/typeck.c:9541 cobc/typeck.c:10418 cobc/typeck.c:13395
+#: cobc/typeck.c:13469 cobc/typeck.c:13537 cobc/typeck.c:13825
+#: cobc/typeck.c:13887 libcob/fileio.c:10094 libcob/fileio.c:10105
+#, c-format
+msgid "call to '%s' with invalid parameter '%s'"
+msgstr "geçersiz '%2$s' parametreli '%1$s' çağrısı"
+
+#: cobc/cobc.c:3300
+msgid "loading standard configuration file 'default.conf'"
+msgstr "standart yapılandırma dosyası 'default.conf' yükleniyor"
+
+#: cobc/cobc.c:3387
+msgid "the used C compiler is known to not be able to generate assembler code"
+msgstr "kullanılan C derleyicisinin Assembler kodu üretemediği biliniyor"
+
+#: cobc/cobc.c:3469
+msgid "invalid output file name"
+msgstr "geçersiz çıktı dosya adı"
+
+#: cobc/cobc.c:3531
+#, c-format
+msgid "warning: '%s' is not a directory, defaulting to current directory"
+msgstr "uyarı: '%s' bir dizin değil, geçerli dizin öntanımlı kullanılıyor"
+
+#: cobc/cobc.c:3558
+#, c-format
+msgid "warning: %d lines per listing page specified, using %d"
+msgstr "uyarı: Sayfa listeleme başına %d satır belirtildi, %d kullanılıyor"
+
+#: cobc/cobc.c:3615
+#, c-format
+msgid "warning: assuming '%s' is a DEFINE - did you intend to use -debug?"
+msgstr "uyarı: '%s' ögesinin bir DEFINE olduğu varsayılıyor - -debug kullanmak mı istediniz?"
+
+#: cobc/cobc.c:3661 cobc/cobc.c:3702 cobc/cobc.c:4281
+#, c-format
+msgid "ignoring nonexistent directory \"%s\""
+msgstr ""
+
+#: cobc/cobc.c:3943 cobc/cobc.c:3968 cobc/cobc.c:3996
+#, c-format
+msgid "unknown warning option '%s'"
+msgstr "bilinmeyen uyarı seçeneği '%s'"
+
+#: cobc/cobc.c:4063
+#, c-format
+msgid "%s option requires a listing file"
+msgstr "%s seçeneği bir listeleme dosyası gerektiriyor"
+
+#: cobc/cobc.c:4070
+msgid "output to stdout only valid for preprocess"
+msgstr "stdout'a çıktı yalnızca ön işleme için geçerli"
+
+#: cobc/cobc.c:4085
+msgid "-MT must be given to specify target file"
+msgstr ""
+
+#: cobc/cobc.c:4091
+msgid "all runtime checks are enabled"
+msgstr "tüm çalışma zamanı denetimleri etkin"
+
+#: cobc/cobc.c:4316
+msgid "only one stdin input allowed"
+msgstr "yalnızca bir stdin girdisine izin veriliyor"
+
+#: cobc/cobc.c:4326
+#, c-format
+msgid "invalid file name parameter (length > %d)"
+msgstr "geçersiz dosya adı parametresi (uzunluk > %d)"
+
+#: cobc/cobc.c:4559
+msgid "return status:"
+msgstr "dönüş durumu:"
+
+#: cobc/cobc.c:4595 libcob/common.c:6391
+#, c-format
+msgid "external process \"%s\" ended with signal %s (%d)"
+msgstr "\"%s\" dış süreci, %s sinyali ile sonlandı (%d)"
+
+#: cobc/cobc.c:4654
+msgid "nothing for -j to run"
+msgstr "-j'nin çalıştırması için bir şey yok"
+
+#: cobc/cobc.c:4697 cobc/cobc.c:4711
+#, c-format
+msgid "%s is resolved by environment as: %s"
+msgstr "%s, ortam tarafından şu biçimde çözüldü: %s"
+
+#: cobc/cobc.c:5175
+msgid "preprocessing:"
+msgstr "ön işleme yapılıyor:"
+
+#: cobc/cobc.c:5244
+msgid "'cobxref' execution unsuccessful"
+msgstr "'cobxref' yürütmesi başarısız"
+
+#: cobc/cobc.c:5247
+#, c-format
+msgid "check that 'cobxref' is in %s"
+msgstr "'cobxref'in %s içinde olduğundan emin olun"
+
+#: cobc/cobc.c:5249
+msgid "no listing produced"
+msgstr "bir listeleme üretilmedi"
+
+#: cobc/cobc.c:6234 cobc/cobc.c:6273
+msgid "No fields defined."
+msgstr "Alan tanımlanmamış."
+
+#: cobc/cobc.c:6293
+msgid "No labels defined."
+msgstr "Etiket tanımlanmamış."
+
+#: cobc/cobc.c:6324 cobc/cobc.c:9292
+msgid "command line:"
+msgstr "komut satırı:"
+
+#: cobc/cobc.c:6342
+msgid "Error/Warning summary:"
+msgstr "Hata/Uyarı özeti:"
+
+#: cobc/cobc.c:6385
+msgid "0 warnings in compilation group"
+msgstr "derleme grubunda 0 uyarı"
+
+#: cobc/cobc.c:6389
+msgid "1 warning in compilation group"
+msgstr "derleme grubunda 1 uyarı"
+
+#: cobc/cobc.c:6393
+#, c-format
+msgid "%d warnings in compilation group"
+msgstr "derleme grubunda %d uyarı"
+
+#: cobc/cobc.c:6399
+msgid "0 errors in compilation group"
+msgstr "derleme grubunda 0 uyarı"
+
+#: cobc/cobc.c:6403
+msgid "1 error in compilation group"
+msgstr "derleme grubunda 1 uyarı"
+
+#: cobc/cobc.c:6407
+#, c-format
+msgid "%d errors in compilation group"
+msgstr "derleme grubunda %d uyarı"
+
+#: cobc/cobc.c:6413
+#, c-format
+msgid "Too many errors in compilation group: %d maximum errors"
+msgstr "Derleme grubunda pek fazla hata: %d en çok hata"
+
+#: cobc/cobc.c:7028
+#, c-format
+msgid "%s:%d: too many continuation lines"
+msgstr "%s:%d: Pek çok sürdürüm satırı"
+
+#: cobc/cobc.c:7956
+msgid "parsing:"
+msgstr "ayrıştırılıyor:"
+
+#: cobc/cobc.c:8017
+msgid "translating:"
+msgstr "çevriliyor:"
+
+#: cobc/cobc.c:9217
+msgid "no input files"
+msgstr "girdi dosyası yok"
+
+#: cobc/cobc.c:9248
+#, c-format
+msgid "%s option invalid in this combination"
+msgstr "%s seçeneği, bu kombinasyonda geçersiz"
+
+#: cobc/codegen.c:1040 cobc/codegen.c:4506 cobc/codegen.c:11910
+#: cobc/codegen.c:12467
+msgid "unexpected CONSTANT item"
+msgstr "beklenmedik CONSTANT ögesi"
+
+#: cobc/codegen.c:2921 cobc/codegen.c:3207 cobc/codegen.c:8866 cobc/tree.c:1419
+#, c-format
+msgid "unexpected cast type: %d"
+msgstr "beklenmedik rol verme türü: %d"
+
+#: cobc/codegen.c:3690 cobc/codegen.c:4455
+#, c-format
+msgid "internal statement stack depth exceeded: %d"
+msgstr "iç ifade yığın derinliği aşıldı: %d"
+
+#: cobc/codegen.c:3763
+#, c-format
+msgid "%s is not a field"
+msgstr "%s, bir alan değil"
+
+#: cobc/codegen.c:4177 cobc/codegen.c:4279
+#, c-format
+msgid "unexpected function: %s"
+msgstr "beklenmedik işlev: %s"
+
+#: cobc/codegen.c:5256
+#, c-format
+msgid "unexpected tree category: %d"
+msgstr "beklenmedik ağaç kategorisi: %d"
+
+#: cobc/codegen.c:6108
+#, c-format
+msgid "unexpected size: %d"
+msgstr "beklenmedik boyut: %d"
+
+#: cobc/codegen.c:7894
+#, c-format
+msgid "No ENTRY FOR GO TO '%s'"
+msgstr "ENTRY FOR GO TO '%s' yok"
+
+#: cobc/codegen.c:8283 cobc/codegen.c:8609
+#, c-format
+msgid "unexpected handler type: %d"
+msgstr "beklenmedik işleyici türü: %d"
+
+#: cobc/codegen.c:8887
+#, c-format
+msgid "unexpected tree type: %d"
+msgstr "beklenmedik ağaç türü: %d"
+
+#: cobc/codegen.c:9776
+msgid "Nested OCCURS in report"
+msgstr "Rapor içinde iç içe geçmiş OCCURS"
+
+#: cobc/codeoptim.c:2856
+#, c-format
+msgid "unexpected optimization value: %d"
+msgstr "beklenmedik eniyileme değeri: %d"
+
+#: cobc/config.c:164 libcob/common.c:8639 libcob/common.c:8653
+#: libcob/common.c:9136
+#, c-format
+msgid "invalid value '%s' for configuration tag '%s'"
+msgstr "yapılandırma etiketi '%2$s' için geçersiz değer '%1$s'"
+
+#: cobc/config.c:167 libcob/common.c:7915 libcob/common.c:7939
+#, c-format
+msgid "should be one of the following values: %s"
+msgstr "aşağıdaki değerlerden biri olmalıydı: %s"
+
+#: cobc/config.c:169
+msgid "must be numeric"
+msgstr "sayı olmalı"
+
+#: cobc/config.c:171 libcob/common.c:8045
+#, c-format
+msgid "maximum value: %lu"
+msgstr "en büyük değer: %lu"
+
+#: cobc/config.c:173
+#, c-format
+msgid "minimum value: %d"
+msgstr "en küçük değer: %d"
+
+#: cobc/config.c:204
+#, c-format
+msgid "unsupported value '%s' for configuration tag '%s'"
+msgstr "yapılandırma etiketi '%2$s' için desteklenmeyen değer '%1$s'"
+
+#: cobc/config.c:319 cobc/pplex.l:1264 libcob/common.c:8554
+msgid "recursive inclusion"
+msgstr "özyineli içerme"
+
+#: cobc/config.c:394 libcob/common.c:8606
+msgid "configuration file was included here"
+msgstr "yapılandırma dosyası burada içerilmişti"
+
+#: cobc/config.c:423
+#, c-format
+msgid "The previous loaded configuration '%s' will be discarded."
+msgstr "Önceden yüklenen '%s' yapılandırması atılacak."
+
+#: cobc/config.c:459
+msgid "missing definitions:"
+msgstr "eksik tanımlar:"
+
+#: cobc/config.c:461
+#, c-format
+msgid "\tno definition of '%s'"
+msgstr "\t'%s' ögesinin tanımı yok"
+
+#: cobc/config.c:524
+#, c-format
+msgid "invalid configuration tag '%s'"
+msgstr "geçersiz yapılandırma etiketi '%s'"
+
+#: cobc/config.c:537 libcob/common.c:8360 libcob/common.c:8444
+#: libcob/common.c:8472
+#, c-format
+msgid "unknown configuration tag '%s'"
+msgstr "bilinmeyen yapılandırma etiketi '%s'"
+
+#: cobc/config.c:561
+#, c-format
+msgid "invalid configuration tag '%s' in word-list"
+msgstr "sözcük listesinde geçersiz yapılandırma etiketi '%s'"
+
+#: cobc/config.c:623
+#, c-format
+msgid "Could not access word list for '%s'"
+msgstr "'%s' için sözcük listesine erişilemedi"
+
+#: cobc/config.def:47
+msgid "use of complete/fixed reserved words"
+msgstr "tam/düzeltilmiş rezerve sözcüklerin kullanımı"
+
+#: cobc/config.def:52
+msgid "number of spaces that are assumed for tabs"
+msgstr "sekmeler için varsayılan boşluk sayısı"
+
+#: cobc/config.def:55
+msgid "right margin column number for fixed-form reference-format"
+msgstr "sabit biçimli başvuru biçimi için sağ kenar boşluğu sütunu"
+
+#: cobc/config.def:57 cobc/config.def:63
+msgid "<number>"
+msgstr "<sayı>"
+
+#: cobc/config.def:58
+msgid "maximum number of characters allowed in the PICTURE character-string"
+msgstr "PICTURE karakter dizisinde izin verilen en çok karakter sayısı"
+
+#: cobc/config.def:61
+msgid "maximum word-length for COBOL (= programmer defined) words"
+msgstr "COBOL sözcükleri (programcı tanımlı) için en büyük sözcük uzunluğu"
+
+#: cobc/config.def:64
+msgid "maximum literal size in general"
+msgstr "genelde en büyük düz veri boyutu"
+
+#: cobc/config.def:67
+msgid "maximum numeric literal size"
+msgstr "en büyük sayısal düz veri boyutu"
+
+#: cobc/config.def:73
+#, fuzzy
+#| msgid ""
+#| "default initialization for fields without VALUE, may be one of\n"
+#| "                        * character in quotes\n"
+#| "                        * decimal 0..255 representing a character\n"
+#| "                        * \"init\" to initialize to PICTURE/USAGE\n"
+#| "                        * \"none\" to do no explicit initialization\n"
+#| "                        * default: \"init\""
+msgid ""
+"default initialization for fields without VALUE, may be one of\n"
+"                         * character in quotes\n"
+"                         * decimal 0..255 representing a character\n"
+"                         * \"init\" to initialize to PICTURE/USAGE\n"
+"                         * \"none\" to do no explicit initialization\n"
+"                         * default: \"init\""
+msgstr ""
+"VALUE içermeyen alanlar için öntanımlı ilklendirme, şunlardan biri olabilir\n"
+"                        * tırnak içinde karakter\n"
+"                        * bir karakteri simgeleyen 0..255 arası ondalık\n"
+"                        * PICTURE/USAGE'a ilklendirmek için \"init\" \n"
+"                        * açıkça ilklendirme yapmamak için \"none\"\n"
+"                        * öntanımlı: \"init\""
+
+#: cobc/config.def:83
+msgid "default reference-format, may be one of: "
+msgstr "öntanımlı başvuru biçimi, şunlardan biri olabilir:"
+
+#: cobc/config.def:86
+msgid "binary byte size - defines the allocated bytes according to PIC, may be one of: 2-4-8, 1-2-4-8, 1--8"
+msgstr "ikili bayt boyutu - PIC'e göre ayrılan baytları tanımlar, şunlardan biri olabilir: 2-4-8, 1-2-4-8, 1--8"
+
+#: cobc/config.def:89
+msgid "binary byte order, may be one of: native, big-endian"
+msgstr "ikili bayt sırası, şunlardan biri olabilir: native, big-endian"
+
+#: cobc/config.def:92
+msgid "how to interpret 'ASSIGN word': as 'ASSIGN EXTERNAL word' or 'ASSIGN DYNAMIC word', may be one of: dynamic, external, ibm (= external), mf (= dynamic)"
+msgstr "'ASSIGN sözcük'ün nice yorumlanacağı: 'ASSIGN EXTERNAL sözcük' veya ASSIGN DYNAMIC sözcük' olarak, şunlardan biri olabilir: dynamic, external, ibm (= external), mf (= dynamic)"
+
+#: cobc/config.def:95
+msgid "which compiler's rules to apply to SCREEN SECTION item clauses, may be one of: acu, gc, mf, rm, std, xopen"
+msgstr "SCREEN SECTION öge yantümcelerine hangi derleyicinin kurallarının uygulanacağı, şunlardan biri olabilir: acu, gc, mf, rm, std, xopen"
+
+#: cobc/config.def:98
+msgid "whether DECIMAL-POINT IS COMMA has effect in XML/JSON GENERATE, may be one of: none, xml, json, all"
+msgstr "XML/JSON GENERATE içinde DECIMAL-POINT IS COMMA'nın bir etkisinin olup olmayacağı, şunlardan biri olabilir: none, xml, json, all"
+
+#: cobc/config.def:101
+msgid "checking for subscript (only done with EC-BOUND-SUBSCRIPT active), may be one of: full, max, record"
+msgstr ""
+
+#: cobc/config.def:106
+msgid "resolve file names at run time using environment variables"
+msgstr "dosya adlarını çalışma zamanında çevre değişkenlerini kullanarak çöz"
+
+#: cobc/config.def:109
+msgid "alternate formatting of numeric fields"
+msgstr "sayısal alanların biçimlendirmesini arada değiştir"
+
+#: cobc/config.def:112
+msgid "numeric truncation according to ANSI"
+msgstr "ANSI'ye göre sayısal kısaltma"
+
+#: cobc/config.def:115
+#, fuzzy
+#| msgid "allow complex OCCURS DEPENDING ON"
+msgid "allow non-standard OCCURS DEPENDING ON syntax"
+msgstr "karmaşık OCCURS DEPENDING ON'a izin ver"
+
+#: cobc/config.def:118
+msgid "adjust items following OCCURS DEPENDING (implies complex-odo)"
+msgstr "OCCURS DEPENDING sonrası ögeleri düzenle (complex-odo ima eder)"
+
+#: cobc/config.def:121
+msgid "applies JUSTIFY with VALUE clause"
+msgstr ""
+
+#: cobc/config.def:124
+msgid "allow REDEFINES to other than last equal level number"
+msgstr "son eşit düzey numarasından başka REDEFINES'a izin ver"
+
+#: cobc/config.def:127
+msgid "allow certain syntax variations (e.g. REDEFINES position)"
+msgstr "belirli sözdizim varyasyonlarına izin ver (örn. REDEFINES konumu)"
+
+#: cobc/config.def:130
+msgid "allow zero length reference-modification (only changed with EC-BOUND-REF-MOD active)"
+msgstr "sıfır uzunluklu başvuru değişime izin ver (yalnızca EC-BOUND-REF-MOD etkinken değiştirilir)"
+
+#: cobc/config.def:133
+msgid "allow non-matching level numbers"
+msgstr "eşleşmeyen düzey numaralarına izin ver"
+
+#: cobc/config.def:136
+msgid "require ASSIGN USING items to be in WORKING-STORAGE"
+msgstr "ASSIGN USING ögelerinin WORKING-STORAGE içinde olmasını gerektir"
+
+#: cobc/config.def:139
+msgid "LOCAL-STORAGE SECTION implies RECURSIVE attribute"
+msgstr "LOCAL-STORAGE SECTION, RECURSIVE özniteliğini ima eder"
+
+#: cobc/config.def:142
+msgid "LINKAGE SECTION items remain allocated between invocations"
+msgstr "LINKAGE SECTION ögeleri çağırmalar arasında yer ayrılmış olarak kalır"
+
+#: cobc/config.def:145
+msgid "MOVE operates as on IBM (left to right, byte by byte)"
+msgstr "MOVE, IBM'deki gibi çalışır (soldan sağa, bayt bayt)"
+
+#: cobc/config.def:148
+msgid "exit point of any currently executing perform is recognized if reached"
+msgstr "şu anda yürütülen her programın çıkış noktası ulaşılırsa tanınır"
+
+#: cobc/config.def:151
+msgid "limit precision in intermediate results to precision of final result (less accurate)"
+msgstr "limit keskinliği, son değerin keskinliğine göre ortadır (daha az kesin)"
+
+#: cobc/config.def:154
+msgid "evaluate constant expressions at compile time"
+msgstr "sabit ifadeleri derleme sırasında değerlendir"
+
+#: cobc/config.def:157
+msgid "allow hexadecimal value 'F' for NUMERIC test of signed PACKED DECIMAL field"
+msgstr "PACKED DECIMAL alanının NUMERIC sınaması için onaltılık 'F' değerine izin ver"
+
+#: cobc/config.def:160
+msgid "program names don't lead to a reserved identifier"
+msgstr "program adları ayrılmış bir tanımlayıcıya sürüklemiyor"
+
+#: cobc/config.def:163
+msgid "set WITH UPDATE clause as default for ACCEPT dest-item, instead of WITH NO UPDATE"
+msgstr "ACCEPT hedef-ögesi için WITH NO UPDATE yerine WITH UPDATE yantümcesiyle öntanımlı ayarla"
+
+#: cobc/config.def:166
+msgid "set WITH AUTO clause as default for ACCEPT dest-item, instead of WITH TAB"
+msgstr "ACCEPT hedef-ögesi için WITH TAB yerine WITH AUTO yantümcesi ile öntanımlı ayarla"
+
+#: cobc/config.def:169
+msgid "assume CONSOLE IS CRT if not set otherwise"
+msgstr "başka türlü ayarlanmadıysa CONSOLE IS CRT varsay"
+
+#: cobc/config.def:172
+msgid "NO-ECHO hides input with asterisks like SECURE"
+msgstr "NO-ECHO, girdiyi yıldızlarla gizler, SECURE gibi"
+
+#: cobc/config.def:175
+msgid "assume a field DISPLAY starts at LINE 0 COL 0 (i.e. at the cursor), not LINE 1 COL 1"
+msgstr "bir alan DISPLAY'inin LINE 0 COL 0'da başladığını varsay (örn. imleçte), LINE 1 COL 1 değil"
+
+#: cobc/config.def:178
+msgid "special behaviour of DISPLAY SPACE/ALL X'01'/ALL X'02'/ALL X'07'"
+msgstr "DISPLAY SPACE/ALL X'01'/ALL X'02'/ALL X'07'ın özel davranışı"
+
+#: cobc/config.def:181
+msgid "COMP-1 is a 16-bit signed integer"
+msgstr "COMP-1, bir 16 bitlik imzalı tamsayı"
+
+#: cobc/config.def:184
+msgid "POINTER is a 64-bit unsigned integer"
+msgstr "POINTER, bir 64 bit imzalanmamış tamsayı"
+
+#: cobc/config.def:187
+msgid "imply zero in move of non-numeric literal to numeric items"
+msgstr "sayı olmayan düz verinin sayı ögesine taşınmasında sıfır ima et"
+
+#: cobc/config.def:190
+msgid "implicitly define a variable if an ASSIGN DYNAMIC does not match any data item"
+msgstr "eğer bir ASSIGN DYNAMIC herhangi bir veri ögesiyle eşleşmiyorsa dolaylı olarak bir değişken tanımla"
+
+#: cobc/config.def:193
+msgid "specifying device by mnemonic"
+msgstr "aygıt belletenle belirtiliyor"
+
+#: cobc/config.def:199
+msgid ""
+"check contents of Area A (when reference format supports Area A enforcement),\n"
+"                         enabled checks include:\n"
+"                         * division, section, paragraph names, level indicators (FD, SD, RD, and CD),\n"
+"                           and toplevel numbers (01 and 77) must start in Area A;\n"
+"                         * statements must not start in Area A; and\n"
+"                         * separator periods must not be within Area A"
+msgstr ""
+
+#: cobc/config.def:209
+msgid "comment paragraphs in IDENTIFICATION DIVISION (AUTHOR, DATE-WRITTEN, ...)"
+msgstr "IDENTIFICATION DIVISION (AUTHOR, DATE-WRITTEN, ...) içinde yorum paragrafları"
+
+#: cobc/config.def:217
+msgid ""
+"apply partial replacing with literal source operand even when it replaces with spaces only;\n"
+"                         * \"skip\" prevents such replacements"
+msgstr ""
+
+#: cobc/config.def:221
+msgid "MEMORY-SIZE clause"
+msgstr "MEMORY-SIZE yantümcesi"
+
+#: cobc/config.def:224
+msgid "MULTIPLE-FILE-TAPE clause"
+msgstr "MULTIPLE-FILE-TAPE yantümcesi"
+
+#: cobc/config.def:227
+msgid "LABEL-RECORDS clause"
+msgstr "LABEL-RECORDS yantümcesi"
+
+#: cobc/config.def:230
+msgid "VALUE-OF clause"
+msgstr "VALUE-OF yantümcesi"
+
+#: cobc/config.def:233
+msgid "DATA-RECORDS clause"
+msgstr "DATA-RECORDS yantümcesi"
+
+#: cobc/config.def:236
+msgid "OCCURS clause on top-level"
+msgstr "en üst düzeyde OCCURS yantümcesi"
+
+#: cobc/config.def:239 cobc/parser.y:7566
+msgid "SAME AS clause"
+msgstr "SAME AS yantümcesi"
+
+#: cobc/config.def:242 cobc/parser.y:7904
+msgid "TYPE TO clause"
+msgstr "TYPE TO yantümcesi"
+
+#: cobc/config.def:245 cobc/parser.y:7927
+msgid "USAGE type-name"
+msgstr "USAGE tür adı"
+
+#: cobc/config.def:248 cobc/parser.y:8563
+msgid "SYNCHRONIZED clause"
+msgstr "SYNCHRONIZED yantümcesi"
+
+#: cobc/config.def:251 cobc/parser.y:8566
+msgid "LEFT/RIGHT phrases in SYNCHRONIZED clause"
+msgstr "SYNCHRONIZED yantümcesinde LEFT/RIGHT deyişleri"
+
+#: cobc/config.def:254
+msgid "SPECIAL-NAMES clause"
+msgstr "SPECIAL-NAMES yantümcesi"
+
+#: cobc/config.def:257
+#, fuzzy
+#| msgid "GOTO statement without name"
+msgid "GO TO statement without name"
+msgstr "ad olmadan GOTO ifadesi"
+
+#: cobc/config.def:260
+msgid "STOP-literal statement"
+msgstr "STOP düz veri ifadesi"
+
+#: cobc/config.def:263
+msgid "STOP-identifier statement"
+msgstr "STOP tanımlayıcı ifadesi"
+
+#: cobc/config.def:266
+msgid "STOP ERROR statement"
+msgstr "STOP ERROR ifadesi"
+
+#: cobc/config.def:269
+msgid "DEBUGGING MODE and debugging indicator"
+msgstr "DEBUGGING MODE ve hata ayıklama belirteci"
+
+#: cobc/config.def:275
+msgid "PADDING CHARACTER clause"
+msgstr "PADDING CHARACTER yantümcesi"
+
+#: cobc/config.def:278
+msgid "NEXT SENTENCE phrase"
+msgstr "NEXT SENTENCE deyişi"
+
+#: cobc/config.def:281
+msgid "listing-directive statements EJECT, SKIP1, SKIP2, SKIP3"
+msgstr "EJECT, SKIP1, SKIP2, SKIP3 listeleme yönerge ifadeleri"
+
+#: cobc/config.def:284
+msgid "listing-directive statement TITLE"
+msgstr "TITLE listeleme yönerge ifadesi"
+
+#: cobc/config.def:287
+msgid "ENTRY statement"
+msgstr "ENTRY ifadesi"
+
+#: cobc/config.def:290
+msgid "move noninteger to alphanumeric"
+msgstr "tamsayı olmayan ögeyi abecesele taşı"
+
+#: cobc/config.def:293
+msgid "move figurative constants to numeric"
+msgstr "simgesel sabitleri sayısala taşı"
+
+#: cobc/config.def:296
+msgid "move figurative constant SPACE to numeric"
+msgstr "simgesel sabit SPACE'i sayısala taşı"
+
+#: cobc/config.def:299
+msgid "move figurative constant QUOTE to numeric"
+msgstr "simgesel sabit QUOTE'u sayısala taşı"
+
+#: cobc/config.def:302
+msgid "OCCURS DEPENDING ON without to"
+msgstr "nereye olduğu belli olmayan OCCURS DEPENDING"
+
+#: cobc/config.def:305 cobc/parser.y:11443
+msgid "section segments"
+msgstr "bölüm segmentleri"
+
+#: cobc/config.def:308
+msgid "ALTER statement"
+msgstr "ALTER ifadesi"
+
+#: cobc/config.def:311
+msgid "OVERFLOW clause for CALL"
+msgstr "CALL için OVERFLOW yantümcesi"
+
+#: cobc/config.def:314
+msgid "boolean literals (B'1010')"
+msgstr "Boole düz verisi (B'1010')"
+
+#: cobc/config.def:317
+msgid "hexadecimal-boolean literals (BX'A')"
+msgstr "onaltılık Boole düz verisi (BX'A')"
+
+#: cobc/config.def:320
+msgid "national literals (N'UTF-16 string')"
+msgstr "yerel düz veri (N'UTF-16 dizi')"
+
+#: cobc/config.def:323
+msgid "hexadecimal-national literals (NX'265E')"
+msgstr "onaltılık yerel düz veri (NX'265E')"
+
+#: cobc/config.def:326
+msgid "non-standard national literals (NC'UTF-16 string')"
+msgstr "ölçünlü olmayan yerel düz veri (NC'UTF-16 dizi')"
+
+#: cobc/config.def:329
+msgid "HP COBOL octal literals (%377)"
+msgstr "HP COBOL sekizlik düz veri (%377)"
+
+#: cobc/config.def:332
+msgid "ACUCOBOL-GT literals (#B #O #H #X)"
+msgstr "ACUCOBOL-GT düz verisi (#B #0 #H #X)"
+
+#: cobc/config.def:335
+msgid "EBCDIC symbolic characters in literals (\" \"135,151,151\"bar\"195, 194\"Z\" for \" foobarBAZ\")"
+msgstr ""
+
+#: cobc/config.def:338 cobc/pplex.l:2428
+msgid "continuation of COBOL words"
+msgstr "COBOL sözcüklerinin süreği"
+
+#: cobc/config.def:341
+msgid "NOT ON EXCEPTION before ON EXCEPTION"
+msgstr "ON EXCEPTİON öncesi NOT ON EXCEPTİON"
+
+#: cobc/config.def:344
+msgid "extensions to ACCEPT and DISPLAY"
+msgstr "ACCEPT'e ve DISPLAY'e uzantılar"
+
+#: cobc/config.def:347 cobc/field.c:3645
+msgid "RENAMES of 01-, 66- and 77-level items"
+msgstr "01-, 66- ve 77-düzey ögelerin RENAMES'i"
+
+#: cobc/config.def:351
+msgid "allow larger REDEFINES items"
+msgstr "daha büyük REDEFINES ögelerine izin ver"
+
+#: cobc/config.def:354
+msgid "constants defined in SPECIAL-NAMES"
+msgstr "SPECIAL-NAMES içinde tanımlanan sabitler"
+
+#: cobc/config.def:357
+msgid "constant with level 78 item (note: has left to right precedence in expressions)"
+msgstr "düzey 78 sabit (not: ifadelerde soldan sağa önceliği var)"
+
+#: cobc/config.def:360
+msgid "constant with level 01 CONSTANT AS/FROM item"
+msgstr "düzey 01 CONSTANT/AS FROM ögeli sabit"
+
+#: cobc/config.def:363
+msgid "PERFORM VARYING without BY phrase (implies BY 1)"
+msgstr "BY deyişsiz PERFORM VARYING (BY 1 ima eder)"
+
+#: cobc/config.def:366
+msgid "references to sections not in DECLARATIVES from within DECLARATIVES"
+msgstr "DECLARATIVES içinden DECLARATIVES'de olmayan bölümlere başvurular"
+
+#: cobc/config.def:369 cobc/parser.y:12614 cobc/parser.y:12913
+msgid "CALL/CANCEL with program-prototype-name"
+msgstr "program prototip adıyla CALL/CANCEL"
+
+#: cobc/config.def:372
+msgid "specifying call-convention by mnemonic"
+msgstr "çağrı kuralı belletenle belirleniyor"
+
+#: cobc/config.def:375
+msgid "specifying call-convention by WITH ... LINKAGE"
+msgstr "çağrı kuralı WITH ... LINKAGE ile belirleniyor"
+
+#: cobc/config.def:378
+msgid "support for PROCEDURE DIVISION USING OPTIONAL"
+msgstr ""
+
+#: cobc/config.def:381
+msgid "numeric literals in VALUE clause of numeric-edited items"
+msgstr "sayısal ve düzenlenen ögelerin VALUE yantümcesinde sayısal düz veri"
+
+#: cobc/config.def:384
+msgid "incorrect order of CONFIGURATION SECTION paragraphs"
+msgstr "CONFIGURATION SECTION paragraflarının doğru olmayan sırası"
+
+#: cobc/config.def:387
+msgid "allow >> DEFINE CONSTANT var AS literal"
+msgstr "'>> DEFINE CONSTANT var AS düz veri'ye izin ver"
+
+#: cobc/config.def:390
+msgid "REDEFINES clause not following entry-name in definition"
+msgstr "REDEFINES yantümcesi, tanımda girdi adını izlemiyor"
+
+#: cobc/config.def:393
+msgid "record sizes does not match RECORD clause"
+msgstr "kayıt boyutları, RECORD yantümcesi ile eşleşmiyor"
+
+#: cobc/config.def:396 cobc/parser.y:5991 cobc/parser.y:6005 cobc/parser.y:6018
+#: cobc/parser.y:6029
+msgid "RECORD DELIMITER clause"
+msgstr "RECORD DELIMITER yantümcesi"
+
+#: cobc/config.def:399
+msgid "BINARY-SEQUENTIAL and LINE-SEQUENTIAL phrases in RECORD DELIMITER"
+msgstr "RECORD DELIMITER içinde BINARY-SEQUENTİAL ve LINE-SEQUENTIAL deyişleri"
+
+#: cobc/config.def:402 cobc/tree.c:4873
+msgid "RECORD DELIMITER clause on file with fixed-length records"
+msgstr "sabit uzunluklu kayıtları olan dosyada RECORD DELIMITER yantümcesi"
+
+#: cobc/config.def:405
+msgid "missing statement (e.g. empty IF / PERFORM)"
+msgstr "eksik ifade (örn. boş IF/PERFORM)"
+
+#: cobc/config.def:408
+msgid "missing period in PROCEDURE DIVISION (when reference format supports Area A enforcement)"
+msgstr "PROCEDURE DIVISION içinde eksik nokta (başvuru biçimi Area A zorunluluğunu desteklediğinde)"
+
+#: cobc/config.def:411
+msgid "zero-length literals, e.g. '' and \"\""
+msgstr "sıfır uzunluklu düz veri; örn. '' ve \"\""
+
+#: cobc/config.def:414
+msgid "XML GENERATE's phrases other than COUNT IN"
+msgstr "COUNT IN'den ayrımlı XML GENERATE deyişleri"
+
+#: cobc/config.def:417 cobc/typeck.c:9017
+msgid "AFTER phrase in CONTINUE statement"
+msgstr "CONTINUE ifadesinde AFTER deyişi"
+
+#: cobc/config.def:420
+#, fuzzy
+#| msgid "ENTRY FOR GOTO and GOTO ENTRY statements"
+msgid "ENTRY FOR GO TO and GO TO ENTRY statements"
+msgstr "ENTRY FOR GOTO ve GOTO ENTRY ifadeleri"
+
+#: cobc/config.def:423 cobc/typeck.c:4642
+msgid "ASSIGN [TO] variable in SELECT"
+msgstr "SELECT içinde ASSIGN [TO] değişkeni"
+
+#: cobc/config.def:426
+msgid "ASSIGN USING/VARYING variable in SELECT"
+msgstr "SELECT içinde ASSIGN USING/VARYING değişkeni"
+
+#: cobc/config.def:429
+msgid "ASSIGN EXTERNAL/DYNAMIC in SELECT"
+msgstr "SELECT içinde ASSIGN EXTERNAL/DYNAMIC değişkeni"
+
+#: cobc/config.def:432
+msgid "ASSIGN DISK FROM variable in SELECT"
+msgstr "SELECT içinde ASSIGN DISK FROM değişkeni"
+
+#: cobc/config.def:435
+msgid "VSAM status in FILE STATUS"
+msgstr "FILE STATUS içinde VSAM durumu"
+
+#: cobc/config.def:438
+msgid "CALL to own PROGRAM-ID implies RECURSIVE attribute"
+msgstr "öz PROGRAM-ID'sine olan CALL, RECURSIVE özniteliğini ima eder"
+
+#: cobc/config.def:441
+msgid "DEPENDING clause in RECORD CONTAINS"
+msgstr "RECORD CONTAINS içinde DEPENDING yantümcesi"
+
+#: cobc/config.def:444 cobc/tree.c:3623
+msgid "PICTURE string with 'L' character"
+msgstr "'L' karakteriyle PICTURE dizisi"
+
+#: cobc/error.c:141 libcob/common.c:1379 libcob/common.c:8715
+#: libcob/common.c:8766
+#, c-format
+msgid "warning: "
+msgstr "uyarı: "
+
+#: cobc/error.c:142 libcob/common.c:8784
+msgid "note: "
+msgstr "not: "
+
+#: cobc/error.c:162
+#, c-format
+msgid "in section '%s':"
+msgstr "'%s' bölümünde:"
+
+#: cobc/error.c:173
+#, c-format
+msgid "in paragraph '%s':"
+msgstr "'%s' paragrafında:"
+
+#: cobc/error.c:227 cobc/error.c:231 cobc/error.c:234
+msgid "too many errors"
+msgstr "pek çok hata"
+
+#: cobc/error.c:243
+#, c-format
+msgid "in file included from "
+msgstr "şuradan içerilen dosyada: "
+
+#: cobc/error.c:261 libcob/common.c:9146
+msgid "configuration error:"
+msgstr "yapılandırma hatası:"
+
+#: cobc/error.c:274 libcob/common.c:920
+#, c-format
+msgid "system error %d"
+msgstr "sistem hatası %d"
+
+#: cobc/error.c:616 cobc/error.c:632 cobc/error.c:971 cobc/error.c:992
+#, c-format
+msgid "%s used"
+msgstr "%s kullanıldı"
+
+#: cobc/error.c:619 cobc/error.c:974
+#, c-format
+msgid "%s is archaic in %s"
+msgstr "%s, %s içinde arkaik"
+
+#: cobc/error.c:623 cobc/error.c:978
+#, c-format
+msgid "%s is obsolete in %s"
+msgstr "%s, %s içinde eskimiş"
+
+#: cobc/error.c:629 cobc/error.c:984 cobc/parser.y:5993
+#, c-format
+msgid "%s ignored"
+msgstr "%s yok sayıldı"
+
+#: cobc/error.c:635 cobc/error.c:994
+#, c-format
+msgid "%s does not conform to %s"
+msgstr "%s, %s ögesine uymuyor"
+
+#: cobc/error.c:651
+msgid "configuration warning:"
+msgstr "yapılandırma uyarısı:"
+
+#: cobc/error.c:1040 cobc/error.c:1069
+#, c-format
+msgid "redefinition of '%s'"
+msgstr "'%s' yeniden tanımı"
+
+#: cobc/error.c:1046 cobc/error.c:1080
+#, c-format
+msgid "'%s' previously defined here"
+msgstr "'%s', daha önceden burada tanımlanmış"
+
+#: cobc/error.c:1124 cobc/error.c:1130
+#, c-format
+msgid "'%s' is not defined"
+msgstr "'%s' tanımlanmamış"
+
+#: cobc/error.c:1126
+#, c-format
+msgid "'%s' cannot be used here"
+msgstr "'%s', burada kullanılamaz"
+
+#: cobc/error.c:1128 cobc/parser.y:7941
+#, c-format
+msgid "'%s' is not defined, but is a reserved word in another dialect"
+msgstr "'%s' tanımlanmamış; ancak başka bir lehçede rezerve bir sözcük"
+
+#: cobc/error.c:1167
+#, c-format
+msgid "'%s' is ambiguous; needs qualification"
+msgstr "'%s' belirsiz; nitelik gerek"
+
+#: cobc/error.c:1197
+#, c-format
+msgid "'%s' is a special register"
+msgstr "'%s', özel bir yazmaç değil"
+
+#: cobc/error.c:1200
+#, c-format
+msgid "'%s' internally defined"
+msgstr "'%s', içsel olarak tanımlanmış"
+
+#: cobc/error.c:1204 cobc/parser.y:18772 cobc/parser.y:18777 cobc/typeck.c:5166
+#: cobc/typeck.c:5213 cobc/typeck.c:5214
+#, c-format
+msgid "'%s' defined here"
+msgstr "'%s', burada tanımlanmış"
+
+#: cobc/error.c:1215
+#, c-format
+msgid "fatal error: %s"
+msgstr "onulmaz hata: %s"
+
+#: cobc/error.c:1224
+#, c-format
+msgid "group item '%s' cannot have %s clause"
+msgstr "'%s' grup ögesinin %s yantümcesi olamaz"
+
+#: cobc/error.c:1239
+#, c-format
+msgid "constant item '%s' requires a %s clause"
+msgstr "'%s' sabit ögesi, bir %s yantümcesi gerektiriyor"
+
+#: cobc/error.c:1243
+#, c-format
+msgid "level %02d item '%s' requires a %s clause"
+msgstr "%02d ögesi '%s', bir %s yantümcesi gerektiriyor"
+
+#: cobc/error.c:1258
+#, c-format
+msgid "constant item '%s' can only have a %s clause"
+msgstr "'%s' sabit ögesinin yalnızca bir %s yantümcesi olabilir"
+
+#: cobc/error.c:1262
+#, c-format
+msgid "level %02d item '%s' can only have a %s clause"
+msgstr "%02d düzeyi '%s' ögesinin yalnızca bir %s yantümcesi olabilir"
+
+#: cobc/field.c:139
+msgid "constant expression has Divide by ZERO"
+msgstr "sabit ifadede Divide by ZERO var"
+
+#: cobc/field.c:195 cobc/field.c:332 cobc/field.c:340
+msgid "missing right parenthesis"
+msgstr "sağ ayraç eksik"
+
+#: cobc/field.c:224
+#, c-format
+msgid "expression stack overflow at %d entries for operation '%c'"
+msgstr "'%2$c' operasyonu için %1$d girdide ifade yığın taşması"
+
+#: cobc/field.c:265
+#, c-format
+msgid "expression stack overflow at %d entries"
+msgstr "%d girdide ifade yığın taşması"
+
+#: cobc/field.c:282
+msgid "missing left parenthesis"
+msgstr "sol ayraç eksik"
+
+#: cobc/field.c:323
+#, c-format
+msgid "invalid operator '%s' in expression"
+msgstr "ifadede geçersiz işleç '%s'"
+
+#: cobc/field.c:342
+#, c-format
+msgid "'%c' operator misplaced"
+msgstr "'%c' işleci yanlış yere konulmuş"
+
+#: cobc/field.c:403
+#, c-format
+msgid "invalid level number '%s'"
+msgstr "geçersiz düzey numarası '%s'"
+
+#: cobc/field.c:463 cobc/field.c:502
+msgid "level number must begin with 01 or 77"
+msgstr "düzey numarası, 01 veya 77 ile başlamalı"
+
+#: cobc/field.c:562 cobc/field.c:566
+#, c-format
+msgid "no previous data item of level %02d"
+msgstr "%02d düzeyinin önceki veri ögesi yok"
+
+#: cobc/field.c:631
+#, c-format
+msgid "'%s' cannot be qualified here"
+msgstr "'%s', buraya gelemez"
+
+#: cobc/field.c:637
+#, c-format
+msgid "'%s' cannot be subscripted here"
+msgstr "'%s', buraya altsimgelenemez"
+
+#: cobc/field.c:653 cobc/field.c:664
+#, c-format
+msgid "'%s' is not defined in '%s'"
+msgstr "'%s', '%s' içinde tanımlı değil"
+
+#: cobc/field.c:671
+msgid "level number of REDEFINES entries must be identical"
+msgstr "REDEFINES girdilerinin düzey numarası eşdeğer olmalı"
+
+#: cobc/field.c:676
+#, c-format
+msgid "'%s' is not the original definition"
+msgstr "'%s', özgün tanım değil"
+
+#: cobc/field.c:720 cobc/parser.y:1051
+#, c-format
+msgid "duplicate %s"
+msgstr ""
+
+#: cobc/field.c:878 cobc/parser.y:733
+#, c-format
+msgid "duplicate %s clause"
+msgstr "yinelenmiş %s yantümcesi"
+
+#: cobc/field.c:988
+#, c-format
+msgid "%s clause not compatible with PIC %s"
+msgstr "%s yantümcesi, PIC %s ile uyumlu değil"
+
+#: cobc/field.c:999 cobc/field.c:1036
+#, c-format
+msgid "%s clause not compatible with USAGE %s"
+msgstr "%s yantümcesi, USAGE %s ile uyumlu değil"
+
+#: cobc/field.c:1140 cobc/field.c:1159 cobc/field.c:1227 cobc/field.c:1238
+#, c-format
+msgid "PICTURE clause required for '%s'"
+msgstr "'%s' için PICTURE yantümcesi gerekiyor"
+
+#: cobc/field.c:1234
+#, c-format
+msgid "a non-numeric literal is expected for '%s'"
+msgstr "'%s' için bir sayı olmayan düz veri bekleniyor"
+
+#: cobc/field.c:1247
+#, c-format
+msgid "defining implicit picture size %d for '%s'"
+msgstr "şunun için dolaylı resim boyutu %d tanımlanıyor: '%s'"
+
+#: cobc/field.c:1271
+#, c-format
+msgid "'%s' ANY LENGTH only allowed in LINKAGE"
+msgstr "'%s' ANY LENGTH'e yalnızca LINKAGE içinde izin veriliyor"
+
+#: cobc/field.c:1275
+#, c-format
+msgid "'%s' ANY LENGTH must be 01 level"
+msgstr "'%s' ANY LENGTH, 01 düzeyi olmalı"
+
+#: cobc/field.c:1279
+#, c-format
+msgid "'%s' ANY LENGTH cannot be BASED/EXTERNAL"
+msgstr "'%s' ANY LENGTH, BASED/EXTERNAL olamaz"
+
+#: cobc/field.c:1283 cobc/field.c:1313
+#, c-format
+msgid "'%s' ANY LENGTH has invalid definition"
+msgstr "'%s' ANY LENGTH'te geçersiz tanım var"
+
+#: cobc/field.c:1295
+#, c-format
+msgid "'%s' ANY NUMERIC must be PIC 9"
+msgstr "'%s' ANY NUMERIC, PIC 9 olmalı"
+
+#: cobc/field.c:1301
+#, fuzzy, c-format
+#| msgid "'%s' ANY LENGTH must be PIC X, PIC N or PIC 1"
+msgid "'%s' ANY LENGTH must be PIC X, PIC U, PIC N or PIC 1"
+msgstr "'%s' ANY LENGTH; PIC X, PIC N veya PIC 1 olmalı"
+
+#: cobc/field.c:1311
+#, c-format
+msgid "'%s' ANY NUMERIC has invalid definition"
+msgstr "'%s' ANY NUMERIC'te geçersiz tanım var"
+
+#: cobc/field.c:1327
+#, c-format
+msgid "'%s' EXTERNAL must be specified at 01/77 level"
+msgstr "'%s' EXTERNAL, 01/77 düzeyinde belirtilmeli"
+
+#: cobc/field.c:1331
+#, c-format
+msgid "'%s' EXTERNAL can only be specified in WORKING-STORAGE section"
+msgstr "'%s' EXTERNAL, yalnızca WORKİNG-STORAGE bölümünde belirtilebilir"
+
+#: cobc/field.c:1335
+#, c-format
+msgid "'%s' EXTERNAL and BASED are mutually exclusive"
+msgstr "'%s' EXTERNAL ve BASED birlikte kullanılamaz"
+
+#: cobc/field.c:1338
+#, c-format
+msgid "'%s' EXTERNAL not allowed with REDEFINES"
+msgstr "'%s' EXTERNAL'a REDEFINES ile birlikte izin verilmiyor"
+
+#: cobc/field.c:1350
+#, c-format
+msgid "'%s' BASED not allowed here"
+msgstr "'%s' BASED'e burada izin verilmiyor"
+
+#: cobc/field.c:1353
+#, c-format
+msgid "'%s' BASED not allowed with REDEFINES"
+msgstr "'%s' BASED'e REDEFINES ile birlikte izin verilmiyor"
+
+#: cobc/field.c:1356
+#, c-format
+msgid "'%s' BASED only allowed at the 01 and 77 levels"
+msgstr "'%s' BASED'e yalnızca 01 ve 77 düzeylerinde izin veriliyor"
+
+#: cobc/field.c:1383
+#, c-format
+msgid "'%s' cannot have an OCCURS clause due to '%s'"
+msgstr "'%s', '%s' dolayısıyla bir OCCURS yantümcesi alamaz"
+
+#: cobc/field.c:1402
+#, fuzzy, c-format
+#| msgid "the original definition '%s' should not have OCCURS clause"
+msgid "the original definition '%s' should not have an OCCURS clause"
+msgstr "özgün '%s' tanımında OCCURS yantümcesi olmamalı"
+
+#: cobc/field.c:1408
+#, fuzzy, c-format
+#| msgid "the original definition '%s' should not have OCCURS clause"
+msgid "the original definition '%s' should not have an ANY LENGTH clause"
+msgstr "özgün '%s' tanımında OCCURS yantümcesi olmamalı"
+
+#: cobc/field.c:1415
+msgid "REDEFINES must follow the original definition"
+msgstr "REDEFINES, özgün tanımı izlemeli"
+
+#: cobc/field.c:1423
+#, c-format
+msgid "'%s' cannot be variable length"
+msgstr "'%s', değişkin uzunluğu olamaz"
+
+#: cobc/field.c:1426
+#, c-format
+msgid "the original definition '%s' cannot be variable length"
+msgstr "özgün '%s' tanımı, değişken uzunluğu olamaz"
+
+#: cobc/field.c:1445 cobc/field.c:1708
+#, c-format
+msgid "'%s' cannot have JUSTIFIED RIGHT clause"
+msgstr "'%s', JUSTIFIED RIGHT yantümcesi alamaz"
+
+#: cobc/field.c:1453
+#, fuzzy, c-format
+#| msgid "cannot have BLANK WHEN ZERO without PIC"
+msgid "'%s' cannot have BLANK WHEN ZERO clause"
+msgstr "PIC olmadan BLANK WHEN ZERO olamaz"
+
+#: cobc/field.c:1460
+#, c-format
+msgid "SCREEN group item '%s' has invalid clause"
+msgstr "SCREEN grup ögesi '%s' içinde geçersiz yantümce var"
+
+#: cobc/field.c:1548
+#, c-format
+msgid "%s USAGE %s incompatible with %s USAGE %s"
+msgstr "%s USAGE %s, %s USAGE %s ile uyumsuz"
+
+#: cobc/field.c:1629
+#, c-format
+msgid "'%s' cannot have PICTURE clause"
+msgstr "'%s', PICTURE yantümcesi alamaz"
+
+#: cobc/field.c:1662
+#, c-format
+msgid "'%s' COMP-6 with sign - changing to COMP-3"
+msgstr "'%s', işaretli COMP-6 - COMP-3 olarak değiştiriliyor"
+
+#: cobc/field.c:1688
+msgid "elementary items with SIGN clause must have S in PICTURE"
+msgstr "SIGN yantümceli temel ögelerde PICTURE içinde S olmalı"
+
+#: cobc/field.c:1691
+msgid "elementary items with SIGN clause must be USAGE DISPLAY or NATIONAL"
+msgstr "SIGN yantümceli temel ögeler USAGE DISPLAY veya NATIONAL olmalı"
+
+#: cobc/field.c:1720
+#, c-format
+msgid "'%s' cannot have S in PICTURE string and BLANK WHEN ZERO"
+msgstr "'%s', PICTURE dizisinde S ve BLANK WHEN ZERO alamaz"
+
+#: cobc/field.c:1725
+#, c-format
+msgid "'%s' cannot have BLANK WHEN ZERO without being USAGE DISPLAY or NATIONAL"
+msgstr "'%s', USAGE DISPLAY veya NATIONAL olmadan BLANK WHEN ZERO alamaz"
+
+#: cobc/field.c:1737
+#, c-format
+msgid "'%s' cannot have * in PICTURE string and BLANK WHEN ZERO"
+msgstr "'%s', PICTURE dizisinde * ve BLANK WHEN ZERO alamaz"
+
+#: cobc/field.c:1744
+#, c-format
+msgid "'%s' is not numeric, so cannot have BLANK WHEN ZERO"
+msgstr "'%s' sayısal değil, dolayısıyla BLANK WHEN ZERO alamaz"
+
+#: cobc/field.c:1798
+#, c-format
+msgid "elements in VALUE clause for '%s' (%d) exceed max amount (%d)"
+msgstr "'%s' için VALUE yantümcesindeki ögeler (%d) en büyük tutarı aşıyor (%d)"
+
+#: cobc/field.c:1822
+msgid "unexpected VALUES ARE for elementary item"
+msgstr ""
+
+#: cobc/field.c:1836 cobc/field.c:1840
+#, c-format
+msgid "initial VALUE clause ignored for %s item '%s'"
+msgstr "%s ögesi '%s' için başlangıç VALUE yantümcesi yok sayıldı"
+
+#: cobc/field.c:1853
+msgid "FULL has no effect on numeric items; you may want REQUIRED or PIC Z"
+msgstr "sayısal ögelerde FULL'un bir etkisi yoktur; REQUIRED veya PIC 2 gerek"
+
+#: cobc/field.c:1884
+msgid "VALUE may not contain a figurative constant"
+msgstr "VALUE, temsili bir sabit içeremez"
+
+#: cobc/field.c:1893 cobc/field.c:1935 cobc/parser.y:750 cobc/parser.y:1823
+#: cobc/parser.y:1826
+#, c-format
+msgid "cannot specify both %s and %s"
+msgstr ""
+
+#: cobc/field.c:1905
+#, c-format
+msgid "'%s' has FROM, TO or USING without PIC; PIC will be implied"
+msgstr "'%s'; PIC olmadan FROM, TO VEYA USING almış; PIC ima edilecek"
+
+#: cobc/field.c:1922
+#, c-format
+msgid "'%s' has numeric VALUE without PIC; PIC will be implied"
+msgstr "'%s', PIC olmadan sayısal VALUE almış; PIC ima edilecek"
+
+#: cobc/field.c:1943
+msgid "cannot have PIC without FROM, TO or USING"
+msgstr "FROM, TO veya USING olmadan PIC alınamaz"
+
+#: cobc/field.c:1952
+msgid "cannot have numeric VALUE without PIC"
+msgstr "PIC olmadan sayısal VALUE alınamaz"
+
+#: cobc/field.c:1961
+msgid "cannot have FROM, TO or USING without PIC"
+msgstr "PIC olmadan FROM, TO veya USING alınamaz"
+
+#: cobc/field.c:1971
+msgid "VALUE item may not be numeric"
+msgstr "VALUE ögesi sayısal olmayabilir"
+
+#: cobc/field.c:1986
+#, c-format
+msgid "'%s' needs a PIC, COL, LINE, VALUE, BELL or BLANK clause"
+msgstr "'%s' için bir PIC, COL, LINE, VALUE, BELL veya BLANK yantümcesi gerek"
+
+#: cobc/field.c:1998
+#, c-format
+msgid "'%s' cannot have PIC without FROM, TO, USING or numeric VALUE"
+msgstr "'%s'; FROM, TO, USING veya sayısal VALUE olmadan PIC alamaz"
+
+#: cobc/field.c:2006
+#, c-format
+msgid "'%s' needs a PIC, FROM, TO, USING, VALUE, BELL, BLANK or ERASE clause"
+msgstr "'%s' için bir PIC, FROM, TO, USING, VALUE, BELL, BLANK veya ERASE yantümcesi gerek"
+
+#: cobc/field.c:2042
+msgid "cannot use AUTO, FULL, PROMPT, REQUIRED or SECURE on elementary item without TO or USING"
+msgstr "TO veya USING olmadan temel öge üzerinde AUTO, FULL, PROMPT, REQUIRED veya SECURE kullanılamaz"
+
+#: cobc/field.c:2049
+msgid "cannot use BLANK WHEN ZERO, JUSTIFIED, OCCURS or SIGN on item without FROM, TO or USING"
+msgstr "FROM, TO veya USING olmadan öge üzerinde BLANK WHEN ZERO, JUSTIFIED, OCCURS veya SIGN kullanılamaz"
+
+#: cobc/field.c:2068
+msgid "cannot use AUTO, FULL, REQUIRED or SECURE on elementary item without FROM, TO or USING"
+msgstr "FROM, TO veya USING olmadan temel öge üzerinde AUTO, FULL, REQUIRED veya SECURE kullanılamaz"
+
+#: cobc/field.c:2073
+msgid "cannot use BLANK WHEN ZERO, JUSTIFIED or SIGN without FROM, TO or USING"
+msgstr "FROM, TO veya USING olmadan BLANK WHEN ZERO, JUSTIFIED veya SIGN kullanılamaz"
+
+#: cobc/field.c:2090
+msgid "cannot have BLANK WHEN ZERO without PIC"
+msgstr "PIC olmadan BLANK WHEN ZERO olamaz"
+
+#: cobc/field.c:2093
+msgid "cannot have JUSTIFIED without PIC"
+msgstr "PIC olmadan JUSTIFIED olamaz"
+
+#: cobc/field.c:2113
+msgid "cannot have AUTO without FROM, TO or USING"
+msgstr "FROM, TO veya USING olmadan AUTO olamaz"
+
+#: cobc/field.c:2118
+msgid "cannot use FULL or REQUIRED on item without TO or USING"
+msgstr "TO veya USING olmadan öge üzerinde FULL veya REQUIRED kullanılamaz"
+
+#: cobc/field.c:2125
+msgid "SECURE can be used with TO only"
+msgstr "SECURE, yalnızca TO ile kullanılabilir"
+
+#: cobc/field.c:2127
+msgid "SECURE must be used with TO"
+msgstr "SECURE, TO ile kullanılmalıdır"
+
+#: cobc/field.c:2146
+#, c-format
+msgid "'%s' does nothing"
+msgstr "'%s', bir şey yapmaz"
+
+#: cobc/field.c:2361
+#, c-format
+msgid "'%s' 77 level is not allowed here"
+msgstr "'%s' düzey 77'ye burada izin verilmiyor"
+
+#: cobc/field.c:2399
+msgid "OCCURS and multi COLUMNs is not allowed"
+msgstr "OCCURS veya birden çok COLUMN'lara izin verilmiyor"
+
+#: cobc/field.c:2419
+#, c-format
+msgid "duplicate LINE %d ignored"
+msgstr "yinelenmiş LINE %d yok sayıldı"
+
+#: cobc/field.c:2870
+#, c-format
+msgid "ignoring SYNCHRONIZED for group item '%s'"
+msgstr "'%s' grup ögesi için SYNCHRONIZED yok sayılıyor"
+
+#: cobc/field.c:2884 cobc/field.c:3219
+msgid "larger REDEFINES"
+msgstr "daha büyük REDEFINES"
+
+#: cobc/field.c:2898 cobc/field.c:3222 cobc/field.c:3227
+#, c-format
+msgid "size of '%s' larger than size of '%s'"
+msgstr "'%s' boyutu, '%s' boyutundan daha büyük"
+
+#: cobc/field.c:3045 cobc/field.c:3129 cobc/parser.y:832
+#, c-format
+msgid "'%s' cannot be larger than %d bytes"
+msgstr "'%s', %d bayttan daha büyük olamaz"
+
+#: cobc/field.c:3086 cobc/field.c:3094
+#, c-format
+msgid "'%s' binary field cannot be larger than %d digits"
+msgstr "'%s' ikili alanı, %d basamaktan daha büyük olamaz"
+
+#: cobc/field.c:3353 cobc/parser.y:791 cobc/parser.y:793 cobc/parser.y:6529
+#: cobc/parser.y:6539 cobc/parser.y:7625 cobc/parser.y:7628 cobc/parser.y:7630
+#: cobc/parser.y:7632 cobc/parser.y:7667 cobc/parser.y:8610 cobc/parser.y:8612
+#: cobc/parser.y:8614 cobc/parser.y:8616 cobc/parser.y:8958 cobc/parser.y:8967
+#: cobc/parser.y:10897 cobc/parser.y:12460 cobc/parser.y:13920
+#: cobc/parser.y:15390 cobc/typeck.c:5200
+#, c-format
+msgid "%s and %s are mutually exclusive"
+msgstr "%s ve %s birlikte kullanılamaz"
+
+#: cobc/field.c:3354 cobc/parser.y:7810 cobc/parser.y:7847
+msgid "variable-length PICTURE"
+msgstr "değişken uzunluklu PICTURE"
+
+#: cobc/field.c:3475
+msgid "literal type does not match numeric data type"
+msgstr "düz veri türü, nümerik veri türüyle eşleşmiyor"
+
+#: cobc/field.c:3549
+#, c-format
+msgid "THRU item '%s' may not come before '%s'"
+msgstr "THRU ögesi '%s', '%s' öncesinde gelemez"
+
+#: cobc/field.c:3572
+#, c-format
+msgid "RENAMES cannot start/end at the OCCURS item '%s'"
+msgstr "RENAMES, OCCURS ögesi '%s' konumunda başlayamaz/bitemez"
+
+#: cobc/field.c:3580
+#, c-format
+msgid "cannot use RENAMES on part of the table '%s'"
+msgstr "'%s' tablosunun bir kısmında RENAMES kullanılamaz"
+
+#: cobc/field.c:3618
+#, c-format
+msgid "RENAMES may not contain '%s' as it is a pointer or object reference"
+msgstr "RENAMES, bir işaretçi veya nesne başvurusu olmadığından '%s' içeremez"
+
+#: cobc/field.c:3623
+#, c-format
+msgid "RENAMES may not contain '%s' as it is an OCCURS DEPENDING table"
+msgstr "RENAMES, bir OCCURS DEPENDING tablosu olduğundan '%s' içeremez"
+
+#: cobc/field.c:3647
+msgid "RENAMES may not reference a level 88"
+msgstr "RENAMES, bir düzey 88'e başvuramaz"
+
+#: cobc/field.c:3671
+#, c-format
+msgid "'%s' must immediately follow the record '%s'"
+msgstr "'%s', derhal '%s' kaydını izlemeli"
+
+#: cobc/field.c:3679
+#, c-format
+msgid "THRU item must be different to '%s'"
+msgstr "THRU ögesi, '%s' ögesinden farklı olmalı"
+
+#: cobc/field.c:3685
+#, c-format
+msgid "'%s' and '%s' must be in the same record"
+msgstr "'%s' ve '%s' aynı kayıtta olmalı"
+
+#: cobc/field.c:3696
+#, c-format
+msgid "THRU item '%s' may not be subordinate to '%s'"
+msgstr "THRU ögesi '%s', '%s' astı olamaz"
+
+#: cobc/flag.def:44
+msgid ""
+"  -fstack-size=<number>\tdefine PERFORM stack size\n"
+"                       * default: 255"
+msgstr ""
+"  -fstack-size=<sayı>       PERFORM yığın boyutunu tanımla\n"
+"                            * öntanımlı: 255"
+
+#: cobc/flag.def:49
+msgid ""
+"  -fif-cutoff=<number>  define cutoff depth for IF statements\n"
+"                        * default: 3"
+msgstr ""
+"  -fif-cutoff=<sayı>        IF ifadeleri için kesme derinliğini tanımla\n"
+"                            * öntanımlı: 3"
+
+#: cobc/flag.def:54
+msgid ""
+"  -fsign=[ASCII|EBCDIC]\tdefine display sign representation\n"
+"                        * default: machine native"
+msgstr ""
+"  -fsign=[ASCII|EBCDIC]     ekran imza temsilini tanımla\n"
+"                            * öntanımlı: makine ayarı"
+
+#: cobc/flag.def:58
+msgid ""
+"  -ffold-copy=[UPPER|LOWER]\tfold COPY subject to value\n"
+"                        * default: no transformation"
+msgstr ""
+"  -ffold-copy=[UPPER|LOWER] COPY öznesini değere kopyala\n"
+"                            * öntanımlı: dönüşüm yok"
+
+#: cobc/flag.def:62
+msgid ""
+"  -ffold-call=[UPPER|LOWER]\tfold PROGRAM-ID, CALL, CANCEL subject to value\n"
+"                        * default: no transformation"
+msgstr ""
+"  -ffold-call=[UPPER|LOWER] PROGRAM-ID, CALL, CANCEL öznesini değere katla\n"
+"                            * öntanımlı: dönüşüm yok"
+
+#: cobc/flag.def:66
+msgid ""
+"  -fmax-errors=<number>\tmaximum number of errors to report before\n"
+"                        compilation is aborted\n"
+"                        * default: 128"
+msgstr ""
+"  -fmax-errors=<sayı>       derleme iptal edilmeden önceki en çok hata sayısı\n"
+"                            * öntanımlı: 128"
+
+#: cobc/flag.def:73
+msgid ""
+"  -fintrinsics=[ALL|intrinsic function name(,name,...)]\n"
+"                        intrinsics to be used without FUNCTION keyword"
+msgstr ""
+"  -fintrinsics=[ALL|yapıiçi işlev adı(,ad,...)]\n"
+"                            FUNCTION anahtar sözcüğü olmadan kullanılacak\n"
+"                              yapıiçiler"
+
+#: cobc/flag.def:85
+msgid ""
+"  -fdump=<scope>        dump data fields on abort, <scope> may be\n"
+"                        a combination of: ALL, WS, LS, RD, FD, SC, LO"
+msgstr ""
+"  -fdump=<kapsam>           iptalde veri alanlarını dök; <kapsam>, şunların\n"
+"                              bir kombinasyonu olabilir: ALL, WS, LS, RD, FD,\n"
+"                              SC, LO"
+
+#: cobc/flag.def:88
+#, fuzzy
+#| msgid ""
+#| "  -fno-dump=<scope>     exclude data fields from dumping on abort, <scope> may\n"
+#| "                        be a combination of: ALL, WS, LS, RD, FD, SC, LO"
+msgid ""
+"  -fno-dump=<scope>     exclude data fields from dumping on abort, <scope> may\n"
+"                        be a combination of: ALL, WS, LS, RD, FD, SC, LO\n"
+"                        default if no scope specified: ALL"
+msgstr ""
+"  -fno-dump=<kapsam>        iptalde veri alanlarını dökmeyi dışarıda tut;\n"
+"                              <kapsam>, şunların bir kombinasyonu olabilir:\n"
+"                              ALL, WS, LS, RD, FD, SC, LO"
+
+#: cobc/flag.def:94
+msgid ""
+"  -fcallfh=<name>       specifies <name> to be used for I/O\n"
+"                        as external provided EXTFH interface module"
+msgstr ""
+"  -fcallfh=<ad>             <ad>'ın, G-Ç için bir dışarıdan sağlanmış EXTFH\n"
+"                              arayüz modülü olarak kullanılacağını belirtir"
+
+#: cobc/flag.def:98
+msgid ""
+"  -febcdic-table=<cconv-table>/<file>\tEBCDIC/ASCII translation table\n"
+"                        * e.g. default, ebcdic500_latin1..."
+msgstr ""
+
+#: cobc/flag.def:102
+#, fuzzy
+#| msgid ""
+#| "  -fsign=[ASCII|EBCDIC]\tdefine display sign representation\n"
+#| "                        * default: machine native"
+msgid ""
+"  -fdefault-colseq=[ASCII|EBCDIC|NATIVE]\tdefine default collating sequence\n"
+"                        * default: NATIVE"
+msgstr ""
+"  -fsign=[ASCII|EBCDIC]     ekran imza temsilini tanımla\n"
+"                            * öntanımlı: makine ayarı"
+
+#: cobc/flag.def:110
+msgid ""
+"  -fwinmain             generate WinMain instead of main when compiling\n"
+"                        as executable"
+msgstr ""
+"  -fwinmain                 yürütülebilir olarak derlerken, main yerine\n"
+"                              WinMain üret"
+
+#: cobc/flag.def:114
+#, fuzzy
+#| msgid "-fcomputed-goto       generate computed goto C statements"
+msgid "  -fcomputed-goto       generate computed goto C statements"
+msgstr "-fcomputed-goto             hesaplanmış C goto ifadeleri üret"
+
+#: cobc/flag.def:117
+#, fuzzy
+#| msgid "-fextra-brace         generate extra braces in C source"
+msgid "  -fextra-brace         generate extra braces in C source"
+msgstr "-fextra-brace               C kaynağında ek ayraçlar üret"
+
+#: cobc/flag.def:120
+#, fuzzy
+#| msgid "-fcorrect-numeric     attempt correction of invalid numeric display items"
+msgid "  -fcorrect-numeric     attempt correction of invalid numeric display items"
+msgstr "-fcorrect-numeric           geçersiz nümerik ekran ögelerini düzeltmeye çalış"
+
+#: cobc/flag.def:123
+#, fuzzy
+#| msgid "-fstack-on-heap       PERFORM stack allocated on heap"
+msgid "  -fstack-on-heap       PERFORM stack allocated on heap"
+msgstr "-fstack-on-heap             alt yığın üzerinde ayrılmış yığın PERFORM yap"
+
+#: cobc/flag.def:126
+#, fuzzy
+#| msgid ""
+#| "  -fstack-check         PERFORM stack checking\n"
+#| "                        * turned on by -debug or -g"
+msgid ""
+"  -fstack-extended      store origin of entrypoints and PERFORM\n"
+"                        * turned on by --debug/-fdump"
+msgstr ""
+"  -fstack-check             yığın denetimini PERFORM yap\n"
+"                            * -debug veya -g ile açılır"
+
+#: cobc/flag.def:130
+msgid "  -fno-fast-compare     disables inline comparisions"
+msgstr ""
+
+#: cobc/flag.def:135
+msgid ""
+"  -fno-remove-unreachable\tdisable remove of unreachable code\n"
+"                        * turned off by -g"
+msgstr ""
+"  -fno-remove-unreachable   erişilemeyen kodun kaldırılmasını devre dışı bırak\n"
+"                            * -g ile kapatılır"
+
+#: cobc/flag.def:139
+msgid ""
+"  -ftrace               generate trace code\n"
+"                        * scope: executed SECTION/PARAGRAPH"
+msgstr ""
+"  -ftrace                   iz kodu üret\n"
+"                            * kapsam: yürütülmüş SECTION/PARAGRAPH"
+
+#: cobc/flag.def:143
+msgid ""
+"  -ftraceall            generate trace code\n"
+"                        * scope: executed SECTION/PARAGRAPH/STATEMENTS"
+msgstr ""
+"  -ftraceall                iz kodu üret\n"
+"                            * kapsam: yürütülmüş SECTION/PARAGRAPH/STATEMENTS"
+
+#: cobc/flag.def:147
+#, fuzzy
+#| msgid "-fsyntax-only         syntax error checking only; don't emit any output"
+msgid "  -fsyntax-only         syntax error checking only; don't emit any output"
+msgstr "-fsyntax-only               yalnızca sözdizim hata denetimi; çıktı yayma"
+
+#: cobc/flag.def:150
+msgid ""
+"  -fdebugging-line      enable debugging lines\n"
+"                        * 'D' in indicator column or floating >>D"
+msgstr ""
+"  -fdebugging-line          hata ayıklama satırlarını etkinleştir\n"
+"                            * gösterge sütununda 'D' veya yüzen >>D"
+
+#: cobc/flag.def:154
+#, fuzzy
+#| msgid ""
+#| "  -fsource-location     generate source location code\n"
+#| "                        * turned on by -debug/-g/-ftraceall/-fec"
+msgid ""
+"  -fsource-location     generate source location code\n"
+"                        * turned on by --debug/-ftraceall/-fec/-fdump"
+msgstr ""
+"  -fsource-location         kaynak konumlama kodu üret\n"
+"                            * -debug/-g/-ftraceall/-fec ile açılır"
+
+#: cobc/flag.def:158
+#, fuzzy
+#| msgid "-fimplicit-init       automatic initialization of the COBOL runtime system"
+msgid "  -fimplicit-init       automatic initialization of the COBOL runtime system"
+msgstr "-fimplicit-init             COBOL çalışma zamanının otomatik ilklendirmesi"
+
+#: cobc/flag.def:161
+msgid ""
+"  -fno-recursive-check  disable check of recursive program call;\n"
+"                        effectively compiling as RECURSIVE program"
+msgstr ""
+"  -fno-recursive-check      özyineli program çağrısı denetimini devre dışı\n"
+"                              bırak, RECURSIVE program olarak derler"
+
+#: cobc/flag.def:165
+#, fuzzy
+#| msgid ""
+#| "  -fstack-check         PERFORM stack checking\n"
+#| "                        * turned on by -debug or -g"
+msgid ""
+"  -fstack-check         PERFORM stack checking\n"
+"                        * turned on by --debug/-g"
+msgstr ""
+"  -fstack-check             yığın denetimini PERFORM yap\n"
+"                            * -debug veya -g ile açılır"
+
+#: cobc/flag.def:169
+msgid ""
+"  -fmemory-check=<scope>     checks for invalid writes to internal storage,\n"
+"                        <scope> may be one of: all, pointer, using, none\n"
+"                        * default: none, set to all by --debug"
+msgstr ""
+
+#: cobc/flag.def:174
+msgid "  -fsection-exit-check  check that code execution does not leave the scope of SECTIONs"
+msgstr ""
+
+#: cobc/flag.def:177
+msgid "  -fimplicit-goback-check\tcheck that code execution does not end implicit at end of PROCEDURE DIVISION"
+msgstr ""
+
+#: cobc/flag.def:180
+msgid ""
+"  -fwrite-after         use AFTER 1 for WRITE of LINE SEQUENTIAL\n"
+"                        * default: BEFORE 1"
+msgstr ""
+"  -fwrite-after             LINE SEQUENTIAL'ın WRITE'ı için AFTER 1 kullan\n"
+"                            * öntanımlı: BEFORE 1"
+
+#: cobc/flag.def:184
+#, fuzzy
+#| msgid ""
+#| "  -fmfcomment           '*' or '/' in column 1 treated as comment\n"
+#| "                        * FIXED format only"
+msgid ""
+"  -fmfcomment           '*' in column 1 treated as comment with listing suppression\n"
+"                        * FIXED/COBOL85/VARIABLE format only"
+msgstr ""
+"  -fmfcomment               1. sütundaki '*' veya '/', yorum olarak derlenir\n"
+"                            * yalnızca FIXED biçim"
+
+#: cobc/flag.def:188
+msgid ""
+"  -facucomment          '$' in indicator area treated as '*',\n"
+"                        '|' treated as floating comment"
+msgstr ""
+"  -facucomment              gösterge alanındaki '$', '*' olarak,\n"
+"                              '|' ise yüzen yorum olarak derlenir"
+
+#: cobc/flag.def:193
+#, fuzzy
+#| msgid ""
+#| "  -fnotrunc             allow numeric field overflow\n"
+#| "                        * non-ANSI behaviour"
+msgid ""
+"  -fno-trunc            allow numeric field overflow\n"
+"                        * non-ANSI behaviour"
+msgstr ""
+"  -fnotrunc                 nümerik alan taşmasına izin ver\n"
+"                            * ANSI dışı davranış"
+
+#: cobc/flag.def:197
+msgid ""
+"  -fsingle-quote        use a single quote (apostrophe) for QUOTE\n"
+"                        * default: double quote"
+msgstr ""
+"  -fsingle-quote            QUOTE için bir tek tırnak (kesme imi) kullan\n"
+"                            * öntanımlı: çift tırnak"
+
+#: cobc/flag.def:207
+msgid ""
+"  -foptional-file       treat all files as OPTIONAL\n"
+"                        * unless NOT OPTIONAL specified"
+msgstr ""
+"  -foptional-file           tüm dosyalara OPTIONAL olarak davran\n"
+"                            * NOT OPTIONAL belirtilmemişse"
+
+#: cobc/flag.def:211
+#, fuzzy
+#| msgid "-fstatic-call         output static function calls for the CALL statement"
+msgid "  -fstatic-call         output static function calls for the CALL statement"
+msgstr "-fstatic-call               CALL ifadesi için durgun işlev çağrıları çıktıla"
+
+#: cobc/flag.def:214
+#, fuzzy
+#| msgid ""
+#| "  -fno-gen-c-decl-static-call\tdisable generation of C function declations\n"
+#| "                        for subroutines with static CALL"
+msgid ""
+"  -fno-gen-c-decl-static-call\tdisable generation of C function declarations\n"
+"                        for subroutines with static CALL"
+msgstr ""
+"  -fno-gen-c-decl-static-call\n"
+"                            durgun CALL içeren alt yordamlar için C işlev\n"
+"                              beyanları üretmeyi devre dışı bırak"
+
+#: cobc/flag.def:218
+#, fuzzy
+#| msgid ""
+#| "  -fgen-c-line-directives\tgenerate source location directives in C code;\n"
+#| "                        * turned on by -g"
+msgid ""
+"  -fgen-c-line-directives\tgenerate source location directives in C code;\n"
+"                        * turned on by -g/--coverage"
+msgstr ""
+"  -fgen-c-line-directives   C kodunda kaynak konumu yönergeleri üret\n"
+"                            * -g ile açılır"
+
+#: cobc/flag.def:222
+msgid ""
+"  -fgen-c-labels        generate extra labels in C sources;\n"
+"                        * turned on by -g"
+msgstr ""
+"  -fgen-c-labels            C kaynaklarında ek etiketler üret\n"
+"                            * -g ile açılır"
+
+#: cobc/flag.def:226
+#, fuzzy
+#| msgid ""
+#| "  -fno-theaders         suppress all headers and output of compilation\n"
+#| "                        options from listing while keeping page breaks"
+msgid ""
+"  -fno-theaders         suppress all headers from listing while keeping\n"
+"                        page breaks"
+msgstr ""
+"  -fno-theaders             tüm üstbilgiyi ve derleme seçeneklerinin\n"
+"                              çıktısını sustur; sayfa sonlarını tut"
+
+#: cobc/flag.def:230
+msgid "  -fno-tsource          suppress source from listing"
+msgstr ""
+
+#: cobc/flag.def:233
+msgid "  -fno-tmessages        suppress warning and error summary from listing"
+msgstr ""
+
+#: cobc/flag.def:236
+msgid "  -ftsymbols            specify symbols in listing"
+msgstr ""
+
+#: cobc/flag.def:239
+msgid "  -ftcmd                specify command line in listing"
+msgstr ""
+
+#: cobc/flag.def:242
+msgid "  -fno-ttimestamp       suppress timestamp in listing headers"
+msgstr ""
+
+#: cobc/flag.def:245
+msgid ""
+"  -fttitle=<title>      set listing title with '_' replaced by spaces;\n"
+"                        defaults to package name and version"
+msgstr ""
+
+#: cobc/flag.def:249
+msgid ""
+"  -fno-diagnostics-show-option\tsuppress output of option that directly\n"
+"                        controls the diagnostic"
+msgstr ""
+
+#: cobc/flag.def:253
+msgid "  -fno-diagnostics-show-caret\tdo not display source context on warning/error diagnostic"
+msgstr ""
+
+#: cobc/flag.def:256
+msgid "  -fno-diagnostics-show-line-numbers\tsuppress display of line numbers in diagnostics"
+msgstr ""
+
+#: cobc/help.c:33
+msgid "GnuCOBOL compiler for most COBOL dialects with lots of extensions"
+msgstr ""
+
+#: cobc/help.c:35
+#, c-format
+msgid "Usage: %s [options]... file..."
+msgstr ""
+
+#: cobc/help.c:48 bin/cobcrun.c:143
+#, c-format
+msgid ""
+"Report bugs to: %s\n"
+"or (preferably) use the issue tracker via the home page."
+msgstr ""
+
+#: cobc/help.c:52 bin/cobcrun.c:146
+#, fuzzy, c-format
+#| msgid "GnuCOBOL module loader"
+msgid "GnuCOBOL home page: <%s>"
+msgstr "GnuCOBOL modülü yükleyici"
+
+#: cobc/help.c:54 bin/cobcrun.c:148
+#, c-format
+msgid "General help using GNU software: <%s>"
+msgstr "GNU yazılımları kullanımı için genel yardım: <%s>"
+
+#: cobc/help.c:61 bin/cobcrun.c:125
+msgid "Options:"
+msgstr ""
+
+#: cobc/help.c:62
+#, fuzzy
+#| msgid "  -h, -help                      display this help and exit"
+msgid "  -h, --help            display this help and exit"
+msgstr "  -h, -help                      bu yardımı görüntüle ve çık"
+
+#: cobc/help.c:63
+#, fuzzy
+#| msgid "  -V, -version                   display cobcrun and runtime version and exit"
+msgid "  -V, --version         display compiler version information and exit"
+msgstr "  -V, -version                   cobcrun ve çal. zam. sürümünü görüntüle ve çık"
+
+#: cobc/help.c:64
+#, fuzzy
+#| msgid "  -V, -version                   display cobcrun and runtime version and exit"
+msgid "  -dumpversion          display compiler version and exit"
+msgstr "  -V, -version                   cobcrun ve çal. zam. sürümünü görüntüle ve çık"
+
+#: cobc/help.c:65
+#, fuzzy
+#| msgid "  -i, -info                      display runtime information (build/environment)"
+msgid ""
+"  -i, --info            display compiler information (build/environment)\n"
+"                        and exit"
+msgstr "  -i, -info                      çal. zam. bilgisi görüntüle (yapı/ortam)"
+
+#: cobc/help.c:67
+msgid ""
+"  -v, --verbose         verbose mode, display additional information;\n"
+"                        multiple -v options increase the verbosity,\n"
+"                        the maximum is 3 as follows:\n"
+"                        (1) display compiler version and the commands\n"
+"                        invoked by the compiler,\n"
+"                        (2) pass verbose option to assembler/compiler\n"
+"                        (3) pass verbose option to linker"
+msgstr ""
+
+#: cobc/help.c:74
+#, fuzzy
+#| msgid "  -q, -brief                     reduced displays"
+msgid "  -q, --brief           reduced displays, commands invoked not shown"
+msgstr "  -q, -brief                     azaltılmış görüntülemeler"
+
+#: cobc/help.c:75
+msgid "  -###                  like -v but commands not executed"
+msgstr ""
+
+#: cobc/help.c:76
+msgid "  -x                    build an executable program"
+msgstr ""
+
+#: cobc/help.c:77
+msgid "  -m                    build a dynamically loadable module (default)"
+msgstr ""
+
+#: cobc/help.c:78
+msgid "  -j [<args>], --job[=<args>]\trun program after build, passing <args>"
+msgstr ""
+
+#: cobc/help.c:79
+msgid ""
+"  -std=<dialect>        warnings/features for a specific dialect\n"
+"                        <dialect> can be one of:\n"
+"                        default, cobol2014, cobol2002, cobol85, xopen,\n"
+"                        ibm-strict, ibm, mvs-strict, mvs,\n"
+"                        mf-strict, mf, bs2000-strict, bs2000,\n"
+"                        acu-strict, acu, rm-strict, rm, gcos-strict,\n"
+"                        gcos;\n"
+"                        see configuration files in directory config"
+msgstr ""
+
+#: cobc/help.c:87
+msgid "  -F, --free            use free source format (alias for -fformat=free)"
+msgstr ""
+
+#: cobc/help.c:88
+msgid ""
+"  --fixed               use fixed source format (default; alias for\n"
+"                        -fformat=fixed)"
+msgstr ""
+
+#: cobc/help.c:90
+msgid "  -O, -O2, -O3, -Os     enable optimization"
+msgstr ""
+
+#: cobc/help.c:91
+msgid "  -O0                   disable optimization"
+msgstr ""
+
+#: cobc/help.c:92
+msgid "  -g                    enable C compiler debug and stack check"
+msgstr ""
+
+#: cobc/help.c:93
+msgid ""
+"  -d, --debug           enable all run-time error checking,\n"
+"                        equal to -fstack-check -fec=EC-ALL"
+msgstr ""
+
+#: cobc/help.c:97
+#, fuzzy
+#| msgid ""
+#| "  -fec=<exception-name>\tenable code generation for <exception-name>,\n"
+#| "                        sets -fsource-location"
+msgid ""
+"  -fec=<exception-name>\tenable code generation for <exception-name>,\n"
+"                        see --list-exceptions for the possible values,\n"
+"                        sets -fsource-location"
+msgstr ""
+"  -fec=<istisna-adı>        <istisna-adı> için kod üretimini etkinleştir,\n"
+"                              -fsource-location ayarlar"
+
+#: cobc/help.c:100
+msgid "  -fno-ec=<exception-name>\tdisable code generation for <exception-name>"
+msgstr "  -fno-ec=<istisna-adı>\t<istisna-adı> için kod üretimini kapat"
+
+#: cobc/help.c:101
+msgid "  -o <file>             place the output into <file>"
+msgstr ""
+
+#: cobc/help.c:102
+msgid ""
+"  -b                    combine all input files into a single\n"
+"                        dynamically loadable module"
+msgstr ""
+
+#: cobc/help.c:104
+msgid "  -E                    preprocess only; do not compile or link"
+msgstr ""
+
+#: cobc/help.c:105
+msgid "  -C                    translation only; convert COBOL to C"
+msgstr ""
+
+#: cobc/help.c:106
+msgid "  -S                    compile only; output assembly file"
+msgstr ""
+
+#: cobc/help.c:107
+msgid "  -c                    compile and assemble, but do not link"
+msgstr ""
+
+#: cobc/help.c:108
+msgid "  -T <file>             generate and place a wide program listing into <file>"
+msgstr ""
+
+#: cobc/help.c:109
+msgid "  -t <file>             generate and place a program listing into <file>"
+msgstr ""
+
+#: cobc/help.c:110
+msgid "  --tlines=<lines>      specify lines per page in listing, default = 55"
+msgstr ""
+
+#: cobc/help.c:111
+msgid "  -P[=<dir or file>]    generate preprocessed program listing (.lst)"
+msgstr ""
+
+#: cobc/help.c:113
+msgid ""
+"  -X, --Xref            generate cross reference through 'cobxref'\n"
+"                        (V. Coen's 'cobxref' must be in path)"
+msgstr ""
+
+#: cobc/help.c:116
+msgid "  -X, --Xref            specify cross reference in listing"
+msgstr ""
+
+#: cobc/help.c:118
+msgid "  -I <directory>        add <directory> to copy/include search path"
+msgstr ""
+
+#: cobc/help.c:119
+msgid "  -L <directory>        add <directory> to library search path"
+msgstr ""
+
+#: cobc/help.c:120
+msgid "  -l <lib>              link the library <lib>"
+msgstr ""
+
+#: cobc/help.c:121
+msgid "  -K <entry>            generate CALL to <entry> as static"
+msgstr ""
+
+#: cobc/help.c:122
+msgid "  -D <define>           define <define> for COBOL compilation"
+msgstr ""
+
+#: cobc/help.c:123
+msgid "  -A <options>          add <options> to the C compile phase"
+msgstr ""
+
+#: cobc/help.c:124
+msgid "  -Q <options>          add <options> to the C link phase"
+msgstr ""
+
+#: cobc/help.c:125
+msgid "  --coverage            instrument generated binaries for coverage"
+msgstr ""
+
+#: cobc/help.c:126
+#, fuzzy
+#| msgid "  -c <file>, -config=<file>      set runtime configuration from <file>"
+msgid "  --conf=<file>         user-defined dialect configuration; see -std"
+msgstr "  -c <dosya>, -config=<dosya>    <dosya>'dan çal. zam. yapılandırması yükle"
+
+#: cobc/help.c:127
+msgid "  --list-reserved       display reserved words"
+msgstr ""
+
+#: cobc/help.c:128
+#, fuzzy
+#| msgid "'%s' is not an intrinsic function"
+msgid "  --list-intrinsics     display intrinsic functions"
+msgstr "'%s', yerleşik bir işlev değil"
+
+#: cobc/help.c:129
+msgid "  --list-mnemonics      display mnemonic names"
+msgstr ""
+
+#: cobc/help.c:130
+msgid "  --list-exceptions     display exception names"
+msgstr ""
+
+#: cobc/help.c:131
+msgid "  --list-system         display system routines"
+msgstr ""
+
+#: cobc/help.c:132
+msgid ""
+"  --save-temps[=<dir>]  save intermediate files\n"
+"                        * default: current directory"
+msgstr ""
+
+#: cobc/help.c:134
+msgid "  -MT <target>          set/add target file used in dependency list"
+msgstr ""
+
+#: cobc/help.c:135
+msgid "  -MF <file>            place dependency list into <file>"
+msgstr ""
+
+#: cobc/help.c:136
+msgid "  -ext <extension>      add file extension for resolving COPY"
+msgstr ""
+
+#: cobc/help.c:143
+msgid "Warning options:"
+msgstr ""
+
+#: cobc/help.c:144
+msgid "  -Wall                 enable most warnings (all except as noted below)"
+msgstr ""
+
+#: cobc/help.c:145
+msgid "  -Wextra               like -Wall but enable some extra warning flags"
+msgstr ""
+
+#: cobc/help.c:146
+msgid "  -w                    disable all warnings"
+msgstr ""
+
+#: cobc/help.c:147
+msgid "  -Wno-<warning>        disable warning enabled by default, -Wall or -Wextra"
+msgstr ""
+
+#. TRANSLATORS: This msgid is appended to msgid for -Wno-pending and others
+#: cobc/help.c:153
+msgid "                        * ALWAYS active"
+msgstr ""
+
+#. TRANSLATORS: This msgid is appended to msgid for -Wpossible-truncate and others
+#: cobc/help.c:157
+msgid "                        * NOT set with -Wall"
+msgstr ""
+
+#: cobc/help.c:165
+msgid "  -fdiagnostics-plain-output\tmake diagnostic output as plain as possible"
+msgstr ""
+
+#: cobc/help.c:166
+msgid "  -Werror               treat all warnings as errors"
+msgstr ""
+
+#: cobc/help.c:167
+msgid "  -Wno-error            don't treat warnings as errors"
+msgstr ""
+
+#: cobc/help.c:168
+msgid "  -Werror=<warning>     treat specified <warning> as error"
+msgstr ""
+
+#: cobc/help.c:169
+msgid "  -Wno-error=<warning>  don't treat specified <warning> as error"
+msgstr ""
+
+#: cobc/help.c:185
+msgid "Compiler options:"
+msgstr ""
+
+#: cobc/help.c:203
+msgid ""
+"  -fibmcomp             sets -fbinary-size=2-4-8 -fsynchronized-clause=ok\n"
+"  -fno-ibmcomp          sets -fbinary-size=1--8  -fsynchronized-clause=ignore"
+msgstr ""
+
+#: cobc/help.c:206
+#, fuzzy
+#| msgid "-falternate-ebcdic    use restricted ASCII to EBCDIC translate"
+msgid ""
+"  -falternate-ebcdic    use restricted ASCII to EBCDIC translate\n"
+"  -fno-alternate-ebcdic use extended ASCII to EBCDIC translate"
+msgstr "-falternate-ebcdic          kısıtlanmış ASCII'den EBCDIC'ye çevirme kullan"
+
+#: cobc/help.c:235
+msgid "Compiler dialect configuration options:"
+msgstr ""
+
+#: cobc/help.c:237 cobc/help.c:243
+msgid "<value>"
+msgstr ""
+
+#: cobc/help.c:247
+msgid "<support>"
+msgstr ""
+
+#: cobc/help.c:256
+msgid "where <support> is one of the following:"
+msgstr ""
+
+#. TRANSLATORS: This msgid is used when a variable name
+#. or label is referenced in a compiler message.
+#: cobc/help.c:259 cobc/help.c:262 cobc/help.c:265 cobc/help.c:268
+#: cobc/help.c:271 cobc/help.c:274 cobc/help.c:277 cobc/help.c:280
+#: cobc/typeck.c:2378
+#, c-format
+msgid "'%s'"
+msgstr ""
+
+#: cobc/help.c:282
+msgid "word to be taken out of the reserved words list"
+msgstr ""
+
+#: cobc/help.c:282 cobc/help.c:283 cobc/help.c:285
+msgid "<word>"
+msgstr ""
+
+#: cobc/help.c:283
+msgid "word to be added to reserved words list"
+msgstr ""
+
+#: cobc/help.c:284
+msgid "word to be added to reserved words list as alias"
+msgstr ""
+
+#: cobc/help.c:284
+msgid "<word>:<alias>"
+msgstr ""
+
+#: cobc/help.c:285
+msgid "special register to disable"
+msgstr ""
+
+#: cobc/help.c:286
+msgid "special register to enable"
+msgstr ""
+
+#: cobc/help.c:287
+msgid "<word> or <word>:<definition>, where definition uses backslash escaped spaces"
+msgstr ""
+
+#: cobc/parser.y:307
+#, c-format
+msgid "'%s' should start in Area A"
+msgstr ""
+
+#: cobc/parser.y:315
+#, c-format
+msgid "%s should start in Area A"
+msgstr ""
+
+#: cobc/parser.y:322
+#, fuzzy, c-format
+#| msgid "should not contain '%c'"
+msgid "%s should not start in Area A"
+msgstr "'%c' içermemeli"
+
+#: cobc/parser.y:330 cobc/parser.y:332
+msgid "start of statement in Area A"
+msgstr ""
+
+#: cobc/parser.y:428
+#, c-format
+msgid "unreachable statement '%s'"
+msgstr ""
+
+#: cobc/parser.y:542
+#, c-format
+msgid "ENTRY '%s' duplicated"
+msgstr ""
+
+#: cobc/parser.y:594
+#, c-format
+msgid "ENTRY FOR GO TO '%s' duplicated"
+msgstr ""
+
+#: cobc/parser.y:610
+#, c-format
+msgid "maximum nested program depth exceeded (%d)"
+msgstr ""
+
+#: cobc/parser.y:636 cobc/parser.y:663
+#, c-format
+msgid "%s statement not terminated by %s"
+msgstr ""
+
+#: cobc/parser.y:666
+#, c-format
+msgid "%s statement not terminated"
+msgstr ""
+
+#: cobc/parser.y:708
+msgid "USE statement invalid for SD file"
+msgstr ""
+
+#: cobc/parser.y:751
+#, fuzzy, c-format
+#| msgid "%s ignored"
+msgid "%s is ignored"
+msgstr "%s yok sayıldı"
+
+#: cobc/parser.y:760
+#, c-format
+msgid "cannot specify %s without number of lines on page"
+msgstr ""
+
+#: cobc/parser.y:770
+#, c-format
+msgid "maximum OCCURS depth exceeded (%d)"
+msgstr ""
+
+#: cobc/parser.y:785 cobc/typeck.c:3127
+#, c-format
+msgid "'%s' is not in LINKAGE SECTION"
+msgstr ""
+
+#: cobc/parser.y:806
+msgid "TO phrase without DEPENDING phrase"
+msgstr ""
+
+#: cobc/parser.y:808
+msgid "maximum number of occurrences assumed to be exact number"
+msgstr ""
+
+#: cobc/parser.y:813 cobc/parser.y:8398
+msgid "OCCURS TO must be greater than OCCURS FROM"
+msgstr ""
+
+#: cobc/parser.y:823
+msgid "OCCURS DEPENDING ON without TO phrase"
+msgstr ""
+
+#: cobc/parser.y:899
+#, c-format
+msgid "%s header missing"
+msgstr ""
+
+#: cobc/parser.y:900
+#, c-format
+msgid "%s header assumed"
+msgstr ""
+
+#: cobc/parser.y:1053
+#, c-format
+msgid "%s incorrectly after %s"
+msgstr ""
+
+#: cobc/parser.y:1208
+#, c-format
+msgid "redefinition of program name '%s'"
+msgstr ""
+
+#: cobc/parser.y:1213
+#, c-format
+msgid "redefinition of program ID '%s'"
+msgstr ""
+
+#: cobc/parser.y:1247
+#, c-format
+msgid "FUNCTION '%s' has no PROCEDURE DIVISION"
+msgstr ""
+
+#: cobc/parser.y:1372
+msgid "functions may not be defined within a program/function"
+msgstr ""
+
+#: cobc/parser.y:1426
+#, c-format
+msgid "END FUNCTION '%s' is different from FUNCTION-ID '%s'"
+msgstr ""
+
+#: cobc/parser.y:1440
+#, c-format
+msgid "END PROGRAM '%s' is different from PROGRAM-ID '%s'"
+msgstr ""
+
+#: cobc/parser.y:1489
+msgid "currency symbol must be one character long"
+msgstr ""
+
+#: cobc/parser.y:1546
+#, c-format
+msgid "invalid character '%c' in currency symbol"
+msgstr ""
+
+#: cobc/parser.y:1562
+msgid "prototype has same name as current function and will be ignored"
+msgstr ""
+
+#: cobc/parser.y:1589
+#, c-format
+msgid "duplicate REPOSITORY entries for '%s' do not match"
+msgstr ""
+
+#: cobc/parser.y:1593
+#, c-format
+msgid "duplicate REPOSITORY entry for '%s'"
+msgstr ""
+
+#: cobc/parser.y:1658
+#, c-format
+msgid "ORGANIZATION %s is incompatible with RECORD DELIMITER"
+msgstr ""
+
+#: cobc/parser.y:1694 cobc/parser.y:2142 cobc/typeck.c:835
+#, c-format
+msgid "condition-name not allowed here: '%s'"
+msgstr ""
+
+#: cobc/parser.y:1700 cobc/parser.y:2345
+msgid "SCREEN item cannot be used here"
+msgstr ""
+
+#: cobc/parser.y:1703
+msgid "REPORT item cannot be used here"
+msgstr ""
+
+#: cobc/parser.y:1709
+msgid "TYPEDEF item cannot be used here"
+msgstr ""
+
+#: cobc/parser.y:1718
+msgid "elementary item expected"
+msgstr ""
+
+#: cobc/parser.y:1725
+msgid "item may not reference itself"
+msgstr ""
+
+#: cobc/parser.y:1733
+msgid "item may not be subordinate to any item with USAGE clause"
+msgstr ""
+
+#: cobc/parser.y:1735
+msgid "item may not be subordinate to any item with SIGN clause"
+msgstr ""
+
+#: cobc/parser.y:1780
+#, c-format
+msgid "illegal combination of %s with other clauses"
+msgstr ""
+
+#: cobc/parser.y:1794
+#, c-format
+msgid "entry following %s may not be subordinate to it"
+msgstr ""
+
+#: cobc/parser.y:2042
+msgid "INITIAL specified on non-input field"
+msgstr ""
+
+#: cobc/parser.y:2054
+msgid "relative LINE/COLUMN clause required with OCCURS"
+msgstr ""
+
+#: cobc/parser.y:2072
+msgid "FOR phrase cannot immediately follow ALL/LEADING/TRAILING"
+msgstr ""
+
+#: cobc/parser.y:2074
+msgid "missing CHARACTERS/ALL/LEADING/TRAILING phrase after FOR phrase"
+msgstr ""
+
+#: cobc/parser.y:2081
+msgid "missing value between ALL/LEADING/TRAILING words"
+msgstr ""
+
+#: cobc/parser.y:2086
+msgid "missing FOR phrase before CHARACTERS/ALL/LEADING/TRAILING phrase"
+msgstr ""
+
+#: cobc/parser.y:2093
+msgid "missing ALL/LEADING/TRAILING before value"
+msgstr ""
+
+#: cobc/parser.y:2138
+msgid "use of condition-name in place of data-name"
+msgstr ""
+
+#: cobc/parser.y:2169
+msgid "cannot specify NO ADVANCING in screen DISPLAY"
+msgstr ""
+
+#: cobc/parser.y:2232 cobc/parser.y:2249
+msgid "non-standard DISPLAY"
+msgstr ""
+
+#: cobc/parser.y:2236
+msgid "screens may only be displayed on CRT"
+msgstr ""
+
+#: cobc/parser.y:2241 cobc/parser.y:2284
+msgid "cannot mix screens and fields in the same DISPLAY statement"
+msgstr ""
+
+#: cobc/parser.y:2245
+msgid "screen clauses may only be used for DISPLAY on CRT"
+msgstr ""
+
+#: cobc/parser.y:2290
+msgid "ambiguous DISPLAY; put items to display on device in separate DISPLAY"
+msgstr ""
+
+#: cobc/parser.y:2301
+#, c-format
+msgid "%s is not an alphanumeric literal"
+msgstr ""
+
+#: cobc/parser.y:2305
+#, c-format
+msgid "'%s' is not USAGE DISPLAY"
+msgstr ""
+
+#: cobc/parser.y:2322 cobc/parser.y:19534
+#, c-format
+msgid "'%s' is not a field"
+msgstr ""
+
+#: cobc/parser.y:2338 cobc/typeck.c:10231
+#, c-format
+msgid "invalid target for %s"
+msgstr ""
+
+#: cobc/parser.y:2347
+msgid "RENAMES item may not be used here"
+msgstr ""
+
+#: cobc/parser.y:2349 cobc/typeck.c:2822 cobc/typeck.c:2913
+msgid "ANY LENGTH item not allowed here"
+msgstr ""
+
+#: cobc/parser.y:2353
+#, c-format
+msgid "item '%s' has wrong class for VALIDATE"
+msgstr ""
+
+#: cobc/parser.y:2362
+msgid "WHEN clause must follow EVERY clause"
+msgstr ""
+
+#: cobc/parser.y:2447 cobc/parser.y:19251
+msgid "non-zero value expected"
+msgstr ""
+
+#: cobc/parser.y:2453 cobc/tree.c:4803
+#, c-format
+msgid "RECORD size (IDX) exceeds maximum allowed (%d)"
+msgstr ""
+
+#: cobc/parser.y:2457 cobc/tree.c:4807
+#, c-format
+msgid "RECORD size exceeds maximum allowed (%d)"
+msgstr ""
+
+#: cobc/parser.y:2462
+msgid "RECORD clause invalid"
+msgstr ""
+
+#: cobc/parser.y:3595
+msgid "multiple PROGRAM-ID's without matching END PROGRAM"
+msgstr ""
+
+#: cobc/parser.y:3598
+msgid "executable requested but no program found"
+msgstr ""
+
+#: cobc/parser.y:3717
+msgid "prototypes must be come before any program/function definitions"
+msgstr ""
+
+#: cobc/parser.y:3930
+msgid "COMMON may only be used in a contained program"
+msgstr ""
+
+#: cobc/parser.y:4017
+msgid "CALL prototypes"
+msgstr ""
+
+#: cobc/parser.y:4192 cobc/parser.y:4471 cobc/parser.y:4517 cobc/parser.y:4632
+#: cobc/parser.y:4846 cobc/parser.y:4943 cobc/parser.y:4982 cobc/parser.y:5041
+#: cobc/parser.y:5062 cobc/parser.y:5105 cobc/parser.y:5184 cobc/parser.y:5203
+#: cobc/parser.y:5219 cobc/parser.y:5237 cobc/parser.y:5255 cobc/parser.y:5272
+#: cobc/parser.y:5290 cobc/parser.y:7685 cobc/parser.y:9028
+#, c-format
+msgid "%s not allowed in nested programs"
+msgstr ""
+
+#: cobc/parser.y:4345
+msgid "segment-number must be in range of values 1 to 49"
+msgstr ""
+
+#: cobc/parser.y:4357
+msgid "duplicate CLASSIFICATION clause"
+msgstr ""
+
+#: cobc/parser.y:4436
+msgid "PROGRAM phrase"
+msgstr ""
+
+#: cobc/parser.y:4538 cobc/parser.y:4549 cobc/parser.y:4895
+#, c-format
+msgid "invalid %s clause"
+msgstr ""
+
+#: cobc/parser.y:4854 cobc/parser.y:4992
+#, fuzzy
+#| msgid "literal type does not match numeric data type"
+msgid "type does not match alphabet"
+msgstr "düz veri türü, nümerik veri türüyle eşleşmiyor"
+
+#: cobc/parser.y:4998
+msgid "CLASS IS integer IN alphabet-name"
+msgstr ""
+
+#: cobc/parser.y:5018 cobc/parser.y:5022
+msgid "CLASS literal with THRU must have size 1"
+msgstr ""
+
+#: cobc/parser.y:5117
+msgid "separate currency symbol and currency string"
+msgstr ""
+
+#: cobc/parser.y:5150
+#, c-format
+msgid "invalid CURRENCY SIGN '%s'"
+msgstr ""
+
+#: cobc/parser.y:5377
+msgid "cannot use RELATIVE KEY clause on INDEXED files"
+msgstr ""
+
+#: cobc/parser.y:5381
+msgid "cannot use RECORD KEY clause on RELATIVE files"
+msgstr ""
+
+#: cobc/parser.y:5453
+msgid "EXTERNAL/DYNAMIC cannot be used with literals"
+msgstr ""
+
+#: cobc/parser.y:5473
+msgid "EXTERNAL/DYNAMIC cannot be used with USING/VARYING"
+msgstr ""
+
+#: cobc/parser.y:5484
+msgid "EXTERNAL/DYNAMIC cannot be used with DISK FROM"
+msgstr ""
+
+#: cobc/parser.y:5608
+msgid "ASSIGN EXTERNAL/DYNAMIC"
+msgstr ""
+
+#: cobc/parser.y:5724 cobc/parser.y:5921
+#, c-format
+msgid "%s only valid with ORGANIZATION %s"
+msgstr ""
+
+#: cobc/parser.y:5818 cobc/typeck.c:3818
+#, c-format
+msgid "'%s' is not an alphabet-name"
+msgstr ""
+
+#: cobc/parser.y:5854
+msgid "VSAM status"
+msgstr ""
+
+#: cobc/parser.y:5988 cobc/parser.y:6013
+#, c-format
+msgid "RECORD DELIMITER %s only allowed with SEQUENTIAL files"
+msgstr ""
+
+#: cobc/parser.y:6000
+#, c-format
+msgid "RECORD DELIMITER %s only allowed with (LINE) SEQUENTIAL files"
+msgstr ""
+
+#: cobc/parser.y:6006
+msgid "LINE-SEQUENTIAL phrase"
+msgstr ""
+
+#: cobc/parser.y:6019
+msgid "BINARY-SEQUENTIAL phrase"
+msgstr ""
+
+#: cobc/parser.y:6027
+msgid "RECORD DELIMITER clause only allowed with (LINE) SEQUENTIAL files"
+msgstr ""
+
+#: cobc/parser.y:6031
+#, c-format
+msgid "RECORD DELIMITER %s not recognized; will be ignored"
+msgstr ""
+
+#: cobc/parser.y:6069
+msgid "DUPLICATES for primary keys"
+msgstr ""
+
+#: cobc/parser.y:6313
+msgid "DOS/VS APPLY phrase"
+msgstr ""
+
+#: cobc/parser.y:6467
+msgid "RECORD description missing or invalid"
+msgstr ""
+
+#: cobc/parser.y:6494
+#, c-format
+msgid "duplicate file description for %s"
+msgstr ""
+
+#: cobc/parser.y:6543 cobc/parser.y:7170 cobc/parser.y:7670 cobc/parser.y:13913
+#: cobc/parser.y:17210
+#, c-format
+msgid "%s is invalid in a user FUNCTION"
+msgstr ""
+
+#: cobc/parser.y:6581 cobc/parser.y:6591
+msgid "RECORD clause ignored for LINE SEQUENTIAL"
+msgstr ""
+
+#: cobc/parser.y:6688
+msgid "LINAGE clause with wrong file type"
+msgstr ""
+
+#: cobc/parser.y:6750
+msgid "RECORDING MODE U or S can only be used with RECORD SEQUENTIAL files"
+msgstr ""
+
+#: cobc/parser.y:6787
+#, c-format
+msgid "ignoring CODE-SET '%s'"
+msgstr ""
+
+#: cobc/parser.y:6796
+msgid "CODE-SET clause invalid for file type"
+msgstr ""
+
+#: cobc/parser.y:6817
+msgid "REPORT clause with wrong file type"
+msgstr ""
+
+#: cobc/parser.y:6899
+msgid "CD record missing"
+msgstr ""
+
+#: cobc/parser.y:7372
+msgid "CONSTANT item not at 01 level"
+msgstr ""
+
+#: cobc/parser.y:7517
+msgid "REDEFINES clause not following entry-name"
+msgstr ""
+
+#: cobc/parser.y:7590 cobc/parser.y:7620 cobc/parser.y:7662 cobc/parser.y:7751
+#: cobc/parser.y:8606
+#, c-format
+msgid "%s only allowed at 01/77 level"
+msgstr ""
+
+#: cobc/parser.y:7593 cobc/parser.y:7622 cobc/parser.y:7664 cobc/parser.y:8608
+#: cobc/parser.y:8987 cobc/parser.y:9009
+#, c-format
+msgid "%s requires a data name"
+msgstr ""
+
+#: cobc/parser.y:7597 cobc/parser.y:7846
+#, c-format
+msgid "%s not allowed in %s"
+msgstr ""
+
+#: cobc/parser.y:7618 cobc/parser.y:7672 cobc/parser.y:8604 cobc/parser.y:8983
+#: cobc/parser.y:9007
+#, c-format
+msgid "%s not allowed here"
+msgstr ""
+
+#: cobc/parser.y:7809
+#, c-format
+msgid "%s requires DEPENDING clause"
+msgstr ""
+
+#: cobc/parser.y:7825
+msgid "a locale-format PICTURE string must only consist of '9', '.', '+', 'Z' and the currency-sign"
+msgstr ""
+
+#: cobc/parser.y:7835
+msgid "DEPENDING clause needs either an OCCURS clause or a variable-length PICTURE"
+msgstr ""
+
+#: cobc/parser.y:7841
+msgid "only USAGE DISPLAY may specify a variable-length PICTURE"
+msgstr ""
+
+#: cobc/parser.y:7893 cobc/typeck.c:4916
+#, c-format
+msgid "'%s' is not a locale-name"
+msgstr ""
+
+#: cobc/parser.y:7939
+#, c-format
+msgid "'%s' is not a valid USAGE"
+msgstr ""
+
+#: cobc/parser.y:7944
+#, c-format
+msgid "unknown USAGE: %s"
+msgstr ""
+
+#: cobc/parser.y:8139
+#, c-format
+msgid "unknown HANDLE type: %s"
+msgstr ""
+
+#: cobc/parser.y:8347
+#, c-format
+msgid "'%s' is not USAGE UTF-8"
+msgstr ""
+
+#: cobc/parser.y:8448
+msgid "INDEXED should follow ASCENDING/DESCENDING"
+msgstr ""
+
+#: cobc/parser.y:8658 cobc/parser.y:8660
+#, fuzzy, c-format
+#| msgid "unexpected size: %d"
+msgid "unexpected %s"
+msgstr "beklenmedik boyut: %d"
+
+#: cobc/parser.y:8709
+msgid "amount of entries in FROM and TO must match"
+msgstr ""
+
+#: cobc/parser.y:8718
+#, c-format
+msgid "entry in FROM (%d) must be <= entry in TO (%d)"
+msgstr ""
+
+#: cobc/parser.y:8985
+#, c-format
+msgid "%s only allowed at 01 level"
+msgstr ""
+
+#: cobc/parser.y:8989 cobc/parser.y:9011
+#, c-format
+msgid "%s and %s combination not allowed"
+msgstr ""
+
+#: cobc/parser.y:9127
+msgid "GLOBAL is not allowed with RD"
+msgstr ""
+
+#: cobc/parser.y:9650
+#, c-format
+msgid "%s is not valid for VARYING"
+msgstr ""
+
+#: cobc/parser.y:9686
+#, fuzzy
+#| msgid "Nested OCCURS in report"
+msgid "LINE with OCCURS is not supported"
+msgstr "Rapor içinde iç içe geçmiş OCCURS"
+
+#: cobc/parser.y:9726
+msgid "PLUS is not recommended with LEFT, RIGHT or CENTER"
+msgstr ""
+
+#: cobc/parser.y:9728
+msgid "PLUS is not allowed with LEFT, RIGHT or CENTER"
+msgstr ""
+
+#: cobc/parser.y:9766
+msgid "PLUS is ignored on first field of line"
+msgstr ""
+
+#: cobc/parser.y:9797
+msgid "invalid COLUMN integer; must be > 0"
+msgstr ""
+
+#: cobc/parser.y:9799
+msgid "COLUMN numbers should increase"
+msgstr ""
+
+#: cobc/parser.y:9990 cobc/parser.y:9994
+msgid "screen positions from data-item"
+msgstr ""
+
+#: cobc/parser.y:10153
+#, fuzzy, c-format
+#| msgid "missing definitions:"
+msgid "missing %s"
+msgstr "eksik tanımlar:"
+
+#: cobc/parser.y:10840
+msgid "OCCURS screen items"
+msgstr ""
+
+#: cobc/parser.y:10852
+msgid "GLOBAL screen items"
+msgstr ""
+
+#: cobc/parser.y:10904
+msgid "overriding convention specified in ENTRY-CONVENTION"
+msgstr ""
+
+#: cobc/parser.y:10917
+msgid "executable program requested but PROCEDURE/ENTRY has USING clause"
+msgstr ""
+
+#: cobc/parser.y:10987 cobc/parser.y:11004 cobc/parser.y:12667
+#, c-format
+msgid "number of arguments exceeds maximum %d"
+msgstr ""
+
+#: cobc/parser.y:10996
+msgid "CHAINING invalid in user FUNCTION"
+msgstr ""
+
+#: cobc/parser.y:11032
+msgid "ANY LENGTH items may only be BY REFERENCE formal parameters"
+msgstr ""
+
+#: cobc/parser.y:11049 cobc/parser.y:12728 cobc/parser.y:12741
+#, c-format
+msgid "%s not allowed in CHAINED programs"
+msgstr ""
+
+#: cobc/parser.y:11051
+msgid "parameters passed BY VALUE"
+msgstr ""
+
+#: cobc/parser.y:11066 cobc/parser.y:11075 cobc/parser.y:11083
+#: cobc/parser.y:11104
+msgid "SIZE only allowed for BY VALUE items"
+msgstr ""
+
+#: cobc/parser.y:11106 cobc/parser.y:11131
+msgid "invalid value for SIZE"
+msgstr ""
+
+#: cobc/parser.y:11146
+msgid "MEMORY SIZE phrase in CALL statement"
+msgstr ""
+
+#: cobc/parser.y:11162
+msgid "OPTIONAL only allowed for BY REFERENCE items"
+msgstr ""
+
+#: cobc/parser.y:11177
+msgid "RETURNING clause is required for a FUNCTION"
+msgstr ""
+
+#: cobc/parser.y:11183
+msgid "RETURNING clause cannot be OMITTED for main program"
+msgstr ""
+
+#: cobc/parser.y:11186
+msgid "RETURNING clause cannot be OMITTED for a FUNCTION"
+msgstr ""
+
+#: cobc/parser.y:11199
+msgid "RETURNING item is not defined in LINKAGE SECTION"
+msgstr ""
+
+#: cobc/parser.y:11201
+msgid "RETURNING item must have level 01"
+msgstr ""
+
+#: cobc/parser.y:11203
+msgid "RETURNING item should not have OCCURS"
+msgstr ""
+
+#: cobc/parser.y:11207
+msgid "function RETURNING item may not be ANY LENGTH"
+msgstr ""
+
+#: cobc/parser.y:11421
+#, c-format
+msgid "'%s' is not a statement"
+msgstr ""
+
+#: cobc/parser.y:11424
+#, c-format
+msgid "unknown statement '%s'; it may exist in another dialect"
+msgstr ""
+
+#: cobc/parser.y:11428
+#, c-format
+msgid "unknown statement '%s'"
+msgstr ""
+
+#: cobc/parser.y:11446
+msgid "SECTION segment-number must be less than or equal to 99"
+msgstr ""
+
+#: cobc/parser.y:11449
+msgid "SECTION segment-number in DECLARATIVES must be less than 50"
+msgstr ""
+
+#: cobc/parser.y:11457
+msgid "SECTION segment within DECLARATIVES"
+msgstr ""
+
+#: cobc/parser.y:11667 cobc/parser.y:11806
+msgid "non-standard ACCEPT"
+msgstr ""
+
+#: cobc/parser.y:11679
+msgid "PROMPT clause"
+msgstr ""
+
+#: cobc/parser.y:11683
+msgid "SIZE IS clause"
+msgstr ""
+
+#: cobc/parser.y:11907 cobc/parser.y:12226
+msgid "TIME-OUT or BEFORE TIME clauses"
+msgstr ""
+
+#: cobc/parser.y:11937 cobc/parser.y:11960 cobc/parser.y:11978
+msgid "AT screen-location"
+msgstr ""
+
+#: cobc/parser.y:11979
+msgid "LINE or COLUMN"
+msgstr ""
+
+#: cobc/parser.y:12358
+msgid "ALLOCATE CHARACTERS requires RETURNING clause"
+msgstr ""
+
+#: cobc/parser.y:12373
+#, c-format
+msgid "ignoring %s phrase"
+msgstr ""
+
+#: cobc/parser.y:12375
+msgid "addressing mode should be either 24 or 31 bit"
+msgstr ""
+
+#: cobc/parser.y:12446
+msgid "CALL to own PROGRAM-ID"
+msgstr ""
+
+#: cobc/parser.y:12447
+msgid "assuming RECURSIVE attribute"
+msgstr ""
+
+#: cobc/parser.y:12467
+msgid "STATIC CALL convention ignored because of ON EXCEPTION"
+msgstr ""
+
+#: cobc/parser.y:12476
+msgid "ON EXCEPTION ignored because of STATIC CALL"
+msgstr ""
+
+#: cobc/parser.y:12594 cobc/typeck.c:14450
+msgid "invalid mnemonic name"
+msgstr ""
+
+#: cobc/parser.y:12618
+msgid "id/literal ignored, using prototype name"
+msgstr ""
+
+#: cobc/parser.y:12624
+msgid "NESTED phrase is only valid with literal"
+msgstr ""
+
+#: cobc/parser.y:12685
+#, c-format
+msgid "%s only allowed when arguments are passed %s"
+msgstr ""
+
+#: cobc/parser.y:12776
+msgid "RETURNING item must have level 01 or 77"
+msgstr ""
+
+#: cobc/parser.y:12780
+msgid "RETURNING item must be a LINKAGE SECTION item or have BASED clause"
+msgstr ""
+
+#: cobc/parser.y:12814 cobc/parser.y:17937 cobc/parser.y:18000
+msgid "NOT EXCEPTION before EXCEPTION"
+msgstr ""
+
+#: cobc/parser.y:13572
+#, c-format
+msgid "HANDLE must be a %s HANDLE"
+msgstr ""
+
+#: cobc/parser.y:13584
+msgid "HANDLE must be a generic HANDLE"
+msgstr ""
+
+#: cobc/parser.y:13661
+#, c-format
+msgid "HANDLE clause invalid for %s"
+msgstr ""
+
+#: cobc/parser.y:13911 cobc/parser.y:17400
+#, c-format
+msgid "%s is invalid in nested program"
+msgstr ""
+
+#: cobc/parser.y:13940 cobc/parser.y:13983 cobc/parser.y:13994
+#: cobc/parser.y:14005
+#, c-format
+msgid "maximum evaluate depth exceeded (%d)"
+msgstr ""
+
+#: cobc/parser.y:14048 cobc/parser.y:14089 cobc/parser.y:14633
+#: cobc/parser.y:14644 cobc/parser.y:14653 cobc/parser.y:17959
+#: cobc/parser.y:17981 cobc/parser.y:18022 cobc/parser.y:18038
+#: cobc/parser.y:18078 cobc/parser.y:18095 cobc/parser.y:18132
+#: cobc/parser.y:18149 cobc/parser.y:18199 cobc/parser.y:18216
+#: cobc/parser.y:18252 cobc/parser.y:18269 cobc/parser.y:18310
+#: cobc/parser.y:18327
+#, c-format
+msgid "%s without imperative statement"
+msgstr ""
+
+#: cobc/parser.y:14056 cobc/parser.y:14066
+msgid "WHEN without imperative statement"
+msgstr ""
+
+#: cobc/parser.y:14097 cobc/parser.y:14107
+msgid "WHEN OTHER without imperative statement"
+msgstr ""
+
+#: cobc/parser.y:14191
+msgid "invalid THROUGH usage"
+msgstr ""
+
+#: cobc/parser.y:14372
+msgid "EXIT PROGRAM is not allowed within a USE GLOBAL procedure"
+msgstr ""
+
+#: cobc/parser.y:14376
+msgid "EXIT PROGRAM not allowed within a FUNCTION"
+msgstr ""
+
+#: cobc/parser.y:14390
+msgid "EXIT FUNCTION is not allowed within a USE GLOBAL procedure"
+msgstr ""
+
+#: cobc/parser.y:14394
+msgid "EXIT FUNCTION only allowed within a FUNCTION"
+msgstr ""
+
+#: cobc/parser.y:14408 cobc/parser.y:14431
+msgid "EXIT PERFORM is only valid with inline PERFORM"
+msgstr ""
+
+#: cobc/parser.y:14453
+msgid "EXIT SECTION is only valid with an active SECTION"
+msgstr ""
+
+#: cobc/parser.y:14474
+msgid "EXIT PARAGRAPH is only valid with an active PARAGRAPH"
+msgstr ""
+
+#: cobc/parser.y:14497
+msgid "RETURNING/GIVING not allowed for non-returning runtime elements"
+msgstr ""
+
+#: cobc/parser.y:14640
+msgid "IF without imperative statement"
+msgstr ""
+
+#: cobc/parser.y:14983 cobc/parser.y:14992
+msgid "single-character literal or data item expected"
+msgstr ""
+
+#: cobc/parser.y:15010
+msgid "TALLYING clause is incomplete"
+msgstr ""
+
+#: cobc/parser.y:15126
+msgid "INSPECT missing ALL/FIRST/LEADING/TRAILING"
+msgstr ""
+
+#: cobc/parser.y:15390
+msgid "LOCK clauses"
+msgstr ""
+
+#: cobc/parser.y:15547
+msgid "inline PERFORM without imperative statement"
+msgstr ""
+
+#: cobc/parser.y:15670 cobc/parser.y:15678 cobc/parser.y:15686
+#, c-format
+msgid "PERFORM VARYING '%s' (line %d of %s) is not a numeric field"
+msgstr ""
+
+#: cobc/parser.y:15702
+msgid "PERFORM VARYING without BY phrase"
+msgstr ""
+
+#: cobc/parser.y:15742
+#, c-format
+msgid "'%s' is not an object-reference"
+msgstr ""
+
+#: cobc/parser.y:15782 cobc/typeck.c:13066 cobc/typeck.c:14358
+msgid "LOCK clause invalid with file LOCK AUTOMATIC"
+msgstr ""
+
+#: cobc/parser.y:15787
+msgid "KEY clause invalid with this file type"
+msgstr ""
+
+#: cobc/parser.y:15792 cobc/typeck.c:13062 cobc/typeck.c:14354
+msgid "INVALID KEY clause invalid with this file type"
+msgstr ""
+
+#: cobc/parser.y:16494
+msgid "MERGE requires KEY phrase"
+msgstr ""
+
+#: cobc/parser.y:16498
+msgid "file SORT requires KEY phrase"
+msgstr ""
+
+#: cobc/parser.y:16522
+msgid "table SORT requires KEY phrase"
+msgstr ""
+
+#: cobc/parser.y:16527
+msgid "must be an SD filename"
+msgstr ""
+
+#: cobc/parser.y:16585
+msgid "MERGE requires USING files"
+msgstr ""
+
+#: cobc/parser.y:16587
+msgid "file SORT requires USING or INPUT PROCEDURE"
+msgstr ""
+
+#: cobc/parser.y:16595
+msgid "USING invalid with table SORT"
+msgstr ""
+
+#: cobc/parser.y:16605
+msgid "INPUT PROCEDURE invalid with table SORT"
+msgstr ""
+
+#: cobc/parser.y:16607
+msgid "INPUT PROCEDURE invalid with MERGE"
+msgstr ""
+
+#: cobc/parser.y:16621
+msgid "MERGE requires GIVING or OUTPUT PROCEDURE"
+msgstr ""
+
+#: cobc/parser.y:16623
+msgid "file SORT requires GIVING or OUTPUT PROCEDURE"
+msgstr ""
+
+#: cobc/parser.y:16631
+msgid "GIVING invalid with table SORT"
+msgstr ""
+
+#: cobc/parser.y:16641
+msgid "OUTPUT PROCEDURE invalid with table SORT"
+msgstr ""
+
+#: cobc/parser.y:16668
+msgid "SIZE/LENGTH invalid here"
+msgstr ""
+
+#: cobc/parser.y:16717
+msgid "NOT EQUAL condition not allowed on START statement"
+msgstr ""
+
+#: cobc/parser.y:16776
+#, c-format
+msgid "%s is replaced by %s"
+msgstr ""
+
+#: cobc/parser.y:16825
+msgid "STOP literal"
+msgstr ""
+
+#: cobc/parser.y:16829
+msgid "STOP identifier"
+msgstr ""
+
+#: cobc/parser.y:16969
+msgid "SUPPRESS statement must be within DECLARATIVES"
+msgstr ""
+
+#: cobc/parser.y:17043
+msgid "UNLOCK invalid for SD files"
+msgstr ""
+
+#: cobc/parser.y:17180 cobc/parser.y:17260
+msgid "USE statement must be within DECLARATIVES"
+msgstr ""
+
+#: cobc/parser.y:17182
+msgid "SECTION header missing before USE statement"
+msgstr ""
+
+#: cobc/parser.y:17262
+msgid "USE DEBUGGING not supported in contained program"
+msgstr ""
+
+#: cobc/parser.y:17310 cobc/parser.y:17319 cobc/parser.y:17337
+#: cobc/parser.y:17373 cobc/typeck.c:5050
+#, c-format
+msgid "duplicate DEBUGGING target: '%s'"
+msgstr ""
+
+#: cobc/parser.y:17335
+msgid "constant item cannot be used here"
+msgstr ""
+
+#: cobc/parser.y:17361
+msgid "duplicate USE DEBUGGING ON ALL PROCEDURES"
+msgstr ""
+
+#: cobc/parser.y:17614
+msgid "ENCODING clause must come before XML-DECLARATION"
+msgstr ""
+
+#: cobc/parser.y:17616
+msgid "ENCODING clause must come before ATTRIBUTES"
+msgstr ""
+
+#: cobc/parser.y:17619
+msgid "XML GENERATE ENCODING clause"
+msgstr ""
+
+#: cobc/parser.y:17626
+msgid "XML-DECLARATION clause must come before ATTRIBUTES"
+msgstr ""
+
+#: cobc/parser.y:17629
+msgid "XML GENERATE XML-DECLARATION clause"
+msgstr ""
+
+#: cobc/parser.y:17635
+msgid "XML GENERATE WITH ATTRIBUTES clause"
+msgstr ""
+
+#: cobc/parser.y:17648
+msgid "XML GENERATE NAMESPACE clause"
+msgstr ""
+
+#: cobc/parser.y:17672
+msgid "XML GENERATE NAME OF clause"
+msgstr ""
+
+#: cobc/parser.y:17736
+msgid "XML GENERATE TYPE OF clause"
+msgstr ""
+
+#: cobc/parser.y:17777
+msgid "XML GENERATE SUPPRESS clause"
+msgstr ""
+
+#: cobc/parser.y:17920
+#, fuzzy, c-format
+#| msgid "'%s' is not defined"
+msgid "'%s' is not a schema name"
+msgstr "'%s' tanımlanmamış"
+
+#: cobc/parser.y:18055
+msgid "NOT SIZE ERROR before SIZE ERROR"
+msgstr ""
+
+#: cobc/parser.y:18109
+msgid "NOT OVERFLOW before OVERFLOW"
+msgstr ""
+
+#: cobc/parser.y:18161 cobc/parser.y:18176
+#, fuzzy
+#| msgid "NOT ON EXCEPTION before ON EXCEPTION"
+msgid "NOT AT END before AT END"
+msgstr "ON EXCEPTİON öncesi NOT ON EXCEPTİON"
+
+#: cobc/parser.y:18229
+msgid "NOT AT END-OF-PAGE before AT END-OF-PAGE"
+msgstr ""
+
+#: cobc/parser.y:18287
+msgid "NOT INVALID KEY before INVALID KEY"
+msgstr ""
+
+#: cobc/parser.y:18644
+msgid "LINAGE-COUNTER must be qualified here"
+msgstr ""
+
+#: cobc/parser.y:18647
+msgid "invalid LINAGE-COUNTER usage"
+msgstr ""
+
+#: cobc/parser.y:18658 cobc/parser.y:18754 cobc/parser.y:18843
+#, c-format
+msgid "'%s' is not a file name"
+msgstr ""
+
+#: cobc/parser.y:18668
+msgid "LINE-COUNTER must be qualified here"
+msgstr ""
+
+#: cobc/parser.y:18672
+msgid "invalid LINE-COUNTER usage"
+msgstr ""
+
+#: cobc/parser.y:18683 cobc/parser.y:18708
+#, c-format
+msgid "'%s' is not a report name"
+msgstr ""
+
+#: cobc/parser.y:18693
+msgid "PAGE-COUNTER must be qualified here"
+msgstr ""
+
+#: cobc/parser.y:18697
+msgid "invalid PAGE-COUNTER usage"
+msgstr ""
+
+#: cobc/parser.y:18744 cobc/typeck.c:13027 cobc/typeck.c:13110
+#: cobc/typeck.c:14322
+#, c-format
+msgid "%s requires a record name as subject"
+msgstr ""
+
+#: cobc/parser.y:18771
+#, c-format
+msgid "'%s' not indexed"
+msgstr ""
+
+#: cobc/parser.y:18776
+msgid "SEARCH ALL requires KEY phrase"
+msgstr ""
+
+#: cobc/parser.y:18800 cobc/parser.y:18825
+#, c-format
+msgid "multiple reference to '%s' "
+msgstr ""
+
+#: cobc/parser.y:18855
+#, c-format
+msgid "'%s' is not a CD name"
+msgstr ""
+
+#: cobc/parser.y:18869
+#, c-format
+msgid "'%s' is not a valid report name"
+msgstr ""
+
+#: cobc/parser.y:19134
+msgid "invalid mnemonic identifier"
+msgstr ""
+
+#: cobc/parser.y:19214
+#, fuzzy
+#| msgid "a non-numeric literal is expected for '%s'"
+msgid "an alphanumeric literal is expected here"
+msgstr "'%s' için bir sayı olmayan düz veri bekleniyor"
+
+#: cobc/parser.y:19226
+msgid "a numeric literal is expected here"
+msgstr ""
+
+#: cobc/parser.y:19238 cobc/parser.y:19979
+msgid "a non-numeric literal is expected here"
+msgstr ""
+
+#: cobc/parser.y:19404 cobc/typeck.c:993 cobc/typeck.c:4825 cobc/typeck.c:7679
+#: cobc/typeck.c:7686
+#, c-format
+msgid "'%s' is not numeric"
+msgstr ""
+
+#: cobc/parser.y:19420
+#, c-format
+msgid "'%s' is not a field or file"
+msgstr ""
+
+#: cobc/parser.y:19446
+#, c-format
+msgid "'%s' is not a type-name"
+msgstr ""
+
+#: cobc/parser.y:19526 cobc/typeck.c:2345 cobc/typeck.c:2401 cobc/typeck.c:2550
+#, c-format
+msgid "'%s' cannot be reference modified"
+msgstr ""
+
+#: cobc/parser.y:19627
+#, c-format
+msgid "'%s' is not a field or alphabet"
+msgstr ""
+
+#: cobc/parser.y:19653
+msgid "a subscripted data-item cannot be used here"
+msgstr ""
+
+#: cobc/parser.y:19701
+msgid "unsigned integer value expected"
+msgstr ""
+
+#: cobc/parser.y:19713 cobc/parser.y:19717 cobc/parser.y:19767
+msgid "integer value expected"
+msgstr ""
+
+#: cobc/parser.y:19722
+msgid "invalid symbolic integer"
+msgstr ""
+
+#: cobc/parser.y:19738 cobc/parser.y:19742
+msgid "unsigned positive integer value expected"
+msgstr ""
+
+#: cobc/parser.y:19772
+#, c-format
+msgid "CLASS value %d outside of range for the used character set"
+msgstr ""
+
+#: cobc/parser.y:19859
+msgid "PHYSICAL argument for LENGTH functions"
+msgstr ""
+
+#: cobc/parser.y:20031 cobc/parser.y:20048
+msgid "cannot specify offset and SYSTEM-OFFSET at the same time"
+msgstr ""
+
+#: cobc/parser.y:20228
+msgid "terminator"
+msgstr ""
+
+#: cobc/parser.y:20317 cobc/parser.y:20327 cobc/parser.y:20338
+#: cobc/parser.y:20348 cobc/parser.y:20369 cobc/parser.y:20389
+#: cobc/parser.y:20396
+msgid "optional period"
+msgstr ""
+
+#: cobc/pplex.l:261 cobc/pplex.l:2448 cobc/pplex.l:2462
+msgid "debugging indicator"
+msgstr ""
+
+#: cobc/pplex.l:348
+msgid "ignoring empty directive"
+msgstr ""
+
+#: cobc/pplex.l:358 cobc/pplex.l:431
+#, c-format
+msgid "ignoring invalid directive: '%s'"
+msgstr ""
+
+#: cobc/pplex.l:365
+msgid "ignoring invalid directive"
+msgstr ""
+
+#: cobc/pplex.l:372
+msgid "VCS directive"
+msgstr ""
+
+#: cobc/pplex.l:440 cobc/pplex.l:461
+#, c-format
+msgid "ignoring unknown directive: '%s'"
+msgstr ""
+
+#: cobc/pplex.l:1164
+msgid "IF/ELIF/ELSE directive without matching END-IF"
+msgstr ""
+
+#: cobc/pplex.l:1332
+msgid "free format detected"
+msgstr ""
+
+#: cobc/pplex.l:1608
+#, c-format
+msgid "copybook not found in library '%s', library-name ignored"
+msgstr ""
+
+#: cobc/pplex.l:1667
+#, c-format
+msgid "ignoring %s directive because of %s"
+msgstr ""
+
+#: cobc/pplex.l:1854
+#, c-format
+msgid "directive nest depth exceeded: %d"
+msgstr ""
+
+#: cobc/pplex.l:1872
+msgid "ELSE directive without matching IF/ELIF"
+msgstr ""
+
+#: cobc/pplex.l:1888
+msgid "END-IF directive without matching IF/ELIF/ELSE"
+msgstr ""
+
+#: cobc/pplex.l:1904
+msgid "ELIF directive without matching IF/ELIF"
+msgstr ""
+
+#: cobc/pplex.l:1926
+#, c-format
+msgid "invalid internal case: %u"
+msgstr ""
+
+#: cobc/pplex.l:2139
+msgid "buffer overrun - too many continuation lines"
+msgstr ""
+
+#: cobc/pplex.l:2236 cobc/pplex.l:2246
+msgid "line not terminated by a newline"
+msgstr ""
+
+#: cobc/pplex.l:2240 cobc/pplex.l:2250
+#, c-format
+msgid "source text exceeds %d bytes, will be truncated"
+msgstr ""
+
+#: cobc/pplex.l:2269
+msgid "version control conflict marker in file"
+msgstr ""
+
+#: cobc/pplex.l:2423
+msgid "invalid continuation in comment entry"
+msgstr ""
+
+#: cobc/pplex.l:2470
+#, c-format
+msgid "invalid indicator '\\' at column %d"
+msgstr ""
+
+#: cobc/pplex.l:2482
+#, fuzzy, c-format
+#| msgid "invalid internal call of %s"
+msgid "invalid indicator '%c' at column %d"
+msgstr "%s geçersiz iç çağrısı"
+
+#: cobc/pplex.l:2541 cobc/pplex.l:2552
+msgid "invalid line continuation"
+msgstr ""
+
+#: cobc/pplex.l:2560
+msgid "continuation character expected"
+msgstr ""
+
+#: cobc/pplex.l:2628
+#, c-format
+msgid "source text after program-text area (column %d)"
+msgstr ""
+
+#: cobc/ppparse.y:102 cobc/ppparse.y:106
+msgid "partial replacing with literal"
+msgstr "düz veri ile değiştirilen kısımsal"
+
+#: cobc/ppparse.y:109
+msgid "unexpected COBOL word in partial replacement phrase"
+msgstr ""
+
+#: cobc/ppparse.y:176
+#, fuzzy
+#| msgid "partial replacing with literal"
+msgid "invalid partial replacing operand"
+msgstr "düz veri ile değiştirilen kısımsal"
+
+#: cobc/ppparse.y:291
+msgid "directive comparison on different types"
+msgstr ""
+
+#: cobc/ppparse.y:359
+#, c-format
+msgid "duplicate DEFINE directive '%s'"
+msgstr ""
+
+#: cobc/ppparse.y:366 cobc/ppparse.y:376
+#, c-format
+msgid "invalid constant %s in DEFINE directive"
+msgstr ""
+
+#: cobc/ppparse.y:474
+#, c-format
+msgid "compiler flag '%s' unknown"
+msgstr ""
+
+#: cobc/ppparse.y:521
+#, c-format
+msgid "invalid %s directive option '%s'"
+msgstr ""
+
+#: cobc/ppparse.y:523
+#, c-format
+msgid "invalid %s directive option"
+msgstr ""
+
+#: cobc/ppparse.y:875 cobc/ppparse.y:884 cobc/ppparse.y:1294
+#, c-format
+msgid "invalid %s directive"
+msgstr ""
+
+#: cobc/ppparse.y:1366
+msgid "LEAP-SECOND ON directive"
+msgstr ""
+
+#: cobc/ppparse.y:1475 cobc/ppparse.y:1507
+msgid "invalid constant"
+msgstr ""
+
+#: cobc/reserved.c:4029
+msgid "device name"
+msgstr ""
+
+#: cobc/reserved.c:4032
+msgid "switch name"
+msgstr ""
+
+#: cobc/reserved.c:4035
+msgid "feature name"
+msgstr ""
+
+#: cobc/reserved.c:4146
+#, c-format
+msgid "reserved word (%s) must have less than %d characters"
+msgstr ""
+
+#: cobc/reserved.c:4166
+#, fuzzy, c-format
+#| msgid "should not contain '%c'"
+msgid "reserved word (%s) may not contain '%c'"
+msgstr "'%c' içermemeli"
+
+#: cobc/reserved.c:4183
+msgid "ignored asterisk at end of alias target"
+msgstr ""
+
+#: cobc/reserved.c:4248
+#, c-format
+msgid "alias target '%s' is not a default reserved word"
+msgstr ""
+
+#: cobc/reserved.c:4738
+#, c-format
+msgid "invalid system-name '%s'"
+msgstr ""
+
+#: cobc/reserved.c:4902
+#, c-format
+msgid "'%s' is a reserved word, but isn't supported"
+msgstr ""
+
+#: cobc/reserved.c:5005
+#, c-format
+msgid "intrinsic function %s is unknown"
+msgstr ""
+
+#: cobc/reserved.c:5033
+msgid "Intrinsic Function"
+msgstr ""
+
+#: cobc/reserved.c:5033 cobc/reserved.c:5266 cobc/reserved.c:5403
+msgid "Implemented"
+msgstr ""
+
+#: cobc/reserved.c:5033 cobc/typeck.c:1178
+msgid "Parameters"
+msgstr ""
+
+#: cobc/reserved.c:5037 cobc/reserved.c:5270 cobc/reserved.c:5417
+#: cobc/reserved.c:5423
+msgid "Yes"
+msgstr ""
+
+#: cobc/reserved.c:5040 cobc/reserved.c:5273 cobc/reserved.c:5427
+msgid "No"
+msgstr ""
+
+#: cobc/reserved.c:5046
+msgid "Unlimited"
+msgstr ""
+
+#: cobc/reserved.c:5063
+msgid "Exception Name"
+msgstr ""
+
+#: cobc/reserved.c:5165
+#, c-format
+msgid "special register '%s' is unknown, needs a definition"
+msgstr ""
+
+#: cobc/reserved.c:5172
+#, c-format
+msgid "special register '%s' has a bad definition: %s"
+msgstr ""
+
+#: cobc/reserved.c:5176
+#, c-format
+msgid "special register '%s' is unknown"
+msgstr ""
+
+#: cobc/reserved.c:5266
+msgid "Internal registers"
+msgstr ""
+
+#: cobc/reserved.c:5266
+msgid "Definition"
+msgstr ""
+
+#: cobc/reserved.c:5354
+#, c-format
+msgid "unknown system-name '%s'"
+msgstr ""
+
+#: cobc/reserved.c:5380
+msgid "System names"
+msgstr ""
+
+#: cobc/reserved.c:5403
+msgid "Reserved Words"
+msgstr ""
+
+#: cobc/reserved.c:5415
+msgid "Yes (Context sensitive)"
+msgstr ""
+
+#: cobc/reserved.c:5425
+msgid "No (Context sensitive)"
+msgstr ""
+
+#: cobc/scanner.l:281
+#, fuzzy, c-format
+#| msgid "'%s' is not defined, but is a reserved word in another dialect"
+msgid "'%s' is not a reserved word, so cannot be removed"
+msgstr "'%s' tanımlanmamış; ancak başka bir lehçede rezerve bir sözcük"
+
+#: cobc/scanner.l:329
+msgid "separator period in Area A"
+msgstr ""
+
+#: cobc/scanner.l:1096
+#, c-format
+msgid "a constant may not be used here - '%s'"
+msgstr ""
+
+#: cobc/scanner.l:1170
+msgid "ignoring redundant ."
+msgstr ""
+
+#: cobc/scanner.l:1249
+#, c-format
+msgid "invalid symbol '%s' - skipping word"
+msgstr ""
+
+#: cobc/scanner.l:1323
+msgid "invalid national literal"
+msgstr ""
+
+#: cobc/scanner.l:1327 cobc/tree.c:2822
+#, c-format
+msgid "invalid literal: '%s'"
+msgstr ""
+
+#: cobc/scanner.l:1329
+#, c-format
+msgid "invalid hexadecimal literal: '%s'"
+msgstr ""
+
+#: cobc/scanner.l:1331 cobc/tree.c:1803
+#, c-format
+msgid "invalid numeric literal: '%s'"
+msgstr ""
+
+#: cobc/scanner.l:1333
+#, c-format
+msgid "invalid floating-point literal: '%s'"
+msgstr ""
+
+#: cobc/scanner.l:1335 cobc/scanner.l:1337
+#, c-format
+msgid "invalid %s literal: '%s'"
+msgstr ""
+
+#: cobc/scanner.l:1365
+#, c-format
+msgid "character code %s out of encoding range %s"
+msgstr ""
+
+#: cobc/scanner.l:1422
+msgid "extraneous separator ',' at end of symbolic EBCDIC characters"
+msgstr ""
+
+#: cobc/scanner.l:1435
+msgid "extraneous character ',' in sequence of symbolic EBCDIC characters"
+msgstr ""
+
+#: cobc/scanner.l:1440
+#, c-format
+msgid "invalid character '%c' in sequence of symbolic EBCDIC characters"
+msgstr ""
+
+#: cobc/scanner.l:1470
+#, fuzzy, c-format
+#| msgid "%s: PROGRAM name exceeds %d characters"
+msgid "literal length exceeds %u characters"
+msgstr "%s: PROGRAM adı, %d karakteri aşıyor"
+
+#: cobc/scanner.l:1485
+#, c-format
+msgid "missing terminating %c character"
+msgstr ""
+
+#: cobc/scanner.l:1502 cobc/scanner.l:1569 cobc/scanner.l:1868
+msgid "zero-length literal"
+msgstr ""
+
+#: cobc/scanner.l:1505
+msgid "national literal has zero length; a SPACE will be assumed"
+msgstr ""
+
+#: cobc/scanner.l:1506
+msgid "alphanumeric literal has zero length; a SPACE will be assumed"
+msgstr ""
+
+#: cobc/scanner.l:1519
+msgid "UTF-8 literal"
+msgstr ""
+
+#: cobc/scanner.l:1536 cobc/scanner.l:1537 cobc/scanner.l:1541
+#: cobc/scanner.l:1624
+msgid "national literal"
+msgstr ""
+
+#: cobc/scanner.l:1540
+msgid "national-character literal"
+msgstr ""
+
+#: cobc/scanner.l:1571
+msgid "hexadecimal literal has zero length; X'00' will be assumed"
+msgstr ""
+
+#: cobc/scanner.l:1575 cobc/scanner.l:1601
+msgid "hexadecimal-boolean literal"
+msgstr ""
+
+#: cobc/scanner.l:1579 cobc/scanner.l:1619
+msgid "hexadecimal-national literal"
+msgstr ""
+
+#: cobc/scanner.l:1609 cobc/scanner.l:1629 cobc/scanner.l:1744
+#: cobc/scanner.l:1798 cobc/scanner.l:1893 cobc/scanner.l:1963
+#, c-format
+msgid "literal length %lu exceeds %u characters"
+msgstr ""
+
+#: cobc/scanner.l:1651 cobc/scanner.l:1680 cobc/scanner.l:1813
+#: cobc/scanner.l:1910 cobc/scanner.l:1974
+#, c-format
+msgid "literal contains invalid character '%c'"
+msgstr ""
+
+#: cobc/scanner.l:1704
+#, c-format
+msgid "literal does not have an even number of digits"
+msgstr ""
+
+#: cobc/scanner.l:1735 cobc/scanner.l:1788
+#, c-format
+msgid "%s literals must contain at least one character"
+msgstr ""
+
+#: cobc/scanner.l:1775 cobc/scanner.l:1878 cobc/scanner.l:1952
+msgid "ACUCOBOL numeric literal"
+msgstr ""
+
+#: cobc/scanner.l:1829 cobc/scanner.l:1922 cobc/scanner.l:1985
+#, c-format
+msgid "literal exceeds limit %u"
+msgstr ""
+
+#: cobc/scanner.l:1863
+msgid "numeric boolean literal"
+msgstr ""
+
+#: cobc/scanner.l:1870
+msgid "boolean literal has zero length; B'0' will be assumed"
+msgstr ""
+
+#: cobc/scanner.l:1946
+msgid "HP COBOL octal literal"
+msgstr ""
+
+#: cobc/scanner.l:2059
+#, fuzzy, c-format
+#| msgid " - length exceeds maximum"
+msgid "literal length %lu exceeds maximum of %u digits"
+msgstr " - uzunluk izin verilen en fazlayı aşıyor"
+
+#: cobc/scanner.l:2065
+#, c-format
+msgid "literal length %lu exceeds %u digits"
+msgstr ""
+
+#: cobc/scanner.l:2177 cobc/tree.c:3888
+#, c-format
+msgid "significand has more than %d digits"
+msgstr ""
+
+#: cobc/scanner.l:2182
+#, c-format
+msgid "exponent has decimal point"
+msgstr ""
+
+#: cobc/scanner.l:2188 cobc/tree.c:3896
+#, c-format
+msgid "exponent has more than 4 digits"
+msgstr ""
+
+#: cobc/scanner.l:2218
+#, c-format
+msgid "exponent not between -6143 and 6144"
+msgstr ""
+
+#: cobc/scanner.l:2227
+#, c-format
+msgid "significand of 0 must be positive"
+msgstr ""
+
+#: cobc/scanner.l:2232
+#, c-format
+msgid "exponent of 0 must be 0"
+msgstr ""
+
+#: cobc/scanner.l:2237
+#, c-format
+msgid "exponent of 0 must be positive"
+msgstr ""
+
+#: cobc/scanner.l:2399
+#, c-format
+msgid "invalid CONSTANT: %s"
+msgstr ""
+
+#: cobc/scanner.l:2409
+#, c-format
+msgid "invalid alphanumeric CONSTANT: %s"
+msgstr ""
+
+#: cobc/scanner.l:2413
+#, c-format
+msgid "empty alphanumeric CONSTANT: %s"
+msgstr ""
+
+#: cobc/scanner.l:2430 cobc/scanner.l:2438 cobc/scanner.l:2443
+#, c-format
+msgid "invalid numeric CONSTANT: %s"
+msgstr ""
+
+#: cobc/scanner.l:2522 cobc/scanner.l:2549
+#, c-format
+msgid "'%s' is not a default reserved word, so cannot be aliased"
+msgstr ""
+
+#: cobc/scanner.l:2525
+#, c-format
+msgid "'%s' is already reserved"
+msgstr ""
+
+#: cobc/scanner.l:2527
+msgid "you may want MAKESYN instead"
+msgstr ""
+
+#: cobc/scanner.l:2552
+#, fuzzy, c-format
+#| msgid "'%s' is not defined"
+msgid "'%s' is not a reserved word"
+msgstr "'%s' tanımlanmamış"
+
+#: cobc/scanner.l:2553
+msgid "you may want ADDSYN or OVERRIDE instead"
+msgstr ""
+
+#: cobc/tree.c:392
+#, c-format
+msgid "%s clause is required for file '%s'"
+msgstr ""
+
+#: cobc/tree.c:396
+#, c-format
+msgid "%s clause is invalid for file '%s' (file type)"
+msgstr ""
+
+#: cobc/tree.c:400
+#, c-format
+msgid "%s clause is invalid for file '%s'"
+msgstr ""
+
+#: cobc/tree.c:427
+#, c-format
+msgid "FOR item '%s' is a record"
+msgstr ""
+
+#: cobc/tree.c:436
+#, c-format
+msgid "FOR item '%s' is in different record to '%s'"
+msgstr ""
+
+#: cobc/tree.c:445
+#, c-format
+msgid "FOR item '%s' is not in a record associated with '%s'"
+msgstr ""
+
+#: cobc/tree.c:559
+msgid "internal error node"
+msgstr ""
+
+#: cobc/tree.c:561
+msgid "unknown constant"
+msgstr ""
+
+#: cobc/tree.c:572
+#, c-format
+msgid "literal \"%s\""
+msgstr ""
+
+#: cobc/tree.c:969
+#, c-format
+msgid "invalid date/time function: '%d'"
+msgstr ""
+
+#: cobc/tree.c:1001
+#, c-format
+msgid "FUNCTION '%s' has invalid date/time format"
+msgstr ""
+
+#: cobc/tree.c:1008
+#, c-format
+msgid "FUNCTION '%s' has format in variable"
+msgstr ""
+
+#: cobc/tree.c:1488
+#, c-format
+msgid "unknown tree tag: %d, category: %d"
+msgstr ""
+
+#: cobc/tree.c:1590
+#, c-format
+msgid "unexpected numeric USAGE: %d"
+msgstr ""
+
+#: cobc/tree.c:1604
+#, c-format
+msgid "unexpected category: %d"
+msgstr ""
+
+#: cobc/tree.c:1814
+#, c-format
+msgid "literal length %d exceeds maximum of %d digits"
+msgstr ""
+
+#: cobc/tree.c:1819
+#, c-format
+msgid "literal length %d exceeds %d digits"
+msgstr ""
+
+#: cobc/tree.c:1868 cobc/tree.c:1880 cobc/tree.c:1937 cobc/tree.c:1987
+#, c-format
+msgid "numeric literal '%s' exceeds limit '%s'"
+msgstr ""
+
+#: cobc/tree.c:2676
+msgid "invalid LOCALE literal"
+msgstr ""
+
+#: cobc/tree.c:2803
+msgid "only literals with the same category can be concatenated"
+msgstr ""
+
+#: cobc/tree.c:2811
+msgid "only alphanumeric, utf-8, national or boolean literals may be concatenated"
+msgstr ""
+
+#: cobc/tree.c:2823
+#, c-format
+msgid "literal length %d exceeds %d characters"
+msgstr ""
+
+#: cobc/tree.c:3103
+msgid "B, 0 or /"
+msgstr ""
+
+#: cobc/tree.c:3117
+msgid "the sign of the floating-point exponent"
+msgstr ""
+
+#: cobc/tree.c:3119
+msgid "a leading +/- sign"
+msgstr ""
+
+#: cobc/tree.c:3121
+msgid "a trailing +/- sign"
+msgstr ""
+
+#: cobc/tree.c:3123
+msgid "CR or DB"
+msgstr ""
+
+#: cobc/tree.c:3125
+msgid "a leading currency symbol"
+msgstr ""
+
+#: cobc/tree.c:3127
+msgid "a trailing currency symbol"
+msgstr ""
+
+#: cobc/tree.c:3129
+msgid "a Z or * which is before the decimal point"
+msgstr ""
+
+#: cobc/tree.c:3131
+msgid "a Z or * which is after the decimal point"
+msgstr ""
+
+#: cobc/tree.c:3133
+msgid "a floating +/- string which is before the decimal point"
+msgstr ""
+
+#: cobc/tree.c:3135
+msgid "a floating +/- string which is after the decimal point"
+msgstr ""
+
+#: cobc/tree.c:3137
+msgid "a floating currency symbol string which is before the decimal point"
+msgstr ""
+
+#: cobc/tree.c:3139
+msgid "a floating currency symbol string which is after the decimal point"
+msgstr ""
+
+#: cobc/tree.c:3143
+msgid "A or X"
+msgstr ""
+
+#: cobc/tree.c:3151
+msgid "a P which is before the decimal point"
+msgstr ""
+
+#: cobc/tree.c:3153
+msgid "a P which is after the decimal point"
+msgstr ""
+
+#: cobc/tree.c:3176 cobc/tree.c:3638
+#, c-format
+msgid "%s may only occur once in a PICTURE string"
+msgstr ""
+
+#: cobc/tree.c:3178 cobc/tree.c:3570
+#, c-format
+msgid "%s cannot follow %s"
+msgstr ""
+
+#: cobc/tree.c:3181
+msgid "invalid PICTURE string detected"
+msgstr ""
+
+#: cobc/tree.c:3299
+msgid "number or constant in parentheses is not an unsigned integer"
+msgstr ""
+
+#: cobc/tree.c:3308
+#, c-format
+msgid "only up to %d significant digits are permitted within parentheses"
+msgstr ""
+
+#: cobc/tree.c:3316
+msgid "number or constant in parentheses must be greater than zero"
+msgstr ""
+
+#: cobc/tree.c:3327
+msgid "parentheses must be preceded by a picture symbol"
+msgstr ""
+
+#: cobc/tree.c:3353
+msgid "unbalanced parentheses"
+msgstr ""
+
+#: cobc/tree.c:3361
+msgid "parentheses must contain an unsigned integer"
+msgstr ""
+
+#: cobc/tree.c:3409
+#, c-format
+msgid "'%s' is not a constant-name"
+msgstr ""
+
+#: cobc/tree.c:3422
+#, fuzzy, c-format
+#| msgid "'%s' is not an intrinsic function"
+msgid "'%s' is not an unsigned positive integer"
+msgstr "'%s', yerleşik bir işlev değil"
+
+#: cobc/tree.c:3479
+msgid "missing PICTURE string"
+msgstr ""
+
+#: cobc/tree.c:3508
+msgid "C must be followed by R"
+msgstr ""
+
+#: cobc/tree.c:3511
+msgid "D must be followed by B"
+msgstr ""
+
+#: cobc/tree.c:3526 cobc/tree.c:3635 cobc/tree.c:3661 cobc/tree.c:3773
+msgid "uncommon parentheses"
+msgstr ""
+
+#: cobc/tree.c:3570
+msgid "exponent"
+msgstr ""
+
+#: cobc/tree.c:3625
+msgid "L must be at start of PICTURE string"
+msgstr ""
+
+#: cobc/tree.c:3643
+msgid "S must be at start of PICTURE string"
+msgstr ""
+
+#: cobc/tree.c:3699
+msgid "P must be at start or end of PICTURE string"
+msgstr ""
+
+#: cobc/tree.c:3730
+msgid "cannot have both Z and * in PICTURE string"
+msgstr ""
+
+#: cobc/tree.c:3808
+#, c-format
+msgid "invalid PICTURE character '%c'"
+msgstr ""
+
+#: cobc/tree.c:3841
+#, c-format
+msgid "PICTURE string may not contain more than %d characters; contains %d characters"
+msgstr ""
+
+#: cobc/tree.c:3846
+msgid "PICTURE string must contain at least one of the set A, N, U, X, Z, 1, 9 and *; or at least two of the set +, - and the currency symbol"
+msgstr ""
+
+#: cobc/tree.c:3873
+#, c-format
+msgid "numeric field cannot be larger than %d digits"
+msgstr ""
+
+#: cobc/tree.c:4333
+#, fuzzy, c-format
+#| msgid "PICTURE clause required for '%s'"
+msgid "needs PICTURE clause for SUM %s"
+msgstr "'%s' için PICTURE yantümcesi gerekiyor"
+
+#: cobc/tree.c:4340
+#, fuzzy, c-format
+#| msgid "PICTURE clause required for '%s'"
+msgid "non-numeric PICTURE clause for SUM %s"
+msgstr "'%s' için PICTURE yantümcesi gerekiyor"
+
+#: cobc/tree.c:4412 cobc/tree.c:4425
+#, c-format
+msgid "no DETAIL line defined in report %s"
+msgstr ""
+
+#: cobc/tree.c:4427
+msgid "PAGE LIMIT FIRST DETAIL should be >= HEADING"
+msgstr ""
+
+#: cobc/tree.c:4430
+msgid "PAGE LIMIT FOOTING should be >= HEADING"
+msgstr ""
+
+#: cobc/tree.c:4432
+msgid "PAGE LIMIT LAST DETAIL should be >= FIRST DETAIL"
+msgstr ""
+
+#: cobc/tree.c:4434
+msgid "PAGE LIMIT FOOTING should be >= LAST DETAIL"
+msgstr ""
+
+#: cobc/tree.c:4436
+msgid "PAGE LIMIT LINES should be >= FOOTING"
+msgstr ""
+
+#: cobc/tree.c:4631 libcob/fileio.c:9358
+#, c-format
+msgid "maximum keys (%d/%d) exceeded for file '%s'"
+msgstr ""
+
+#: cobc/tree.c:4695 cobc/tree.c:4718
+#, c-format
+msgid "invalid KEY item '%s', not in file '%s'"
+msgstr ""
+
+#: cobc/tree.c:4729
+#, c-format
+msgid "minimal record length %d can not hold the key item '%s'; needs to be at least %d"
+msgstr ""
+
+#: cobc/tree.c:4764
+#, c-format
+msgid "missing file description for %s"
+msgstr ""
+
+#: cobc/tree.c:4813
+#, c-format
+msgid "size of record '%s' (%d) smaller than minimum of file '%s' (%d)"
+msgstr ""
+
+#: cobc/tree.c:4816 cobc/tree.c:4833
+msgid "file size adjusted"
+msgstr ""
+
+#: cobc/tree.c:4828
+#, c-format
+msgid "size of record '%s' (%d) larger than maximum of file '%s' (%d)"
+msgstr ""
+
+#: cobc/tree.c:4861
+msgid "RECORD VARYING specified without limits, but implied limits are equal"
+msgstr ""
+
+#: cobc/tree.c:4863
+#, c-format
+msgid "%s clause ignored"
+msgstr ""
+
+#: cobc/tree.c:4958 cobc/typeck.c:8128 cobc/typeck.c:15186 cobc/typeck.c:15238
+#: cobc/typeck.c:15275 libcob/fileio.c:4724 libcob/screenio.c:4613
+#: libcob/screenio.c:4639
+#, fuzzy, c-format
+#| msgid "runtime library is not configured for this operation"
+msgid "runtime is not configured to support %s"
+msgstr "çalışma zamanı kitaplığı, bu işlem için yapılandırılmamış"
+
+#: cobc/tree.c:5474
+#, c-format
+msgid "literal '%.38s' is longer than '%s'"
+msgstr ""
+
+#: cobc/tree.c:5478
+#, c-format
+msgid "literal '%.38s' is longer than reference-modification of '%s'"
+msgstr ""
+
+#: cobc/tree.c:5508
+#, c-format
+msgid "literal '%s' is alphanumeric but '%s' is numeric"
+msgstr ""
+
+#: cobc/tree.c:5550
+#, c-format
+msgid "literal '%s' has more decimals than '%s'"
+msgstr ""
+
+#: cobc/tree.c:5598
+#, c-format
+msgid "literal '%s' has more digits than '%s'"
+msgstr ""
+
+#: cobc/tree.c:5646 cobc/tree.c:5676
+#, c-format
+msgid "unsigned '%s' may not be %s %s"
+msgstr ""
+
+#: cobc/tree.c:5658 cobc/tree.c:5689
+#, c-format
+msgid "unsigned '%s' may always be %s %s"
+msgstr ""
+
+#: cobc/tree.c:5726 cobc/tree.c:5756
+#, c-format
+msgid "'%s' may not be %s %s"
+msgstr ""
+
+#: cobc/tree.c:5738 cobc/tree.c:5768
+#, c-format
+msgid "'%s' may always be %s %s"
+msgstr ""
+
+#: cobc/tree.c:5917
+msgid "divide by constant ZERO"
+msgstr ""
+
+#: cobc/tree.c:6001 cobc/tree.c:6008
+#, c-format
+msgid "%s should be COMP-X/COMP-5 for logical operator"
+msgstr ""
+
+#: cobc/tree.c:6283
+#, c-format
+msgid "invalid expression: %s %s %s"
+msgstr ""
+
+#: cobc/tree.c:6286
+msgid "invalid expression: boolean expected with logical operator"
+msgstr ""
+
+#: cobc/tree.c:6330
+#, c-format
+msgid "unexpected operator: %d"
+msgstr ""
+
+#: cobc/tree.c:6341
+#, c-format
+msgid "expression '%.38s' %s '%.38s' is always TRUE"
+msgstr ""
+
+#: cobc/tree.c:6347
+msgid "expression is always TRUE"
+msgstr ""
+
+#: cobc/tree.c:6360
+#, c-format
+msgid "expression '%.38s' %s '%.38s' is always FALSE"
+msgstr ""
+
+#: cobc/tree.c:6366
+msgid "expression is always FALSE"
+msgstr ""
+
+#: cobc/tree.c:6588
+msgid "invalid file name reference"
+msgstr ""
+
+#: cobc/tree.c:6596
+#, c-format
+msgid "BY CONTENT assumed for alphanumeric item '%s'"
+msgstr ""
+
+#: cobc/tree.c:6601
+#, c-format
+msgid "BY CONTENT assumed for national item '%s'"
+msgstr ""
+
+#: cobc/tree.c:6740
+msgid "PERFORM FOREVER since UNTIL is always FALSE"
+msgstr ""
+
+#: cobc/tree.c:6744
+msgid "PERFORM ONCE since UNTIL is always TRUE"
+msgstr ""
+
+#: cobc/tree.c:6747
+msgid "PERFORM NEVER since UNTIL is always TRUE"
+msgstr ""
+
+#: cobc/tree.c:6871
+#, c-format
+msgid "no definition/prototype seen for FUNCTION '%s'"
+msgstr ""
+
+#: cobc/tree.c:6873
+#, c-format
+msgid "no definition/prototype seen for PROGRAM '%s'"
+msgstr ""
+
+#: cobc/tree.c:6882
+#, c-format
+msgid "no definition/prototype seen for FUNCTION with external name '%s'"
+msgstr ""
+
+#: cobc/tree.c:6884
+#, c-format
+msgid "no definition/prototype seen for PROGRAM with external name '%s'"
+msgstr ""
+
+#: cobc/tree.c:6976 cobc/tree.c:7158 cobc/tree.c:7233 cobc/tree.c:7239
+#: cobc/tree.c:7247 cobc/tree.c:7255 cobc/tree.c:7277 cobc/tree.c:7287
+#: cobc/tree.c:7292
+#, c-format
+msgid "FUNCTION '%s' has invalid argument"
+msgstr ""
+
+#: cobc/tree.c:6978
+#, c-format
+msgid "either all arguments or none should be of type %s"
+msgstr ""
+
+#: cobc/tree.c:7010 cobc/tree.c:7016 cobc/tree.c:7057 cobc/tree.c:7063
+#, c-format
+msgid "FUNCTION '%s' has invalid reference modification"
+msgstr ""
+
+#: cobc/tree.c:7027 cobc/tree.c:7344
+#, c-format
+msgid "FUNCTION '%s' unknown"
+msgstr ""
+
+#: cobc/tree.c:7031
+#, c-format
+msgid "FUNCTION '%s' is not implemented"
+msgstr ""
+
+#: cobc/tree.c:7037 cobc/tree.c:7044 cobc/tree.c:7329
+#, c-format
+msgid "FUNCTION '%s' has wrong number of arguments"
+msgstr ""
+
+#: cobc/tree.c:7051
+#, c-format
+msgid "FUNCTION '%s' cannot have reference modification"
+msgstr ""
+
+#: cobc/tree.c:7335
+#, c-format
+msgid "FUNCTION '%s' has invalid first argument"
+msgstr ""
+
+#: cobc/typeck.c:590
+#, c-format
+msgid "%s should be COMP-5/COMP-X for logical operator"
+msgstr ""
+
+#: cobc/typeck.c:856
+#, c-format
+msgid "%s item not allowed here: '%s'"
+msgstr ""
+
+#: cobc/typeck.c:898
+#, c-format
+msgid "'%s' is not a group name"
+msgstr ""
+
+#: cobc/typeck.c:921
+#, c-format
+msgid "'%s' is not a numeric name"
+msgstr ""
+
+#: cobc/typeck.c:944
+#, c-format
+msgid "'%s' is not a numeric or numeric-edited name"
+msgstr ""
+
+#: cobc/typeck.c:1043
+#, c-format
+msgid "'%s' is not an integer"
+msgstr ""
+
+#: cobc/typeck.c:1047
+msgid "positive numeric integer is required here"
+msgstr ""
+
+#: cobc/typeck.c:1178
+msgid "System routine"
+msgstr ""
+
+#: cobc/typeck.c:2037 libcob/call.c:1172
+#, c-format
+msgid "'%s' literal includes leading spaces which are omitted"
+msgstr ""
+
+#: cobc/typeck.c:2041
+#, c-format
+msgid "'%s' literal includes trailing spaces which are omitted"
+msgstr ""
+
+#: cobc/typeck.c:2108
+msgid "ON/OFF usage requires a SWITCH name"
+msgstr ""
+
+#: cobc/typeck.c:2126
+#, c-format
+msgid "word length exceeds maximum of %d characters: '%s'"
+msgstr ""
+
+#: cobc/typeck.c:2129
+#, c-format
+msgid "word length exceeds %d characters: '%s'"
+msgstr ""
+
+#: cobc/typeck.c:2206
+#, c-format
+msgid "ASSIGN %s interpreted as '%s'"
+msgstr ""
+
+#: cobc/typeck.c:2332 cobc/typeck.c:2631
+#, c-format
+msgid "subscript missing for '%s' - defaulting to 1"
+msgstr ""
+
+#: cobc/typeck.c:2355 cobc/typeck.c:2546 cobc/typeck.c:2746
+#, c-format
+msgid "'%s' cannot be subscripted"
+msgstr ""
+
+#: cobc/typeck.c:2359 cobc/typeck.c:2750
+#, c-format
+msgid "'%s' requires one subscript"
+msgstr ""
+
+#: cobc/typeck.c:2362 cobc/typeck.c:2753
+#, c-format
+msgid "'%s' requires %d subscripts"
+msgstr ""
+
+#: cobc/typeck.c:2380
+#, c-format
+msgid "'%s' (accessed by '%s')"
+msgstr ""
+
+#: cobc/typeck.c:2399 cobc/typeck.c:4987
+#, c-format
+msgid "%s may not be reference modified"
+msgstr ""
+
+#: cobc/typeck.c:2437 cobc/typeck.c:2442 cobc/typeck.c:2466
+#: libcob/common.c:4477 libcob/common.c:4521
+#, c-format
+msgid "length of '%s' out of bounds: %d"
+msgstr ""
+
+#: cobc/typeck.c:2453 cobc/typeck.c:2462 libcob/common.c:4462
+#: libcob/common.c:4513
+#, c-format
+msgid "offset of '%s' out of bounds: %d"
+msgstr ""
+
+#: cobc/typeck.c:2458
+msgid "suspicious reference-modification: always using max. position"
+msgstr ""
+
+#: cobc/typeck.c:2475
+msgid "suspicious reference-modification: always using max. length"
+msgstr ""
+
+#: cobc/typeck.c:2615
+#, c-format
+msgid "'%s' has no OCCURS clause"
+msgstr ""
+
+#: cobc/typeck.c:2694 libcob/common.c:4427 libcob/common.c:4438
+#, c-format
+msgid "subscript of '%s' out of bounds: %d"
+msgstr ""
+
+#: cobc/typeck.c:2812 cobc/typeck.c:2891
+msgid "reference modification not allowed here"
+msgstr ""
+
+#: cobc/typeck.c:2826 cobc/typeck.c:2917
+msgid "88 level item not allowed here"
+msgstr ""
+
+#: cobc/typeck.c:2830 cobc/typeck.c:2921 cobc/typeck.c:2929 cobc/typeck.c:2991
+msgid "variable length item not allowed here"
+msgstr ""
+
+#: cobc/typeck.c:2859
+#, c-format
+msgid "'%s' has not been DEFINEd"
+msgstr ""
+
+#: cobc/typeck.c:2895
+msgid "only field names allowed here"
+msgstr ""
+
+#: cobc/typeck.c:2906
+#, c-format
+msgid "VALUE of '%s': %s target '%s' is invalid"
+msgstr ""
+
+#: cobc/typeck.c:2908 cobc/typeck.c:2974
+msgid "target must be in FILE SECTION or LINKAGE SECTION or have the EXTERNAL clause"
+msgstr ""
+
+#: cobc/typeck.c:2964 cobc/typeck.c:2973
+#, c-format
+msgid "VALUE of '%s': %s target is invalid"
+msgstr ""
+
+#: cobc/typeck.c:2966
+msgid "no previous data-item found"
+msgstr ""
+
+#: cobc/typeck.c:3130 cobc/typeck.c:4963
+#, c-format
+msgid "'%s' cannot be BASED/EXTERNAL"
+msgstr ""
+
+#: cobc/typeck.c:3135
+#, c-format
+msgid "'%s' is not in WORKING-STORAGE SECTION"
+msgstr ""
+
+#: cobc/typeck.c:3142 cobc/typeck.c:4960
+#, c-format
+msgid "'%s' not level 01 or 77"
+msgstr ""
+
+#: cobc/typeck.c:3145 cobc/typeck.c:3180 cobc/typeck.c:4966
+#, c-format
+msgid "'%s' REDEFINES field not allowed here"
+msgstr ""
+
+#: cobc/typeck.c:3165 cobc/typeck.c:8876
+#, c-format
+msgid "duplicate USING BY REFERENCE item '%s'"
+msgstr ""
+
+#: cobc/typeck.c:3193
+#, c-format
+msgid "'%s' USING item duplicates RETURNING item"
+msgstr ""
+
+#: cobc/typeck.c:3268
+#, fuzzy, c-format
+#| msgid "redefinition of '%s'"
+msgid "prototype and definition of '%s' do not match"
+msgstr "'%s' yeniden tanımı"
+
+#: cobc/typeck.c:3389 cobc/typeck.c:3486
+#, c-format
+msgid "parameters #%d ('%s' in the definition and '%s' in the prototype) differ"
+msgstr ""
+
+#: cobc/typeck.c:3393
+#, c-format
+msgid "returning items ('%s' in the definition and '%s' in the prototype) differ"
+msgstr ""
+
+#: cobc/typeck.c:3429
+msgid "definition is a program but the prototype is a function"
+msgstr ""
+
+#: cobc/typeck.c:3433
+msgid "definition is a function but the prototype is a program"
+msgstr ""
+
+#: cobc/typeck.c:3496
+msgid "number of parameters differ"
+msgstr ""
+
+#: cobc/typeck.c:3506
+msgid "definition has a RETURNING item but prototype does not"
+msgstr ""
+
+#: cobc/typeck.c:3510
+msgid "definition does not have a RETURNING item but prototype does"
+msgstr ""
+
+#: cobc/typeck.c:3560
+#, c-format
+msgid "unexpected tree tag: %d"
+msgstr "beklenmedik ağaç etiketi: %d"
+
+#: cobc/typeck.c:3584
+#, c-format
+msgid "expected argument #%d, %s, to be passed BY VALUE"
+msgstr ""
+
+#: cobc/typeck.c:3589
+#, c-format
+msgid "expected argument #%d, %s, to be passed BY REFERENCE/CONTENT"
+msgstr ""
+
+#: cobc/typeck.c:3608 cobc/typeck.c:3733 cobc/typeck.c:3736
+#, c-format
+msgid "argument #%d is not optional"
+msgstr ""
+
+#: cobc/typeck.c:3622
+#, c-format
+msgid "argument #%d must be at least %d bytes long"
+msgstr ""
+
+#: cobc/typeck.c:3637
+#, c-format
+msgid "argument #%d is a different type of pointer than the parameter"
+msgstr ""
+
+#: cobc/typeck.c:3644
+#, c-format
+msgid "argument #%d is ANY LENGTH, but expecting a fixed size item"
+msgstr ""
+
+#: cobc/typeck.c:3672
+#, c-format
+msgid "argument #%d, %s, does not conform to the parameter definition"
+msgstr ""
+
+#: cobc/typeck.c:3719
+#, c-format
+msgid "expecting up to %d arguments, but found %d"
+msgstr ""
+
+#: cobc/typeck.c:3752
+msgid "the RETURNING item is of a fixed size, not ANY LENGTH"
+msgstr ""
+
+#: cobc/typeck.c:3758
+#, c-format
+msgid "RETURNING item %s is not a valid type"
+msgstr ""
+
+#: cobc/typeck.c:3764
+#, fuzzy
+#| msgid "unexpected CONSTANT item"
+msgid "unexpected RETURNING item"
+msgstr "beklenmedik CONSTANT ögesi"
+
+#: cobc/typeck.c:3767
+msgid "expecting a RETURNING item, but none provided"
+msgstr ""
+
+#: cobc/typeck.c:4091
+#, c-format
+msgid "duplicate character values in alphabet '%s': %s"
+msgstr ""
+
+#: cobc/typeck.c:4096
+#, c-format
+msgid "invalid character values in alphabet '%s', starting at position %d"
+msgstr ""
+
+#: cobc/typeck.c:4198
+#, c-format
+msgid "duplicate character values in class '%s'"
+msgstr ""
+
+#: cobc/typeck.c:4227
+msgid "invalid ALPHABET name"
+msgstr ""
+
+#: cobc/typeck.c:4256
+#, c-format
+msgid "'%s' is not a locale name"
+msgstr ""
+
+#: cobc/typeck.c:4410
+msgid "invalid RECORD DEPENDING item"
+msgstr ""
+
+#: cobc/typeck.c:4415
+msgid "RECORD DEPENDING must reference a data-item"
+msgstr ""
+
+#: cobc/typeck.c:4438
+#, c-format
+msgid "RECORD DEPENDING item '%s' should be defined in WORKING-STORAGE, LOCAL-STORAGE or LINKAGE SECTION"
+msgstr ""
+
+#: cobc/typeck.c:4451
+#, c-format
+msgid "file %s: RELATIVE KEY %s is not numeric"
+msgstr ""
+
+#: cobc/typeck.c:4460
+#, c-format
+msgid "file %s: RELATIVE KEY %s must be integer"
+msgstr ""
+
+#: cobc/typeck.c:4465
+#, c-format
+msgid "file %s: RELATIVE KEY %s must be unsigned"
+msgstr ""
+
+#: cobc/typeck.c:4472
+#, c-format
+msgid "file %s: RELATIVE KEY %s cannot have OCCURS"
+msgstr ""
+
+#: cobc/typeck.c:4478
+#, c-format
+msgid "RELATIVE KEY %s cannot be in file record belonging to %s"
+msgstr ""
+
+#: cobc/typeck.c:4487
+#, c-format
+msgid "file %s: RELATIVE KEY %s declared outside WORKING-STORAGE"
+msgstr ""
+
+#: cobc/typeck.c:4509 cobc/typeck.c:8833
+#, c-format
+msgid "'%s' is not a valid data name"
+msgstr ""
+
+#: cobc/typeck.c:4516
+#, c-format
+msgid "CRT STATUS item '%s' should be defined in WORKING-STORAGE or LOCAL-STORAGE"
+msgstr ""
+
+#: cobc/typeck.c:4522
+#, c-format
+msgid "'%s' numeric CRT STATUS must have at least 4 digits"
+msgstr ""
+
+#: cobc/typeck.c:4528
+#, c-format
+msgid "'%s' CRT STATUS must be 3 or 4 characters long"
+msgstr ""
+
+#: cobc/typeck.c:4550
+#, c-format
+msgid "FILE STATUS '%s' is not a field"
+msgstr ""
+
+#: cobc/typeck.c:4562
+#, c-format
+msgid "FILE STATUS '%s' may not be a decimal or have a PIC with a P"
+msgstr ""
+
+#: cobc/typeck.c:4567
+#, c-format
+msgid "FILE STATUS '%s' is a numeric field, but I-O status codes are not numeric in general"
+msgstr ""
+
+#: cobc/typeck.c:4571
+#, c-format
+msgid "FILE STATUS '%s' must be an alphanumeric or numeric field"
+msgstr ""
+
+#: cobc/typeck.c:4578
+#, c-format
+msgid "FILE STATUS '%s' must be USAGE DISPLAY"
+msgstr ""
+
+#: cobc/typeck.c:4585
+#, c-format
+msgid "FILE STATUS '%s' must be 2 characters long"
+msgstr ""
+
+#: cobc/typeck.c:4593
+#, c-format
+msgid "FILE STATUS '%s' must be in WORKING-STORAGE, LOCAL-STORAGE or LINKAGE"
+msgstr ""
+
+#: cobc/typeck.c:4599
+#, c-format
+msgid "FILE STATUS '%s' may not be located after an OCCURS DEPENDING field"
+msgstr ""
+
+#: cobc/typeck.c:4613
+#, c-format
+msgid "variable '%s' will be implicitly defined"
+msgstr ""
+
+#: cobc/typeck.c:4703
+msgid "ASSIGN variable"
+msgstr ""
+
+#: cobc/typeck.c:4708
+#, c-format
+msgid "ASSIGN data item '%s' is invalid"
+msgstr ""
+
+#: cobc/typeck.c:4773
+#, c-format
+msgid "'%s' CURSOR must be 4 or 6 characters long"
+msgstr ""
+
+#: cobc/typeck.c:4844
+#, c-format
+msgid "'%s' cannot have nested OCCURS DEPENDING"
+msgstr ""
+
+#: cobc/typeck.c:4858
+#, c-format
+msgid "'%s' OCCURS DEPENDING ON field item invalid here"
+msgstr ""
+
+#: cobc/typeck.c:4868
+#, c-format
+msgid "'%s' cannot have OCCURS DEPENDING because of '%s'"
+msgstr ""
+
+#: cobc/typeck.c:4880
+#, c-format
+msgid "'%s' OCCURS DEPENDING ON item must have GLOBAL attribute"
+msgstr ""
+
+#: cobc/typeck.c:4894
+#, c-format
+msgid "PASSWORD '%s' for EXTERNAL file '%s' must have EXTERNAL attribute"
+msgstr ""
+
+#: cobc/typeck.c:4932
+#, c-format
+msgid "duplicate APPLY COMMIT target: '%s'"
+msgstr ""
+
+#: cobc/typeck.c:4946
+msgid "APPLY COMMIT statement invalid for SORT file"
+msgstr ""
+
+#: cobc/typeck.c:4949
+msgid "APPLY COMMIT statement invalid for REPORT file"
+msgstr ""
+
+#: cobc/typeck.c:4956
+#, c-format
+msgid "APPLY COMMIT item '%s' should be defined in WORKING-STORAGE or LOCAL-STORAGE"
+msgstr ""
+
+#: cobc/typeck.c:4970
+#, c-format
+msgid "item not allowed here: '%s'"
+msgstr ""
+
+#: cobc/typeck.c:4983
+#, c-format
+msgid "%s may not be subscripted"
+msgstr ""
+
+#: cobc/typeck.c:5047
+#, c-format
+msgid "DEBUGGING target invalid: '%s'"
+msgstr ""
+
+#: cobc/typeck.c:5053
+#, c-format
+msgid "DEBUGGING target already specified with ALL PROCEDURES: '%s'"
+msgstr ""
+
+#: cobc/typeck.c:5073
+msgid "DEBUGGING target"
+msgstr ""
+
+#: cobc/typeck.c:5080
+#, c-format
+msgid "'%s' is not a valid DEBUGGING target"
+msgstr ""
+
+#: cobc/typeck.c:5126 cobc/typeck.c:5134
+#, c-format
+msgid "'%s' is not in DECLARATIVES"
+msgstr ""
+
+#: cobc/typeck.c:5148
+#, c-format
+msgid "invalid reference to '%s' (in DECLARATIVES)"
+msgstr ""
+
+#: cobc/typeck.c:5162
+#, c-format
+msgid "GO TO paragraph '%s' which is defined in another SECTION"
+msgstr ""
+
+#: cobc/typeck.c:5172
+#, c-format
+msgid "'%s' is not a procedure name"
+msgstr ""
+
+#: cobc/typeck.c:5207
+#, fuzzy, c-format
+#| msgid "'%s' and '%s' must be in the same record"
+msgid "%s and %s are not in the same SECTION"
+msgstr "'%s' ve '%s' aynı kayıtta olmalı"
+
+#: cobc/typeck.c:5212
+#, fuzzy, c-format
+#| msgid "'%s' defined here"
+msgid "%s is defined before %s"
+msgstr "'%s' burada tanımlanmış"
+
+#: cobc/typeck.c:5254
+#, c-format
+msgid "'%s' ANY LENGTH item must be a formal parameter"
+msgstr ""
+
+#: cobc/typeck.c:5302
+#, c-format
+msgid "LINKAGE item '%s' is not a PROCEDURE USING parameter"
+msgstr ""
+
+#: cobc/typeck.c:5358
+#, c-format
+msgid "'%s' is not an alterable paragraph"
+msgstr ""
+
+#: cobc/typeck.c:5852
+#, fuzzy
+#| msgid "invalid operator '%s' in expression"
+msgid "invalid expression: unfinished expression"
+msgstr "ifadede geçersiz işleç '%s'"
+
+#: cobc/typeck.c:5858 cobc/typeck.c:5865
+msgid "invalid expression"
+msgstr ""
+
+#: cobc/typeck.c:5990 cobc/typeck.c:5994
+#, c-format
+msgid "suggest parentheses around %s within %s"
+msgstr ""
+
+#: cobc/typeck.c:6003
+msgid "invalid conditional expression"
+msgstr ""
+
+#: cobc/typeck.c:6120
+#, c-format
+msgid "internal decimal structure size exceeded: %d"
+msgstr ""
+
+#: cobc/typeck.c:6123
+msgid "Try to minimize the number of parentheses or split into multiple computations."
+msgstr ""
+
+#: cobc/typeck.c:6147
+#, c-format
+msgid "more than %d nested expressions"
+msgstr ""
+
+#: cobc/typeck.c:6188
+msgid "precision of result may change with arithmetic-osvs"
+msgstr ""
+
+#: cobc/typeck.c:6268
+#, c-format
+msgid "unexpected operation: %c (%d)"
+msgstr ""
+
+#: cobc/typeck.c:6273
+#, c-format
+msgid "%s operator may be misplaced"
+msgstr ""
+
+#: cobc/typeck.c:6349
+msgid "unexpected constant expansion"
+msgstr ""
+
+#: cobc/typeck.c:7106 cobc/typeck.c:11656 cobc/typeck.c:11661
+msgid "alphanumeric value is expected"
+msgstr ""
+
+#: cobc/typeck.c:7109 cobc/typeck.c:11651
+msgid "numeric value is expected"
+msgstr ""
+
+#: cobc/typeck.c:7203
+msgid "invalid expression: condition expected"
+msgstr ""
+
+#: cobc/typeck.c:7271
+#, fuzzy
+#| msgid "invalid operator '%s' in expression"
+msgid "incomplete expression"
+msgstr "ifadede geçersiz işleç '%s'"
+
+#: cobc/typeck.c:7312
+#, c-format
+msgid "more than %d nested conditions"
+msgstr ""
+
+#: cobc/typeck.c:7667 cobc/typeck.c:7748
+msgid "no CORRESPONDING items found"
+msgstr ""
+
+#: cobc/typeck.c:7820
+msgid "no items to ACCEPT found"
+msgstr ""
+
+#: cobc/typeck.c:7870
+msgid "no items to DISPLAY found"
+msgstr ""
+
+#: cobc/typeck.c:7981
+msgid "cannot specify figurative constant ZERO in AT clause"
+msgstr ""
+
+#: cobc/typeck.c:7985
+msgid "value in AT clause is not numeric"
+msgstr ""
+
+#: cobc/typeck.c:7991
+msgid "value in AT clause must have 4 or 6 digits"
+msgstr ""
+
+#: cobc/typeck.c:8168
+msgid "invalid PROMPT literal"
+msgstr ""
+
+#: cobc/typeck.c:8173
+msgid "invalid PROMPT identifier"
+msgstr ""
+
+#: cobc/typeck.c:8465
+#, c-format
+msgid "'%s' is not an input device"
+msgstr ""
+
+#: cobc/typeck.c:8492 cobc/typeck.c:9708
+#, c-format
+msgid "'%s' is not defined in SPECIAL-NAMES"
+msgstr ""
+
+#: cobc/typeck.c:8497
+#, c-format
+msgid "invalid input device '%s'"
+msgstr ""
+
+#: cobc/typeck.c:8502 cobc/typeck.c:9712
+#, c-format
+msgid "unknown device '%s'; it may exist in another dialect"
+msgstr ""
+
+#: cobc/typeck.c:8505 cobc/typeck.c:9715
+#, c-format
+msgid "unknown device '%s'; not defined in SPECIAL-NAMES"
+msgstr ""
+
+#: cobc/typeck.c:8524
+msgid "target of RETURNING is not a data pointer"
+msgstr ""
+
+#: cobc/typeck.c:8551 cobc/typeck.c:13410 cobc/typeck.c:13479
+#: cobc/typeck.c:13547
+#, c-format
+msgid "cannot change address of '%s', which is not BASED or a LINKAGE item"
+msgstr ""
+
+#: cobc/typeck.c:8557
+msgid "target of ALLOCATE must have BASED clause"
+msgstr ""
+
+#: cobc/typeck.c:8591 cobc/typeck.c:9023
+msgid "amount must be specified as a numeric expression"
+msgstr ""
+
+#: cobc/typeck.c:8597
+msgid "INITIALIZED TO item is not alphanumeric"
+msgstr ""
+
+#: cobc/typeck.c:8667
+msgid "only alphanumeric FUNCTION types are allowed here"
+msgstr ""
+
+#: cobc/typeck.c:8675
+msgid "invalid RETURNING field"
+msgstr ""
+
+#: cobc/typeck.c:8694
+msgid "STDCALL not available on this platform"
+msgstr ""
+
+#: cobc/typeck.c:8698
+msgid "STDCALL used on 64-bit Windows platform"
+msgstr ""
+
+#: cobc/typeck.c:8703
+msgid "STATIC CALL convention requires a literal program name"
+msgstr ""
+
+#: cobc/typeck.c:8708 cobc/typeck.c:12746 cobc/typeck.c:13681
+#: cobc/typeck.c:14077
+msgid "HANDLE must be either a generic or a THREAD HANDLE"
+msgstr ""
+
+#: cobc/typeck.c:8726
+msgid "numeric literal is negative"
+msgstr ""
+
+#: cobc/typeck.c:8805
+msgid "numeric literal exceeds size limits"
+msgstr ""
+
+#: cobc/typeck.c:8820
+#, c-format
+msgid "figurative constant %s invalid here"
+msgstr ""
+
+#: cobc/typeck.c:8840
+#, c-format
+msgid "'%s' is not a 01 or 77 level item"
+msgstr ""
+
+#: cobc/typeck.c:8856
+#, c-format
+msgid "'%s' ANY LENGTH item not passed BY REFERENCE"
+msgstr ""
+
+#: cobc/typeck.c:8909 cobc/typeck.c:8914
+#, c-format
+msgid "wrong number of CALL parameters for '%s', %d given, %d expected"
+msgstr ""
+
+#: cobc/typeck.c:8981 cobc/typeck.c:9055 cobc/typeck.c:9059 cobc/typeck.c:9095
+#: cobc/typeck.c:12703 cobc/typeck.c:12863 cobc/typeck.c:13052
+#: cobc/typeck.c:13056 cobc/typeck.c:14012 cobc/typeck.c:14345
+#: cobc/typeck.c:14348
+#, c-format
+msgid "%s not allowed on %s files"
+msgstr ""
+
+#: cobc/typeck.c:9172
+msgid "positions cannot be specified for main windows"
+msgstr ""
+
+#: cobc/typeck.c:9183 cobc/typeck.c:9187 cobc/typeck.c:9211
+msgid "HANDLE must be either a generic or a WINDOW HANDLE or X(10)"
+msgstr ""
+
+#: cobc/typeck.c:9324
+#, c-format
+msgid "'%s' is an invalid type for DISPLAY operand"
+msgstr ""
+
+#: cobc/typeck.c:9329
+msgid "invalid type for DISPLAY operand"
+msgstr ""
+
+#: cobc/typeck.c:9668 cobc/typeck.c:9701
+#, c-format
+msgid "'%s' is not an output device"
+msgstr ""
+
+#: cobc/typeck.c:9800
+msgid "invalid use of 88 level in WHEN expression"
+msgstr ""
+
+#: cobc/typeck.c:9861
+msgid "wrong number of WHEN parameters"
+msgstr ""
+
+#: cobc/typeck.c:9983 cobc/typeck.c:9995
+#, c-format
+msgid "target %d of FREE is not a BASED data item"
+msgstr ""
+
+#: cobc/typeck.c:10001
+#, c-format
+msgid "target %d of FREE must be a data pointer"
+msgstr ""
+
+#: cobc/typeck.c:10015
+msgid "GO TO without procedure-name"
+msgstr ""
+
+#: cobc/typeck.c:10023
+msgid "GO TO with multiple procedure-names"
+msgstr ""
+
+#: cobc/typeck.c:10088
+msgid "invalid INITIALIZE statement"
+msgstr ""
+
+#: cobc/typeck.c:10193 cobc/typeck.c:10196
+#, c-format
+msgid "%s operands differ in size"
+msgstr ""
+
+#: cobc/typeck.c:10226
+#, c-format
+msgid "unexpected clause %d"
+msgstr ""
+
+#: cobc/typeck.c:10301 cobc/typeck.c:10312 cobc/typeck.c:10323
+#: cobc/typeck.c:10334
+#, c-format
+msgid "data name expected before %s"
+msgstr ""
+
+#: cobc/typeck.c:10344
+#, c-format
+msgid "ALL, LEADING or TRAILING expected before '%s'"
+msgstr ""
+
+#: cobc/typeck.c:10354
+msgid "operand has wrong size"
+msgstr ""
+
+#: cobc/typeck.c:10448
+#, c-format
+msgid "'%s' defined here as PIC %s"
+msgstr ""
+
+#: cobc/typeck.c:10452
+#, c-format
+msgid "'%s' defined here as a group of length %d"
+msgstr ""
+
+#: cobc/typeck.c:10458
+#, c-format
+msgid "internal register '%s' defined as USAGE %s"
+msgstr ""
+
+#: cobc/typeck.c:10461
+#, c-format
+msgid "'%s' defined here as USAGE %s"
+msgstr ""
+
+#: cobc/typeck.c:10486 cobc/typeck.c:10504
+#, c-format
+msgid "value size is %d"
+msgstr ""
+
+#: cobc/typeck.c:10500
+#, c-format
+msgid "value is %s"
+msgstr ""
+
+#: cobc/typeck.c:10824
+msgid "MOVE of figurative constant SPACE to numeric item"
+msgstr ""
+
+#: cobc/typeck.c:10839
+msgid "MOVE of figurative constant QUOTE to numeric item"
+msgstr ""
+
+#: cobc/typeck.c:10844 cobc/typeck.c:10855
+msgid "MOVE of figurative constant to numeric item"
+msgstr ""
+
+#: cobc/typeck.c:10936
+msgid "numeric literal in VALUE clause of numeric-edited item"
+msgstr ""
+
+#: cobc/typeck.c:10966
+msgid "numeric move to ALPHABETIC"
+msgstr ""
+
+#: cobc/typeck.c:10978
+msgid "data item not signed"
+msgstr ""
+
+#: cobc/typeck.c:10981
+msgid "ignoring sign"
+msgstr ""
+
+#: cobc/typeck.c:11381
+msgid "overlapping MOVE may occur and produce unpredictable results"
+msgstr ""
+
+#: cobc/typeck.c:11388
+msgid "overlapping MOVE may produce unpredictable results"
+msgstr ""
+
+#: cobc/typeck.c:11593
+msgid "invalid source for MOVE"
+msgstr ""
+
+#: cobc/typeck.c:11614
+msgid "source is non-numeric - substituting zero"
+msgstr ""
+
+#: cobc/typeck.c:11620 cobc/typeck.c:11631
+msgid "invalid VALUE clause"
+msgstr ""
+
+#: cobc/typeck.c:11623 cobc/typeck.c:13622 cobc/typeck.c:13627
+#: cobc/typeck.c:13654 cobc/typeck.c:13659
+msgid "invalid SET statement"
+msgstr ""
+
+#: cobc/typeck.c:11625
+msgid "invalid MOVE statement"
+msgstr ""
+
+#: cobc/typeck.c:11632
+msgid "literal exceeds data size"
+msgstr ""
+
+#: cobc/typeck.c:11636
+msgid "numeric literal exceeds data size"
+msgstr ""
+
+#: cobc/typeck.c:11645
+msgid "MOVE of non-integer to alphanumeric"
+msgstr ""
+
+#: cobc/typeck.c:11666 cobc/typeck.c:11671
+msgid "national value is expected"
+msgstr ""
+
+#: cobc/typeck.c:11676
+msgid "value does not fit the picture string"
+msgstr ""
+
+#: cobc/typeck.c:11682
+msgid "value size exceeds data size"
+msgstr ""
+
+#: cobc/typeck.c:11687
+msgid "sending field larger than receiving field"
+msgstr ""
+
+#: cobc/typeck.c:11692
+msgid "some digits may be truncated"
+msgstr ""
+
+#: cobc/typeck.c:12566 cobc/typeck.c:12619
+#, c-format
+msgid "invalid MOVE target: %s"
+msgstr ""
+
+#: cobc/typeck.c:12876
+msgid "READ PREVIOUS not allowed for this file type"
+msgstr ""
+
+#: cobc/typeck.c:12884
+msgid "KEY ignored with sequential READ"
+msgstr ""
+
+#: cobc/typeck.c:12980
+msgid "figurative constants not allowed in FROM clause"
+msgstr ""
+
+#: cobc/typeck.c:12987
+msgid "literal in FROM clause must be alphanumeric, utf-8, national or boolean"
+msgstr ""
+
+#: cobc/typeck.c:13010 cobc/typeck.c:14305
+#, c-format
+msgid "%s FILE requires a FROM clause"
+msgstr ""
+
+#: cobc/typeck.c:13032 cobc/typeck.c:13116 cobc/typeck.c:14327
+#, c-format
+msgid "%s subject does not refer to a record name"
+msgstr ""
+
+#: cobc/typeck.c:13122
+msgid "RELEASE not allowed on this record item"
+msgstr ""
+
+#: cobc/typeck.c:13183 cobc/typeck.c:13209 cobc/typeck.c:13237
+msgid "invalid SEARCH ALL condition"
+msgstr ""
+
+#: cobc/typeck.c:13231
+msgid "SEARCH ALL requires comparision of KEY field"
+msgstr ""
+
+#: cobc/typeck.c:13354 cobc/typeck.c:13361
+msgid "SET targets must be PROGRAM-POINTER"
+msgstr ""
+
+#: cobc/typeck.c:13386
+#, c-format
+msgid "SET target '%s' is not numeric, an INDEX or a POINTER"
+msgstr ""
+
+#: cobc/typeck.c:13403 cobc/typeck.c:13475 cobc/typeck.c:13543
+#, c-format
+msgid "cannot change address of '%s', which is not level 1 or 77"
+msgstr ""
+
+#: cobc/typeck.c:13500
+#, c-format
+msgid "SET target '%s' is not a POINTER for FCD"
+msgstr ""
+
+#: cobc/typeck.c:13569
+#, c-format
+msgid "SET target '%s' is not a POINTER for FCD-KEYDEF"
+msgstr ""
+
+#: cobc/typeck.c:13663
+msgid "field does not have a FALSE clause"
+msgstr ""
+
+#: cobc/typeck.c:13694
+msgid "THREAD-priority must be between 1 and 32767"
+msgstr ""
+
+#: cobc/typeck.c:13714
+msgid "SET ATTRIBUTE requires a screen item as subject"
+msgstr ""
+
+#: cobc/typeck.c:13720
+msgid "SET ATTRIBUTE subject does not refer to a screen item"
+msgstr ""
+
+#: cobc/typeck.c:13835 cobc/typeck.c:13875
+#, fuzzy, c-format
+#| msgid "invalid parameter: %s"
+msgid "invalid %s parameter"
+msgstr "geçersiz parametre: %s"
+
+#: cobc/typeck.c:13940 cobc/typeck.c:13967 cobc/typeck.c:13987
+msgid "invalid key item"
+msgstr ""
+
+#: cobc/typeck.c:14017
+msgid "LENGTH/SIZE clause only allowed on INDEXED files"
+msgstr ""
+
+#: cobc/typeck.c:14022
+msgid "START not allowed with ACCESS MODE RANDOM"
+msgstr ""
+
+#: cobc/typeck.c:14111 cobc/typeck.c:14117
+#, c-format
+msgid "%s item '%s' must be an integer"
+msgstr ""
+
+#: cobc/typeck.c:14121
+#, c-format
+msgid "%s item '%s' may not have PICTURE with P in it"
+msgstr ""
+
+#: cobc/typeck.c:14137
+#, c-format
+msgid "'%s' is not an elementary item"
+msgstr ""
+
+#: cobc/typeck.c:14213
+msgid "STRING items must be all NATIONAL or none"
+msgstr ""
+
+#: cobc/typeck.c:14361
+msgid "LOCK clause invalid here"
+msgstr ""
+
+#: cobc/typeck.c:14606
+msgid "data item is not part of a report"
+msgstr ""
+
+#: cobc/typeck.c:14626
+msgid "improper use of SUPPRESS PRINTING"
+msgstr ""
+
+#: cobc/typeck.c:14642
+#, c-format
+msgid "%s must be alphanumeric or national"
+msgstr ""
+
+#: cobc/typeck.c:14652
+#, c-format
+msgid "%s may not be a figurative constant"
+msgstr ""
+
+#: cobc/typeck.c:14690
+#, c-format
+msgid "%s must be a child of the input record"
+msgstr ""
+
+#: cobc/typeck.c:14715
+#, c-format
+msgid "%s may not be an ignored item in JSON/XML GENERATE"
+msgstr ""
+
+#: cobc/typeck.c:14725
+#, c-format
+msgid "%s must be elementary"
+msgstr ""
+
+#: cobc/typeck.c:14737
+#, fuzzy, c-format
+#| msgid "elementary items with SIGN clause must be USAGE DISPLAY or NATIONAL"
+msgid "STRING item '%s' must be USAGE DISPLAY or NATIONAL"
+msgstr "SIGN yantümceli temel ögeler USAGE DISPLAY veya NATIONAL olmalı"
+
+#: cobc/typeck.c:14749
+#, c-format
+msgid "%s must be USAGE DISPLAY or NATIONAL"
+msgstr ""
+
+#: cobc/typeck.c:14761
+#, c-format
+msgid "%s must be an integer"
+msgstr ""
+
+#: cobc/typeck.c:14776 cobc/typeck.c:14782
+msgid "JSON/XML GENERATE receiving item"
+msgstr ""
+
+#: cobc/typeck.c:14779
+msgid "JSON/XML GENERATE receiving item may not have JUSTIFIED clause"
+msgstr ""
+
+#: cobc/typeck.c:14867
+msgid "JSON/XML GENERATE input record may not be reference modified"
+msgstr ""
+
+#: cobc/typeck.c:14873
+msgid "JSON/XML GENERATE input record may not have RENAMES clause"
+msgstr ""
+
+#: cobc/typeck.c:14878
+#, c-format
+msgid "all the children of '%s' are ignored in JSON/XML GENERATE"
+msgstr ""
+
+#: cobc/typeck.c:14885
+msgid "JSON/XML GENERATE input record has subrecords with non-unique names"
+msgstr ""
+
+#: cobc/typeck.c:14890
+msgid "floating-point items in JSON/XML GENERATE"
+msgstr ""
+
+#: cobc/typeck.c:14894
+msgid "OCCURS items in JSON/XML GENERATE"
+msgstr ""
+
+#: cobc/typeck.c:14941
+msgid "NAMESPACE must be a valid URI"
+msgstr ""
+
+#: cobc/typeck.c:14985
+msgid "NAMESPACE-PREFIX must be a valid XML name"
+msgstr ""
+
+#: cobc/typeck.c:15014 cobc/typeck.c:15022
+msgid "NAME OF item"
+msgstr ""
+
+#: cobc/typeck.c:15019
+msgid "NAME OF item must be the input record or a child of it"
+msgstr ""
+
+#: cobc/typeck.c:15029
+msgid "NAME OF ... OMITTED only valid for source identifier"
+msgstr ""
+
+#: cobc/typeck.c:15037
+#, c-format
+msgid "NAME OF literal must be a valid %s identifier"
+msgstr ""
+
+#: cobc/typeck.c:15062 cobc/typeck.c:15063 cobc/typeck.c:15066
+#: cobc/typeck.c:15070
+msgid "TYPE OF item"
+msgstr ""
+
+#: cobc/typeck.c:15088
+msgid "SUPPRESS WHEN SPACE item"
+msgstr ""
+
+#: cobc/typeck.c:15091
+msgid "SUPPRESS WHEN LOW-VALUE item"
+msgstr ""
+
+#: cobc/typeck.c:15093
+msgid "SUPPRESS WHEN HIGH-VALUE item"
+msgstr ""
+
+#: cobc/typeck.c:15122 cobc/typeck.c:15130 cobc/typeck.c:15134
+msgid "SUPPRESS item"
+msgstr ""
+
+#: cobc/typeck.c:15126
+msgid "SUPPRESS item with WHEN clause"
+msgstr ""
+
+#: cobc/typeck.c:15204
+msgid "WITH ATTRIBUTES specified, but no attributes can be generated"
+msgstr ""
+
+#: cobc/warning.def:31
+msgid "  -Wadditional          additional warnings only raised with -Wall"
+msgstr ""
+
+#: cobc/warning.def:34
+msgid "  -Wno-unfinished       do not warn if unfinished features are used"
+msgstr ""
+
+#: cobc/warning.def:37
+msgid "  -Wno-pending          do not warn if pending features are used"
+msgstr ""
+
+#: cobc/warning.def:40
+msgid "  -Wno-repository-checks\tdo not warn/check for program/function/external signature mismatch"
+msgstr ""
+
+#: cobc/warning.def:43
+msgid "  -Wno-ignored-error    do not warn about errors in code parts which are unreachable and so normally ignored"
+msgstr ""
+
+#: cobc/warning.def:46
+msgid "  -Wobsolete            warn if obsolete features are used"
+msgstr ""
+
+#: cobc/warning.def:49
+msgid "  -Warchaic             warn if archaic features are used"
+msgstr ""
+
+#: cobc/warning.def:52
+msgid "  -Wredefinition        warn about non-referenced ambiguous data items"
+msgstr ""
+
+#: cobc/warning.def:55
+msgid "  -Wtruncate            warn about field truncation from constant assignments"
+msgstr ""
+
+#: cobc/warning.def:58
+msgid "  -Wpossible-truncate   warn about possible field truncation"
+msgstr ""
+
+#: cobc/warning.def:61
+msgid "  -Woverlap             warn about overlapping MOVE of items"
+msgstr ""
+
+#: cobc/warning.def:64
+msgid "  -Wpossible-overlap    warn about MOVE of items that may overlap depending on variables"
+msgstr ""
+
+#: cobc/warning.def:67
+msgid "  -Wparentheses         warn if parentheses are omitted around AND within OR"
+msgstr ""
+
+#: cobc/warning.def:70
+msgid "  -Wstrict-typing       warn strictly about type mismatch, even when same size"
+msgstr ""
+
+#: cobc/warning.def:73
+msgid "  -Wtyping              warn about type mismatch"
+msgstr ""
+
+#: cobc/warning.def:76
+msgid "  -Wimplicit-define     warn whenever data items are implicitly defined"
+msgstr ""
+
+#: cobc/warning.def:79
+msgid "  -Wno-corresponding    do not warn about CORRESPONDING with no matching items"
+msgstr ""
+
+#: cobc/warning.def:82
+msgid "  -Winitial-value       warn if initial VALUE clause is ignored"
+msgstr ""
+
+#: cobc/warning.def:85
+msgid "  -Wprototypes          warn about missing FUNCTION prototypes/definitions"
+msgstr ""
+
+#: cobc/warning.def:88
+msgid "  -Warithmetic-osvs     warn if arithmetic expression precision has changed"
+msgstr ""
+
+#: cobc/warning.def:91
+msgid "  -Wcall-params         warn about non 01/77 items for CALL parameters"
+msgstr ""
+
+#: cobc/warning.def:94
+msgid "  -Wconstant-expression  warn about expressions that always resolve to true/false"
+msgstr ""
+
+#: cobc/warning.def:97
+msgid "  -Wconstant-numlit-expression\twarn about numeric expressions that always resolve to true/false"
+msgstr ""
+
+#: cobc/warning.def:100
+msgid "  -Wlarger-01-redefines  warn about larger redefines allowed by COBOL standards"
+msgstr ""
+
+#: cobc/warning.def:103
+msgid "  -Wcolumn-overflow     warn about text after program-text area, FIXED format"
+msgstr ""
+
+#: cobc/warning.def:106
+msgid "  -Wterminator          warn about lack of scope terminator END-XXX"
+msgstr ""
+
+#: cobc/warning.def:109
+msgid "  -Wlinkage             warn about dangling LINKAGE items"
+msgstr ""
+
+#: cobc/warning.def:112
+msgid "  -Wunreachable         warn about likely unreachable statements"
+msgstr ""
+
+#: cobc/warning.def:115
+msgid "  -Wno-dialect          do not warn about dialect specific issues"
+msgstr ""
+
+#: cobc/warning.def:118
+msgid "  -Wno-goto-section     do not warn about GO TO section-name"
+msgstr ""
+
+#: cobc/warning.def:121
+msgid "  -Wgoto-different-section\twarn about GO TO a praragraph defined in a different section"
+msgstr ""
+
+#: cobc/warning.def:124
+msgid "  -Wsuspicious-perform-thru\twarn if PERFORM THRU references procedures not in ascending order or multiple sections"
+msgstr ""
+
+#: cobc/warning.def:127
+msgid "  -Wdangling-text       warn about source text after program-area"
+msgstr ""
+
+#: cobc/warning.def:130
+msgid "  -Wno-missing-newline  do not warn about missing newlines"
+msgstr ""
+
+#: cobc/warning.def:133
+msgid "  -Wno-others           do not warn about different issues"
+msgstr ""
+
+#: cobc/warning.def:136
+msgid "  -Wno-unsupported      do not warn if runtime does not support a feature used"
+msgstr ""
+
+#: libcob/call.c:98
+#, c-format
+msgid "LoadLibrary/GetProcAddress error %d"
+msgstr ""
+
+#: libcob/call.c:626
+#, c-format
+msgid "preloading from existing path '%s' failed; %s"
+msgstr ""
+
+#: libcob/call.c:817
+#, c-format
+msgid "%s: PROGRAM name exceeds %d characters"
+msgstr "%s: PROGRAM adı, %d karakteri aşıyor"
+
+#: libcob/call.c:818
+#, fuzzy, c-format
+#| msgid "%s: PROGRAM name exceeds %d characters"
+msgid "%s: FUNCTION name exceeds %d characters"
+msgstr "%s: PROGRAM adı, %d karakteri aşıyor"
+
+#: libcob/call.c:945 libcob/call.c:978
+#, c-format
+msgid "loading from existing path '%s' failed; %s"
+msgstr ""
+
+#: libcob/call.c:1049
+msgid "indeterminable error in resolve of COBOL CALL"
+msgstr ""
+
+#: libcob/call.c:1145
+#, c-format
+msgid "user-defined FUNCTION '%s' not found"
+msgstr ""
+
+#: libcob/call.c:1247 libcob/call.c:1328 libcob/call.c:1448 libcob/call.c:1475
+#, c-format
+msgid "NULL parameter passed to '%s'"
+msgstr ""
+
+#: libcob/call.c:1332
+#, c-format
+msgid "invalid number of arguments passed to '%s'"
+msgstr ""
+
+#: libcob/call.c:1452
+msgid "multiple call to 'cob_setjmp'"
+msgstr ""
+
+#: libcob/call.c:1479
+msgid "call to 'cob_longjmp' with no prior 'cob_setjmp'"
+msgstr ""
+
+#: libcob/call.c:1608
+#, c-format
+msgid "preloading of '%s' failed"
+msgstr ""
+
+#: libcob/call.c:1706 libcob/call.c:1733 libcob/common.c:8965
+msgid "cob_init() has not been called"
+msgstr ""
+
+#: libcob/call.c:1712
+#, c-format
+msgid "parameter %d is not within range of %d"
+msgstr ""
+
+#: libcob/call.c:1718
+#, c-format
+msgid "parameter %d is NULL"
+msgstr ""
+
+#: libcob/call.c:2045
+msgid "NULL field"
+msgstr ""
+
+#: libcob/call.c:2053
+msgid "field not allocated"
+msgstr "alan ayrılmamış"
+
+#: libcob/call.c:2119
+#, c-format
+msgid "attempt to over-write constant field with '%s'"
+msgstr "'%s' ile sabit alanının üzerine yazma girişimi"
+
+#: libcob/call.c:2161 libcob/call.c:2219 libcob/call.c:2270
+#, c-format
+msgid "attempt to over-write constant parameter %d with '%s'"
+msgstr "şununla sabit parametresi %d üzerine yazma girişimi: '%s'"
+
+#: libcob/cobgetopt.c:330
+#, c-format
+msgid "%s: option '%s%s' is ambiguous"
+msgstr "%s: '%s%s' seçeneği belirsiz"
+
+#: libcob/cobgetopt.c:338
+#, c-format
+msgid "%s: option '%s%s' is ambiguous; possibilities:"
+msgstr "%s: '%s%s' seçeneği belirsiz; olasılıklar:"
+
+#: libcob/cobgetopt.c:371
+#, c-format
+msgid "%s: unrecognized option '%s%s'"
+msgstr "%s: tanımlanamayan seçenek '%s%s'"
+
+#: libcob/cobgetopt.c:400
+#, c-format
+msgid "%s: option '%s%s' doesn't allow an argument"
+msgstr "%s: '%s%s' seçeneği bir argümana izin vermiyor"
+
+#: libcob/cobgetopt.c:418
+#, c-format
+msgid "%s: option '%s%s' requires an argument"
+msgstr "%s: '%s%s' seçeneği bir argüman gerektiriyor"
+
+#: libcob/cobgetopt.c:689
+#, c-format
+msgid "%s: invalid option -- '%c'"
+msgstr "%s: geçersiz seçenek -- '%c'"
+
+#: libcob/cobgetopt.c:707 libcob/cobgetopt.c:754
+#, c-format
+msgid "%s: option requires an argument -- '%c'"
+msgstr "%s: seçenek, bir argüman gerektiriyor -- '%c'"
+
+#: libcob/common.c:1074
+#, c-format
+msgid "requested coredump creation failed with status %d"
+msgstr ""
+
+#: libcob/common.c:1303
+msgid "fatal arithmetic error"
+msgstr "onulmaz aritmetik hatası"
+
+#: libcob/common.c:1306
+msgid "interrupt from keyboard"
+msgstr ""
+
+#: libcob/common.c:1310
+msgid "hangup"
+msgstr ""
+
+#: libcob/common.c:1314
+msgid "quit"
+msgstr ""
+
+#: libcob/common.c:1318
+msgid "termination"
+msgstr ""
+
+#: libcob/common.c:1322
+msgid "emt termination"
+msgstr ""
+
+#: libcob/common.c:1326
+msgid "broken pipe"
+msgstr ""
+
+#: libcob/common.c:1330
+#, fuzzy
+#| msgid "signal %s"
+msgid "I/O signal"
+msgstr "%s sinyali"
+
+#: libcob/common.c:1334
+#, fuzzy
+#| msgid "attempt to reference unallocated memory"
+msgid "attempt to reference invalid memory address"
+msgstr "ayrılmamış belleğe başvurma girişimi"
+
+#: libcob/common.c:1338
+msgid "bus error"
+msgstr "veriyolu hatası"
+
+#: libcob/common.c:1342
+msgid "illegal instruction"
+msgstr ""
+
+#: libcob/common.c:1346
+#, fuzzy
+#| msgid "aborting"
+msgid "abort"
+msgstr "iptal ediliyor"
+
+#: libcob/common.c:1350
+msgid "process killed"
+msgstr ""
+
+#: libcob/common.c:1354
+#, fuzzy
+#| msgid "caught signal"
+msgid "alarm signal"
+msgstr "sinyal yakalandı"
+
+#: libcob/common.c:1358
+#, fuzzy
+#| msgid "preprocessing:"
+msgid "stop process"
+msgstr "ön işleme yapılıyor:"
+
+#: libcob/common.c:1362 libcob/common.c:1366
+msgid "child process stopped"
+msgstr ""
+
+#. TRANSLATORS: This msgid is used for an OS signal like SIGABRT.
+#: libcob/common.c:1373
+#, fuzzy
+#| msgid "signal %s"
+msgid "signal"
+msgstr "%s sinyali"
+
+#. TRANSLATORS: This msgid is shown for a requested but not complete stack trace.
+#: libcob/common.c:1375
+msgid "(more COBOL runtime elements follow...)"
+msgstr ""
+
+#: libcob/common.c:1377 libcob/common.c:8922
+#, c-format
+msgid "abnormal termination - file contents may be incorrect"
+msgstr "olağan olmayan sonlandırma - dosya sabitleri yanlış olabilir"
+
+#: libcob/common.c:3441 libcob/common.c:9398 libcob/common.c:9412
+msgid "version mismatch"
+msgstr "sürüm uyuşmazlığı"
+
+#: libcob/common.c:3442 libcob/common.c:3444 libcob/common.c:9399
+#: libcob/common.c:9401
+#, c-format
+msgid "%s has version %s.%d"
+msgstr "%s, %s.%d sürümüne iye"
+
+#: libcob/common.c:3454
+#, c-format
+msgid "CALL to %s requires %d arguments"
+msgstr "%s için CALL, %d argüman gerektiriyor"
+
+#: libcob/common.c:4141
+#, c-format
+msgid "code execution leaving %s"
+msgstr ""
+
+#: libcob/common.c:4151
+#, c-format
+msgid "BASED/LINKAGE item %s has NULL address"
+msgstr "BASED/LINKAGE ögesi %s, NULL adrese iye"
+
+#: libcob/common.c:4168
+#, c-format
+msgid "memory violation detected for '%s' after %s"
+msgstr ""
+
+#: libcob/common.c:4171
+#, c-format
+msgid "memory violation detected after %s"
+msgstr ""
+
+#: libcob/common.c:4229 libcob/common.c:4244 libcob/common.c:4283
+#: libcob/common.c:4287
+#, c-format
+msgid "LINKAGE item %s not passed by caller"
+msgstr "LINKAGE ögesi %s, çağırıcı tarafından geçirilmemiş"
+
+#: libcob/common.c:4253
+#, c-format
+msgid "LINKAGE item %s (size %lu) too small in the caller (size %lu)"
+msgstr ""
+
+#: libcob/common.c:4378
+#, c-format
+msgid "'%s' (Type: %s) not numeric: '%s'"
+msgstr "'%s' (Tür: %s), sayısal değil: '%s'"
+
+#: libcob/common.c:4403
+#, c-format
+msgid "OCCURS DEPENDING ON '%s' out of bounds: %d"
+msgstr "OCCURS DEPENDİNG ON '%s', sınırlar dışında: %d"
+
+#: libcob/common.c:4406 libcob/common.c:4444
+#, c-format
+msgid "maximum subscript for '%s': %d"
+msgstr "'%s' için en büyük altsimge: %d"
+
+#: libcob/common.c:4408
+#, c-format
+msgid "minimum subscript for '%s': %d"
+msgstr "'%s' için en küçük altsimge: %d"
+
+#: libcob/common.c:4441
+#, c-format
+msgid "current maximum subscript for '%s': %d"
+msgstr "'%s' için geçerli en büyük altsimge: %d"
+
+#: libcob/common.c:4465
+#, c-format
+msgid "offset of '%s' out of bounds: %d, maximum: %d"
+msgstr "'%s' ofseti sınırlar dışında: %d, en çok: %d"
+
+#: libcob/common.c:4480
+#, c-format
+msgid "length of '%s' out of bounds: %d, maximum: %d"
+msgstr "'%s' uzunluğu sınırlar dışında: %d, en çok: %d"
+
+#: libcob/common.c:4491
+#, c-format
+msgid "length of '%s' out of bounds: %d, starting at: %d, maximum: %d"
+msgstr "'%s' uzunluğu sınırlar dışında: %d, başlangıç konumu: %d, en çok: %d"
+
+#: libcob/common.c:4579 libcob/common.c:4584
+#, c-format
+msgid "EXTERNAL item '%s' previously allocated with size %d, requested size is %d"
+msgstr "EXTENAL ögesi '%s', önceden %d boyutla ayrılmış; istenen boyut %d"
+
+#: libcob/common.c:4961 libcob/common.c:5201
+#, c-format
+msgid "COB_CURRENT_DATE '%s' is invalid"
+msgstr "COB_CURRENT_DATE '%s' geçersiz"
+
+#: libcob/common.c:6321 libcob/common.c:6324
+msgid "Program abandoned at user request"
+msgstr ""
+
+#: libcob/common.c:6348
+#, c-format
+msgid "parameter to SYSTEM call is larger than %d characters"
+msgstr "SYSTEM çağrısı parametresi %d karakterden daha büyük"
+
+#: libcob/common.c:6998
+#, c-format
+msgid "error '%s' during CBL_GC_FORK"
+msgstr "CBL_GC_FORK sırasında '%s' hatası"
+
+#: libcob/common.c:7003 libcob/common.c:7100
+#, c-format
+msgid "'%s' is not supported on this platform"
+msgstr "'%s', bu platformda desteklenmiyor"
+
+#: libcob/common.c:7029
+#, c-format
+msgid "error '%s' for P%d during CBL_GC_WAITPID"
+msgstr "CBL_GC_WAITPID sırasında '%s' hatası, P%d için"
+
+#: libcob/common.c:7220
+#, fuzzy
+#| msgid "Call to CBL_GC_GETOPT with wrong longoption size."
+msgid "call to CBL_GC_GETOPT with wrong longoption size"
+msgstr "Yanlış uzun seçenek boyutuyla CBL_GC_GETOPT çağrısı."
+
+#: libcob/common.c:7225
+#, fuzzy
+#| msgid "Call to CBL_GC_GETOPT with missing longind."
+msgid "call to CBL_GC_GETOPT with missing longind"
+msgstr "Eksik uzun girinti ile CBL_GC_GETOPT çağrısı."
+
+#: libcob/common.c:7654 libcob/common.c:7675 libcob/common.c:7688
+#: libcob/common.c:9924 libcob/common.c:9928
+#, c-format
+msgid "(default)"
+msgstr "(öntanımlı)"
+
+#: libcob/common.c:7973 libcob/common.c:7992
+msgid "should be unsigned"
+msgstr "imzalanmamış olmalı"
+
+#: libcob/common.c:7981 libcob/common.c:8030
+msgid "should be numeric"
+msgstr "sayısal olmalı"
+
+#: libcob/common.c:8039
+#, c-format
+msgid "minimum value: %lu"
+msgstr "en küçük değer: %lu"
+
+#: libcob/common.c:8069 libcob/common.c:8640 libcob/common.c:8654
+#: bin/cobcrun.c:206
+#, c-format
+msgid "should not contain '%c'"
+msgstr "'%c' içermemeli"
+
+#: libcob/common.c:8150 libcob/common.c:8169 libcob/common.c:8231
+#: libcob/common.c:8240 libcob/common.c:8248 libcob/common.c:8273
+#, c-format
+msgid "not set"
+msgstr "ayarlanmamış"
+
+#: libcob/common.c:8223 libcob/common.c:8226 libcob/common.c:8229
+#, c-format
+msgid "set by %s"
+msgstr "%s tarafından ayarlanmış"
+
+#: libcob/common.c:8367
+#, c-format
+msgid "WARNING - '%s' without a value - ignored!"
+msgstr "UYARI - '%s' ögesinin değeri yok - yok sayıldı!"
+
+#: libcob/common.c:8370
+#, c-format
+msgid "'%s' without a value!"
+msgstr "'%s' ögesinin değeri yok!"
+
+#: libcob/common.c:8397
+#, c-format
+msgid "WARNING - '%s %s' without a value - ignored!"
+msgstr "UYARI - '%s %s' ögesinin değeri yok - yok sayıldı!"
+
+#: libcob/common.c:8906
+msgid "error"
+msgstr "hata"
+
+#: libcob/common.c:8948
+msgid "attempt to CANCEL active program"
+msgstr "etkin programı CANCEL girişimi"
+
+#: libcob/common.c:8975
+msgid "CALL of program with CHAINING clause"
+msgstr "CHAINING yantümcesiyle program CALL"
+
+#: libcob/common.c:8979
+msgid "stack overflow, possible PERFORM depth exceeded"
+msgstr "yığın taşması, PERFORM derinliğinin aşılması olası"
+
+#: libcob/common.c:8984
+msgid "invalid entry/exit in GLOBAL USE procedure"
+msgstr "GLOBAL USE prosedüründe geçersiz giriş/çıkış"
+
+#: libcob/common.c:8988
+msgid "unable to allocate memory"
+msgstr "bellek ayrılamıyor"
+
+#: libcob/common.c:8993
+msgid "invalid entry into module"
+msgstr "modüle geçersiz giriş"
+
+#: libcob/common.c:9000
+#, c-format
+msgid "recursive CALL from '%s' to '%s' which is NOT RECURSIVE"
+msgstr "NOT RECURSIVE olmayan '%s' -> '%s' özyineli CALL"
+
+#: libcob/common.c:9005
+#, c-format
+msgid "invalid recursive COBOL CALL to '%s'"
+msgstr "'%s' için geçersiz özyineli COBOL CALL"
+
+#: libcob/common.c:9020
+msgid "end of file"
+msgstr "dosya sonu"
+
+#: libcob/common.c:9023
+msgid "key out of range"
+msgstr "anahtar erimin dışında"
+
+#: libcob/common.c:9026
+msgid "key order not ascending"
+msgstr "anahtar sırası artan değil"
+
+#: libcob/common.c:9029
+msgid "record key already exists"
+msgstr "kayıt anahtarı halihazırda var"
+
+#: libcob/common.c:9032
+msgid "record key does not exist"
+msgstr "kayıt anahtarı yok"
+
+#: libcob/common.c:9035
+msgid "permanent file error"
+msgstr "kalıcı dosya hatası"
+
+#: libcob/common.c:9038
+msgid "inconsistent file name"
+msgstr "tutarsız dosya adı"
+
+#: libcob/common.c:9041
+msgid "file does not exist"
+msgstr "dosya yok"
+
+#: libcob/common.c:9044
+msgid "permission denied"
+msgstr "izin reddedildi"
+
+#: libcob/common.c:9047
+msgid "mismatch of fixed file attributes"
+msgstr ""
+
+#: libcob/common.c:9050
+msgid "file already open"
+msgstr "dosya halihazırda açık"
+
+#: libcob/common.c:9053
+msgid "file not open"
+msgstr "dosya açık değil"
+
+#: libcob/common.c:9056
+msgid "READ must be executed first"
+msgstr "READ, ilk olarak yürütülmeli"
+
+#: libcob/common.c:9059
+msgid "record overflow"
+msgstr "kayıt taşması"
+
+#: libcob/common.c:9062
+msgid "READ after unsuccessful READ/START"
+msgstr "başarısız READ/START sonrası READ"
+
+#: libcob/common.c:9065
+msgid "READ/START not allowed, file not open for input"
+msgstr "READ/START'a izin verilmiyor, dosya girdi için açık değil"
+
+#: libcob/common.c:9068
+msgid "WRITE not allowed, file not open for output"
+msgstr "WRITE'a izin verilmiyor, dosya çıktı için açık değil"
+
+#: libcob/common.c:9071
+msgid "DELETE/REWRITE not allowed, file not open for I-O"
+msgstr "DELETE/REWRITE'a izin verilmiyor, dosya G-Ç için açık değil"
+
+#: libcob/common.c:9074
+msgid "record locked by another file connector"
+msgstr "kayıt, başka bir dosya bağlayanı tarafından kilitlenmiş"
+
+#: libcob/common.c:9077
+msgid "LINAGE values invalid"
+msgstr "LINAGE değerleri geçersiz"
+
+#: libcob/common.c:9080
+msgid "file sharing conflict"
+msgstr "dosya paylaşma çakışması"
+
+#: libcob/common.c:9083
+msgid "invalid data in LINE SEQUENTIAL file"
+msgstr ""
+
+#: libcob/common.c:9087
+msgid "runtime library is not configured for this operation"
+msgstr "çalışma zamanı kitaplığı, bu işlem için yapılandırılmamış"
+
+#: libcob/common.c:9092
+msgid "unknown file error"
+msgstr "bilinmeyen dosya hatası"
+
+#: libcob/common.c:9099
+#, c-format
+msgid "%s (status = %02d) for file %s"
+msgstr "%s (durum = %02d), %s dosyası için"
+
+#: libcob/common.c:9102
+#, c-format
+msgid "%s (status = %02d) for file %s on %s"
+msgstr "%s (durum = %02d), şuradaki %s dosyası için: %s"
+
+#: libcob/common.c:9109
+msgid "attempt to use non-implemented function"
+msgstr "henüz eklenmemiş işlevi kullanma girişimi"
+
+#: libcob/common.c:9112
+msgid "attempt to use non-implemented XML I/O"
+msgstr "henüz eklenmemiş XML G-Ç kullanma girişimi"
+
+#: libcob/common.c:9115
+msgid "attempt to use non-implemented JSON I/O"
+msgstr "henüz eklenmemiş JSON G-Ç kullanma girişimi"
+
+#: libcob/common.c:9162
+msgid "environment variables"
+msgstr "çevre değişkeni"
+
+#: libcob/common.c:9283 libcob/common.c:9356 libcob/common.c:9371
+#: libcob/common.c:9676 libcob/common.c:9710 libcob/common.c:9727
+#: libcob/common.c:9742
+#, c-format
+msgid "%s, version %d.%d.%d"
+msgstr "%s, sürüm %d.%d.%d"
+
+#: libcob/common.c:9285 libcob/common.c:9358 libcob/common.c:9375
+#: libcob/common.c:9679 libcob/common.c:9730 libcob/common.c:9745
+#, c-format
+msgid "%s, version %d.%d.%d (compiled with %d.%d)"
+msgstr "%s, sürüm %d.%d.%d (%d.%d ile derlendi)"
+
+#: libcob/common.c:9288
+#, c-format
+msgid "%s, version %s"
+msgstr "%s, sürüm %s"
+
+#: libcob/common.c:9556
+#, fuzzy, c-format
+#| msgid "License LGPLv3+: GNU LGPL version 3 or later <http://gnu.org/licenses/lgpl.html>"
+msgid "License LGPLv3+: GNU LGPL version 3 or later <%s>"
+msgstr "Lisans LGPLv3+: GNU LGPL sürüm 3 veya sonrası <http://gnu.org/licenses/lgpl.html>"
+
+#: libcob/common.c:9620 libcob/common.c:9622
+msgid "dynamic loading"
+msgstr "devingen yükleme"
+
+#: libcob/common.c:9755
+msgid "mouse support"
+msgstr "fare desteği"
+
+#: libcob/common.c:9772
+msgid "CALL configuration"
+msgstr "CALL yapılandırması"
+
+#: libcob/common.c:9773
+msgid "File I/O configuration"
+msgstr "Dosya G-Ç yapılandırması"
+
+#: libcob/common.c:9774
+msgid "Screen I/O configuration"
+msgstr "Ekran G-Ç yapılandırması"
+
+#: libcob/common.c:9775
+msgid "Miscellaneous"
+msgstr "Çeşitli"
+
+#: libcob/common.c:9776
+msgid "System configuration"
+msgstr "Sistem yapılandırması"
+
+#: libcob/common.c:9780
+msgid "runtime configuration"
+msgstr "Çalışma zamanı yapılandırması"
+
+#: libcob/common.c:9782
+msgid "via"
+msgstr "şununla:"
+
+#: libcob/common.c:9857 libcob/common.c:9885
+msgid "... removed from environment"
+msgstr "... ortamdan kaldırıldı"
+
+#: libcob/common.c:9911 libcob/common.c:9913
+#, c-format
+msgid "(set by %s)"
+msgstr "(%s tarafından ayarlandı)"
+
+#: libcob/common.c:9921
+#, c-format
+msgid "(reset)"
+msgstr "(sıfırlandı)"
+
+#: libcob/common.c:10151
+msgid "compiler was not built with --enable-debug-log; COB_DEBUG_LOG ignored"
+msgstr "derleyici, --enable-debug-log ile yapılmamış, COB_DEBUG_LOG yok sayıldı"
+
+#: libcob/common.c:10338 libcob/common.c:10364
+#, c-format
+msgid "%s called with unknown option: %d"
+msgstr "%s, bilinmeyen seçenekle çağrıldı: %d"
+
+#. TRANSLATORS: This msgid is shown for a requested but empty stack trace.
+#: libcob/common.c:10411
+msgid "No COBOL runtime elements on stack."
+msgstr ""
+
+#: libcob/common.c:10734
+#, c-format
+msgid "Module dump due to %s"
+msgstr "%s nedeniyle modül dökümü"
+
+#: libcob/common.c:10762
+#, c-format
+msgid "Dump Program-Id %s from %s compiled %s"
+msgstr "Program-Id %s, %s konumundan, %s derlemesi dök"
+
+#: libcob/common.c:10788
+#, c-format
+msgid "dump written to %s"
+msgstr "döküm, %s konumuna yazıldı"
+
+#: libcob/fileio.c:784 libcob/fileio.c:1664 libcob/fileio.c:1926
+#: libcob/fileio.c:3938 libcob/fileio.c:4522 libcob/fileio.c:10049
+#: libcob/fileio.c:10077 libcob/numeric.c:1915
+#, c-format
+msgid "invalid internal call of %s"
+msgstr "%s geçersiz iç çağrısı"
+
+#: libcob/fileio.c:3486
+#, c-format
+msgid "BDB error: %s"
+msgstr "BDB hatası: %s"
+
+#: libcob/fileio.c:3496
+#, c-format
+msgid "BDB error: %s %s"
+msgstr "BDB hatası: %s %s"
+
+#: libcob/fileio.c:3510 libcob/fileio.c:3530
+#, c-format
+msgid "cannot join BDB environment (%s), error: %d %s"
+msgstr "BDB ortamına katılamıyor (%s), hata: %d %s"
+
+#: libcob/fileio.c:3585 libcob/fileio.c:3610 libcob/fileio.c:3636
+#: libcob/fileio.c:3655
+#, fuzzy, c-format
+#| msgid "BDB error: %s %s"
+msgid "BDB (%s), error: %d %s"
+msgstr "BDB hatası: %s %s"
+
+#: libcob/fileio.c:6199
+#, c-format
+msgid "ERROR FILE %s has ASSIGN field is NULL"
+msgstr "ERROR FILE %s, NULL olan ASSIGN alanı almış"
+
+#: libcob/fileio.c:7050
+#, c-format
+msgid "call to CBL_OPEN_FILE with wrong access mode: %d"
+msgstr "yanlış erişim kipiyle CBL_OPEN_FILE çağrısı: %d"
+
+#: libcob/fileio.c:7135
+#, c-format
+msgid "call to CBL_CREATE_FILE with wrong file_lock: %d"
+msgstr "yanlış file_lock ile CBL_CREATE_FILE çağrısı: %d"
+
+#: libcob/fileio.c:7138
+#, c-format
+msgid "call to CBL_CREATE_FILE with wrong file_dev: %d"
+msgstr "yanlış file_dev ile CBL_CREATE_FILE çağrısı: %d"
+
+#: libcob/fileio.c:7362 libcob/fileio.c:7645
+#, c-format
+msgid "'%s' - File detail area is too short"
+msgstr "'%s' - Dosya ayrıntı alanı pek kısa"
+
+#: libcob/fileio.c:7871
+msgid "SORT is unable to acquire temporary file"
+msgstr "SORT, geçici dosyayı alamıyor"
+
+#. TRANSLATORS: This msgid is concatenated with a filename;
+#. setup translation to allow this to be followed on the right side,
+#. if necessary use a colon or hyphen
+#: libcob/fileio.c:8777
+#, fuzzy
+#| msgid "implicit CLOSE of %s"
+msgid "implicit CLOSE of "
+msgstr "%s örtük CLOSE'u"
+
+#: libcob/fileio.c:10008 libcob/fileio.c:10193
+#, c-format
+msgid "ERROR: EXTFH called with FCD version %d"
+msgstr "HATA: EXTFH, FCD sürümü %d ile çağrıldı"
+
+#: libcob/fileio.c:10310
+#, c-format
+msgid "ERROR: EXTFH called with wrong file organization %d"
+msgstr "HATA: EXTFH, %d yanlış dosya organizasyonuyla çağrıldı"
+
+#: libcob/fileio.c:10317
+#, fuzzy, c-format
+#| msgid "ERROR: EXTFH called with FCD version %d"
+msgid "ERROR: EXTFH called with no %s pointer"
+msgstr "HATA: EXTFH, FCD sürümü %d ile çağrıldı"
+
+#: libcob/fileio.c:10461
+#, fuzzy, c-format
+#| msgid "ERROR: EXTFH called with FCD version %d"
+msgid "ERROR: EXTFH called with no %s pointer; Function %d"
+msgstr "HATA: EXTFH, FCD sürümü %d ile çağrıldı"
+
+#: libcob/fileio.c:10683
+#, fuzzy, c-format
+#| msgid "ERROR: EXTFH called with FCD version %d"
+msgid "ERROR: EXTFH called with unknown Function %d"
+msgstr "HATA: EXTFH, FCD sürümü %d ile çağrıldı"
+
+#: libcob/reportio.c:629
+#, c-format
+msgid "INITIATE %s LINE %d exceeds PAGE LIMIT %d"
+msgstr "INITIATE %s LINE %d, PAGE LIMIT %d değerini aşıyor"
+
+#: libcob/reportio.c:636 libcob/reportio.c:651
+#, c-format
+msgid "INITIATE %s NEXT GROUP %d exceeds PAGE LIMIT"
+msgstr "INITIATE %s NEXT GROUP %d, PAGE LIMIT değerini aşıyor"
+
+#: libcob/reportio.c:644
+#, c-format
+msgid "INITIATE %s LINE %d exceeds PAGE LIMIT"
+msgstr "INITIATE %s LINE %d, PAGE LIMIT değerini aşıyor"
+
+#: libcob/reportio.c:1336
+#, c-format
+msgid "INITIATE %s was already done"
+msgstr "INITIATE %s, halıhazırda yapılmış"
+
+#: libcob/reportio.c:1352
+#, c-format
+msgid "INITIATE %s PAGE LIMIT problem"
+msgstr "INITIATE %s PAGE LIMIT sorunu"
+
+#: libcob/reportio.c:1429
+#, c-format
+msgid "TERMINATE %s but no INITIATE was done"
+msgstr "TERMINATE %s; ancak bir INITIATE yapılmamış"
+
+#: libcob/reportio.c:1574
+#, c-format
+msgid "GENERATE %s but no INITIATE was done"
+msgstr "GENERATE %s; ancak bir INITIATE yapılmamış"
+
+#: libcob/reportio.c:1926
+#, c-format
+msgid "could not find line to SUPPRESS in report %s"
+msgstr "%s raporunda SUPPRESS satırı bulunamadı"
+
+#: libcob/screenio.c:1055
+msgid "failed to initialize curses"
+msgstr "curses ilklendirilemedi"
+
+#: libcob/screenio.c:5034
+msgid "end of program, please press a key to exit"
+msgstr "program sonu, çıkmak için bir düğmeye basın"
+
+#: libcob/termio.c:76 libcob/termio.c:136
+msgid "(Not representable)"
+msgstr "(Temsil edilemiyor)"
+
+#: libcob/termio.c:406
+#, c-format
+msgid "cannot open %s (=%s)"
+msgstr "%s açılamıyor (=%s)"
+
+#: libcob/termio.c:421
+msgid "COB_DISPLAY_PUNCH_FILE is invalid, output to SYSPUNCH skipped"
+msgstr "COB_DISPLAY_PUNCH_FILE geçersiz, SYSPUNCH çıktısı atlanıyor"
+
+#: bin/cobcrun.c:118
+msgid "GnuCOBOL module loader"
+msgstr "GnuCOBOL modülü yükleyici"
+
+#: bin/cobcrun.c:120
+#, c-format
+msgid "Usage: %s [options] PROGRAM [parameter ...]"
+msgstr "Kullanım: %s [seçenekler] PROGRAM [parametre ...]"
+
+#: bin/cobcrun.c:122
+#, c-format
+msgid "  or:  %s options"
+msgstr "  veya:  %s seçenekler"
+
+#: bin/cobcrun.c:126
+#, fuzzy
+#| msgid "  -h, -help                      display this help and exit"
+msgid "  -h, --help                      display this help and exit"
+msgstr "  -h, -help                      bu yardımı görüntüle ve çık"
+
+#: bin/cobcrun.c:127
+#, fuzzy
+#| msgid "  -V, -version                   display cobcrun and runtime version and exit"
+msgid "  -V, --version                   display version information for cobcrun + runtime and exit"
+msgstr "  -V, -version                   cobcrun ve çal. zam. sürümünü görüntüle ve çık"
+
+#: bin/cobcrun.c:128
+#, fuzzy
+#| msgid "  -V, -version                   display cobcrun and runtime version and exit"
+msgid "  -dumpversion                    display runtime version and exit"
+msgstr "  -V, -version                   cobcrun ve çal. zam. sürümünü görüntüle ve çık"
+
+#: bin/cobcrun.c:129
+#, fuzzy
+#| msgid "  -i, -info                      display runtime information (build/environment)"
+msgid "  -i, --info                      display runtime information (build/environment)"
+msgstr "  -i, -info                      çal. zam. bilgisi görüntüle (yapı/ortam)"
+
+#: bin/cobcrun.c:130
+#, fuzzy
+#| msgid "  -v, -verbose                   display extended output with --info"
+msgid "  -v, --verbose                   display extended output with --info"
+msgstr "  -v, -verbose                   --info ile ek çıktı görüntüle"
+
+#: bin/cobcrun.c:132
+#, fuzzy
+#| msgid "  -q, -brief                     reduced displays"
+msgid "  -q, --brief                     reduced displays"
+msgstr "  -q, -brief                     azaltılmış görüntülemeler"
+
+#: bin/cobcrun.c:134
+#, fuzzy
+#| msgid "  -c <file>, -config=<file>      set runtime configuration from <file>"
+msgid "  -c <file>, --config=<file>      set runtime configuration from <file>"
+msgstr "  -c <dosya>, -config=<dosya>    <dosya>'dan çal. zam. yapılandırması yükle"
+
+#: bin/cobcrun.c:135
+#, fuzzy
+#| msgid ""
+#| "  -r, -runtime-config            display current runtime configuration\n"
+#| "                                 (value and origin for all settings)"
+msgid ""
+"  -r, --runtime-config            display current runtime configuration\n"
+"                                  (value and origin for all settings)"
+msgstr ""
+"  -r, -runtime-config            geçerli çal. zam. yapılandırmasını görüntüle\n"
+"                                 (tüm ayarlar için değer ve köken)"
+
+#: bin/cobcrun.c:137
+#, fuzzy
+#| msgid ""
+#| "  -M <module>, -module=<module>  set entry point module name and/or load path\n"
+#| "                                 where -M module prepends any directory to the\n"
+#| "                                 dynamic link loader library search path\n"
+#| "                                 and any basename to the module preload list\n"
+#| "                                 (COB_LIBRARY_PATH and/or COB_PRELOAD)"
+msgid ""
+"  -M <module>, --module=<module>  set entry point module name and/or load path\n"
+"                                  where -M module prepends any directory to the\n"
+"                                  dynamic link loader library search path\n"
+"                                  and any basename to the module preload list\n"
+"                                  (COB_LIBRARY_PATH and/or COB_PRELOAD)"
+msgstr ""
+"  -M <modül>, -module=<modül>    -M modülünün herhangi bir dizini devingen\n"
+"                                 bağlantı yükleyici kitaplığı arama yoluna\n"
+"                                 ve herhangi bir taban adını modül ön yükleme\n"
+"                                 listesine iliştirdiği giriş noktası modülü\n"
+"                                 adı ve/veya yükleme yolu ayarla\n"
+"                                 (COB_LIBRARY_PATH and/or COB_PRELOAD)"
+
+#: bin/cobcrun.c:286
+msgid "invalid configuration file name"
+msgstr "geçersiz yapılandırma dosyası adı"
+
+#: bin/cobcrun.c:353
+#, c-format
+msgid "invalid module argument '%s'"
+msgstr "geçersiz modül argümanı '%s'"
+
+#: bin/cobcrun.c:408
+#, c-format
+msgid "%s: missing PROGRAM name"
+msgstr "%s: PROGRAM adı eksik"
+
+#: bin/cobcrun.c:410
+#, c-format
+msgid "Try '%s --help' for more information."
+msgstr "Daha fazla bilgi için '%s --help' yazın."
+
+#~ msgid "unexpected error_node parameter"
+#~ msgstr "beklenmedik error_node parametresi"
+
+#~ msgid "CONTROL DIVISION"
+#~ msgstr "CONTROL DIVISION"
+
+#, c-format
+#~ msgid "%s item '%s' should be USAGE DISPLAY"
+#~ msgstr "%s ögesi '%s', USAGE DISPLAY olmalı"
+
+#, c-format
+#~ msgid "'%s' cannot have JUSTIFIED RIGHT"
+#~ msgstr "'%s', JUSTIFIED RIGHT alamaz"
+
+#~ msgid "cannot specify both FULL and JUSTIFIED"
+#~ msgstr "hem FULL hem JUSTIFIED belirtilemez"
+
+#~ msgid "cannot specify both PIC and VALUE"
+#~ msgstr "hem PIC hem VALUE belirtilemez"
+
+#, c-format
+#~ msgid "unexpected USAGE: %d"
+#~ msgstr "beklenmedik USAGE: %d"
+
+#~ msgid ""
+#~ "  -fec=<exception-name>\tenable code generation for <exception-name>,\n"
+#~ "                        sets -fsource-location"
+#~ msgstr ""
+#~ "  -fec=<istisna-adı>        <istisna-adı> için kod üretimini etkinleştir,\n"
+#~ "                              -fsource-location ayarlar"
+
+#, c-format
+#~ msgid "attempt to over-write constant parameter %d with "
+#~ msgstr "şununla sabit parametresi %d üzerine yazma girişimi: "

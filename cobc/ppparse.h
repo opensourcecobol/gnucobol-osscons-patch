@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.3.2.  */
+/* A Bison parser, made by GNU Bison 3.7.5.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2019 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -31,8 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
 #ifndef YY_PP_PPPARSE_H_INCLUDED
 # define YY_PP_PPPARSE_H_INCLUDED
@@ -44,222 +45,138 @@
 extern int ppdebug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    TOKEN_EOF = 0,
-    ALSO = 258,
-    BY = 259,
-    COPY = 260,
-    EQEQ = 261,
-    IN = 262,
-    LAST = 263,
-    LEADING = 264,
-    OF = 265,
-    OFF = 266,
-    PRINTING = 267,
-    REPLACE = 268,
-    REPLACING = 269,
-    SUPPRESS = 270,
-    TRAILING = 271,
-    DOT = 272,
-    GARBAGE = 273,
-    LISTING_DIRECTIVE = 274,
-    LISTING_STATEMENT = 275,
-    TITLE_STATEMENT = 276,
-    CONTROL_STATEMENT = 277,
-    SOURCE = 278,
-    NOSOURCE = 279,
-    LIST = 280,
-    NOLIST = 281,
-    MAP = 282,
-    NOMAP = 283,
-    LEAP_SECOND_DIRECTIVE = 284,
-    SOURCE_DIRECTIVE = 285,
-    FORMAT = 286,
-    IS = 287,
-    FIXED = 288,
-    FREE = 289,
-    VARIABLE = 290,
-    CALL_DIRECTIVE = 291,
-    COBOL = 292,
-    TOK_EXTERN = 293,
-    STDCALL = 294,
-    STATIC = 295,
-    DEFINE_DIRECTIVE = 296,
-    AS = 297,
-    PARAMETER = 298,
-    OVERRIDE = 299,
-    REFMOD_DIRECTIVE = 300,
-    SET_DIRECTIVE = 301,
-    ADDRSV = 302,
-    ADDSYN = 303,
-    ASSIGN = 304,
-    BOUND = 305,
-    CALLFH = 306,
-    CHECKNUM = 307,
-    COMP1 = 308,
-    CONSTANT = 309,
-    DPC_IN_DATA = 310,
-    FOLDCOPYNAME = 311,
-    MAKESYN = 312,
-    NOBOUND = 313,
-    NOCHECKNUM = 314,
-    NODPC_IN_DATA = 315,
-    NOFOLDCOPYNAME = 316,
-    NOSPZERO = 317,
-    NOSSRANGE = 318,
-    REMOVE = 319,
-    SOURCEFORMAT = 320,
-    SPZERO = 321,
-    SSRANGE = 322,
-    IF_DIRECTIVE = 323,
-    ELSE_DIRECTIVE = 324,
-    ENDIF_DIRECTIVE = 325,
-    ELIF_DIRECTIVE = 326,
-    GE = 327,
-    LE = 328,
-    LT = 329,
-    GT = 330,
-    EQ = 331,
-    NE = 332,
-    NOT = 333,
-    THAN = 334,
-    TO = 335,
-    OR = 336,
-    EQUAL = 337,
-    GREATER = 338,
-    LESS = 339,
-    SET = 340,
-    DEFINED = 341,
-    TURN_DIRECTIVE = 342,
-    ON = 343,
-    CHECKING = 344,
-    WITH = 345,
-    LOCATION = 346,
-    TERMINATOR = 347,
-    TOKEN = 348,
-    TEXT_NAME = 349,
-    VARIABLE_NAME = 350,
-    LITERAL = 351
+    YYEMPTY = -2,
+    TOKEN_EOF = 0,                 /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    ALSO = 258,                    /* ALSO  */
+    BY = 259,                      /* BY  */
+    COPY = 260,                    /* COPY  */
+    EQEQ = 261,                    /* "=="  */
+    IN = 262,                      /* IN  */
+    LAST = 263,                    /* LAST  */
+    LEADING = 264,                 /* LEADING  */
+    OF = 265,                      /* OF  */
+    OFF = 266,                     /* OFF  */
+    PRINTING = 267,                /* PRINTING  */
+    REPLACE = 268,                 /* REPLACE  */
+    REPLACING = 269,               /* REPLACING  */
+    SUPPRESS = 270,                /* SUPPRESS  */
+    TRAILING = 271,                /* TRAILING  */
+    DOT = 272,                     /* "."  */
+    GARBAGE = 273,                 /* "word"  */
+    LISTING_DIRECTIVE = 274,       /* LISTING_DIRECTIVE  */
+    LISTING_STATEMENT = 275,       /* LISTING_STATEMENT  */
+    TITLE_STATEMENT = 276,         /* TITLE_STATEMENT  */
+    COBOL_WORDS_DIRECTIVE = 277,   /* COBOL_WORDS_DIRECTIVE  */
+    EQUATE = 278,                  /* EQUATE  */
+    UNDEFINE = 279,                /* UNDEFINE  */
+    SUBSTITUTE = 280,              /* SUBSTITUTE  */
+    RESERVE = 281,                 /* RESERVE  */
+    CONTROL_STATEMENT = 282,       /* CONTROL_STATEMENT  */
+    SOURCE = 283,                  /* SOURCE  */
+    NOSOURCE = 284,                /* NOSOURCE  */
+    LIST = 285,                    /* LIST  */
+    NOLIST = 286,                  /* NOLIST  */
+    MAP = 287,                     /* MAP  */
+    NOMAP = 288,                   /* NOMAP  */
+    LEAP_SECOND_DIRECTIVE = 289,   /* LEAP_SECOND_DIRECTIVE  */
+    CONTROL_DIVISION = 290,        /* "CONTROL DIVISION"  */
+    SUBSTITUTION_SECTION = 291,    /* "SUBSTITUTION SECTION"  */
+    SOURCE_DIRECTIVE = 292,        /* SOURCE_DIRECTIVE  */
+    FORMAT = 293,                  /* FORMAT  */
+    IS = 294,                      /* IS  */
+    CALL_DIRECTIVE = 295,          /* CALL_DIRECTIVE  */
+    COBOL = 296,                   /* COBOL  */
+    TOK_EXTERN = 297,              /* "EXTERN"  */
+    STDCALL = 298,                 /* STDCALL  */
+    STATIC = 299,                  /* STATIC  */
+    DEFINE_DIRECTIVE = 300,        /* DEFINE_DIRECTIVE  */
+    AS = 301,                      /* AS  */
+    PARAMETER = 302,               /* PARAMETER  */
+    OVERRIDE = 303,                /* OVERRIDE  */
+    REFMOD_DIRECTIVE = 304,        /* REFMOD_DIRECTIVE  */
+    SET_DIRECTIVE = 305,           /* SET_DIRECTIVE  */
+    ADDRSV = 306,                  /* ADDRSV  */
+    ADDSYN = 307,                  /* ADDSYN  */
+    AREACHECK = 308,               /* AREACHECK  */
+    NOAREACHECK = 309,             /* NOAREACHECK  */
+    ASSIGN = 310,                  /* ASSIGN  */
+    BOUND = 311,                   /* BOUND  */
+    CALLFH = 312,                  /* CALLFH  */
+    CHECKNUM = 313,                /* CHECKNUM  */
+    COMP1 = 314,                   /* COMP1  */
+    CONSTANT = 315,                /* CONSTANT  */
+    DPC_IN_DATA = 316,             /* "DPC-IN-DATA"  */
+    FOLDCOPYNAME = 317,            /* FOLDCOPYNAME  */
+    MAKESYN = 318,                 /* MAKESYN  */
+    NOBOUND = 319,                 /* NOBOUND  */
+    NOCHECKNUM = 320,              /* NOCHECKNUM  */
+    NODPC_IN_DATA = 321,           /* "NODPC-IN-DATA"  */
+    NOFOLDCOPYNAME = 322,          /* NOFOLDCOPYNAME  */
+    NOODOSLIDE = 323,              /* NOODOSLIDE  */
+    NOSPZERO = 324,                /* NOSPZERO  */
+    NOSSRANGE = 325,               /* NOSSRANGE  */
+    ODOSLIDE = 326,                /* ODOSLIDE  */
+    REMOVE = 327,                  /* REMOVE  */
+    SOURCEFORMAT = 328,            /* SOURCEFORMAT  */
+    SPZERO = 329,                  /* SPZERO  */
+    SSRANGE = 330,                 /* SSRANGE  */
+    IF_DIRECTIVE = 331,            /* IF_DIRECTIVE  */
+    ELSE_DIRECTIVE = 332,          /* ELSE_DIRECTIVE  */
+    ENDIF_DIRECTIVE = 333,         /* ENDIF_DIRECTIVE  */
+    ELIF_DIRECTIVE = 334,          /* ELIF_DIRECTIVE  */
+    GE = 335,                      /* ">="  */
+    LE = 336,                      /* "<="  */
+    LT = 337,                      /* "<"  */
+    GT = 338,                      /* ">"  */
+    EQ = 339,                      /* "="  */
+    NE = 340,                      /* "<>"  */
+    NOT = 341,                     /* NOT  */
+    THAN = 342,                    /* THAN  */
+    TO = 343,                      /* TO  */
+    OR = 344,                      /* OR  */
+    EQUAL = 345,                   /* EQUAL  */
+    GREATER = 346,                 /* GREATER  */
+    LESS = 347,                    /* LESS  */
+    SET = 348,                     /* SET  */
+    DEFINED = 349,                 /* DEFINED  */
+    TURN_DIRECTIVE = 350,          /* TURN_DIRECTIVE  */
+    ON = 351,                      /* ON  */
+    CHECKING = 352,                /* CHECKING  */
+    WITH = 353,                    /* WITH  */
+    LOCATION = 354,                /* LOCATION  */
+    TERMINATOR = 355,              /* "end of line"  */
+    TOKEN = 356,                   /* "Word or Literal"  */
+    TEXT_NAME = 357,               /* "Text-Name"  */
+    VARIABLE_NAME = 358,           /* "Variable"  */
+    LITERAL = 359                  /* "Literal"  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Tokens.  */
-#define TOKEN_EOF 0
-#define ALSO 258
-#define BY 259
-#define COPY 260
-#define EQEQ 261
-#define IN 262
-#define LAST 263
-#define LEADING 264
-#define OF 265
-#define OFF 266
-#define PRINTING 267
-#define REPLACE 268
-#define REPLACING 269
-#define SUPPRESS 270
-#define TRAILING 271
-#define DOT 272
-#define GARBAGE 273
-#define LISTING_DIRECTIVE 274
-#define LISTING_STATEMENT 275
-#define TITLE_STATEMENT 276
-#define CONTROL_STATEMENT 277
-#define SOURCE 278
-#define NOSOURCE 279
-#define LIST 280
-#define NOLIST 281
-#define MAP 282
-#define NOMAP 283
-#define LEAP_SECOND_DIRECTIVE 284
-#define SOURCE_DIRECTIVE 285
-#define FORMAT 286
-#define IS 287
-#define FIXED 288
-#define FREE 289
-#define VARIABLE 290
-#define CALL_DIRECTIVE 291
-#define COBOL 292
-#define TOK_EXTERN 293
-#define STDCALL 294
-#define STATIC 295
-#define DEFINE_DIRECTIVE 296
-#define AS 297
-#define PARAMETER 298
-#define OVERRIDE 299
-#define REFMOD_DIRECTIVE 300
-#define SET_DIRECTIVE 301
-#define ADDRSV 302
-#define ADDSYN 303
-#define ASSIGN 304
-#define BOUND 305
-#define CALLFH 306
-#define CHECKNUM 307
-#define COMP1 308
-#define CONSTANT 309
-#define DPC_IN_DATA 310
-#define FOLDCOPYNAME 311
-#define MAKESYN 312
-#define NOBOUND 313
-#define NOCHECKNUM 314
-#define NODPC_IN_DATA 315
-#define NOFOLDCOPYNAME 316
-#define NOSPZERO 317
-#define NOSSRANGE 318
-#define REMOVE 319
-#define SOURCEFORMAT 320
-#define SPZERO 321
-#define SSRANGE 322
-#define IF_DIRECTIVE 323
-#define ELSE_DIRECTIVE 324
-#define ENDIF_DIRECTIVE 325
-#define ELIF_DIRECTIVE 326
-#define GE 327
-#define LE 328
-#define LT 329
-#define GT 330
-#define EQ 331
-#define NE 332
-#define NOT 333
-#define THAN 334
-#define TO 335
-#define OR 336
-#define EQUAL 337
-#define GREATER 338
-#define LESS 339
-#define SET 340
-#define DEFINED 341
-#define TURN_DIRECTIVE 342
-#define ON 343
-#define CHECKING 344
-#define WITH 345
-#define LOCATION 346
-#define TERMINATOR 347
-#define TOKEN 348
-#define TEXT_NAME 349
-#define VARIABLE_NAME 350
-#define LITERAL 351
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
 union YYSTYPE
 {
-#line 558 "ppparse.y" /* yacc.c:1921  */
+#line 619 "ppparse.y"
 
 	char			*s;
 	struct cb_text_list	*l;
+	struct cb_replace_src	*p;
 	struct cb_replace_list	*r;
 	struct cb_define_struct	*ds;
 	unsigned int		ui;
 	int			si;
 
-#line 261 "ppparse.h" /* yacc.c:1921  */
-};
+#line 178 "ppparse.h"
 
+};
 typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

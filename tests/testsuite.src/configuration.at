@@ -1,4 +1,4 @@
-## Copyright (C) 2014-2020 Free Software Foundation, Inc.
+## Copyright (C) 2014-2023 Free Software Foundation, Inc.
 ## Written by Simon Sobisch
 ##
 ## This file is part of GnuCOBOL.
@@ -85,7 +85,10 @@ AT_CHECK([$COMPILE_ONLY -std=rm-strict prog.cob], [0], [],
 ])
 AT_CHECK([$COMPILE_ONLY -std=realia-strict prog.cob], [0], [], [])
 AT_CHECK([$COMPILE_ONLY -std=mvs-strict prog.cob], [0], [],
-[prog.cob:4: warning: AUTHOR is obsolete in MVS/VM COBOL
+[prog.cob:4: warning: AUTHOR is obsolete in IBM COBOL for MVS & VM
+])
+AT_CHECK([$COMPILE_ONLY -std=gcos-strict prog.cob], [0], [],
+[prog.cob:4: warning: AUTHOR is obsolete in GCOS
 ])
 AT_CHECK([$COMPILE_ONLY -std=acu prog.cob], [0], [], [])
 AT_CHECK([$COMPILE_ONLY -std=bs2000 prog.cob], [0], [], [])
@@ -94,6 +97,7 @@ AT_CHECK([$COMPILE_ONLY -std=mf prog.cob], [0], [], [])
 AT_CHECK([$COMPILE_ONLY -std=rm prog.cob], [0], [], [])
 AT_CHECK([$COMPILE_ONLY -std=realia prog.cob], [0], [], [])
 AT_CHECK([$COMPILE_ONLY -std=mvs prog.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -std=gcos prog.cob], [0], [], [])
 
 AT_CLEANUP
 
@@ -415,18 +419,22 @@ test.conf: missing definitions:
 	no definition of 'word-length'
 	no definition of 'literal-length'
 	no definition of 'numeric-literal-length'
+	no definition of 'defaultbyte'
 	no definition of 'standard-define'
+	no definition of 'format'
 	no definition of 'binary-size'
 	no definition of 'binary-byteorder'
 	no definition of 'assign-clause'
 	no definition of 'screen-section-rules'
 	no definition of 'dpc-in-data'
+	no definition of 'subscript-check'
 	no definition of 'filename-mapping'
 	no definition of 'pretty-display'
 	no definition of 'binary-truncate'
 	no definition of 'complex-odo'
+	no definition of 'odoslide'
+	no definition of 'init-justify'
 	no definition of 'indirect-redefines'
-	no definition of 'larger-redefines-ok'
 	no definition of 'relax-syntax-checks'
 	no definition of 'ref-mod-zero-length'
 	no definition of 'relax-level-hierarchy'
@@ -449,7 +457,12 @@ test.conf: missing definitions:
 	no definition of 'numeric-pointer'
 	no definition of 'move-non-numeric-lit-to-numeric-is-zero'
 	no definition of 'implicit-assign-dynamic-var'
+	no definition of 'device-mnemonics'
+	no definition of 'xml-parse-xmlss'
+	no definition of 'areacheck'
 	no definition of 'comment-paragraphs'
+	no definition of 'control-division'
+	no definition of 'partial-replace-when-literal-src'
 	no definition of 'memory-size-clause'
 	no definition of 'multiple-file-tape-clause'
 	no definition of 'label-records-clause'
@@ -460,10 +473,12 @@ test.conf: missing definitions:
 	no definition of 'type-to-clause'
 	no definition of 'usage-type'
 	no definition of 'synchronized-clause'
+	no definition of 'sync-left-right'
 	no definition of 'special-names-clause'
 	no definition of 'goto-statement-without-name'
 	no definition of 'stop-literal-statement'
 	no definition of 'stop-identifier-statement'
+	no definition of 'stop-error-statement'
 	no definition of 'debugging-mode'
 	no definition of 'use-for-debugging'
 	no definition of 'padding-character-clause'
@@ -486,10 +501,12 @@ test.conf: missing definitions:
 	no definition of 'national-character-literals'
 	no definition of 'hp-octal-literals'
 	no definition of 'acu-literals'
+	no definition of 'ebcdic-symbolic-characters'
 	no definition of 'word-continuation'
 	no definition of 'not-exception-before-exception'
 	no definition of 'accept-display-extensions'
 	no definition of 'renames-uncommon-levels'
+	no definition of 'larger-redefines'
 	no definition of 'symbolic-constant'
 	no definition of 'constant-78'
 	no definition of 'constant-01'
@@ -498,6 +515,7 @@ test.conf: missing definitions:
 	no definition of 'program-prototypes'
 	no definition of 'call-convention-mnemonic'
 	no definition of 'call-convention-linkage'
+	no definition of 'using-optional'
 	no definition of 'numeric-value-for-edited-item'
 	no definition of 'incorrect-conf-sec-order'
 	no definition of 'define-constant-directive'
@@ -507,6 +525,7 @@ test.conf: missing definitions:
 	no definition of 'sequential-delimiters'
 	no definition of 'record-delim-with-fixed-recs'
 	no definition of 'missing-statement'
+	no definition of 'missing-period'
 	no definition of 'zero-length-literals'
 	no definition of 'xml-generate-extra-phrases'
 	no definition of 'continue-after'
@@ -516,6 +535,9 @@ test.conf: missing definitions:
 	no definition of 'assign-ext-dyn'
 	no definition of 'assign-disk-from'
 	no definition of 'vsam-status'
+	no definition of 'self-call-recursive'
+	no definition of 'record-contains-depending-clause'
+	no definition of 'picture-l'
 ])
 
 AT_CLEANUP
@@ -629,11 +651,11 @@ AT_SETUP([runtime configuration: entries])
 AT_KEYWORDS([configuration misc])
 
 AT_CHECK([echo "$PATHSEP"], [0], [;
-], [],
+], [], [
 
 # Previous test "failed" --> PATHSEP isn't ;
 
-AT_DATA([defunc.cfg], [
+  AT_DATA([defunc.cfg], [
 novar
 physical_cancel notwithme
 load_case  insensitive
@@ -646,7 +668,7 @@ trace_file /tmp:/temp
 ])
 
 # conf entries must be clean
-AT_CHECK([$COBCRUN -c defunc.cfg --runtime-conf], [1], [],
+  AT_CHECK([$COBCRUN -c defunc.cfg --runtime-conf], [1], [],
 [configuration error:
 defunc.cfg:2: unknown configuration tag 'novar'
 defunc.cfg:3: invalid value 'notwithme' for configuration tag 'physical_cancel';
@@ -664,12 +686,12 @@ defunc.cfg:9: WARNING - 'sort_chunk' without a value - ignored!
 defunc.cfg:10: invalid value '/tmp:/temp' for configuration tag 'trace_file';
 	should not contain ':'
 ])
-
+]
 ,
-
+[
 # Previous test "passed" --> PATHSEP is ;
 
-AT_DATA([defunc.cfg], [
+  AT_DATA([defunc.cfg], [
 novar
 physical_cancel notwithme
 load_case  insensitive
@@ -682,7 +704,7 @@ trace_file C:\tmp;C:\temp
 ])
 
 # conf entries must be clean
-AT_CHECK([$COBCRUN -c defunc.cfg --runtime-conf], [1], [],
+  AT_CHECK([$COBCRUN -c defunc.cfg --runtime-conf], [1], [],
 [configuration error:
 defunc.cfg:2: unknown configuration tag 'novar'
 defunc.cfg:3: invalid value 'notwithme' for configuration tag 'physical_cancel';
@@ -700,7 +722,7 @@ defunc.cfg:9: WARNING - 'sort_chunk' without a value - ignored!
 defunc.cfg:10: invalid value 'C:\tmp;C:\temp' for configuration tag 'trace_file';
 	should not contain ';'
 ])
-
+]
 )
 
 AT_CLEANUP
@@ -777,11 +799,11 @@ AT_CHECK([echo "$PATHSEP"], [0], [;
 
 # Previous test "failed" --> PATHSEP isn't ;
 
-AT_CHECK([COB_CONFIG_DIR="/temp:/tmp" \
+AT_CHECK([COB_CONFIG_DIR=".:/temp:/tmp" \
 $COMPILE prog.cob], [1], [],
-[cobc: environment variable 'COB_CONFIG_DIR' is '/temp:/tmp'; should not contain ':'
+[cobc: environment variable 'COB_CONFIG_DIR' is '.:/temp:/tmp'; should not contain ':'
 configuration error:
-default.conf: No such file or directory
+./default.conf: No such file or directory
 cobc: error: please check environment variables as noted above
 ])
 
@@ -789,14 +811,202 @@ cobc: error: please check environment variables as noted above
 
 # Previous test "passed" --> PATHSEP is ;
 
-AT_CHECK([COB_CONFIG_DIR="C:\temp;C:\tmp" \
+AT_CHECK([COB_CONFIG_DIR=".;C:\temp;C:\tmp" \
 $COMPILE prog.cob], [1], [],
-[cobc: environment variable 'COB_CONFIG_DIR' is 'C:\temp;C:\tmp'; should not contain ';'
+[cobc: environment variable 'COB_CONFIG_DIR' is '.;C:\temp;C:\tmp'; should not contain ';'
 configuration error:
-default.conf: No such file or directory
+.\default.conf: No such file or directory
 cobc: error: please check environment variables as noted above
 ])
 
 )
+
+AT_CLEANUP
+
+
+AT_SETUP([cobc configuration: source format])
+AT_KEYWORDS([configuration misc format])
+
+AT_DATA([fixed.cob], [
+      *Example prog in fixed format (the default)
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      fixed.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+      /
+       PROCEDURE        DIVISION.
+      D    DISPLAY 'START'
+           DISPLAY '     20        30        40         50       60    '
+           DISPLAY '     20        30        40         50       60     
+      -            '    70'
+      D    DISPLAY 'STOP'
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE_ONLY -fformat=unknown fixed.cob], [1], [],
+[configuration error:
+-fformat=unknown: invalid value 'unknown' for configuration tag 'format';
+	should be one of the following values: FIXED, FREE, COBOL85, VARIABLE, XOPEN, XCARD, CRT, TERMINAL, COBOLX
+])
+AT_CHECK([$COMPILE_ONLY -fixed fixed.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -fformat=fixed fixed.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY -fformat=cobol85 fixed.cob], [0], [], [])
+
+AT_DATA([wide.cob], [
+      *Example prog in fixed format with wider record length
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      wide.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+      /
+       PROCEDURE        DIVISION.
+           DISPLAY '     20        30        40         50       60         70 '
+           DISPLAY '     20        30        40         50       60         70
+      -            '        80'
+           STOP RUN.
+])
+AT_CHECK([$COMPILE_ONLY -fformat=fixed wide.cob], [1], [],
+[wide.cob:10: error: continuation character expected
+wide.cob:9: error: invalid literal: '  ...'
+wide.cob:9: note: missing terminating ' character
+wide.cob:9: warning: optional period used
+])
+AT_CHECK([$COMPILE_ONLY -fformat=cobol85 wide.cob], [1], [],
+[wide.cob:10: error: continuation character expected
+wide.cob:9: error: invalid literal: '  ...'
+wide.cob:9: note: missing terminating ' character
+wide.cob:9: warning: optional period used
+])
+AT_CHECK([$COMPILE_ONLY -ftext-column=80 wide.cob], [0], [], [])
+
+AT_CLEANUP
+
+
+AT_SETUP([cobc configuration: ebcdic-table])
+AT_KEYWORDS([configuration misc ebcdic COLLATING SEQUENCE ALPHABET collation])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+           OBJECT-COMPUTER.
+             PROGRAM COLLATING SEQUENCE IS an-ebcdic.
+       SPECIAL-NAMES.
+           ALPHABET an-ebcdic IS EBCDIC.
+       PROCEDURE        DIVISION.
+           STOP RUN.
+])
+
+# Note: these tests need compile to C, as -febcdic-table handling is postponed to codegen
+
+AT_CHECK([$COMPILE -C -febcdic-table=default prog.cob], [0], [], [])
+AT_CHECK([$COMPILE -C -febcdic-table=alternate prog.cob], [0], [], [])
+AT_CHECK([$COMPILE -C -febcdic-table=ebcdic500_ascii7bit prog.cob], [0], [], [])
+AT_CHECK([$COMPILE -C -febcdic-table=ebcdic500_ascii8bit prog.cob], [0], [], [])
+AT_CHECK([$COMPILE -C -febcdic-table=ebcdic500_latin1 prog.cob], [0], [], [])
+AT_CHECK([$COMPILE -C -febcdic-table=unknown prog.cob], [1], [],
+[libcob: error: can't open translation table 'unknown'
+cobc: error: invalid parameter: -febcdic-table
+])
+
+AT_DATA([valid.ttbl], [
+000102039C09867F978D8E0B0C0D0E0F101112139D8508871819928F1C1D1E1F80818283840A171B
+88898A8B8C050607909116939495960498999A9B14159E1A20A0E2E4E0E1E3E5E7F15B2E3C282B21
+26E9EAEBE8EDEEEFECDF5D242A293B5E2D2FC2C4C0C1C3C5C7D1A62C255F3E3FF8C9CACBC8CDCECF
+CC603A2340273D22D8616263646566676869ABBBF0FDFEB1B06A6B6C6D6E6F707172AABAE6B8C6A4
+B57E737475767778797AA1BFD0DDDEAEA2A3A5B7A9A7B6BCBDBEAC7CAFA8B4D77B41424344454647
+4849ADF4F6F2F3F57D4A4B4C4D4E4F505152B9FBFCF9FAFF5CF7535455565758595AB2D4D6D2D3D5
+30313233343536373839B3DBDCD9DA9F
+])
+
+AT_DATA([valid2.ttbl], [
+# we may have any comments in here
+00 01 02 03 9C 09 86 7F 97 8D 8E 0B 0C 0D 0E 0F 10 11 12 13 9D 85 08 87 18 19 92
+8F 1C 1D 1E 1F 80 81 82 83 84 0A 17 1B 88 89 8A 8B 8C 05 06 07 90 91 16 93 94 95
+
+# even within 
+
+96 04 98 99 9A 9B 14 15 9E 1A 20 A0 E2 E4 E0 E1 E3 E5 E7 F1 5B 2E 3C 28 2B 21 26
+E9 EA EB E8 ED EE EF EC DF 5D 24 2A 29 3B 5E 2D 2F C2 C4 C0 C1 C3 C5 C7 D1 A6 2C
+25 5F 3E 3F F8 C9 CA CB C8 CD CE CF CC 60 3A 23 40 27 3D 22 D8 61 62 63 64 65 66
+67 68 69 AB BB F0 FD FE B1 B0 6A 6B 6C 6D 6E 6F 70 71 72 AA BA E6 B8 C6 A4 B5 7E
+73 74 75 76 77 78 79 7A A1 BF D0 DD DE AE A2 A3 A5 B7 A9 A7 B6 BC BD BE AC 7C AF
+A8 B4 D7 7B 41 42 43 44 45 46 47 48 49 AD F4 F6 F2 F3 F5 7D 4A 4B 4C 4D 4E 4F 50
+51 52 B9 FB FC F9 FA FF 5C F7 53 54 55 56 57 58 59 5A B2 D4 D6 D2 D3 D5 30 31 32
+33 34 35 36 37 38 39 B3 DB DC D9 DA 9F 
+])
+
+AT_CHECK([$COMPILE -C -febcdic-table=./valid.ttbl prog.cob], [0], [], [])
+AT_CHECK([$COMPILE -C -febcdic-table=./valid2.ttbl prog.cob], [0], [], [])
+
+AT_DATA([invalid.ttbl], [
+000102039C09867F978D8E0B0C0D0E0F101112139D8508871819928F1C1D1E1F80818283840A171B
+88898A8B8C050607909116939495960498999A9B14159E1A20A0E2E4E0E1E3E5E7F15B2E3C282B21
+26E9EAEBE8EDEEEFECDF5D242A293B5E2D2FC2C4C0C1C3C5C7D1A62X255F3E3FF8C9CACBC8CDCECF
+CC60YA2340273D22D8616263646566676869ABBBF0FDFEB1B06A6B6C6D6E6F707172AABAE6B8C6A4
+B57E737475767778797AA1BFD0DDDEAEA2A3A5B7A9A7B6BCBDBEAC7CAFA8B4D77B41424344454647
+4849ADF4F6F2F3F57D4A4B4C4D4E4F505152B9FBFCF9FAFF5CF7535455565758595AB2D4D6D2D3D5
+30313233343536373839B3DBDCD9DA9F
+])
+
+AT_CHECK([$COMPILE -C -febcdic-table=./invalid.ttbl prog.cob], [1], [],
+[libcob: error: errors in translation table './invalid.ttbl':
+libcob: error: invalid hex byte on line 4: '2X'
+libcob: error: invalid hex byte on line 5: 'YA'
+cobc: error: invalid parameter: -febcdic-table
+])
+
+AT_DATA([shorter.ttbl], [
+0102039C09867F978D8E0B0C0D0E0F101112139D8508871819928F1C1D1E1F80818283840A171B88
+898A8B8C050607909116939495960498999A9B14159E1A20A0E2E4E0E1E3E5E7F15B2E3C282B2126
+E9EAEBE8EDEEEFECDF5D242A293B5E2D2FC2C4C0C1C3C5C7D1A62C255F3E3FF8C9CACBC8CDCECFCC
+603A2340273D22D8616263646566676869ABBBF0FDFEB1B06A6B6C6D6E6F707172AABAE6B8C6A4B5
+7E737475767778797AA1BFD0DDDEAEA2A3A5B7A9A7B6BCBDBEAC7CAFA8B4D77B4142434445464748
+49ADF4F6F2F3F57D4A4B4C4D4E4F505152B9FBFCF9FAFF5CF7535455565758595AB2D4D6D2D3D530
+313233343536373839B3DBDCD9DA9F
+])
+
+AT_CHECK([$COMPILE -C -febcdic-table=./shorter.ttbl prog.cob], [1], [],
+[libcob: error: not enough data in translation table './shorter.ttbl'
+cobc: error: invalid parameter: -febcdic-table
+])
+
+AT_DATA([shorter_longer.ttbl], [
+000102039C09867F978D8E0B0C0D0E0F101112139D8508871819928F1C1D1E1F80818283840A171B
+88898A8B8C050607909116939495960498999A9B14159E1A20A0E2E4E0E1E3E5E7F15B2E3C282B21
+26E9EAEBE8EDEEEFECDF5D242A293B5E2D2FC2C4C0C1C3C5C7D1A62C255F3E3FF8C9CACBC8CDCECF
+CC603A2340273D22D8616263646566676869ABBBF0FDFEB1B06A6B6C6D6E6F707172AABAE6B8C6A4
+B57E737475767778797AA1BFD0DDDEAEA2A3A5B7A9A7B6BCBDBEAC7CAFA8B4D77B41424344454647
+4849ADF4F6F2F3F57D4A4B4C4D4E4F505152B9FBFCF9FAFF5CF7535455565758595AB2D4D6D2D3D5
+30313233343536373839B3DBDCD9DA9FFF
+])
+
+AT_CHECK([$COMPILE -C -febcdic-table=./shorter_longer.ttbl prog.cob], [1], [],
+[libcob: error: either not enough or too much data in translation table './shorter_longer.ttbl'
+cobc: error: invalid parameter: -febcdic-table
+])
+
+AT_DATA([longer.ttbl], [
+000102039C09867F978D8E0B0C0D0E0F101112139D8508871819928F1C1D1E1F80818283840A171B
+88898A8B8C050607909116939495960498999A9B14159E1A20A0E2E4E0E1E3E5E7F15B2E3C282B21
+26E9EAEBE8EDEEEFECDF5D242A293B5E2D2FC2C4C0C1C3C5C7D1A62C255F3E3FF8C9CACBC8CDCECF
+CC603A2340273D22D8616263646566676869ABBBF0FDFEB1B06A6B6C6D6E6F707172AABAE6B8C6A4
+B57E737475767778797AA1BFD0DDDEAEA2A3A5B7A9A7B6BCBDBEAC7CAFA8B4D77B41424344454647
+4849ADF4F6F2F3F57D4A4B4C4D4E4F505152B9FBFCF9FAFF5CF7535455565758595AB2D4D6D2D3D5
+30313233343536373839B3DBDCD9DA9F
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+])
+
+AT_CHECK([$COMPILE -C -febcdic-table=./longer.ttbl prog.cob], [1], [],
+[libcob: error: too much data in translation table './longer.ttbl'
+cobc: error: invalid parameter: -febcdic-table
+])
 
 AT_CLEANUP

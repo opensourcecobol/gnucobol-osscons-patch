@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2004-2012, 2014-2020 Free Software Foundation, Inc.
+   Copyright (C) 2004-2012, 2014-2023 Free Software Foundation, Inc.
    Written by Roger While, Simon Sobisch, Brian Tiffin
 
    This file is part of GnuCOBOL.
@@ -18,13 +18,13 @@
    along with GnuCOBOL.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <config.h>
+#include "tarstamp.h"
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
-#include <errno.h>
 
 #ifdef	HAVE_LOCALE_H
 #include <locale.h>
@@ -32,15 +32,9 @@
 #ifdef	HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#ifdef	_WIN32
-#include <io.h>
-#include <fcntl.h>
-#endif
 
-#include "libcob.h"
-#include "tarstamp.h"
-
-#include "libcob/cobgetopt.h"
+#include "../libcob/common.h"
+#include "../libcob/cobgetopt.h"
 
 static int arg_shift = 1;
 static int print_runtime_wanted = 0;
@@ -58,6 +52,7 @@ static const struct option long_options[] = {
 	{"verbose",		CB_NO_ARG, NULL, 'v'},
 	{"brief",		CB_NO_ARG, NULL, 'q'},
 	{"info",		CB_NO_ARG, NULL, 'i'},
+	{"dumpversion",		CB_NO_ARG, NULL, '~'},	/* format: GCC dumpfullversion */
 	{"runtime-config",		CB_NO_ARG, NULL, 'r'},
 	{"config",		CB_RQ_ARG, NULL, 'C'},
 	{"module",		CB_RQ_ARG, NULL, 'm'},
@@ -100,13 +95,14 @@ cobcrun_print_version (void)
 			  "%s %2.2d %4.4d %s", month, day, year, __TIME__);
 	}
 
-	printf ("cobcrun (%s) %s.%d\n",
-		PACKAGE_NAME, PACKAGE_VERSION, PATCH_LEVEL);
-	puts ("Copyright (C) 2020 Free Software Foundation, Inc.");
-	puts (_("License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>"));
+	printf ("cobcrun (%s) %s.%d\n", PACKAGE_NAME, PACKAGE_VERSION, PATCH_LEVEL);
+	puts ("Copyright (C) 2023 Free Software Foundation, Inc.");
+	printf (_("License GPLv3+: GNU GPL version 3 or later <%s>"), "https://gnu.org/licenses/gpl.html");
+	putchar ('\n');
 	puts (_("This is free software; see the source for copying conditions.  There is NO\n"
 	        "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."));
-	printf (_("Written by %s\n"), "Roger While, Simon Sobisch, Brian Tiffin");
+	printf (_("Written by %s"), "Roger While, Simon Sobisch, Brian Tiffin");
+	putchar ('\n');
 	printf (_("Built     %s"), cob_build_stamp);
 	putchar ('\n');
 	printf (_("Packaged  %s"), COB_TAR_DATE);
@@ -127,27 +123,30 @@ cobcrun_print_usage (char * prog)
 	putchar ('\n');
 	putchar ('\n');
 	puts (_("Options:"));
-	puts (_("  -h, -help                      display this help and exit"));
-	puts (_("  -V, -version                   display cobcrun and runtime version and exit"));
-	puts (_("  -i, -info                      display runtime information (build/environment)"));
-	puts (_("  -v, -verbose                   display extended output with --info"));
+	puts (_("  -h, --help                      display this help and exit"));
+	puts (_("  -V, --version                   display version information for cobcrun + runtime and exit"));
+	puts (_("  -dumpversion                    display runtime version and exit"));
+	puts (_("  -i, --info                      display runtime information (build/environment)"));
+	puts (_("  -v, --verbose                   display extended output with --info"));
 #if 0 /* Simon: currently only removing the path from cobcrun in output --> don't show */
-	puts (_("  -q, -brief                     reduced displays"));
+	puts (_("  -q, --brief                     reduced displays"));
 #endif
-	puts (_("  -c <file>, -config=<file>      set runtime configuration from <file>"));
-	puts (_("  -r, -runtime-config            display current runtime configuration\n"
-	        "                                 (value and origin for all settings)"));
-	puts (_("  -M <module>, -module=<module>  set entry point module name and/or load path\n"
-			"                                 where -M module prepends any directory to the\n"
-			"                                 dynamic link loader library search path\n"
-			"                                 and any basename to the module preload list\n"
-			"                                 (COB_LIBRARY_PATH and/or COB_PRELOAD)"));
+	puts (_("  -c <file>, --config=<file>      set runtime configuration from <file>"));
+	puts (_("  -r, --runtime-config            display current runtime configuration\n"
+	        "                                  (value and origin for all settings)"));
+	puts (_("  -M <module>, --module=<module>  set entry point module name and/or load path\n"
+			"                                  where -M module prepends any directory to the\n"
+			"                                  dynamic link loader library search path\n"
+			"                                  and any basename to the module preload list\n"
+			"                                  (COB_LIBRARY_PATH and/or COB_PRELOAD)"));
 	putchar ('\n');
 	printf (_("Report bugs to: %s\n" 
 			  "or (preferably) use the issue tracker via the home page."), "bug-gnucobol@gnu.org");
 	putchar ('\n');
-	puts (_("GnuCOBOL home page: <https://www.gnu.org/software/gnucobol/>"));
-	puts (_("General help using GNU software: <https://www.gnu.org/gethelp/>"));
+	printf (_("GnuCOBOL home page: <%s>"), "https://www.gnu.org/software/gnucobol/");
+	putchar ('\n');
+	printf (_("General help using GNU software: <%s>"), "https://www.gnu.org/gethelp/");
+	putchar ('\n');
 }
 
 /**
@@ -192,22 +191,28 @@ cobcrun_initial_module (char *module_argument)
 {
 	char	*pathname, *filename;
 	char	env_space[COB_MEDIUM_BUFF], *envptr;
+
 	/* FIXME: split in two functions (one setting module, one setting path)
 	          after allowing module with path in COB_PRE_LOAD */
 
-	/* LCOV_EXCL_START */
-	if (!module_argument) {
-		/* never reached (getopt ensures that we have an argument),
-		   just in to keep the analyzer happy */
-		return "missing argument";
+	/* note: getopt ensures that we have an argument, but it may be empty */
+	if (module_argument[0] == 0) {
+		return "";	/* used as "no further information" */
 	}
-	/* LCOV_EXCL_STOP */
+
+#if 0	/* CHECKME: Do we want that validation here or handle it? */
+	if (strchr (module_argument, PATHSEP_CHAR)) {
+		static char [COB_MINI_BUFF] buff;
+		snprintf (buff, COB_MINI_MAX, _("should not contain '%c'"), PATHSEP_CHAR);
+		return buff;
+	}
+#endif
 
 	/* See if we have a /dir/path/module, or a /dir/path/ or a module (no slash) */
 	cobcrun_split_path_file (&pathname, &filename, module_argument);
 	if (*pathname) {
-		/* TODO: check content, see libcob/common.h */
-		envptr = getenv ("COB_LIBRARY_PATH");
+		/* TODO: check content, see libcob/common.c/h to raise error message */
+		envptr = cob_getenv_direct ("COB_LIBRARY_PATH");
 		if (envptr
 		 && strlen (envptr) + strlen (pathname) + 1 < COB_MEDIUM_MAX) {
 			memset (env_space, 0, COB_MEDIUM_BUFF);
@@ -222,10 +227,10 @@ cobcrun_initial_module (char *module_argument)
 	cob_free((void *)pathname);
 
 	if (*filename) {
-		/* TODO: check content, see libcob/common.h */
-		envptr = getenv ("COB_PRE_LOAD");
+		/* TODO: check content, see libcob/common.c/h to raise error message */
+		envptr = cob_getenv_direct ("COB_PRE_LOAD");
 		if (envptr
-			&& strlen (envptr) + strlen (filename) + 1 < COB_MEDIUM_MAX) {
+		 && strlen (envptr) + strlen (filename) + 1 < COB_MEDIUM_MAX) {
 			memset (env_space, 0, COB_MEDIUM_BUFF);
 			snprintf (env_space, COB_MEDIUM_MAX, "%s%c%s", filename,
 				PATHSEP_CHAR, envptr);
@@ -249,7 +254,7 @@ process_command_line (int argc, char *argv[])
 	const char		*err_msg;
 	
 #if defined (_WIN32) || defined (__DJGPP__)
-	if (!getenv ("POSIXLY_CORRECT")) {
+	if (!cob_getenv_direct ("POSIXLY_CORRECT")) {
 		/* Translate command line arguments from DOS/WIN to UNIX style */
 		int argnum = 0;
 		while (++argnum < argc) {
@@ -276,7 +281,8 @@ process_command_line (int argc, char *argv[])
 		case 'C':
 			/* -c <file>, --config=<file> */
 			/* LCOV_EXCL_START */
-			if (strlen (cob_optarg) > COB_SMALL_MAX) {
+			if (cob_optarg[0] == 0
+			 || strlen (cob_optarg) > COB_SMALL_MAX) {
 				fputs (_("invalid configuration file name"), stderr);
 				putc ('\n', stderr);
 				fflush (stderr);
@@ -333,6 +339,11 @@ process_command_line (int argc, char *argv[])
 			}
 			exit (EXIT_SUCCESS);
 
+		case '~':
+			/* -dumpversion */
+			puts (libcob_version());
+			exit (EXIT_SUCCESS);
+
 		case 'M':
 		case 'm':
 			/* -M <module>, --module=<module> */
@@ -340,8 +351,11 @@ process_command_line (int argc, char *argv[])
 			err_msg = cobcrun_initial_module (cob_optarg);
 			if (err_msg != NULL) {
 				fprintf (stderr, _("invalid module argument '%s'"), cob_optarg);
-				putc ('\n', stderr);
-				fputs (err_msg, stderr);
+				if (err_msg[0]) {
+					fprintf (stderr, "; %s\n", err_msg);
+				} else {
+					fputc ('\n', stderr);
+				}
 				fflush (stderr);
 				exit (EXIT_FAILURE);
 			}
@@ -399,24 +413,23 @@ main (int argc, char **argv)
 		return 1;
 	}
 
-	if (strlen (argv[arg_shift]) > COB_MAX_NAMELEN) {
-		/* note: we allow up to COB_MAX_WORDLEN for relaxed syntax... */
-		fprintf (stderr, _("%s: PROGRAM name exceeds %d characters"), argv[0], COB_MAX_NAMELEN);
-		putc ('\n', stderr);
-		fflush (stderr);
-		return 1;
-	}
-
-	/* Initialize the COBOL system, resolve the PROGRAM name */
-	/*   and invoke, wrapped in a STOP RUN, if found */
-	/*   note: we use cob_init_nomain here as there are no functions */
-	/*         linked here we want to provide for the COBOL environment */
+	/* Initialize the COBOL system, ... */
+	/* Note: we use cob_init_nomain here as there are no functions
+	         linked here we want to provide for the COBOL environment */
 	cob_init_nomain (argc - arg_shift, &argv[arg_shift]);
 	if (print_runtime_wanted) {
 		print_runtime_conf ();
 		putc ('\n', stdout);
 	}
-	/* Note: cob_resolve_cobol takes care for call errors, no need to check here */
+	/* ... verify and resolve the PROGRAM name, ... */
+	/* Note: cob_resolve_cobol takes care for call errors,
+	   because of the last parameter; no need to check here afterwards;
+	   another program may use "0" and check for function pointer != NULL */
 	unifunc.funcvoid = cob_resolve_cobol (argv[arg_shift], 0, 1);
+	
+	/* ... then invoke, wrapped in a STOP RUN */
+	/* Note:  we requested a program exit if resolving had issues,
+	          so are only still running if we have a a valid, _likely_ COBOL
+	          function to execute */
 	cob_stop_run (unifunc.funcint());
 }

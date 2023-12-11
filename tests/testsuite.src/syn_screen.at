@@ -1,4 +1,4 @@
-## Copyright (C) 2014-2020 Free Software Foundation, Inc.
+## Copyright (C) 2014-2023 Free Software Foundation, Inc.
 ## Written by Simon Sobisch, Edward Hart, Ron Norman
 ##
 ## This file is part of GnuCOBOL.
@@ -137,11 +137,21 @@ AT_DATA([prog.cob], [
        01  curs-4      PIC 9(8) VALUE 0101.
        01  curs-5      PIC X(4).
 
+       01  SCREEN-POS.
+           03  SPOS            PIC  9(04) VALUE ZERO.
+           03  WS2-CURS REDEFINES SPOS.
+               05  SLIN        PIC  9(02).
+               05  SCOL        PIC  9(02).
+
        PROCEDURE       DIVISION.
            *> Valid AT clauses
            DISPLAY "a" AT curs-1
            DISPLAY "a" AT curs-2
            DISPLAY "a" AT posc
+           DISPLAY "a" AT posc
+           DISPLAY "a" AT SPOS
+           DISPLAY "a" AT WS2-CURS
+           DISPLAY "a" AT SCREEN-POS
 
            *> Invalid AT clauses
            DISPLAY "a" AT curs-3
@@ -153,11 +163,11 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:24: error: value in AT clause must have 4 or 6 digits
-prog.cob:25: error: value in AT clause must have 4 or 6 digits
-prog.cob:26: error: value in AT clause is not numeric
-prog.cob:27: error: value in AT clause must have 4 or 6 digits
-prog.cob:29: error: cannot specify figurative constant ZERO in AT clause
+[prog.cob:34: error: value in AT clause must have 4 or 6 digits
+prog.cob:35: error: value in AT clause must have 4 or 6 digits
+prog.cob:36: error: value in AT clause is not numeric
+prog.cob:37: error: value in AT clause must have 4 or 6 digits
+prog.cob:39: error: cannot specify figurative constant ZERO in AT clause
 ])
 AT_CLEANUP
 
@@ -224,12 +234,15 @@ AT_DATA([prog.cob], [
           05 SI2-2 LINE 2 COL 5 PIC X(03) FROM ALL SPACES.
           05 SI3   LINE 3 COL 1 PIC 9 FROM ZERO.
           05 SI3-2 LINE 3 COL 5 PIC X(03) FROM ALL ZEROES.
+          05 SI4   LINE 4 COL 1 FROM X.  *> PIC is implied by FROM
        PROCEDURE        DIVISION.
            DISPLAY SG END-DISPLAY.
            STOP RUN.
 ])
 
-AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
+AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
+[prog.cob:14: warning: 'SI4' has FROM, TO or USING without PIC; PIC will be implied
+])
 
 AT_CLEANUP
 
@@ -249,7 +262,8 @@ AT_DATA([prog.cob], [
            05 SI2    LINE 2 COL 1 PIC X FROM SPACE.
            05 SI2-2  LINE 2 COL 5 PIC X(03) FROM ALL SPACES.
            05 BAD1   LINE 4 COL 1 PIC 9 BINARY FROM ZERO.
-           05 FILLER LINE 4 COL 10 PIC 9 COMP-5 FROM ZERO.
+           05 BAD2   LINE 4 COL 1 PIC 9 USAGE BINARY FROM ZERO.
+           05 FILLER LINE 4 COL 8 PIC 9 COMP-5 FROM ZERO.
            05 BAD3   LINE 4 COL 5 COMP-2 FROM ALL ZEROES.
        PROCEDURE        DIVISION.
            DISPLAY SG END-DISPLAY.
@@ -257,9 +271,10 @@ AT_DATA([prog.cob], [
 ])
 
 AT_CHECK([$COMPILE prog.cob], [1], [],
-[prog.cob:12: error: SCREEN SECTION item 'BAD1' should be USAGE DISPLAY
-prog.cob:13: error: SCREEN SECTION item 'FILLER' should be USAGE DISPLAY
-prog.cob:14: error: SCREEN SECTION item 'BAD3' should be USAGE DISPLAY
+[prog.cob:12: error: syntax error, unexpected BINARY
+prog.cob:13: error: syntax error, unexpected BINARY, expecting DISPLAY or DISPLAY-1 or NATIONAL or UTF-8
+prog.cob:14: error: syntax error, unexpected COMP-5
+prog.cob:15: error: syntax error, unexpected COMP-2
 ])
 
 AT_CLEANUP
@@ -296,9 +311,10 @@ prog.cob:15: error: unsigned integer value expected
 AT_CLEANUP
 
 
-# ToDo: Add all clauses, maybe split into multiple tests
+# ToDo: add all clauses, maybe split into multiple tests
 AT_SETUP([Screen clauses])
-AT_KEYWORDS([screen])
+AT_KEYWORDS([FULL REQUIRED LEFTLINE RIGHTLINE
+OVERLINE UNDERLINE GRID])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
@@ -308,16 +324,15 @@ AT_DATA([prog.cob], [
        01  foo          PIC X.
        SCREEN           SECTION.
        01  scr.
-           03  a        PIC X TO foo FULL, LEFTLINE, OVERLINE, REQUIRED,
+           03  a        PIC X TO foo FULL, REQUIRED,
+                        LEFTLINE, RIGHTLINE, OVERLINE, UNDERLINE,
                         GRID.
        PROCEDURE        DIVISION.
            STOP RUN.
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
-[prog.cob:9: warning: LEFTLINE is not implemented
-prog.cob:9: warning: OVERLINE is not implemented
-prog.cob:10: warning: GRID is not implemented
+[prog.cob:11: warning: GRID is not implemented
 ])
 
 AT_CLEANUP
@@ -429,16 +444,26 @@ prog.cob:24: error: cannot specify both HIGHLIGHT and LOWLIGHT
 ])
 
 AT_CHECK([$COMPILE_ONLY -frelax-syntax-checks prog.cob], [1], [],
-[prog.cob:11: warning: cannot specify both LOWLIGHT and HIGHLIGHT; LOWLIGHT is ignored
-prog.cob:12: warning: cannot specify both ERASE EOS and ERASE EOL; ERASE EOS is ignored
-prog.cob:13: warning: cannot specify both BLANK SCREEN and BLANK LINE; BLANK SCREEN is ignored
-prog.cob:16: warning: cannot specify both LOWLIGHT and HIGHLIGHT; LOWLIGHT is ignored
-prog.cob:17: warning: cannot specify both ERASE EOS and ERASE EOL; ERASE EOS is ignored
-prog.cob:18: warning: cannot specify both BLANK SCREEN and BLANK LINE; BLANK SCREEN is ignored
-prog.cob:21: warning: cannot specify both SCROLL DOWN and SCROLL UP; SCROLL DOWN is ignored
-prog.cob:21: warning: cannot specify both TAB and AUTO; TAB is ignored
-prog.cob:22: warning: cannot specify both SCROLL DOWN and SCROLL UP; SCROLL DOWN is ignored
-prog.cob:22: warning: cannot specify both NO UPDATE and UPDATE; NO UPDATE is ignored
+[prog.cob:11: warning: cannot specify both LOWLIGHT and HIGHLIGHT
+prog.cob:11: note: LOWLIGHT is ignored
+prog.cob:12: warning: cannot specify both ERASE EOS and ERASE EOL
+prog.cob:12: note: ERASE EOS is ignored
+prog.cob:13: warning: cannot specify both BLANK SCREEN and BLANK LINE
+prog.cob:13: note: BLANK SCREEN is ignored
+prog.cob:16: warning: cannot specify both LOWLIGHT and HIGHLIGHT
+prog.cob:16: note: LOWLIGHT is ignored
+prog.cob:17: warning: cannot specify both ERASE EOS and ERASE EOL
+prog.cob:17: note: ERASE EOS is ignored
+prog.cob:18: warning: cannot specify both BLANK SCREEN and BLANK LINE
+prog.cob:18: note: BLANK SCREEN is ignored
+prog.cob:21: warning: cannot specify both SCROLL DOWN and SCROLL UP
+prog.cob:21: note: SCROLL DOWN is ignored
+prog.cob:21: warning: cannot specify both TAB and AUTO
+prog.cob:21: note: TAB is ignored
+prog.cob:22: warning: cannot specify both SCROLL DOWN and SCROLL UP
+prog.cob:22: note: SCROLL DOWN is ignored
+prog.cob:22: warning: cannot specify both NO UPDATE and UPDATE
+prog.cob:22: note: NO UPDATE is ignored
 prog.cob:24: error: cannot specify both HIGHLIGHT and LOWLIGHT
 ])
 
@@ -555,9 +580,11 @@ AT_DATA([prog.cob], [
            STOP RUN.
 ])
 
-AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
-[prog.cob:9: error: syntax error, unexpected Literal
+# Note: currently depends on -std, may also depend on -frelax-syntax-checks
+AT_CHECK([$COMPILE_ONLY -std=cobol2002 prog.cob], [1], [],
+[prog.cob:9: error: missing VALUE
 ])
+AT_CHECK([$COMPILE_ONLY prog.cob], [0], [], [])
 
 AT_CLEANUP
 
@@ -632,14 +659,14 @@ AT_CHECK([$COMPILE_ONLY -fscreen-section-rules=std prog.cob], [1], [],
 prog.cob:13: error: 'no-required-clauses' needs a PIC, FROM, TO, USING, VALUE, BELL, BLANK or ERASE clause
 prog.cob:14: error: 'only-line' needs a PIC, FROM, TO, USING, VALUE, BELL, BLANK or ERASE clause
 prog.cob:16: error: 'only-pic' cannot have PIC without FROM, TO, USING or numeric VALUE
-prog.cob:17: warning: 'from-to-using-without-pic' has FROM, TO or USING without PIC; PIC will be implied
+prog.cob:17: error: cannot have FROM, TO or USING without PIC
 prog.cob:18: error: 'auto-without-from-to-using' cannot have PIC without FROM, TO, USING or numeric VALUE
 prog.cob:20: error: cannot specify both FULL and JUSTIFIED
-prog.cob:23: warning: 'blank-when-zero-without-pic' has FROM, TO or USING without PIC; PIC will be implied
-prog.cob:24: warning: 'justified-without-pic' has FROM, TO or USING without PIC; PIC will be implied
+prog.cob:23: error: cannot have FROM, TO or USING without PIC
+prog.cob:24: error: cannot have FROM, TO or USING without PIC
 prog.cob:25: error: 'sign-no-clauses' cannot have PIC without FROM, TO, USING or numeric VALUE
 prog.cob:26: error: VALUE may not contain a figurative constant
-prog.cob:30: warning: 'numeric-value-no-pic' has numeric VALUE without PIC; PIC will be implied
+prog.cob:30: error: cannot have numeric VALUE without PIC
 ])
 
 AT_CHECK([$COMPILE_ONLY -fscreen-section-rules=acu prog.cob], [1], [],
@@ -785,7 +812,7 @@ prog.cob:10: error: syntax error, unexpected COL
 prog.cob:11: error: syntax error, unexpected COL, expecting Literal or [)] or Identifier
 prog.cob:12: error: syntax error, unexpected COL, expecting Literal or [)] or Identifier
 prog.cob:19: error: syntax error, unexpected COL
-prog.cob:20: error: syntax error, unexpected COL, expecting Literal or Identifier or ZERO
+prog.cob:20: error: syntax error, unexpected COL
 ])
 AT_CHECK([$COMPILE_ONLY -fregister=LIN,COL prog.cob], [0], [], [])
 
@@ -795,19 +822,24 @@ AT_CLEANUP
 AT_SETUP([Screen with invalid FROM clause])
 AT_KEYWORDS([screen constant])
 
+# FIXME: some warnings are useless / confusing with follow-up errors
+#        this has to be adjusted in cobc/field.c
+
 AT_DATA([prog.cob], [
        IDENTIFICATION DIVISION.
        PROGRAM-ID. prog.
-       
+
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  some-const CONSTANT AS '123'.
-
+       77  x          PIC XX.
        SCREEN SECTION.
        01  bild.
            05 from-constant-with-size   FROM some-const.
            05 from-constant-without-pic FROM ZERO.
            05 LINE 24 COL 1 FROM message.
+           05 from-func-without-pic     FROM FUNCTION TRIM(x).
+           05 from-func-with-pic        FROM FUNCTION TRIM(x) PIC XX.
 ])
 
 AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
@@ -815,13 +847,38 @@ AT_CHECK([$COMPILE_ONLY prog.cob], [1], [],
 prog.cob:11: warning: 'from-constant-with-size' has FROM, TO or USING without PIC; PIC will be implied
 prog.cob:12: warning: 'from-constant-without-pic' has FROM, TO or USING without PIC; PIC will be implied
 prog.cob:12: error: PICTURE clause required for 'from-constant-without-pic'
+prog.cob:14: warning: 'from-func-without-pic' has FROM, TO or USING without PIC; PIC will be implied
+prog.cob:14: error: PICTURE clause required for 'from-func-without-pic'
 ])
 AT_CHECK([$COMPILE_ONLY -fnot-reserved=MESSAGE prog.cob], [1], [],
-[prog.cob:13: error: 'message' is not defined, but is a reserved word in another dialect                                            
+[prog.cob:13: error: 'message' is not defined, but is a reserved word in another dialect
 prog.cob:11: warning: 'from-constant-with-size' has FROM, TO or USING without PIC; PIC will be implied
 prog.cob:12: warning: 'from-constant-without-pic' has FROM, TO or USING without PIC; PIC will be implied
 prog.cob:12: error: PICTURE clause required for 'from-constant-without-pic'
-prog.cob:13: warning: 'FILLER' has FROM, TO or USING without PIC; PIC will be implied                                              
+prog.cob:13: warning: 'FILLER' has FROM, TO or USING without PIC; PIC will be implied
+prog.cob:13: error: PICTURE clause required for 'FILLER'
+prog.cob:14: warning: 'from-func-without-pic' has FROM, TO or USING without PIC; PIC will be implied
+prog.cob:14: error: PICTURE clause required for 'from-func-without-pic'
+])
+
+AT_CLEANUP
+
+
+AT_SETUP([DISPLAY WITH CONVERSION])
+AT_KEYWORDS([DISPLAY])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       PROCEDURE        DIVISION.
+           DISPLAY WITH CONVERSION "Whatever".
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE_ONLY prog.cob], [0], [],
+[prog.cob:7: warning: DISPLAY WITH CONVERSION is not implemented
 ])
 
 AT_CLEANUP

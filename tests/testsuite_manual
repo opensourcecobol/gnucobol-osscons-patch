@@ -1,7 +1,7 @@
 #! /bin/sh
 # Generated from testsuite_manual.at by GNU Autoconf 2.69.
 #
-# Test cases Copyright (C) 2018 Free Software Foundation, Inc.
+# Test cases Copyright (C) 2022 Free Software Foundation, Inc.
 #
 # Written by Edward Hart, Simon Sobisch
 #
@@ -610,39 +610,53 @@ at_help_all="1;run_manual_screen.at:24;LINE;screen;
 13;run_manual_screen.at:580;DISPLAY ALL X'07';bell beep extensions;
 14;run_manual_screen.at:637;Screen position after field display;line column;
 15;run_manual_screen.at:677;Overridden clauses (1);line column col;
-16;run_manual_screen.at:725;Overridden clauses (2);highlight lowlight;
+16;run_manual_screen.at:725;Overridden clauses (2);highlight lowlight background color colour;
 17;run_manual_screen.at:766;AUTO;position;
-18;run_manual_screen.at:818;BACKGROUND- / FOREGROUND-COLOUR;background-color background-colour foreground-color;
-19;run_manual_screen.at:889;BEEP;bell flash;
-20;run_manual_screen.at:946;BLANK LINE;screen;
-21;run_manual_screen.at:1004;BLANK SCREEN;screen;
-22;run_manual_screen.at:1061;BLANK ignored in ACCEPT;screen;
-23;run_manual_screen.at:1103;BLINK;screen;
-24;run_manual_screen.at:1142;ERASE EOS;screen;
-25;run_manual_screen.at:1200;ERASE EOL;screen;
-26;run_manual_screen.at:1258;ERASE ignored in ACCEPT;eos;
-27;run_manual_screen.at:1313;FULL and REQUIRED;screen;
-28;run_manual_screen.at:1354;HIGHLIGHT;screen;
-29;run_manual_screen.at:1394;INITIAL;screen;
-30;run_manual_screen.at:1441;LEFTLINE;grid;
-31;run_manual_screen.at:1484;LOWLIGHT;screen;
-32;run_manual_screen.at:1523;OVERLINE;screen;
-33;run_manual_screen.at:1565;REVERSE-VIDEO;screen;
-34;run_manual_screen.at:1606;SECURE;password;
-35;run_manual_screen.at:1648;SIZE with items;protected extensions;
-36;run_manual_screen.at:1692;SIZE with figurative constants;protected extensions;
-37;run_manual_screen.at:1733;UPDATE;extensions;
-38;run_manual_screen.at:1774;UNDERLINE;screen;
-39;run_manual_screen.at:1813;HOME key;home size;
-40;run_manual_screen.at:1860;END key;end size;
-41;run_manual_screen.at:1907;INSERT key;insert size;
-42;run_manual_screen.at:1956;BACKSPACE key;backspace size;
-43;run_manual_screen.at:2005;DELETE key;delete size;
-44;run_manual_screen.at:2054;ALT DELETE key;alt-delete size;
-45;run_manual_screen.at:2101;ALT LEFT-ARROW key;alt-left-arrow size;
-46;run_manual_screen.at:2148;ALT RIGHT-ARROW key;size;
-47;run_manual_screen.at:2195;CURSOR clause;special-names;
-48;run_manual_screen.at:2294;CRT STATUS clause;special-names;
+18;run_manual_screen.at:818;SCREEN BACKGROUND- / FOREGROUND-COLOUR;background-color background-colour foreground-color color colour highlight blink;
+19;run_manual_screen.at:925;SCREEN BACKGROUND- / FOREGROUND-COLOUR via COLOR;background-color background-colour foreground-color color colour reversed;
+20;run_manual_screen.at:1012;field BACKGROUND- / FOREGROUND-COLOUR;background-color background-colour foreground-color color colour highlight blink;
+21;run_manual_screen.at:1119;field BACKGROUND- / FOREGROUND-COLOUR via COLOR;background-color background-colour foreground-color color colour reversed highlight blink;
+22;run_manual_screen.at:1219;field BACKGROUND- / FOREGROUND-COLOUR via CONTROL;screen display reversed highlight blink color background-color background-colour foreground-color colour;
+23;run_manual_screen.at:1350;line draw characters via CONTROL GRAPHICS;screen display;
+24;run_manual_screen.at:1427;BEEP;bell flash;
+25;run_manual_screen.at:1484;BLANK LINE;screen;
+26;run_manual_screen.at:1542;BLANK SCREEN;screen;
+27;run_manual_screen.at:1599;BLANK ignored in ACCEPT;screen;
+28;run_manual_screen.at:1641;BLINK;screen;
+29;run_manual_screen.at:1680;ERASE EOS;screen;
+30;run_manual_screen.at:1738;ERASE EOL;screen;
+31;run_manual_screen.at:1796;ERASE ignored in ACCEPT;eos;
+32;run_manual_screen.at:1851;FULL and REQUIRED;screen;
+33;run_manual_screen.at:1892;HIGHLIGHT;screen;
+34;run_manual_screen.at:1932;INITIAL;screen;
+35;run_manual_screen.at:1979;LEFTLINE;grid;
+36;run_manual_screen.at:2022;LOWLIGHT;screen;
+37;run_manual_screen.at:2061;OVERLINE;screen;
+38;run_manual_screen.at:2103;REVERSE-VIDEO;screen;
+39;run_manual_screen.at:2144;SECURE;password;
+40;run_manual_screen.at:2186;SIZE with items;protected extensions;
+41;run_manual_screen.at:2230;SIZE with figurative constants;protected extensions;
+42;run_manual_screen.at:2271;UPDATE;extensions;
+43;run_manual_screen.at:2312;UNDERLINE;screen;
+44;run_manual_screen.at:2351;SPECIAL-NAMES CURSOR phrase 6-digit with field;position accept;
+45;run_manual_screen.at:2404;SPECIAL-NAMES CURSOR phrase 4-digit with field;position accept;
+46;run_manual_screen.at:2457;ACCEPT field WITH CURSOR data-item;position;
+47;run_manual_screen.at:2507;ACCEPT field WITH CURSOR size overflow;position;
+48;run_manual_screen.at:2557;ACCEPT field WITH CURSOR data overflow I;position;
+49;run_manual_screen.at:2607;ACCEPT field WITH CURSOR data overflow II;position underline;
+50;run_manual_screen.at:2656;ACCEPT field WITH CURSOR literal;position;
+51;run_manual_screen.at:2702;HOME key;home size;
+52;run_manual_screen.at:2749;END key;end size;
+53;run_manual_screen.at:2796;INSERT key;insert size;
+54;run_manual_screen.at:2845;BACKSPACE key;backspace size cursor;
+55;run_manual_screen.at:2900;DELETE key;delete size;
+56;run_manual_screen.at:2949;ALT DELETE key;alt-delete size;
+57;run_manual_screen.at:2996;ALT LEFT-ARROW key;alt-left-arrow size;
+58;run_manual_screen.at:3043;ALT RIGHT-ARROW key;size;
+59;run_manual_screen.at:3090;CURSOR clause;special-names;
+60;run_manual_screen.at:3191;CRT STATUS clause;special-names;
+61;run_manual_screen.at:3292;CRT STATUS clause;special-names;
+62;run_manual_screen.at:3382;X/Open CRT STATUS clause;special-names;
 "
 # List of the all the test groups.
 at_groups_all=`$as_echo "$at_help_all" | sed 's/;.*//'`
@@ -656,7 +670,7 @@ at_fn_validate_ranges ()
   for at_grp
   do
     eval at_value=\$$at_grp
-    if test $at_value -lt 1 || test $at_value -gt 48; then
+    if test $at_value -lt 1 || test $at_value -gt 62; then
       $as_echo "invalid test group: $at_value" >&2
       exit 1
     fi
@@ -955,7 +969,7 @@ fi
 # List of tests.
 if $at_list_p; then
   cat <<_ATEOF || at_write_fail=1
-GnuCOBOL 3.1.2 test suite: GnuCOBOL Manual Tests test groups:
+GnuCOBOL 3.2 test suite: GnuCOBOL Manual Tests test groups:
 
  NUM: FILE-NAME:LINE     TEST-GROUP-NAME
       KEYWORDS
@@ -996,10 +1010,10 @@ _ATEOF
   exit $at_write_fail
 fi
 if $at_version_p; then
-  $as_echo "$as_me (GnuCOBOL 3.1.2)" &&
+  $as_echo "$as_me (GnuCOBOL 3.2)" &&
   cat <<\_ATEOF || at_write_fail=1
 
-Test cases Copyright (C) 2018 Free Software Foundation, Inc.
+Test cases Copyright (C) 2022 Free Software Foundation, Inc.
 
 Written by Edward Hart, Simon Sobisch
 
@@ -1017,7 +1031,7 @@ case $at_groups in #(
   * ) at_print_banners=false ;;
 esac
 # Text for banner N, set to a single space once printed.
-# Banner 1. testsuite_manual.at:32
+# Banner 1. testsuite_manual.at:42
 # Category starts at test group 1.
 at_banner_text_1="Run screen tests"
 
@@ -1179,13 +1193,13 @@ fi
 exec 5>>"$at_suite_log"
 
 # Banners and logs.
-$as_echo "## ------------------------------------------------- ##
-## GnuCOBOL 3.1.2 test suite: GnuCOBOL Manual Tests. ##
-## ------------------------------------------------- ##"
+$as_echo "## ----------------------------------------------- ##
+## GnuCOBOL 3.2 test suite: GnuCOBOL Manual Tests. ##
+## ----------------------------------------------- ##"
 {
-  $as_echo "## ------------------------------------------------- ##
-## GnuCOBOL 3.1.2 test suite: GnuCOBOL Manual Tests. ##
-## ------------------------------------------------- ##"
+  $as_echo "## ----------------------------------------------- ##
+## GnuCOBOL 3.2 test suite: GnuCOBOL Manual Tests. ##
+## ----------------------------------------------- ##"
   echo
 
   $as_echo "$as_me: command line was:"
@@ -2028,7 +2042,7 @@ _ASBOX
   $as_echo "Please send $at_msg and all information you think might help:
 
    To: <bug-gnucobol@gnu.org>
-   Subject: [GnuCOBOL 3.1.2] $as_me: $at_fail_list${at_fail_list:+ failed${at_xpass_list:+, }}$at_xpass_list${at_xpass_list:+ passed unexpectedly}
+   Subject: [GnuCOBOL 3.2] $as_me: $at_fail_list${at_fail_list:+ failed${at_xpass_list:+, }}$at_xpass_list${at_xpass_list:+ passed unexpectedly}
 
 You may investigate any problem if you feel able to do so, in which
 case the test suite provides a good starting point.  Its output may
@@ -2108,9 +2122,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:66: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:66"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:66: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:66"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2119,6 +2133,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:66"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2195,9 +2210,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:116: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:116"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:116: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:116"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2206,6 +2221,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:116"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2279,9 +2295,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:163: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:163"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:163: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:163"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2290,6 +2306,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:163"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2355,9 +2372,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:202: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:202"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:202: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:202"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2366,6 +2383,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:202"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2432,9 +2450,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:242: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:242"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:242: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:242"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2443,6 +2461,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:242"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2511,9 +2530,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:284: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:284"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:284: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:284"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2522,6 +2541,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:284"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2591,9 +2611,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:327: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:327"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:327: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:327"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2602,6 +2622,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:327"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2666,9 +2687,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:365: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:365"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:365: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:365"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2677,6 +2698,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:365"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2742,9 +2764,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:404: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:404"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:404: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:404"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2753,6 +2775,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:404"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2834,9 +2857,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:459: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:459"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:459: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:459"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2845,6 +2868,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:459"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -2926,9 +2950,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:514: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:514"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:514: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:514"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -2937,6 +2961,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:514"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -3024,9 +3049,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:575: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:575"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:575: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:575"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -3035,6 +3060,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:575"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -3118,9 +3144,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:632: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:632"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:632: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:632"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -3129,6 +3155,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:632"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -3194,9 +3221,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:671: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:671"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:671: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:671"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -3205,6 +3232,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:671"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -3279,9 +3307,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:720: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:720"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:720: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:720"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -3290,6 +3318,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:720"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -3357,9 +3386,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:761: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:761"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:761: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:761"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -3368,6 +3397,7 @@ at_fn_diff_devnull "$at_stdout" || at_failed=:
 at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:761"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -3446,9 +3476,9 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:813: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:813"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:813: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:813"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
@@ -3459,6 +3489,7 @@ $at_failed && at_fn_log_failure
 $at_traceon; }
 
 
+
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
@@ -3466,7 +3497,7 @@ read at_status <"$at_status_file"
 #AT_STOP_17
 #AT_START_18
 at_fn_group_banner 18 'run_manual_screen.at:818' \
-  "BACKGROUND- / FOREGROUND-COLOUR" "                " 1
+  "SCREEN BACKGROUND- / FOREGROUND-COLOUR" "         " 1
 at_xfail=no
 (
   $as_echo "18. $at_setup_line: testing $at_desc ..."
@@ -3474,9 +3505,9 @@ at_xfail=no
 
 
 
-$as_echo "run_manual_screen.at:821" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:822" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:821"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:822"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -3500,29 +3531,64 @@ cat >prog.cob <<'_ATEOF'
                VALUE 'to make the text visible.'.
 
            03  LINE + 1.
-               05  COL 1, PIC X(8) VALUE 'Black' FOREGROUND-COLOR 0
-                   BACKGROUND-COLOR 7.
-               05  COL + 2, PIC X(8) VALUE 'Blue' FOREGROUND-COLOR 1.
-               05  COL + 2, PIC X(8) VALUE 'Green' FOREGROUND-COLOR 2.
-               05  COL + 2, PIC X(8) VALUE 'Cyan' FOREGROUND-COLOR 3.
-               05  COL + 2, PIC X(8) VALUE 'Red' FOREGROUND-COLOR 4.
-               05  COL + 2, PIC X(8) VALUE 'Magenta' FOREGROUND-COLOR 5.
-               05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
-                   FOREGROUND-COLOR 6.
-               05  COL + 2, PIC X(8) VALUE 'White' FOREGROUND-COLOR 7.
+             05  COL 1,   PIC X(08) VALUE 'Black'   FOREGROUND-COLOR 0
+                                                    BACKGROUND-COLOR 7.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    FOREGROUND-COLOR 1.
+             05  COL + 2, PIC X(08) VALUE 'Green'   FOREGROUND-COLOR 2.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    FOREGROUND-COLOR 3.
+             05  COL + 2, PIC X(08) VALUE 'Red'     FOREGROUND-COLOR 4.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' FOREGROUND-COLOR 5.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    FOREGROUND-COLOR 6.
+             05  COL + 2, PIC X(08) VALUE 'White'   FOREGROUND-COLOR 7.
 
            03  LINE + 1.
-               05  COL 1, PIC X(8) VALUE 'Black' BACKGROUND-COLOR 0
-                   FOREGROUND-COLOR 7.
-               05  COL + 2, PIC X(8) VALUE 'Blue' BACKGROUND-COLOR 1.
-               05  COL + 2, PIC X(8) VALUE 'Green' BACKGROUND-COLOR 2.
-               05  COL + 2, PIC X(8) VALUE 'Cyan' BACKGROUND-COLOR 3.
-               05  COL + 2, PIC X(8) VALUE 'Red' BACKGROUND-COLOR 4.
-               05  COL + 2, PIC X(8) VALUE 'Magenta' BACKGROUND-COLOR 5.
-               05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
-                   BACKGROUND-COLOR 6.
-               05  COL + 2, PIC X(8) VALUE 'White' BACKGROUND-COLOR 7
-                   FOREGROUND-COLOR 0.
+             05  COL 1,   PIC X(08) VALUE 'Black'   BACKGROUND-COLOR 0
+                                                    FOREGROUND-COLOR 7.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    BACKGROUND-COLOR 1.
+             05  COL + 2, PIC X(08) VALUE 'Green'   BACKGROUND-COLOR 2.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    BACKGROUND-COLOR 3.
+             05  COL + 2, PIC X(08) VALUE 'Red'     BACKGROUND-COLOR 4.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' BACKGROUND-COLOR 5.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    BACKGROUND-COLOR 6.
+             05  COL + 2, PIC X(08) VALUE 'White'   BACKGROUND-COLOR 7
+                                                    FOREGROUND-COLOR 0.
+
+           03  LINE + 2.
+           03  PIC X(80)
+               VALUE 'The following is the same as above, '
+               & 'with "extended" attributes set;'.
+           03  LINE + 1, COL 1, PIC X(80)
+               VALUE 'this should have the same effect as otherwise '
+               & 'highlighted for the first line'.
+           03  LINE + 1, COL 1, PIC X(80)
+               VALUE 'and blinking for the second one.'.
+
+           03  LINE + 1.
+             05  COL 1,   PIC X(08) VALUE 'Black'   FOREGROUND-COLOR 8
+                                                    BACKGROUND-COLOR 0.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    FOREGROUND-COLOR 9.
+             05  COL + 2, PIC X(08) VALUE 'Green'   FOREGROUND-COLOR 10.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    FOREGROUND-COLOR 11.
+             05  COL + 2, PIC X(08) VALUE 'Red'     FOREGROUND-COLOR 12.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' FOREGROUND-COLOR 13.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    FOREGROUND-COLOR 14.
+             05  COL + 2, PIC X(08) VALUE 'White'   FOREGROUND-COLOR 15.
+
+           03  LINE + 1.
+             05  COL 1,   PIC X(08) VALUE 'Black'   BACKGROUND-COLOR 8
+                                                    FOREGROUND-COLOR 15.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    BACKGROUND-COLOR 9.
+             05  COL + 2, PIC X(08) VALUE 'Green'   BACKGROUND-COLOR 10.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    BACKGROUND-COLOR 11.
+             05  COL + 2, PIC X(08) VALUE 'Red'     BACKGROUND-COLOR 12.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' BACKGROUND-COLOR 13.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    BACKGROUND-COLOR 14.
+             05  COL + 2, PIC X(08) VALUE 'White'   BACKGROUND-COLOR 15
+                                                    FOREGROUND-COLOR 8.
 
            03  success-field LINE + 2, COL 1, PIC X, REQUIRED,
                TO success-flag FROM 'Y'.
@@ -3541,30 +3607,31 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:883: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:883"
+$as_echo "$at_srcdir/run_manual_screen.at:919: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:919"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:883"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:919"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:884: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:884"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:920: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:920"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:884"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:920"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
@@ -3573,18 +3640,706 @@ $at_traceon; }
 read at_status <"$at_status_file"
 #AT_STOP_18
 #AT_START_19
-at_fn_group_banner 19 'run_manual_screen.at:889' \
-  "BEEP" "                                           " 1
-at_xfail=no
+at_fn_group_banner 19 'run_manual_screen.at:925' \
+  "SCREEN BACKGROUND- / FOREGROUND-COLOUR via COLOR" "" 1
+at_xfail=yes
 (
   $as_echo "19. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:892" >"$at_check_line_file"
+# Currently not implemented
+
+
+$as_echo "run_manual_screen.at:932" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:892"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:932"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  dummy        PIC X(10).
+       01  success-flag PIC X.
+           88  success  VALUE 'Y', 'y'.
+       77  CBLACK       PIC 9(05) VALUE 1.
+       77  CBLUE        PIC 9(05) VALUE 2.
+       77  CGREEN       PIC 9(05) VALUE 3.
+       77  CCYAN        PIC 9(05) VALUE 4.
+       77  CRED         PIC 9(05) VALUE 5.
+       77  CMAGENTA     PIC 9(05) VALUE 6.
+       77  CYELLOW      PIC 9(05) VALUE 7.
+       77  CWHITE       PIC 9(05) VALUE 8.
+
+       SCREEN           SECTION.
+       01  scr.
+           03  PIC X(80)
+               VALUE 'Enter "y" if the text below matches the colour '
+               & 'of the background/text.'.
+           03  LINE + 1, COL 1, PIC X(80)
+               VALUE 'Note: the black text is on white background/the '
+               & 'white background has black text'.
+           03  LINE + 1, COL 1, PIC X(80)
+               VALUE 'to make the text visible.'.
+
+           03  LINE + 1.
+             05  COL 1,   PIC X(08) VALUE 'Black'   COLOR CBLACK.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    COLOR CBLUE.
+             05  COL + 2, PIC X(08) VALUE 'Green'   COLOR CGREEN.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    COLOR CCYAN.
+             05  COL + 2, PIC X(08) VALUE 'Red'     COLOR CRED.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' COLOR CMAGENTA.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    COLOR CYELLOW.
+             05  COL + 2, PIC X(08) VALUE 'White'   COLOR CWHITE.
+
+       01  scr2.
+           03  LINE 5.
+             05  COL 1,   PIC X(08) VALUE 'Black'   BACKGROUND-COLOR 0
+                                                    FOREGROUND-COLOR 7.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    BACKGROUND-COLOR 1.
+             05  COL + 2, PIC X(08) VALUE 'Green'   BACKGROUND-COLOR 2.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    BACKGROUND-COLOR 3.
+             05  COL + 2, PIC X(08) VALUE 'Red'     BACKGROUND-COLOR 4.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' BACKGROUND-COLOR 5.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    BACKGROUND-COLOR 6.
+             05  COL + 2, PIC X(08) VALUE 'White'   BACKGROUND-COLOR 7
+                                                    FOREGROUND-COLOR 0.
+
+           03  success-field LINE + 2, COL 1, PIC X, REQUIRED,
+               TO success-flag FROM 'Y'.
+
+       PROCEDURE DIVISION.
+           ADD  256 TO CBLACK
+           DISPLAY scr
+           ADD 1024 TO CBLACK, CBLUE, CGREEN, CCYAN,
+                       CRED, CMAGENTA, CYELLOW, CWHITE
+           DISPLAY scr2
+           ACCEPT scr
+
+           IF success AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1
+           END-IF
+           .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1006: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1006"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1006"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1007: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1007"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1007"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_19
+#AT_START_20
+at_fn_group_banner 20 'run_manual_screen.at:1012' \
+  "field BACKGROUND- / FOREGROUND-COLOUR" "          " 1
+at_xfail=no
+(
+  $as_echo "20. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:1016" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1016"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  dummy        PIC X(10).
+       01  success-flag PIC X.
+           88  success  VALUE 'Y', 'y'.
+
+       SCREEN           SECTION.
+       01  scr.
+           03  PIC X(80)
+               VALUE 'Enter "y" if the text below matches the colour '
+               & 'of the background/text.'.
+           03  LINE + 1, COL 1, PIC X(80)
+               VALUE 'Note: the black text is on white background/the '
+               & 'white background has black text'.
+           03  LINE + 1, COL 1, PIC X(80)
+               VALUE 'to make the text visible.'.
+
+           03  LINE + 1.
+             05  COL 1,   PIC X(08) VALUE 'Black'   FOREGROUND-COLOR 0
+                                                    BACKGROUND-COLOR 7.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    FOREGROUND-COLOR 1.
+             05  COL + 2, PIC X(08) VALUE 'Green'   FOREGROUND-COLOR 2.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    FOREGROUND-COLOR 3.
+             05  COL + 2, PIC X(08) VALUE 'Red'     FOREGROUND-COLOR 4.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' FOREGROUND-COLOR 5.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    FOREGROUND-COLOR 6.
+             05  COL + 2, PIC X(08) VALUE 'White'   FOREGROUND-COLOR 7.
+
+           03  LINE + 1.
+             05  COL 1,   PIC X(08) VALUE 'Black'   BACKGROUND-COLOR 0
+                                                    FOREGROUND-COLOR 7.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    BACKGROUND-COLOR 1.
+             05  COL + 2, PIC X(08) VALUE 'Green'   BACKGROUND-COLOR 2.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    BACKGROUND-COLOR 3.
+             05  COL + 2, PIC X(08) VALUE 'Red'     BACKGROUND-COLOR 4.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' BACKGROUND-COLOR 5.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    BACKGROUND-COLOR 6.
+             05  COL + 2, PIC X(08) VALUE 'White'   BACKGROUND-COLOR 7
+                                                    FOREGROUND-COLOR 0.
+
+           03  LINE + 2.
+           03  PIC X(80)
+               VALUE 'The following is the same as above, '
+               & 'with "extended" attributes set;'.
+           03  LINE + 1, COL 1, PIC X(80)
+               VALUE 'this should have the same effect as otherwise '
+               & 'highlighted for the first line'.
+           03  LINE + 1, COL 1, PIC X(80)
+               VALUE 'and blinking for the second one.'.
+
+           03  LINE + 1.
+             05  COL 1,   PIC X(08) VALUE 'Black'   FOREGROUND-COLOR 8
+                                                    BACKGROUND-COLOR 0.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    FOREGROUND-COLOR 9.
+             05  COL + 2, PIC X(08) VALUE 'Green'   FOREGROUND-COLOR 10.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    FOREGROUND-COLOR 11.
+             05  COL + 2, PIC X(08) VALUE 'Red'     FOREGROUND-COLOR 12.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' FOREGROUND-COLOR 13.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    FOREGROUND-COLOR 14.
+             05  COL + 2, PIC X(08) VALUE 'White'   FOREGROUND-COLOR 15.
+
+           03  LINE + 1.
+             05  COL 1,   PIC X(08) VALUE 'Black'   BACKGROUND-COLOR 8
+                                                    FOREGROUND-COLOR 15.
+             05  COL + 2, PIC X(08) VALUE 'Blue'    BACKGROUND-COLOR 9.
+             05  COL + 2, PIC X(08) VALUE 'Green'   BACKGROUND-COLOR 10.
+             05  COL + 2, PIC X(08) VALUE 'Cyan'    BACKGROUND-COLOR 11.
+             05  COL + 2, PIC X(08) VALUE 'Red'     BACKGROUND-COLOR 12.
+             05  COL + 2, PIC X(08) VALUE 'Magenta' BACKGROUND-COLOR 13.
+             05  COL + 2, PIC X(15) VALUE 'Brown/Yellow'
+                                                    BACKGROUND-COLOR 14.
+             05  COL + 2, PIC X(08) VALUE 'White'   BACKGROUND-COLOR 15
+                                                    FOREGROUND-COLOR 8.
+
+           03  success-field LINE + 2, COL 1, PIC X, REQUIRED,
+               TO success-flag FROM 'Y'.
+
+       PROCEDURE DIVISION.
+           DISPLAY scr
+           ACCEPT scr
+
+           IF success AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1
+           END-IF
+           .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1113: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1113"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1113"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1114: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1114"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1114"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_20
+#AT_START_21
+at_fn_group_banner 21 'run_manual_screen.at:1119' \
+  "field BACKGROUND- / FOREGROUND-COLOUR via COLOR" "" 1
+at_xfail=no
+(
+  $as_echo "21. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:1123" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1123"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+
+       77  CBLACK       PIC 9(05) COMP-5 VALUE 1.
+       77  CBLUE        PIC 9(05) COMP-5 VALUE 2.
+       77  CGREEN       PIC 9(05) COMP-5 VALUE 3.
+       77  CCYAN        PIC 9(05) COMP-5 VALUE 4.
+       77  CRED         PIC 9(05) COMP-5 VALUE 5.
+       77  CMAGENTA     PIC 9(05) COMP-5 VALUE 6.
+       77  CYELLOW      PIC 9(05) COMP-5 VALUE 7.
+       77  CWHITE       PIC 9(05) COMP-5 VALUE 8.
+
+       77  LIN          PIC 99    COMP-5.
+
+       01  scr1 PIC X(80)
+               VALUE 'Enter "y" if the text below matches the colour '
+               & 'of the background/text.'.
+       01  scr2 PIC X(80)
+               VALUE 'Note: the black text is on white background/the '
+               & 'white background has black text'.
+       01  scr3 PIC X(80)
+               VALUE 'to make the text visible.'.
+       01  scr8 PIC X(80)
+               VALUE 'following lines should be identical but '
+               & 'highlighted for the first line'.
+       01  scr9 PIC X(80)
+               VALUE 'and blinking for the second one.'.
+
+       01  scrblack PIC X(08) VALUE 'Black'.
+       01  scrblue  PIC X(08) VALUE 'Blue'.
+       01  scrgreen PIC X(08) VALUE 'Green'.
+       01  scrcyan  PIC X(08) VALUE 'Cyan'.
+       01  scrred   PIC X(08) VALUE 'Red'.
+       01  scrmaggy PIC X(08) VALUE 'Magenta'.
+       01  scryell  PIC X(14) VALUE 'Brown/Yellow'.
+       01  scrwhite PIC X(08) VALUE 'White'.
+
+       PROCEDURE DIVISION.
+       testme.
+           ADD  256 TO CBLACK
+           DISPLAY scr1 AT 0102
+           DISPLAY scr2 AT 0202
+           DISPLAY scr3 AT 0303
+           MOVE 5 TO LIN
+           PERFORM dspcol
+           ADD 1024 TO CBLACK, CBLUE, CGREEN, CCYAN,
+                       CRED, CMAGENTA, CYELLOW, CWHITE
+           MOVE 6 TO LIN
+           PERFORM dspcol
+           SUBTRACT 1024 FROM CBLACK, CBLUE, CGREEN, CCYAN,
+                       CRED, CMAGENTA, CYELLOW, CWHITE
+      *
+           DISPLAY scr8 AT 0802
+           DISPLAY scr9 AT 0903
+           ADD 4096 TO CBLACK, CBLUE, CGREEN, CCYAN,
+                       CRED, CMAGENTA, CYELLOW, CWHITE
+           MOVE 11 TO LIN
+           PERFORM dspcol
+           SUBTRACT 4096 FROM CBLACK, CBLUE, CGREEN, CCYAN,
+                       CRED, CMAGENTA, CYELLOW, CWHITE
+           ADD 1024, 16384 TO CBLACK, CBLUE, CGREEN, CCYAN,
+                       CRED, CMAGENTA, CYELLOW, CWHITE
+           MOVE 12 TO LIN
+           PERFORM dspcol
+      *
+           ACCEPT success-flag AT 1401 UPDATE REQUIRED
+
+           IF success AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1.
+
+       dspcol.
+           DISPLAY scrblack LINE LIN COL 1,  COLOR CBLACK.
+           DISPLAY scrblue  LINE LIN COL 11, COLOR CBLUE.
+           DISPLAY scrgreen LINE LIN COL 21, COLOR CGREEN.
+           DISPLAY scrcyan  LINE LIN COL 31, COLOR CCYAN.
+           DISPLAY scrred   LINE LIN COL 41, COLOR CRED.
+           DISPLAY scrmaggy LINE LIN COL 51, COLOR CMAGENTA.
+           DISPLAY scryell  LINE LIN COL 61, COLOR CYELLOW.
+           DISPLAY scrwhite LINE LIN COL 77, COLOR CWHITE.
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1213: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1213"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1213"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1214: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1214"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1214"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_21
+#AT_START_22
+at_fn_group_banner 22 'run_manual_screen.at:1219' \
+  "field BACKGROUND- / FOREGROUND-COLOUR via CONTROL" "" 1
+at_xfail=no
+(
+  $as_echo "22. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:1223" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1223"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+
+      * ACU: "=", names only
+       77  CBLACK       PIC X(99) VALUE "FCOLOR=BLACK, "
+                                      & "BCOLOR=WHITE,".
+       77  CBLUE        PIC X(99) VALUE "FCOLOR=BLUE  , "
+                                      & "BCOLOR=BLACK,".
+      * MF: "IS" or "=" or " ", also extended color numbers
+       77  CGREEN       PIC X(99) VALUE "FCOLOR IS GREEN, "
+                                      & "BCOLOR BLACK,".
+       77  CCYAN        PIC X(99) VALUE "FCOLOR  =CYAN, "
+                                      & "BCOLOR= BLACK, ".
+       77  CRED         PIC X(99) VALUE "FCOLOR=RED "
+                                      & "BCOLOR=BLACK, ".
+       77  CMAGENTA     PIC X(99) VALUE "FCOLOR=MAGENTA, "
+                                      & "BCOLOR=BLACK,".
+       77  CYELLOW      PIC X(99) VALUE "FCOLOR = 6, "
+                                      & "BCOLOR=BLACK,".
+       77  CWHITE       PIC X(99) VALUE "FCOLOR=WHITE, "
+                                      & "BCOLOR=BLACK, ".
+
+       77  LIN          PIC 99    COMP-5.
+
+       01  scr1 PIC X(75)
+               VALUE 'Enter "y" if the text below matches the colour '
+               & 'of the background/text.'.
+       01  scr2 PIC X(75)
+               VALUE 'Note: the black text is on white background/the '
+               & 'white background has black'.
+       01  scr3 PIC X(75)
+               VALUE 'text to make the text visible.'
+               & '  [This text *may* has "surrounding lines".]'.
+       01  scr8 PIC X(75)
+               VALUE 'following lines should be identical but '
+               & 'highlighted for the first line'.
+       01  scr9 PIC X(75)
+               VALUE 'and blinking for the second one.'.
+
+       01  scrblack PIC X(08) VALUE 'Black'.
+       01  scrblue  PIC X(08) VALUE 'Blue'.
+       01  scrgreen PIC X(08) VALUE 'Green'.
+       01  scrcyan  PIC X(08) VALUE 'Cyan'.
+       01  scrred   PIC X(08) VALUE 'Red'.
+       01  scrmaggy PIC X(08) VALUE 'Magenta'.
+       01  scryell  PIC X(14) VALUE 'Brown/Yellow'.
+       01  scrwhite PIC X(08) VALUE 'White'.
+
+       PROCEDURE DIVISION.
+       testme.
+           MOVE 2 TO LIN
+           DISPLAY scr1 ( 1:1) AT LINE LIN COL 2
+              CONTROL "LEFTLINE OVERLINE"
+           DISPLAY scr1 ( 2:)  AT LINE LIN COL 2 + 1
+              CONTROL "OVERLINE"
+           DISPLAY scr1 (75:)  AT LINE LIN COL 2 + 75
+              CONTROL "OVERLINE  RIGHTLINE"
+           ADD  1 TO LIN
+           DISPLAY scr2 ( 1:1) AT LINE LIN COL 2
+              CONTROL "LEFTLINE"
+           DISPLAY scr2 ( 2:)  AT LINE LIN COL 2 + 1
+           DISPLAY scr2 (75:)  AT LINE LIN COL 2 + 75
+              CONTROL "RIGHTLINE"
+           ADD  1 TO LIN
+           DISPLAY scr3 ( 1:1) AT LINE LIN COL 2
+              CONTROL "LEFTLINE UNDERLINE"
+           DISPLAY scr3 ( 2:)  AT LINE LIN COL 2 + 1
+              CONTROL "UNDERLINE"
+           DISPLAY scr3 (75:)  AT LINE LIN COL 2 + 75
+              CONTROL "UNDERLINE  RIGHTLINE"
+      *
+           ADD  2 TO LIN
+           PERFORM dspcol
+           MOVE "REVERSE," TO
+               CBLACK (40:), CBLUE (40:), CGREEN (40:), CCYAN (40:),
+               CRED (40:), CMAGENTA (40:), CYELLOW (40:), CWHITE (40:)
+           ADD  1 TO LIN
+           PERFORM dspcol
+      *
+           INSPECT CRED REPLACING ALL "=" BY " "
+           ADD  2 TO LIN
+           DISPLAY scr8 AT LINE LIN COL 2
+           ADD  1 TO LIN
+           DISPLAY scr9 AT LINE LIN COL 2
+      *
+           MOVE "HIGHLIGHT,NO REVERSE" TO
+               CBLACK (50:), CBLUE (50:), CGREEN (50:), CCYAN (50:),
+               CRED (50:), CMAGENTA (50:), CYELLOW (50:), CWHITE (50:)
+           ADD  1 TO LIN
+           PERFORM dspcol
+           MOVE "NO HIGH, BLINK" TO
+               CBLACK (60:), CBLUE (60:), CGREEN (60:), CCYAN (60:),
+               CRED (60:), CMAGENTA (60:), CYELLOW (60:), CWHITE (60:)
+           MOVE 12 TO LIN
+           PERFORM dspcol
+      *
+           ACCEPT success-flag AT 1801 UPDATE REQUIRED
+
+           IF success AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1.
+
+       dspcol.
+           DISPLAY scrblack LINE LIN COL 1,  CONTROL CBLACK.
+           DISPLAY scrblue  LINE LIN COL 10, CONTROL CBLUE.
+           DISPLAY scrgreen LINE LIN COL 19, CONTROL CGREEN.
+           DISPLAY scrcyan  LINE LIN COL 28, CONTROL CCYAN.
+           DISPLAY scrred   LINE LIN COL 37, CONTROL CRED.
+           DISPLAY scrmaggy LINE LIN COL 46, CONTROL CMAGENTA.
+           DISPLAY scryell  LINE LIN COL 55, CONTROL CYELLOW.
+           DISPLAY scrwhite LINE LIN COL 70, CONTROL CWHITE.
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1344: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1344"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1344"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1345: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1345"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1345"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_22
+#AT_START_23
+at_fn_group_banner 23 'run_manual_screen.at:1350' \
+  "line draw characters via CONTROL GRAPHICS" "      " 1
+at_xfail=no
+(
+  $as_echo "23. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:1353" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1353"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+
+       77  LIN-START    PIC 99    COMP-5.
+       77  LIN          PIC 99    COMP-5.
+
+       01  scr1 PIC X(75)
+               VALUE 'Enter "y" if you see line draw characters. '
+               & 'The first set (single/double)'.
+       01  scr2 PIC X(75)
+               VALUE 'uses HIGHLIGHT, the second uses '
+               & 'LOWLIGHT, BLINK and MAGENTA.'.
+
+       01  graphcontrol PIC X(50) VALUE 'HIGH, GRAPHICS'.
+
+       PROCEDURE DIVISION.
+       testme.
+           MOVE 2 TO LIN
+           DISPLAY scr1 AT LINE LIN COL 2
+           ADD  1 TO LIN
+           DISPLAY scr2 AT LINE LIN COL 2
+      *
+           MOVE 5 TO LIN-START
+           PERFORM dspcol
+           MOVE 12 TO LIN-START
+           MOVE "LOW BLINK FCOLOR=MAGENTA GRAPHICS" TO graphcontrol
+           PERFORM dspcol
+      *
+           ACCEPT success-flag AT 1801 UPDATE REQUIRED
+
+           IF success AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1.
+
+       dspcol.
+      *    Single-line graphics
+           MOVE LIN-START TO LIN
+           DISPLAY "lqqqqwqqqqk" LINE LIN COL 05, CONTROL graphcontrol.
+           ADD  1 TO LIN
+           DISPLAY "x    x    x" LINE LIN COL 05, CONTROL graphcontrol.
+           ADD  1 TO LIN
+           DISPLAY "tqqqqnqqqqu" LINE LIN COL 05, CONTROL graphcontrol.
+           ADD  1 TO LIN
+           DISPLAY "x    x    x" LINE LIN COL 05, CONTROL graphcontrol.
+           ADD  1 TO LIN
+           DISPLAY "mqqqqvqqqqj" LINE LIN COL 05, CONTROL graphcontrol.
+           ADD  1 TO LIN
+      *    Double-line graphics
+           MOVE LIN-START TO LIN
+           DISPLAY "LQQQQWQQQQK" LINE LIN COL 20, CONTROL graphcontrol.
+           ADD  1 TO LIN
+           DISPLAY "X    X    X" LINE LIN COL 20, CONTROL graphcontrol.
+           ADD  1 TO LIN
+           DISPLAY "TQQQQNQQQQU" LINE LIN COL 20, CONTROL graphcontrol.
+           ADD  1 TO LIN
+           DISPLAY "X    X    X" LINE LIN COL 20, CONTROL graphcontrol.
+           ADD  1 TO LIN
+           DISPLAY "MQQQQVQQQQJ" LINE LIN COL 20, CONTROL graphcontrol.
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1421: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1421"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1421"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:1422: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1422"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1422"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_23
+#AT_START_24
+at_fn_group_banner 24 'run_manual_screen.at:1427' \
+  "BEEP" "                                           " 1
+at_xfail=no
+(
+  $as_echo "24. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:1430" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1430"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -3635,50 +4390,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:940: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:940"
+$as_echo "$at_srcdir/run_manual_screen.at:1478: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1478"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:940"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1478"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:941: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:941"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1479: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1479"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:941"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1479"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_19
-#AT_START_20
-at_fn_group_banner 20 'run_manual_screen.at:946' \
+#AT_STOP_24
+#AT_START_25
+at_fn_group_banner 25 'run_manual_screen.at:1484' \
   "BLANK LINE" "                                     " 1
 at_xfail=no
 (
-  $as_echo "20. $at_setup_line: testing $at_desc ..."
+  $as_echo "25. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:949" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1487" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:949"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1487"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -3730,50 +4486,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:998: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:998"
+$as_echo "$at_srcdir/run_manual_screen.at:1536: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1536"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:998"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1536"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:999: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:999"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1537: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1537"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:999"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1537"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_20
-#AT_START_21
-at_fn_group_banner 21 'run_manual_screen.at:1004' \
+#AT_STOP_25
+#AT_START_26
+at_fn_group_banner 26 'run_manual_screen.at:1542' \
   "BLANK SCREEN" "                                   " 1
 at_xfail=no
 (
-  $as_echo "21. $at_setup_line: testing $at_desc ..."
+  $as_echo "26. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1007" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1545" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1007"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1545"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -3824,50 +4581,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1055: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1055"
+$as_echo "$at_srcdir/run_manual_screen.at:1593: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1593"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1055"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1593"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1056: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1056"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1594: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1594"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1056"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1594"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_21
-#AT_START_22
-at_fn_group_banner 22 'run_manual_screen.at:1061' \
+#AT_STOP_26
+#AT_START_27
+at_fn_group_banner 27 'run_manual_screen.at:1599' \
   "BLANK ignored in ACCEPT" "                        " 1
 at_xfail=no
 (
-  $as_echo "22. $at_setup_line: testing $at_desc ..."
+  $as_echo "27. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1064" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1602" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1064"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1602"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -3903,50 +4661,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1097: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1097"
+$as_echo "$at_srcdir/run_manual_screen.at:1635: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1635"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1097"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1635"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1098: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1098"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1636: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1636"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1098"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1636"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_22
-#AT_START_23
-at_fn_group_banner 23 'run_manual_screen.at:1103' \
+#AT_STOP_27
+#AT_START_28
+at_fn_group_banner 28 'run_manual_screen.at:1641' \
   "BLINK" "                                          " 1
 at_xfail=no
 (
-  $as_echo "23. $at_setup_line: testing $at_desc ..."
+  $as_echo "28. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1106" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1644" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1106"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1644"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -3979,50 +4738,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1136: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1136"
+$as_echo "$at_srcdir/run_manual_screen.at:1674: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1674"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1136"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1674"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1137: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1137"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1675: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1675"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1137"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1675"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_23
-#AT_START_24
-at_fn_group_banner 24 'run_manual_screen.at:1142' \
+#AT_STOP_28
+#AT_START_29
+at_fn_group_banner 29 'run_manual_screen.at:1680' \
   "ERASE EOS" "                                      " 1
 at_xfail=no
 (
-  $as_echo "24. $at_setup_line: testing $at_desc ..."
+  $as_echo "29. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1145" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1683" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1145"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1683"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4074,50 +4834,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1194: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1194"
+$as_echo "$at_srcdir/run_manual_screen.at:1732: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1732"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1194"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1732"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1195: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1195"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1733: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1733"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1195"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1733"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_24
-#AT_START_25
-at_fn_group_banner 25 'run_manual_screen.at:1200' \
+#AT_STOP_29
+#AT_START_30
+at_fn_group_banner 30 'run_manual_screen.at:1738' \
   "ERASE EOL" "                                      " 1
 at_xfail=no
 (
-  $as_echo "25. $at_setup_line: testing $at_desc ..."
+  $as_echo "30. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1203" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1741" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1203"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1741"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4169,50 +4930,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1252: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1252"
+$as_echo "$at_srcdir/run_manual_screen.at:1790: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1790"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1252"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1790"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1253: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1253"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1791: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1791"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1253"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1791"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_25
-#AT_START_26
-at_fn_group_banner 26 'run_manual_screen.at:1258' \
+#AT_STOP_30
+#AT_START_31
+at_fn_group_banner 31 'run_manual_screen.at:1796' \
   "ERASE ignored in ACCEPT" "                        " 1
 at_xfail=no
 (
-  $as_echo "26. $at_setup_line: testing $at_desc ..."
+  $as_echo "31. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1261" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1799" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1261"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1799"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4261,50 +5023,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1307: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1307"
+$as_echo "$at_srcdir/run_manual_screen.at:1845: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1845"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1307"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1845"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1308: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1308"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1846: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1846"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1308"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1846"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_26
-#AT_START_27
-at_fn_group_banner 27 'run_manual_screen.at:1313' \
+#AT_STOP_31
+#AT_START_32
+at_fn_group_banner 32 'run_manual_screen.at:1851' \
   "FULL and REQUIRED" "                              " 1
 at_xfail=no
 (
-  $as_echo "27. $at_setup_line: testing $at_desc ..."
+  $as_echo "32. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1316" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1854" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1316"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1854"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4339,50 +5102,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1348: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1348"
+$as_echo "$at_srcdir/run_manual_screen.at:1886: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1886"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1348"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1886"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1349: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1349"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1887: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1887"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1349"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1887"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_27
-#AT_START_28
-at_fn_group_banner 28 'run_manual_screen.at:1354' \
+#AT_STOP_32
+#AT_START_33
+at_fn_group_banner 33 'run_manual_screen.at:1892' \
   "HIGHLIGHT" "                                      " 1
 at_xfail=no
 (
-  $as_echo "28. $at_setup_line: testing $at_desc ..."
+  $as_echo "33. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1357" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1895" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1357"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1895"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4416,50 +5180,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1388: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1388"
+$as_echo "$at_srcdir/run_manual_screen.at:1926: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1926"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1388"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1926"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1389: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1389"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1927: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1927"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1389"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1927"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_28
-#AT_START_29
-at_fn_group_banner 29 'run_manual_screen.at:1394' \
+#AT_STOP_33
+#AT_START_34
+at_fn_group_banner 34 'run_manual_screen.at:1932' \
   "INITIAL" "                                        " 1
 at_xfail=no
 (
-  $as_echo "29. $at_setup_line: testing $at_desc ..."
+  $as_echo "34. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1397" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1935" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1397"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1935"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4500,50 +5265,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1435: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1435"
+$as_echo "$at_srcdir/run_manual_screen.at:1973: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1973"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1435"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1973"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1436: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1436"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:1974: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:1974"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1436"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1974"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_29
-#AT_START_30
-at_fn_group_banner 30 'run_manual_screen.at:1441' \
+#AT_STOP_34
+#AT_START_35
+at_fn_group_banner 35 'run_manual_screen.at:1979' \
   "LEFTLINE" "                                       " 1
 at_xfail=yes
 (
-  $as_echo "30. $at_setup_line: testing $at_desc ..."
+  $as_echo "35. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1444" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:1982" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1444"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1982"
 
 # Currently not implemented
 
@@ -4580,50 +5346,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1478: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1478"
+$as_echo "$at_srcdir/run_manual_screen.at:2016: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2016"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1478"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2016"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1479: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1479"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2017: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2017"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1479"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2017"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_30
-#AT_START_31
-at_fn_group_banner 31 'run_manual_screen.at:1484' \
+#AT_STOP_35
+#AT_START_36
+at_fn_group_banner 36 'run_manual_screen.at:2022' \
   "LOWLIGHT" "                                       " 1
 at_xfail=no
 (
-  $as_echo "31. $at_setup_line: testing $at_desc ..."
+  $as_echo "36. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1487" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2025" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1487"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2025"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4656,50 +5423,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1517: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1517"
+$as_echo "$at_srcdir/run_manual_screen.at:2055: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2055"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1517"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2055"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1518: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1518"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2056: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2056"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1518"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2056"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_31
-#AT_START_32
-at_fn_group_banner 32 'run_manual_screen.at:1523' \
+#AT_STOP_36
+#AT_START_37
+at_fn_group_banner 37 'run_manual_screen.at:2061' \
   "OVERLINE" "                                       " 1
 at_xfail=yes
 (
-  $as_echo "32. $at_setup_line: testing $at_desc ..."
+  $as_echo "37. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1526" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2064" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1526"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2064"
 
 # Currently not implemented
 
@@ -4735,50 +5503,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1559: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1559"
+$as_echo "$at_srcdir/run_manual_screen.at:2097: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2097"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1559"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2097"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1560: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1560"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2098: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2098"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1560"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2098"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_32
-#AT_START_33
-at_fn_group_banner 33 'run_manual_screen.at:1565' \
+#AT_STOP_37
+#AT_START_38
+at_fn_group_banner 38 'run_manual_screen.at:2103' \
   "REVERSE-VIDEO" "                                  " 1
 at_xfail=no
 (
-  $as_echo "33. $at_setup_line: testing $at_desc ..."
+  $as_echo "38. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1568" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2106" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1568"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2106"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4813,50 +5582,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1600: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1600"
+$as_echo "$at_srcdir/run_manual_screen.at:2138: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2138"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1600"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2138"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1601: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1601"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2139: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2139"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1601"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2139"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_33
-#AT_START_34
-at_fn_group_banner 34 'run_manual_screen.at:1606' \
+#AT_STOP_38
+#AT_START_39
+at_fn_group_banner 39 'run_manual_screen.at:2144' \
   "SECURE" "                                         " 1
 at_xfail=no
 (
-  $as_echo "34. $at_setup_line: testing $at_desc ..."
+  $as_echo "39. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1609" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2147" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1609"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2147"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4892,50 +5662,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1642: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1642"
+$as_echo "$at_srcdir/run_manual_screen.at:2180: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2180"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1642"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2180"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1643: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1643"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2181: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2181"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1643"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2181"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_34
-#AT_START_35
-at_fn_group_banner 35 'run_manual_screen.at:1648' \
+#AT_STOP_39
+#AT_START_40
+at_fn_group_banner 40 'run_manual_screen.at:2186' \
   "SIZE with items" "                                " 1
 at_xfail=no
 (
-  $as_echo "35. $at_setup_line: testing $at_desc ..."
+  $as_echo "40. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1651" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2189" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1651"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2189"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -4973,50 +5744,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1686: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1686"
+$as_echo "$at_srcdir/run_manual_screen.at:2224: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2224"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1686"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2224"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1687: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1687"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2225: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2225"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1687"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2225"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_35
-#AT_START_36
-at_fn_group_banner 36 'run_manual_screen.at:1692' \
+#AT_STOP_40
+#AT_START_41
+at_fn_group_banner 41 'run_manual_screen.at:2230' \
   "SIZE with figurative constants" "                 " 1
 at_xfail=no
 (
-  $as_echo "36. $at_setup_line: testing $at_desc ..."
+  $as_echo "41. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1695" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2233" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1695"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2233"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5051,50 +5823,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1727: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1727"
+$as_echo "$at_srcdir/run_manual_screen.at:2265: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2265"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1727"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2265"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1728: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1728"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2266: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2266"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1728"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2266"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_36
-#AT_START_37
-at_fn_group_banner 37 'run_manual_screen.at:1733' \
+#AT_STOP_41
+#AT_START_42
+at_fn_group_banner 42 'run_manual_screen.at:2271' \
   "UPDATE" "                                         " 1
 at_xfail=no
 (
-  $as_echo "37. $at_setup_line: testing $at_desc ..."
+  $as_echo "42. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1736" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2274" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1736"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2274"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5129,50 +5902,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1768: \$COMPILE -fno-accept-update prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE -fno-accept-update prog.cob" "run_manual_screen.at:1768"
+$as_echo "$at_srcdir/run_manual_screen.at:2306: \$COMPILE -fno-accept-update prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE -fno-accept-update prog.cob" "run_manual_screen.at:2306"
 ( $at_check_trace; $COMPILE -fno-accept-update prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1768"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2306"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1769: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1769"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2307: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2307"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1769"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2307"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_37
-#AT_START_38
-at_fn_group_banner 38 'run_manual_screen.at:1774' \
+#AT_STOP_42
+#AT_START_43
+at_fn_group_banner 43 'run_manual_screen.at:2312' \
   "UNDERLINE" "                                      " 1
 at_xfail=no
 (
-  $as_echo "38. $at_setup_line: testing $at_desc ..."
+  $as_echo "43. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1777" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2315" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1777"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2315"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5205,50 +5979,668 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1807: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1807"
+$as_echo "$at_srcdir/run_manual_screen.at:2345: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2345"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1807"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2345"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1808: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1808"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2346: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2346"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1808"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2346"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_38
-#AT_START_39
-at_fn_group_banner 39 'run_manual_screen.at:1813' \
-  "HOME key" "                                       " 1
+#AT_STOP_43
+#AT_START_44
+at_fn_group_banner 44 'run_manual_screen.at:2351' \
+  "SPECIAL-NAMES CURSOR phrase 6-digit with field" " " 1
 at_xfail=no
 (
-  $as_echo "39. $at_setup_line: testing $at_desc ..."
+  $as_echo "44. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1816" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2354" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1816"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2354"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       CONFIGURATION    SECTION.
+       SPECIAL-NAMES.
+       CURSOR IS cur-pos.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       77  cur-pos      pic 9(06).
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+       01  ws-x-20      PIC X(20).
+       PROCEDURE DIVISION.
+       testme.
+           set environment 'COB_SCREEN_EXCEPTIONS' to 'TRUE'
+           set environment 'COB_SCREEN_ESC'        to 'TRUE'
+
+           DISPLAY "If the cursor below is positioned at the 'C'"
+               LINE 1 COLUMN 1.
+           DISPLAY "(third column) below, then position it at the"
+               LINE 2 COLUMN 1.
+           DISPLAY "'E' (fifth column) and press ENTER."
+               LINE 3 COLUMN 1.
+
+           MOVE "ABCDEFG   " TO WS-X-20.
+           MOVE 005003       TO cur-pos.
+           ACCEPT WS-X-20
+               LINE 5 COLUMN 1
+               WITH
+                   AUTO-SKIP
+                   SIZE 10
+                   UPDATE.
+
+           IF cur-pos = 005005 AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1
+           END-IF
+           .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2398: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2398"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2398"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2399: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2399"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2399"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_44
+#AT_START_45
+at_fn_group_banner 45 'run_manual_screen.at:2404' \
+  "SPECIAL-NAMES CURSOR phrase 4-digit with field" " " 1
+at_xfail=no
+(
+  $as_echo "45. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:2407" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2407"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       CONFIGURATION    SECTION.
+       SPECIAL-NAMES.
+       CURSOR IS cur-pos.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       77  cur-pos      pic 9(04).
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+       01  ws-x-20      PIC X(20).
+       PROCEDURE DIVISION.
+       testme.
+           set environment 'COB_SCREEN_EXCEPTIONS' to 'TRUE'
+           set environment 'COB_SCREEN_ESC'        to 'TRUE'
+
+           DISPLAY "If the cursor below is positioned at the 'C'"
+               LINE 1 COLUMN 1.
+           DISPLAY "(third column) below, then position it at the"
+               LINE 2 COLUMN 1.
+           DISPLAY "'E' (fifth column) and press ENTER."
+               LINE 3 COLUMN 1.
+
+           MOVE "ABCDEFG   " TO WS-X-20.
+           MOVE 0503         TO cur-pos.
+           ACCEPT WS-X-20
+               LINE 5 COLUMN 1
+               WITH
+                   AUTO-SKIP
+                   SIZE 10
+                   UPDATE.
+
+           IF cur-pos = 0505 AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1
+           END-IF
+           .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2451: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2451"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2451"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2452: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2452"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2452"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_45
+#AT_START_46
+at_fn_group_banner 46 'run_manual_screen.at:2457' \
+  "ACCEPT field WITH CURSOR data-item" "             " 1
+at_xfail=no
+(
+  $as_echo "46. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:2460" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2460"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       77  cur-pos      pic 9(04).
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+       01  ws-x-20      PIC X(20).
+       PROCEDURE DIVISION.
+       testme.
+           set environment 'COB_SCREEN_EXCEPTIONS' to 'TRUE'
+           set environment 'COB_SCREEN_ESC'        to 'TRUE'
+
+           DISPLAY "If the cursor below is positioned at the 'C'"
+               LINE 1 COLUMN 1.
+           DISPLAY "(third column in field) below, then position it at"
+               LINE 2 COLUMN 1.
+           DISPLAY "the 'E' (fifth column) and press ENTER."
+               LINE 3 COLUMN 1.
+
+           MOVE "ABCDEFG   " TO WS-X-20.
+           MOVE 0003         TO cur-pos.
+           ACCEPT WS-X-20
+               LINE 5 COLUMN 3
+               WITH
+                   AUTO-SKIP
+                   SIZE 10
+                   CURSOR cur-pos
+                   UPDATE.
+
+           IF cur-pos = 0005 AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1
+           END-IF
+           .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2501: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2501"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2501"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2502: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2502"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2502"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_46
+#AT_START_47
+at_fn_group_banner 47 'run_manual_screen.at:2507' \
+  "ACCEPT field WITH CURSOR size overflow" "         " 1
+at_xfail=no
+(
+  $as_echo "47. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:2510" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2510"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       77  cur-pos      pic 9(04).
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+       01  ws-x-20      PIC X(10).
+       PROCEDURE DIVISION.
+       testme.
+           set environment 'COB_SCREEN_EXCEPTIONS' to 'TRUE'
+           set environment 'COB_SCREEN_ESC'        to 'TRUE'
+
+           DISPLAY "If the cursor below is positioned at the last"
+               LINE 1 COLUMN 1.
+           DISPLAY "column in the field below, then position it at"
+               LINE 2 COLUMN 1.
+           DISPLAY "the 'C' (third column) and press ENTER."
+               LINE 3 COLUMN 1.
+
+           MOVE "ABCDEFGHIJ" TO WS-X-20.
+           MOVE 0012         TO cur-pos.
+           ACCEPT WS-X-20
+               LINE 5 COLUMN 3
+               WITH
+                   AUTO-SKIP
+                   SIZE 10
+                   CURSOR cur-pos
+                   UPDATE.
+
+           IF cur-pos = 0003 AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1
+           END-IF
+           .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2551: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2551"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2551"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2552: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2552"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2552"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_47
+#AT_START_48
+at_fn_group_banner 48 'run_manual_screen.at:2557' \
+  "ACCEPT field WITH CURSOR data overflow I" "       " 1
+at_xfail=no
+(
+  $as_echo "48. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:2560" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2560"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       77  cur-pos      pic 9(04).
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+       01  ws-x-20      PIC X(20).
+       PROCEDURE DIVISION.
+       testme.
+           set environment 'COB_SCREEN_EXCEPTIONS' to 'TRUE'
+           set environment 'COB_SCREEN_ESC'        to 'TRUE'
+
+           DISPLAY "If the cursor below is positioned at the 'E'"
+               LINE 1 COLUMN 1.
+           DISPLAY "(fifth column in field) below, then position it at"
+               LINE 2 COLUMN 1.
+           DISPLAY "the 'C' (third column) and press ENTER."
+               LINE 3 COLUMN 1.
+
+           MOVE "ABCDE     " TO WS-X-20.
+           MOVE 0008         TO cur-pos.
+           ACCEPT WS-X-20
+               LINE 5 COLUMN 3
+               WITH
+                   AUTO-SKIP
+                   SIZE 10
+                   CURSOR cur-pos
+                   UPDATE.
+
+           IF cur-pos = 0003 AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1
+           END-IF
+           .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2601: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2601"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2601"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2602: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2602"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2602"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_48
+#AT_START_49
+at_fn_group_banner 49 'run_manual_screen.at:2607' \
+  "ACCEPT field WITH CURSOR data overflow II" "      " 1
+at_xfail=no
+(
+  $as_echo "49. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:2610" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2610"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       77  cur-pos      pic 9(04).
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+       01  ws-x-20      PIC X(20).
+       PROCEDURE DIVISION.
+       testme.
+           set environment 'COB_SCREEN_EXCEPTIONS' to 'TRUE'
+           set environment 'COB_SCREEN_ESC'        to 'TRUE'
+
+           DISPLAY "If the cursor below is positioned at the first"
+               LINE 1 COLUMN 1.
+           DISPLAY "column in the field below and it is empty, then"
+               LINE 2 COLUMN 1.
+           DISPLAY "enter 'AB', position after the 'B' and press ENTER."
+               LINE 3 COLUMN 1.
+
+           MOVE "ABCDE     " TO WS-X-20.
+           MOVE 0008         TO cur-pos.
+           ACCEPT WS-X-20
+               LINE 5 COLUMN 3
+               WITH
+                   SIZE 10
+                   UNDERLINE
+                   CURSOR cur-pos.
+
+           IF cur-pos = 0003 AND COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1
+           END-IF
+           .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2650: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2650"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2650"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2651: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2651"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2651"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_49
+#AT_START_50
+at_fn_group_banner 50 'run_manual_screen.at:2656' \
+  "ACCEPT field WITH CURSOR literal" "               " 1
+at_xfail=no
+(
+  $as_echo "50. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:2659" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2659"
+
+cat >prog.cob <<'_ATEOF'
+
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  success-flag PIC X VALUE 'Y'.
+           88  success  VALUE 'Y', 'y'.
+       01  ws-x-20      PIC X(20).
+       PROCEDURE DIVISION.
+       testme.
+           set environment 'COB_SCREEN_EXCEPTIONS' to 'TRUE'
+           set environment 'COB_SCREEN_ESC'        to 'TRUE'
+
+           DISPLAY "If the cursor below is positioned at the 'C'"
+               LINE 1 COLUMN 1.
+           DISPLAY "(third column in field) below, then press ENTER."
+               LINE 2 COLUMN 1.
+
+           MOVE "ABCDEFG   " TO WS-X-20.
+           ACCEPT WS-X-20
+               LINE 4 COLUMN 2
+               WITH
+                   AUTO-SKIP
+                   SIZE 10
+                   CURSOR 3
+                   UPDATE.
+
+           IF COB-CRT-STATUS = 0
+               GOBACK RETURNING 0
+           ELSE
+               GOBACK RETURNING 1
+           END-IF
+           .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2696: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2696"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2696"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:2697: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2697"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2697"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_50
+#AT_START_51
+at_fn_group_banner 51 'run_manual_screen.at:2702' \
+  "HOME key" "                                       " 1
+at_xfail=no
+(
+  $as_echo "51. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:2705" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2705"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5289,50 +6681,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1854: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1854"
+$as_echo "$at_srcdir/run_manual_screen.at:2743: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2743"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1854"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2743"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1855: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1855"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2744: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2744"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1855"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2744"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_39
-#AT_START_40
-at_fn_group_banner 40 'run_manual_screen.at:1860' \
+#AT_STOP_51
+#AT_START_52
+at_fn_group_banner 52 'run_manual_screen.at:2749' \
   "END key" "                                        " 1
 at_xfail=no
 (
-  $as_echo "40. $at_setup_line: testing $at_desc ..."
+  $as_echo "52. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1863" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2752" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1863"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2752"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5373,50 +6766,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1901: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1901"
+$as_echo "$at_srcdir/run_manual_screen.at:2790: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2790"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1901"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2790"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1902: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1902"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2791: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2791"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1902"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2791"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_40
-#AT_START_41
-at_fn_group_banner 41 'run_manual_screen.at:1907' \
+#AT_STOP_52
+#AT_START_53
+at_fn_group_banner 53 'run_manual_screen.at:2796' \
   "INSERT key" "                                     " 1
 at_xfail=no
 (
-  $as_echo "41. $at_setup_line: testing $at_desc ..."
+  $as_echo "53. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1910" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2799" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1910"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2799"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5459,57 +6853,63 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1950: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1950"
+$as_echo "$at_srcdir/run_manual_screen.at:2839: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2839"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1950"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2839"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1951: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:1951"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2840: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2840"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1951"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2840"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_41
-#AT_START_42
-at_fn_group_banner 42 'run_manual_screen.at:1956' \
+#AT_STOP_53
+#AT_START_54
+at_fn_group_banner 54 'run_manual_screen.at:2845' \
   "BACKSPACE key" "                                  " 1
 at_xfail=no
 (
-  $as_echo "42. $at_setup_line: testing $at_desc ..."
+  $as_echo "54. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:1959" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2848" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:1959"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2848"
 
 cat >prog.cob <<'_ATEOF'
 
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.
+       ENVIRONMENT      DIVISION.
+       CONFIGURATION    SECTION.
+       SPECIAL-NAMES.
+       CURSOR IS cur-pos.
        DATA             DIVISION.
        WORKING-STORAGE  SECTION.
+       77  cur-pos      pic 9(06).
        01  success-flag PIC X VALUE 'Y'.
            88  success  VALUE 'Y', 'y'.
        01  ws-x-20      PIC X(20).
@@ -5524,6 +6924,7 @@ cat >prog.cob <<'_ATEOF'
                LINE 4 COLUMN 1.
 
            MOVE "ABCD      " TO WS-X-20.
+           MOVE 006002       TO cur-pos.
            ACCEPT WS-X-20
                LINE 6 COLUMN 1
                WITH
@@ -5545,50 +6946,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:1999: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:1999"
+$as_echo "$at_srcdir/run_manual_screen.at:2894: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2894"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:1999"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2894"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2000: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:2000"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2895: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2895"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2000"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2895"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_42
-#AT_START_43
-at_fn_group_banner 43 'run_manual_screen.at:2005' \
+#AT_STOP_54
+#AT_START_55
+at_fn_group_banner 55 'run_manual_screen.at:2900' \
   "DELETE key" "                                     " 1
 at_xfail=no
 (
-  $as_echo "43. $at_setup_line: testing $at_desc ..."
+  $as_echo "55. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:2008" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2903" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2008"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2903"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5631,50 +7033,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2048: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2048"
+$as_echo "$at_srcdir/run_manual_screen.at:2943: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2943"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2048"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2943"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2049: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:2049"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2944: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2944"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2049"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2944"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_43
-#AT_START_44
-at_fn_group_banner 44 'run_manual_screen.at:2054' \
+#AT_STOP_55
+#AT_START_56
+at_fn_group_banner 56 'run_manual_screen.at:2949' \
   "ALT DELETE key" "                                 " 1
 at_xfail=no
 (
-  $as_echo "44. $at_setup_line: testing $at_desc ..."
+  $as_echo "56. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:2057" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2952" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2057"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2952"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5715,50 +7118,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2095: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2095"
+$as_echo "$at_srcdir/run_manual_screen.at:2990: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2990"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2095"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2990"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2096: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:2096"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:2991: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:2991"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2096"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2991"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_44
-#AT_START_45
-at_fn_group_banner 45 'run_manual_screen.at:2101' \
+#AT_STOP_56
+#AT_START_57
+at_fn_group_banner 57 'run_manual_screen.at:2996' \
   "ALT LEFT-ARROW key" "                             " 1
 at_xfail=no
 (
-  $as_echo "45. $at_setup_line: testing $at_desc ..."
+  $as_echo "57. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:2104" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:2999" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2104"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2999"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5799,50 +7203,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2142: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2142"
+$as_echo "$at_srcdir/run_manual_screen.at:3037: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:3037"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2142"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3037"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2143: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:2143"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:3038: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:3038"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2143"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3038"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_45
-#AT_START_46
-at_fn_group_banner 46 'run_manual_screen.at:2148' \
+#AT_STOP_57
+#AT_START_58
+at_fn_group_banner 58 'run_manual_screen.at:3043' \
   "ALT RIGHT-ARROW key" "                            " 1
 at_xfail=no
 (
-  $as_echo "46. $at_setup_line: testing $at_desc ..."
+  $as_echo "58. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:2151" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:3046" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2151"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:3046"
 
 cat >prog.cob <<'_ATEOF'
 
@@ -5883,50 +7288,51 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2189: \$COMPILE prog.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:2189"
+$as_echo "$at_srcdir/run_manual_screen.at:3084: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:3084"
 ( $at_check_trace; $COMPILE prog.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2189"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3084"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2190: \$RUN_PROG_MANUAL ./prog"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog" "run_manual_screen.at:2190"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog
+$as_echo "$at_srcdir/run_manual_screen.at:3085: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:3085"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2190"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3085"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_46
-#AT_START_47
-at_fn_group_banner 47 'run_manual_screen.at:2195' \
+#AT_STOP_58
+#AT_START_59
+at_fn_group_banner 59 'run_manual_screen.at:3090' \
   "CURSOR clause" "                                  " 1
 at_xfail=no
 (
-  $as_echo "47. $at_setup_line: testing $at_desc ..."
+  $as_echo "59. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:2198" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:3093" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2198"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:3093"
 
 cat >prog1.cob <<'_ATEOF'
 
@@ -5973,6 +7379,8 @@ cat >prog1.cob <<'_ATEOF'
 _ATEOF
 
 
+# note: same test, but this time with different specified
+#       special-names reference
 cat >prog2.cob <<'_ATEOF'
 
        identification division.
@@ -6015,81 +7423,83 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2282: \$COMPILE prog1.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog1.cob" "run_manual_screen.at:2282"
+$as_echo "$at_srcdir/run_manual_screen.at:3179: \$COMPILE prog1.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog1.cob" "run_manual_screen.at:3179"
 ( $at_check_trace; $COMPILE prog1.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2282"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3179"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2283: \$COMPILE prog2.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog2.cob" "run_manual_screen.at:2283"
+$as_echo "$at_srcdir/run_manual_screen.at:3180: \$COMPILE prog2.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog2.cob" "run_manual_screen.at:3180"
 ( $at_check_trace; $COMPILE prog2.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2283"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3180"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 
 # user-instructions what to test is missing
-$as_echo "run_manual_screen.at:2286" >"$at_check_line_file"
-at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2286"
+$as_echo "run_manual_screen.at:3183" >"$at_check_line_file"
+at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:3183"
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2288: \$RUN_PROG_MANUAL ./prog1"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog1" "run_manual_screen.at:2288"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog1
+$as_echo "$at_srcdir/run_manual_screen.at:3185: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog1"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog1" "run_manual_screen.at:3185"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog1
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2288"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3185"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
+
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2289: \$RUN_PROG_MANUAL ./prog2"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog2" "run_manual_screen.at:2289"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog2
+$as_echo "$at_srcdir/run_manual_screen.at:3186: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog2"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog2" "run_manual_screen.at:3186"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog2
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2289"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3186"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_47
-#AT_START_48
-at_fn_group_banner 48 'run_manual_screen.at:2294' \
+#AT_STOP_59
+#AT_START_60
+at_fn_group_banner 60 'run_manual_screen.at:3191' \
   "CRT STATUS clause" "                              " 1
 at_xfail=no
 (
-  $as_echo "48. $at_setup_line: testing $at_desc ..."
+  $as_echo "60. $at_setup_line: testing $at_desc ..."
   $at_traceon
 
 
 
-$as_echo "run_manual_screen.at:2297" >"$at_check_line_file"
+$as_echo "run_manual_screen.at:3194" >"$at_check_line_file"
 (test "$COB_HAS_CURSES" != "yes") \
-  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2297"
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:3194"
 
 cat >prog1.cob <<'_ATEOF'
 
@@ -6138,6 +7548,8 @@ cat >prog1.cob <<'_ATEOF'
 _ATEOF
 
 
+# note: same test, but this time with different specified
+#       special-names reference
 cat >prog2.cob <<'_ATEOF'
 
        identification division.
@@ -6178,65 +7590,333 @@ _ATEOF
 
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2381: \$COMPILE prog1.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog1.cob" "run_manual_screen.at:2381"
+$as_echo "$at_srcdir/run_manual_screen.at:3280: \$COMPILE prog1.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog1.cob" "run_manual_screen.at:3280"
 ( $at_check_trace; $COMPILE prog1.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2381"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3280"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2382: \$COMPILE prog2.cob"
-at_fn_check_prepare_dynamic "$COMPILE prog2.cob" "run_manual_screen.at:2382"
+$as_echo "$at_srcdir/run_manual_screen.at:3281: \$COMPILE prog2.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog2.cob" "run_manual_screen.at:3281"
 ( $at_check_trace; $COMPILE prog2.cob
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2382"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3281"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
 
 # user-instructions what to test is missing
-$as_echo "run_manual_screen.at:2385" >"$at_check_line_file"
-at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:2385"
+$as_echo "run_manual_screen.at:3284" >"$at_check_line_file"
+at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:3284"
 
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2387: \$RUN_PROG_MANUAL ./prog1"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog1" "run_manual_screen.at:2387"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog1
+$as_echo "$at_srcdir/run_manual_screen.at:3286: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog1"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog1" "run_manual_screen.at:3286"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog1
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2387"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3286"
 $at_failed && at_fn_log_failure
 $at_traceon; }
 
+
 { set +x
-$as_echo "$at_srcdir/run_manual_screen.at:2388: \$RUN_PROG_MANUAL ./prog2"
-at_fn_check_prepare_dynamic "$RUN_PROG_MANUAL ./prog2" "run_manual_screen.at:2388"
-( $at_check_trace; $RUN_PROG_MANUAL ./prog2
+$as_echo "$at_srcdir/run_manual_screen.at:3287: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog2"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog2" "run_manual_screen.at:3287"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog2
 ) >>"$at_stdout" 2>>"$at_stderr" 5>&-
 at_status=$? at_failed=false
 $at_check_filter
 at_fn_diff_devnull "$at_stderr" || at_failed=:
 at_fn_diff_devnull "$at_stdout" || at_failed=:
-at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:2388"
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3287"
 $at_failed && at_fn_log_failure
 $at_traceon; }
+
 
 
   set +x
   $at_times_p && times >"$at_times_file"
 ) 5>&1 2>&1 7>&- | eval $at_tee_pipe
 read at_status <"$at_status_file"
-#AT_STOP_48
+#AT_STOP_60
+#AT_START_61
+at_fn_group_banner 61 'run_manual_screen.at:3292' \
+  "CRT STATUS clause" "                              " 1
+at_xfail=no
+(
+  $as_echo "61. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:3295" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:3295"
+
+cat >prog.cob <<'_ATEOF'
+
+       identification division.
+       program-id. prog-crt4.
+
+       data division.
+       working-storage section.
+
+       01 crt4 pic 9(4) is special-names crt status.
+
+       01 test-tab.
+         05 test-01 pic x(20) value "Function key 01 1001".
+         05 test-02 pic x(20) value "Function key 02 1002".
+         05 test-03 pic x(20) value "Function key 03 1003".
+         05 test-04 pic x(20) value "Function key 04 1004".
+         05 test-05 pic x(20) value "Function key 05 1005".
+         05 test-06 pic x(20) value "Prev-page key   2001".
+         05 test-07 pic x(20) value "Next-page key   2002".
+
+       01 test-rab-r redefines test-tab.
+         05 test-data occurs 7 times.
+           10 test-name         pic x(16).
+           10 test-crt4         pic 9(4).
+
+       01 linenr                pic 9(2) value 0.
+
+       01 test-result-4         pic 9(4).
+
+       01 return-value          pic 9 value 0.
+
+       77 loop                  pic 9(2).
+       77 test-field            pic x.
+
+
+       procedure division.
+
+       set environment 'COB_SCREEN_EXCEPTIONS' to 'TRUE'
+       set environment 'COB_SCREEN_ESC'        to 'TRUE'
+
+       perform forever
+         display spaces with blank screen
+
+         move 0 to return-value
+         perform varying loop from 1 by 1 until loop > 7
+           compute linenr = loop + 5
+
+           display "Please press " line linenr, column 1
+           display test-name(loop) line linenr, column 14
+
+           move spaces to test-field
+           accept test-field
+            line linenr column 30
+
+           display crt4 line linenr, column 30
+
+           if crt4 = test-crt4(loop)
+             display "passed" line linenr, column 36
+           else
+             move 1 to return-value
+             display "failed" line linenr, column 36
+           end-if
+         end-perform
+
+         if return-value = 0
+           exit perform
+         end-if
+
+         display "Try again? (Y/n) " line 20, column 1
+         move "Y" to test-field
+         accept test-field line 20, column 18
+         if not (test-field = "Y" or "y")
+           exit perform
+         end-if
+       end-perform
+
+       goback returning return-value
+       .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:3375: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:3375"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3375"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:3377: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:3377"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3377"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_61
+#AT_START_62
+at_fn_group_banner 62 'run_manual_screen.at:3382' \
+  "X/Open CRT STATUS clause" "                       " 1
+at_xfail=no
+(
+  $as_echo "62. $at_setup_line: testing $at_desc ..."
+  $at_traceon
+
+
+
+$as_echo "run_manual_screen.at:3385" >"$at_check_line_file"
+(test "$COB_HAS_CURSES" != "yes") \
+  && at_fn_check_skip 77 "$at_srcdir/run_manual_screen.at:3385"
+
+cat >prog.cob <<'_ATEOF'
+
+       identification division.
+       program-id. prog-crt3.
+
+       data division.
+       working-storage section.
+
+       01 crt3 is special-names crt status.
+         05 crt3-1   pic 9.
+         05 crt3-2   usage binary-char unsigned.
+         05 crt3-3   usage binary-char unsigned.
+
+       01 test-tab.
+         05 test-01 pic x(20) value "Function key 01 1001".
+         05 test-02 pic x(20) value "Function key 02 1002".
+         05 test-03 pic x(20) value "Function key 03 1003".
+         05 test-04 pic x(20) value "Function key 04 1004".
+         05 test-05 pic x(20) value "Function key 05 1005".
+         05 test-06 pic x(20) value "Prev-page key   2001".
+         05 test-07 pic x(20) value "Next-page key   2002".
+
+       01 test-rab-r redefines test-tab.
+         05 test-data occurs 7 times.
+           10 test-name         pic x(16).
+           10 test-crt31        pic 9.
+           10 test-crt32        pic 9(3).
+
+       01 linenr                pic 9(2) value 0.
+
+       01 test-result-1         pic 9.
+       01 test-result-3         pic 9(3).
+
+       01 return-value          pic 9 value 0.
+
+       77 loop                  pic 9(2).
+       77 test-field            pic x.
+
+
+       procedure division.
+
+       set environment 'COB_SCREEN_EXCEPTIONS' to 'TRUE'
+       set environment 'COB_SCREEN_ESC'        to 'TRUE'
+
+       perform forever
+         display spaces with blank screen
+
+         move 0 to return-value
+         perform varying loop from 1 by 1 until loop > 7
+           compute linenr = loop + 5
+
+           display "Please press " line linenr, column 1
+           display test-name(loop) line linenr, column 14
+
+           move spaces to test-field
+           accept test-field
+            line linenr column 30
+
+           move crt3-1 to test-result-1
+           display test-result-1 line linenr, column 30
+
+           move crt3-2 to test-result-3
+           display test-result-3 line linenr, column 32
+
+           if test-result-1 = test-crt31(loop) and
+            test-result-3 = test-crt32(loop)
+             display "passed" line linenr, column 36
+           else
+             move 1 to return-value
+             display "failed" line linenr, column 36
+           end-if
+         end-perform
+
+         if return-value = 0
+           exit perform
+         end-if
+
+         display "Try again? (Y/n) " line 20, column 1
+         move "Y" to test-field
+         accept test-field line 20, column 18
+         if not (test-field = "Y" or "y")
+           exit perform
+         end-if
+       end-perform
+
+       goback returning return-value
+       .
+_ATEOF
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:3475: \$COMPILE prog.cob"
+at_fn_check_prepare_dynamic "$COMPILE prog.cob" "run_manual_screen.at:3475"
+( $at_check_trace; $COMPILE prog.cob
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3475"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+{ set +x
+$as_echo "$at_srcdir/run_manual_screen.at:3477: DESC=\"\$at_desc_line\" \$RUN_PROG_MANUAL \$COBCRUN_DIRECT ./prog"
+at_fn_check_prepare_dynamic "DESC=\"$at_desc_line\" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog" "run_manual_screen.at:3477"
+( $at_check_trace; DESC="$at_desc_line" $RUN_PROG_MANUAL $COBCRUN_DIRECT ./prog
+) >>"$at_stdout" 2>>"$at_stderr" 5>&-
+at_status=$? at_failed=false
+$at_check_filter
+at_fn_diff_devnull "$at_stderr" || at_failed=:
+at_fn_diff_devnull "$at_stdout" || at_failed=:
+at_fn_check_status 0 $at_status "$at_srcdir/run_manual_screen.at:3477"
+$at_failed && at_fn_log_failure
+$at_traceon; }
+
+
+
+  set +x
+  $at_times_p && times >"$at_times_file"
+) 5>&1 2>&1 7>&- | eval $at_tee_pipe
+read at_status <"$at_status_file"
+#AT_STOP_62
