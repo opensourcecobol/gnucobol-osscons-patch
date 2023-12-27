@@ -25,7 +25,7 @@ dnl
 AC_PREREQ([2.67])  # note: 2.67 is the one found in old msys, 2.69 is commonly available
 
 AC_INIT([GnuCOBOL OSS Consortium patch],
-	[3.2 patch2],
+	[3.2 patch1],
 	[ws-opensource-cobol-contact@osscons.jp],
 	[gnucobol],
 	[https://github.com/opensourcecobol/gnucobol-osscons-patch])
