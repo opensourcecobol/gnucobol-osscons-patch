@@ -24,17 +24,17 @@ dnl
 
 AC_PREREQ([2.67])  # note: 2.67 is the one found in old msys, 2.69 is commonly available
 
-AC_INIT([GnuCOBOL],
-	[3.2],
-	[bug-gnucobol@gnu.org],
+AC_INIT([GnuCOBOL OSS Consortium patch],
+	[3.2 patch2],
+	[ws-opensource-cobol-contact@osscons.jp],
 	[gnucobol],
-	[https://www.gnu.org/software/gnucobol/])
+	[https://github.com/opensourcecobol/gnucobol-osscons-patch])
 AC_REVISION([GnuCOBOL snapshot $Revision: 5150 $])
 AC_COPYRIGHT([This file is part of GnuCOBOL.
 
 Copyright (C) 2001-2012, 2014-2023 Free Software Foundation, Inc.
 Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch,
-Edward Hart
+Edward Hart, OSS Consortium
 ])
 AC_CONFIG_SRCDIR([libcob.h])
 AC_CONFIG_HEADERS([config.h])
@@ -2149,7 +2149,7 @@ if test "$COB_USES_CLANG_ONLY" = yes; then
 	# don't warn for untyped function call - only possible if the interal repository would be enforced
 	curr_cflags="$CFLAGS"
 	CFLAGS="$CFLAGS -Wdeprecated-non-prototype $ERRWARN"
-	AC_MSG_CHECKING([for need to suppress clang ürototype warning])
+	AC_MSG_CHECKING([for need to suppress clang ?rototype warning])
 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[return 0;]])],
 		[COB_CFLAGS="$COB_CFLAGS -Wno-deprecated-non-prototype"; AC_MSG_RESULT([yes])],
 		[AC_MSG_RESULT([no])])
