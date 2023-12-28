@@ -10907,16 +10907,6 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 
 			/* Value check */
 			switch (CB_TREE_CATEGORY (dst)) {
-			case CB_CATEGORY_NATIONAL:
-			case CB_CATEGORY_NATIONAL_EDITED:
-				if (is_value) {
-					goto expect_national;
-				}
-
-				if (l->scale == 0) {
-					goto expect_national;
-				}
-				goto non_integer_move;
 			case CB_CATEGORY_ALPHANUMERIC:
 			case CB_CATEGORY_ALPHANUMERIC_EDITED:
 				if (is_value
@@ -11318,9 +11308,6 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 
 			/* Size check */
 			size = cb_field_size (dst);
-			if (CB_TREE_CATEGORY (dst) == CB_CATEGORY_NATIONAL) {
-				size /= COB_NATIONAL_SIZE;
-			}
 			if (size > 0
 			 && l->size > 0
 			 && !fdst->flag_any_length) {
@@ -11351,10 +11338,6 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 				if (is_value && (int)l->size > size) {
 					goto value_mismatch;
 				}
-			}
-			if (is_value
-			 && CB_TREE_CATEGORY (dst) == CB_CATEGORY_NATIONAL) {
-				goto expect_national;
 			}
 			break;
 		}
