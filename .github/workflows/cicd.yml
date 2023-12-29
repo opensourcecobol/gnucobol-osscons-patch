@@ -1,0 +1,48 @@
+name: test
+on:
+  push:
+  pull_request:
+    types: [opened, reopened, review_requested, synchronize]
+    
+jobs:
+  run-tests:
+    strategy:
+      matrix:
+        os: ["ubuntu:22.04"]
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.os }}
+    steps:
+        
+      - name: Install dependencies on Ubuntu 22.04
+        if: matrix.os == 'ubuntu:22.04'
+        run: apt update -y
+      
+      - name: Install prerequisite softwares
+        run: apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential libdb-dev
+
+      - uses: actions/checkout@v3
+      - name: Install vbisam
+        run: |
+          cd vbisam
+          ./configure --prefix=/usr/
+          make
+          make install
+          cd ..
+
+      - name: Set vbisam path
+        run: |
+          export CPPFLAGS="-I/usr/include"
+          export LDFLAGS="-L/usr/lib"
+          export LD_LAIBRARY_PATH="/usr/lib"
+
+      - name: Install GnuCOBOL
+        run: | 
+          ./configure --with-vbisam --prefix=/usr/ --with-xml2 --with-cjson
+          make
+          make check -i
+          make test
+          make install
+      
+      - name: Check information
+        run: cobc -i
