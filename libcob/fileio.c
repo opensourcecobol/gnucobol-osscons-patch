@@ -10793,7 +10793,9 @@ org_handling:
 		memcpy (fcd->fileStatus, fnstatus, 2);
 		return sts;
 
-	case OP_GETINFO:			/* Nothing needed here */
+	case OP_GETINFO:
+		cob_getinfo(f, fs);
+		update_file_to_fcd(f,fcd,fnstatus);
 		return sts;
 
 	case OP_COMMIT:
