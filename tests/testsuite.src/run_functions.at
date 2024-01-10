@@ -426,7 +426,7 @@ AT_DATA([prog.cob], [
        01  BIN    PIC   9(9) BINARY VALUE 12.
        01  PAC    PIC   9(5) COMP-3 VALUE 1234.
        01  N9     PIC   9(2) USAGE NATIONAL VALUE 12.
-       01  NX     PIC   N(2) VALUE N"!".
+       01  NX     PIC   N(2) VALUE "I".
        01  HEXX   PIC   X(10).
            88 HEXX-FILLER VALUE ALL "-".
        01  FILLER       USAGE BINARY-INT VALUE 0.
@@ -496,8 +496,8 @@ AT_DATA([prog.cob], [
               DISPLAY "UNEXPECTED HEX-VALUE OF ' ': " HEXX.
 
            SET  HEXX-FILLER TO TRUE
-           STRING FUNCTION HEX-OF (n' ') DELIMITED BY SIZE INTO HEXX.
-           IF HEXX NOT = "0020------"
+           STRING FUNCTION HEX-OF (n'@') DELIMITED BY SIZE INTO HEXX.
+           IF HEXX NOT = "8140------"
               DISPLAY "UNEXPECTED HEX-VALUE OF n' ': " HEXX.
 
        *>  FIXME: Failing with "3132------" -> missing padding
@@ -1851,7 +1851,7 @@ AT_DATA([prog.cob], [
            END-IF
            MOVE FUNCTION LENGTH ( n'a0' )
              TO TEST-FLD
-           IF TEST-FLD NOT = 2
+           IF TEST-FLD NOT = 1
               DISPLAY 'LENGTH n"a0" wrong: ' TEST-FLD
               END-DISPLAY
            END-IF

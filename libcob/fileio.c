@@ -6219,7 +6219,7 @@ cob_getinfo (cob_file *f, cob_field *fnstatus)
 	}
 
 	/* Obtain the file name */
-	cob_field_to_string (f->assign, file_open_name, (size_t)COB_FILE_MAX);
+	cob_field_to_string (f->assign, file_open_name, (size_t)COB_FILE_MAX, CCM_NONE);
 	if (file_open_name[0] == 0) {
 		save_status (f, fnstatus, COB_STATUS_31_INCONSISTENT_FILENAME);
 		return;
@@ -9902,7 +9902,7 @@ find_file (FCD3 *fcd)
 	struct fcd_file	*ff;
 	for (ff = fcd_file_list; ff; ff=ff->next) {
 		if (ff->fcd == fcd) {
-			copy_fcd_to_file(fcd, ff->f);
+			copy_fcd_to_file(fcd, ff->f, ff);
 			f = ff->f;
 			if (f == NULL) {
 				/* entry in fcd_file_list found, but has no cob_file, create below */

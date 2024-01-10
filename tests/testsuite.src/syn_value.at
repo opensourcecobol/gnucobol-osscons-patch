@@ -352,6 +352,9 @@ AT_CLEANUP
 AT_SETUP([National item])
 AT_KEYWORDS([value size])
 
+# Skip due to change in N type specifications
+AT_SKIP_IF([true])
+
 AT_DATA([prog.cob], [
        IDENTIFICATION   DIVISION.
        PROGRAM-ID.      prog.

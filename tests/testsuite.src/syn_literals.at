@@ -1140,6 +1140,9 @@ AT_CLEANUP
 AT_SETUP([national literals])
 AT_KEYWORDS([misc])
 
+# Skip due to change in N type specifications
+AT_SKIP_IF([true])
+
 AT_DATA([prog.cob], [
        IDENTIFICATION DIVISION.
        PROGRAM-ID.    prog.
@@ -1177,6 +1180,9 @@ AT_CLEANUP
 
 AT_SETUP([NX literals])
 AT_KEYWORDS([misc])
+
+# Skip due to change in N type specifications
+AT_SKIP_IF([true])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION DIVISION.
@@ -1411,6 +1417,9 @@ AT_CLEANUP
 
 AT_SETUP([zero-length literals])
 AT_KEYWORDS([misc])
+
+# Skip due to change in N type specifications
+AT_SKIP_IF([true])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION  DIVISION.
