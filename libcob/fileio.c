@@ -9632,7 +9632,8 @@ copy_fcd_to_file (FCD3* fcd, cob_file *f, struct fcd_file *fcd_list_entry)
 	f->record_min = LDCOMPX4(fcd->minRecLen);
 	f->record_max = LDCOMPX4(fcd->maxRecLen);
 	//if record size changes
-	if (f->record->size == 0 || f->record->size > f->record_max || f->record->size < f->record_min) {
+	if ((f->record) &&
+		 (f->record->size == 0 || f->record->size > f->record_max || f->record->size < f->record_min)) {
 		f->record->size = f->record_max;
 	}
 #if 1 /* CHECKME: not in trunk - not needed ? */
