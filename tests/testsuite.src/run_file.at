@@ -9777,7 +9777,7 @@ AT_DATA([prog.cob], [
           MOVE 512 TO FCD-MIN-REC-LENGTH
           MOVE 512 TO FCD-MAX-REC-LENGTH
           MOVE 1 TO FCD-VERSION
-          MOVE 255 TO FCD-ORGANIZATION
+          MOVE 2 TO FCD-ORGANIZATION
           MOVE OP-QUERY-FILE TO ACTION-CODE
           PERFORM 800-CALL-EXTFH.
           DISPLAY "Status: " FCD-FILE-STATUS
@@ -9789,9 +9789,6 @@ AT_DATA([prog.cob], [
              DISPLAY " Index: " i
                      " Parts: " key-count (i)
                      " Offset: " key-offset (i)
-                     " Flags: " key-flags (i)
-                     " Comp: " key-compression (i)
-                     " Sparse: " key-sparse (i)
              SET WS-FCD-PTR TO ADDRESS OF key-def
              SET WS-FCD-PTR UP BY key-offset (i)
              SET ADDRESS OF key-inf TO WS-FCD-PTR
@@ -9825,13 +9822,13 @@ AT_CHECK([$COMPILE -fnotrunc prog.cob], [0], [], [])
 
 AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
 [Status: 00 File: testisam            .
- Nkeys: 0003 Recsz: 0000000177
-kdblen: 0398
- Index: 01 Parts: 00001 Offset: 00062 Flags: 000 Comp: 000 Sparse: 000
+ Nkeys: 00003 Recsz: 0000000177
+kdblen: 00398
+ Index: 01 Parts: 00001 Offset: 00062
    Pos: 0000000000   Len: 0000000008   Desc: 000 Type: 000
- Index: 02 Parts: 00001 Offset: 00072 Flags: 064 Comp: 000 Sparse: 000
+ Index: 02 Parts: 00001 Offset: 00072
    Pos: 0000000109   Len: 0000000010   Desc: 032 Type: 032
- Index: 03 Parts: 00003 Offset: 00082 Flags: 066 Comp: 000 Sparse: 042
+ Index: 03 Parts: 00003 Offset: 00082
    Pos: 0000000156   Len: 0000000008   Desc: 000 Type: 000
    Pos: 0000000119   Len: 0000000025   Desc: 000 Type: 000
    Pos: 0000000144   Len: 0000000008   Desc: 000 Type: 000

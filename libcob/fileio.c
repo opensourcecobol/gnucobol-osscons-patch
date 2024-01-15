@@ -4228,9 +4228,6 @@ indexed_getinfo (cob_file *f, char *filename)
 	if (f->record->size <= 0) {
 		f->record->size = f->record_max;
 	}
-	if (f->keys){
-		cob_free (f->keys);
-	}
 	f->keys = cob_malloc (sizeof(cob_file_key) * f->nkeys);
 	for (k = 0; k < f->nkeys; ++k) {
 		memset(&kd, 0, sizeof (kd));
