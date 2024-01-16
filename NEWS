@@ -1,4 +1,51 @@
 NEWS - user visible changes				-*- outline -*-
+ GnuCOBOL 3.2 OSSCons patch1 released  (20240116) by OSS Consortium.
+
+* Update OSSCons patch for GnuCOBOL3.2.
+
+** The Japanese-related features such as PIC N in opensource COBOL have been merged into GnuCOBOL 3.2.
+
+** The modifications are as follows:
+
+----
+
+* Support for NATIONAL item
+
+** Support for constants (including SPACE, ZERO, and QUATE), data, section, and variable names in Japanese (Shift-JIS encoded) NATIONAL items.
+
+** Support to convert strings to double-byte characters when moving data items from "X" to "N" PICTURE symbols.
+
+** Support for the reference modification at NATIONAL item.
+
+** Support for the use of NATIONAL item in STRING and INSPECT statements.
+
+* New GnuCOBOL features
+
+** sort handling: include support for a callable EXTSM interface also provided
+   by several compilers including Micro Focus
+
+** GET_FILE_INFO for isam files, use from EXTFH.
+   Scan and get key infomation from isam files.
+
+* New functions
+
+** CBL_GET_OS_INFO from Micro Focus.
+   Get OS information like Linux or Windows.
+
+** CBL_SPLIT_FILE_NAME from Micro Focus.
+   Split Filename into path and extension.
+
+* EXTFH improvements
+
+** Fix using multiple files by same FCD.
+** Fix could not be defined key information when using a RELETIVE file.
+
+* Other improvements
+
+** Fix an error when using National item at compile.
+** Fix RENAME FILE function return code when file not found.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  GnuCOBOL 3.2     (20230728)
  GnuCOBOL 3.2rc1  (20230118)
