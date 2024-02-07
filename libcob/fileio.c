@@ -11256,7 +11256,7 @@ int
 EXTSM (unsigned char *opcode, FCD3 *fcd)
 {
 	int	opcd,sts,opts;
-	unsigned char	fnstatus[2];
+	unsigned char	*fnstatus = NULL;
 	cob_field fs[1];
 	cob_field rec[1];
 	cob_file *f;
@@ -11272,11 +11272,6 @@ EXTSM (unsigned char *opcode, FCD3 *fcd)
 		exit(-1);
 #endif
 	}
-	sts = opts = 0;
-	fs->data = fnstatus;
-	fs->size = sizeof(fnstatus);
-	fs->attr = &alnum_attr;
-	memcpy (fnstatus, "00", 2);
 	memcpy (fcd->fileStatus, "00", 2);
 
 	if (cobglobptr == NULL) {	/* Auto Init GnuCOBOL runtime */
