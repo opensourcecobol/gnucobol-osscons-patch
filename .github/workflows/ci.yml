@@ -1,0 +1,34 @@
+name: test
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened, review_requested, synchronize]
+
+env:
+  CPPFLAGS: "-I/usr/include"
+  LDFLAGS: "-L/usr/lib"
+  LD_LAIBRARY_PATH: "/usr/lib"
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install prerequisite softwares
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential libdb-dev
+
+      - uses: actions/checkout@v4
+
+      - name: Install GnuCOBOL
+        run: | 
+          ./configure --prefix=/usr/ --with-xml2 --with-cjson
+          make
+          make install
+
+      - name: Run tests
+        run: |
+          make check -i
+          make test
