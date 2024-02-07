@@ -22,11 +22,18 @@ jobs:
 
       - uses: actions/checkout@v4
 
+      - name: Install vbisam
+        working-directory: vbisam
+        run: |
+          ./configure --prefix=/usr/
+          make
+          sudo make install
+
       - name: Install GnuCOBOL
         run: | 
-          ./configure --prefix=/usr/ --with-xml2 --with-cjson
+          ./configure --prefix=/usr/ --with-xml2 --with-cjson --with-vbisam
           make
-          make install
+          sudo make install
 
       - name: Run tests
         run: |
