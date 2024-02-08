@@ -3694,6 +3694,10 @@ AT_DATA([prog.cob], [
            CALL "EXTSM" USING OPCODE, FCD.
            DISPLAY EX-RECORD-BUFFER.
 
+      *>   "AT END".
+           CALL "EXTSM" USING OPCODE, FCD.
+           DISPLAY FCD-FILE-STATUS.
+
       *>   "TERM".
            MOVE SD-term TO OPCODE.
            CALL "EXTSM" USING OPCODE, FCD.
@@ -3706,6 +3710,7 @@ AT_CHECK([$COBCRUN_DIRECT ./prog], [0],
 [AAA222
 BBB111
 CCC333
+10
 ], [])
 
 AT_CLEANUP
