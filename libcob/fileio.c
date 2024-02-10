@@ -4416,6 +4416,8 @@ indexed_open (cob_file *f, char *filename,
 		lmode = ISEXCLLOCK;
 		omode = ISINOUT;
 		break;
+	default:
+		break;
 	}
 	fh = cob_malloc (sizeof (struct indexfile) +
 			 ((sizeof (struct keydesc)) * (f->nkeys + 1)));
@@ -9142,7 +9144,6 @@ static struct fcd_file {
 	int			free_select;
 } *fcd_file_list = NULL;
 static const cob_field_attr compx_attr = {COB_TYPE_NUMERIC_BINARY, 0, 0, 0, NULL};
-static const cob_field_attr num_attr = {COB_TYPE_NUMERIC_BINARY, 8, 0, 0x0020, NULL};
 
 static void copy_keys_fcd_to_file (FCD3 *fcd, cob_file *f, int doall);
 static int	EXTFH3 (unsigned char *opcode, FCD3 *fcd);
@@ -11255,9 +11256,8 @@ cob_sys_extsm (const void *opcode_ptr, void *fcd_ptr)
 int
 EXTSM (unsigned char *opcode, FCD3 *fcd)
 {
-	int	opcd,sts,opts;
+	int	opcd,sts;
 	unsigned char	*fnstatus = NULL;
-	cob_field fs[1];
 	cob_field rec[1];
 	cob_file *f;
 
