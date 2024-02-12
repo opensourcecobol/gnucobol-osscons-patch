@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cppcheck --error-exitcode=1 \
+    cobc.c \
+    cobc.h \
+    codegen.c \
+    codeoptim.c \
+    config.c \
+    error.c \
+    field.c \
+    help.c \
+    parser.c \
+    parser.h \
+    ppparse.c \
+    ppparse.h \
+    replace.c \
+    tree.c \
+    tree.h \
+    typeck.c
+    # pplex.c \ -- this file contains errors
+    # scanner.c \ -- this file contains errors
+    # reserved.c \ -- this file contains errors
