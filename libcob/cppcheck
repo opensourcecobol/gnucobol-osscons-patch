@@ -1,0 +1,20 @@
+#!/bin/bash
+
+cppcheck --error-exitcode=1 \
+	call.c \
+	cconv.c \
+	cobgetopt.c \
+	cobgetopt.h \
+	coblocal.h \
+	common.c \
+	common.h \
+	fileio.c \
+	intrinsic.c \
+	mlio.c \
+	move.c \
+	numeric.c \
+	screenio.c \
+	strings.c \
+	termio.c \
+	version.h
+	#reportio.c \ This file contains errors
