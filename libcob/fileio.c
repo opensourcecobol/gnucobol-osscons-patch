@@ -11151,8 +11151,11 @@ copy_fcd_to_sort_file (FCD3* fcd, cob_file *f)
 		f->record->size = LDCOMPX4(fcd->curRecLen);
 	} else if (LDCOMPX4(fcd->maxRecLen) > 0) {
 		f->record->size = LDCOMPX4(fcd->maxRecLen);
+		STCOMPX4(f->record->size, fcd->curRecLen);
 	} else if (LDCOMPX4(fcd->minRecLen) > 0) {
 		f->record->size = LDCOMPX4(fcd->minRecLen);
+		STCOMPX4(f->record->size, fcd->curRecLen);
+		STCOMPX4(f->record->size, fcd->maxRecLen);
 	} else {
 		f->record->size = 0;
 	}
@@ -11257,8 +11260,6 @@ EXTSM (unsigned char *opcode, FCD3 *fcd)
 {
 	int	opcd,sts,opts;
 	unsigned char	*fnstatus = NULL;
-	cob_field fs[1];
-	cob_field rec[1];
 	cob_file *f;
 
 	if (fcd->fcdVer != FCD_VER_64Bit) {
@@ -11272,6 +11273,7 @@ EXTSM (unsigned char *opcode, FCD3 *fcd)
 		exit(-1);
 #endif
 	}
+	sts = opts = 0;
 	memcpy (fcd->fileStatus, "00", 2);
 
 	if (cobglobptr == NULL) {	/* Auto Init GnuCOBOL runtime */
@@ -11293,10 +11295,6 @@ EXTSM (unsigned char *opcode, FCD3 *fcd)
 	/* Look for fcd in table and if found use associated 'cob_file' after copying values over */
 	/* If fcd is not found, then 'callfh' created it, so create a new 'cob_file' and table that */
 	f = find_sort_file (opcd, fcd);
-
-	rec->data = fcd->recPtr;
-	rec->size = LDCOMPX4(fcd->curRecLen);
-	rec->attr = &alnum_attr;
 
 	switch (opcd) {
 	case OP_SORT_INIT:
