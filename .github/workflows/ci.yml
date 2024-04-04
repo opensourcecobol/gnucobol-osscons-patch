@@ -47,12 +47,15 @@ jobs:
           sudo make install
 
       - name: Install GnuCOBOL
-        run: | 
+        run: |
           ./configure --prefix=/usr/ --with-xml2 --with-cjson --with-vbisam
           make
           sudo make install
 
-      - name: Run tests
+      - name: Run custom tests
         run: |
           make check
+
+      - name: Run COBOL85 tests
+        run: |
           make test
