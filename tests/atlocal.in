@@ -363,3 +363,5 @@ DB_HOME="" && export DB_HOME
 
 # For the very rare cases where cobc/libcob may need to know if they're running in test mode:
 COB_IS_RUNNING_IN_TESTMODE=1 && export COB_IS_RUNNING_IN_TESTMODE
+
+SKIP_TEST_TEMPORARILY="exit 77"

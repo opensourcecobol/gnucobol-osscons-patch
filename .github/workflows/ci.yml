@@ -54,5 +54,5 @@ jobs:
 
       - name: Run tests
         run: |
-          make check -i
+          make check
           make test

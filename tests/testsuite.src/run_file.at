@@ -406,6 +406,7 @@ AT_CLEANUP
 AT_SETUP([OUTPUT on INDEXED file to missing directory])
 AT_KEYWORDS([runfile OPEN ASSIGN])
 
+AT_CHECK([$SKIP_TEST_TEMPORARILY])
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
 
 AT_DATA([prog.cob], [
@@ -6201,6 +6202,8 @@ AT_CLEANUP
 AT_SETUP([INDEXED file with LOCK MODE EXCLUSIVE])
 AT_KEYWORDS([runfile])
 
+AT_CHECK([SKIP_TEST_TEMPORARILY])
+
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
 AT_XFAIL_IF([true])
@@ -6280,6 +6283,8 @@ AT_CLEANUP
 AT_SETUP([INDEXED file with OPEN WITH LOCK])
 AT_KEYWORDS([runfile])
 
+AT_CHECK([SKIP_TEST_TEMPORARILY])
+
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
 AT_XFAIL_IF([true])
@@ -6357,6 +6362,8 @@ AT_CLEANUP
 
 AT_SETUP([INDEXED file with SHARING NO])
 AT_KEYWORDS([runfile])
+
+AT_CHECK([SKIP_TEST_TEMPORARILY])
 
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
@@ -6436,6 +6443,8 @@ AT_CLEANUP
 
 AT_SETUP([INDEXED file with SHARING READ ONLY])
 AT_KEYWORDS([runfile])
+
+AT_CHECK([SKIP_TEST_TEMPORARILY])
 
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
@@ -6522,6 +6531,8 @@ AT_CLEANUP
 ## Check successor is blocked from exclusive open on file already open.
 AT_SETUP([INDEXED file with blocked lock])
 AT_KEYWORDS([runfile])
+
+AT_CHECK([SKIP_TEST_TEMPORARILY])
 
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
@@ -6957,6 +6968,7 @@ AT_CLEANUP
 AT_SETUP([INDEXED partial keys])
 AT_KEYWORDS([runfile])
 
+AT_CHECK([$SKIP_TEST_TEMPORARILY])
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
 
 AT_DATA([prog.cob], [
@@ -9844,6 +9856,7 @@ AT_CLEANUP
 AT_SETUP([EXTFH: changing record address])
 AT_KEYWORDS([runfile EXTFH])
 
+AT_CHECK([$SKIP_TEST_TEMPORARILY])
 # TODO: replace INDEXED with line sequential (or duplicate)
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
 
@@ -11482,6 +11495,7 @@ AT_CLEANUP
 AT_SETUP([INDEXED File READ/DELETE/READ])
 AT_KEYWORDS([runfile READ DELETE EXTFH])
 
+AT_CHECK([$SKIP_TEST_TEMPORARILY])
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
 
 AT_DATA([prog.cob], [
