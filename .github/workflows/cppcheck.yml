@@ -1,0 +1,55 @@
+name: cppcheck
+
+on:
+  push:
+  pull_request:
+    types: [opened, reopened, review_requested, synchronize]
+
+env:
+  CPPFLAGS: "-I/usr/include"
+  LDFLAGS: "-L/usr/lib"
+  LD_LAIBRARY_PATH: "/usr/lib"
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Install prerequisite softwares
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential libdb-dev cppcheck
+
+      - uses: actions/checkout@v4
+
+      - name: Download vbisam
+        run: |
+          if [ ! -d vbisam ]; then \
+            git clone https://github.com/opensourcecobol/opensource-cobol; \
+            mv opensource-cobol/vbisam .; \
+            rm -rf opensource-cobol; \
+          fi
+
+      - name: Install vbisam
+        working-directory: vbisam
+        run: |
+          ./configure --prefix=/usr/
+          make
+          sudo make install
+
+      - name: Build GnuCOBOL
+        run: | 
+          ./configure --prefix=/usr/ --with-xml2 --with-vbisam
+          make
+
+      - name: Check cobc/
+        working-directory: cobc/
+        run: ./cppcheck
+
+      - name: Check libcob/
+        working-directory: libcob/
+        run: ./cppcheck
+
+      - name: Check bin/
+        working-directory: bin/
+        run: ./cppcheck
