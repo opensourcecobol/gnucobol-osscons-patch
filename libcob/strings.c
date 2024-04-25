@@ -123,7 +123,7 @@ alloc_figurative (const cob_field *f1, const cob_field *f2)
 	size_t			size2;
 	size_t			n;
 	unsigned char		c1;
-	unsigned char		c2;			
+	unsigned char		c2 = 0;			
 
 	size2 = f2->size;
 	if (size2 > figurative_size) {
