@@ -1640,7 +1640,12 @@ cob_fd_file_open (cob_file *f, char *filename,
 	fperms = 0;
 	switch (mode) {
 	case COB_OPEN_INPUT:
-		fdmode |= O_RDONLY;
+		if (f->lock_mode & COB_LOCK_EXCLUSIVE) {
+			/* for fcntl write lock */
+			fdmode |= O_RDWR;	
+		} else {
+			fdmode |= O_RDONLY;
+		}
 		break;
 	case COB_OPEN_OUTPUT:
 		nonexistent = 0;
@@ -1753,7 +1758,7 @@ cob_fd_file_open (cob_file *f, char *filename,
 	if (memcmp (filename, "/dev/", (size_t)5)) {
 		struct flock	lock;
 		memset ((void *)&lock, 0, sizeof (struct flock));
-		if (mode != COB_OPEN_INPUT) {
+		if ((mode != COB_OPEN_INPUT) || (f->lock_mode & COB_LOCK_EXCLUSIVE)) {
 			lock.l_type = F_WRLCK;
 		} else {
 			lock.l_type = F_RDLCK;
