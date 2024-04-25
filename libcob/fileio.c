@@ -11268,7 +11268,7 @@ EXTSM (unsigned char *opcode, FCD3 *fcd)
 		exit(-1);
 #endif
 	}
-	sts = opts = 0;
+	sts = 0;
 	memcpy (fcd->fileStatus, "00", 2);
 
 	if (cobglobptr == NULL) {	/* Auto Init GnuCOBOL runtime */
