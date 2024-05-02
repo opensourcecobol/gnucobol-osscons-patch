@@ -1302,6 +1302,14 @@ typedef struct __cob_module {
 
 } cob_module;
 
+/* call stack list for cancel all */
+typedef struct __call_stack_list {
+	struct __call_stack_list	*parent;
+	struct __call_stack_list	*children;
+	struct __call_stack_list	*sister;
+	cob_module 					*module;
+} call_stack_list;
+
 
 /* User function structure */
 
@@ -2058,6 +2066,8 @@ COB_EXPIMP void		*cob_call_field		(const cob_field *,
 COB_EXPIMP void		cob_cancel_field	(const cob_field *,
 						 const struct cob_call_struct *);
 COB_EXPIMP void		cob_cancel		(const char *);
+void				cob_push_call_stack_list (cob_module *); /* CALL from common.c */
+void				cob_pop_call_stack_list (void); /* CALL from common.c */
 COB_EXPIMP int		cob_call_with_exception_check (const char*, const int, void **);
 COB_EXPIMP int		cob_call		(const char *, const int, void **);
 COB_EXPIMP int		cob_func		(const char *, const int, void **);
