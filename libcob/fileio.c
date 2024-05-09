@@ -2474,8 +2474,8 @@ sequential_rewrite (cob_file *f, const int opt)
 
 /* LINE SEQUENTIAL */
 
-#define IS_BAD_CHAR(x) (x < ' ' && x != COB_CHAR_BS && x != COB_CHAR_ESC \
-					 && x != COB_CHAR_FF && x != COB_CHAR_SI && x != COB_CHAR_TAB)
+#define IS_BAD_CHAR(x) (cobsetptr->cob_ls_chk_bad_char && (x < ' ' && x != COB_CHAR_BS && x != COB_CHAR_ESC \
+					 && x != COB_CHAR_FF && x != COB_CHAR_SI && x != COB_CHAR_TAB))
 
 #if defined (COB_EXPERIMENTAL)
 #ifdef COB_EBCDIC_MACHINE
@@ -9131,6 +9131,10 @@ cob_init_fileio (cob_global *lptr, cob_settings *sptr)
 	extfh_cob_init_fileio (&sequential_funcs, &lineseq_funcs,
 			       &relative_funcs, &cob_file_write_opt);
 #endif
+
+	if (getenv ((const char*)"COB_UNCHECK_TEXT_BAD_CHAR") != NULL ) {
+		;
+	}
 }
 
 /********************************************************************************/
