@@ -5567,8 +5567,6 @@ AT_CLEANUP
 AT_SETUP([SEQUENTIAL file with LOCK MODE EXCLUSIVE])
 AT_KEYWORDS([runfile])
 
-AT_XFAIL_IF([true])
-
 AT_DATA([prog1.cob], [
        identification division.
        program-id. prog1.
