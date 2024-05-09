@@ -4726,6 +4726,59 @@ AT_CHECK([diff reference TEST-FILE], [0], [], [])
 AT_CLEANUP
 
 
+AT_SETUP([LINE SEQUENTIAL write BAD CHAR])
+AT_KEYWORDS([runfile READ WRITE configuration COB_LS_CHECK_BAD_CHAR])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. prog.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FLATFILE ASSIGN "LS-TEST"
+           ORGANIZATION LINE SEQUENTIAL
+           FILE STATUS IS CUST-STAT .
+
+       DATA  DIVISION.
+       FILE SECTION.
+       FD  FLATFILE
+           BLOCK CONTAINS 5 RECORDS.
+
+       01  TSPFL-RECORD.
+           10  CM-CUST-NUM                     PICTURE X(8).
+
+       WORKING-STORAGE SECTION.
+
+       77  CUST-STAT                           PICTURE X(2).
+
+       PROCEDURE DIVISION.
+           OPEN OUTPUT FLATFILE.
+           MOVE SPACE TO TSPFL-RECORD.
+           MOVE X"01" TO TSPFL-RECORD(2:1).
+           WRITE TSPFL-RECORD.
+           IF CUST-STAT NOT = "00"
+               DISPLAY "WRITE ERROR: " CUST-STAT
+           END-IF.
+           CLOSE FLATFILE.
+
+           OPEN INPUT FLATFILE.
+           READ FLATFILE.
+           IF CUST-STAT NOT = "00"
+               DISPLAY "READ  ERROR: " CUST-STAT
+           END-IF.
+           CLOSE FLATFILE.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE prog.cob], [0], [], [])
+
+AT_CHECK([COB_LS_CHECK_BAD_CHAR=FALSE \
+$COBCRUN_DIRECT ./prog], [0],[],[])
+
+
+AT_CLEANUP
+
+
 AT_SETUP([LINAGE and LINAGE-COUNTER sample])
 AT_KEYWORDS([runfile OPTIONAL FILE STATUS READ WRITE END-OF-PAGE LINE SEQUENTIAL
 configuration COB_CURRENT_DATE date])
