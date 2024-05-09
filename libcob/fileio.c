@@ -1909,9 +1909,17 @@ cob_file_open (cob_file *f, char *filename,
 	switch (mode) {
 	case COB_OPEN_INPUT:
 		if (!cobsetptr->cob_unix_lf) {
-			fmode = "r";
+			if (f->lock_mode & COB_LOCK_EXCLUSIVE) {
+				fmode = "r+";
+			} else {
+				fmode = "r";
+			}
 		} else {
-			fmode = "rb";
+			if (f->lock_mode & COB_LOCK_EXCLUSIVE) {
+				fmode = "rb+";
+			} else {
+				fmode = "rb";
+			}
 		}
 		break;
 	case COB_OPEN_OUTPUT:
@@ -2014,7 +2022,7 @@ cob_file_open (cob_file *f, char *filename,
 	if (fp && memcmp (filename, "/dev/", (size_t)5)) {
 		struct flock		lock;
 		memset ((void *)&lock, 0, sizeof (struct flock));
-		if (mode != COB_OPEN_INPUT) {
+		if ((mode != COB_OPEN_INPUT) || (f->lock_mode & COB_LOCK_EXCLUSIVE)) {
 			lock.l_type = F_WRLCK;
 		} else {
 			lock.l_type = F_RDLCK;
