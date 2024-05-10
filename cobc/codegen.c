@@ -9480,6 +9480,9 @@ output_file_initialization (struct cb_file *f)
 	if (f->flag_ext_assign) {
 		features |= COB_SELECT_EXTERNAL;
 	}
+	if (f->assign_type == CB_ASSIGN_EXT_FILE_NAME_REQUIRED) {
+		features |= COB_SELECT_EXTERNAL;
+	}
 	if (f->special) {
 		/* Special assignment */
 		features |= f->special;
