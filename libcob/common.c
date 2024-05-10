@@ -520,6 +520,7 @@ static struct config_tbl gc_conf[] = {
 	{"COB_LS_VALIDATE","ls_validate",	"1",	NULL,GRP_FILE,ENV_BOOL,SETPOS(cob_ls_validate)},
 	{"COB_LS_NULLS", "ls_nulls", 		"0", 	NULL, GRP_FILE, ENV_BOOL, SETPOS (cob_ls_nulls)},
 	{"COB_LS_SPLIT", "ls_split", 		"1", 	NULL, GRP_FILE, ENV_BOOL, SETPOS (cob_ls_split)},
+	{"COB_LS_CHECK_BAD_CHAR", "ls_chk_bad_char", 		"1", 	NULL, GRP_FILE, ENV_BOOL, SETPOS (cob_ls_chk_bad_char)},
     {"COB_SEQ_CONCAT_NAME","seq_concat_name","0",NULL,GRP_FILE,ENV_BOOL,SETPOS(cob_concat_name)},
     {"COB_SEQ_CONCAT_SEP","seq_concat_sep","+",NULL,GRP_FILE,ENV_CHAR,SETPOS(cob_concat_sep),1},
 	{"COB_SORT_CHUNK", "sort_chunk", 		"256K", 	NULL, GRP_FILE, ENV_SIZE, SETPOS (cob_sort_chunk), (128 * 1024), (16 * 1024 * 1024)},
