@@ -158,6 +158,10 @@ static struct struct_handle	*base_dynload_ptr;
 static cob_global		*cobglobptr = NULL;
 static cob_settings		*cobsetptr = NULL;
 
+/* Call List */
+static call_stack_list		*call_stack_list_head = NULL;
+static call_stack_list		*current_call_stack_list = NULL;
+
 static char			**resolve_path;
 static char			*resolve_error;
 static char			*resolve_alloc;
@@ -739,6 +743,102 @@ cob_encode_invalid_chars (const unsigned char* const name,
 	return pos;
 }
 
+static void
+init_call_stack_list ()
+{
+	if (!call_stack_list_head) {
+		call_stack_list_head = cob_malloc (sizeof (call_stack_list));
+		memset (call_stack_list_head, 0, sizeof (call_stack_list));
+	}
+	current_call_stack_list = call_stack_list_head;
+}
+
+static call_stack_list *
+cob_create_call_stack_list (cob_module *module)
+{
+	call_stack_list *new_list = cob_malloc (sizeof (call_stack_list));
+	memset (new_list, 0, sizeof (call_stack_list));
+	new_list->parent = current_call_stack_list;
+	new_list->module = module;
+	current_call_stack_list = new_list;
+	return new_list;
+}
+
+void
+cob_push_call_stack_list (cob_module *module)
+{
+	if (!current_call_stack_list) {
+		init_call_stack_list ();
+	}
+
+	call_stack_list *p = current_call_stack_list->children;
+	if (!p) {
+		current_call_stack_list->children = cob_create_call_stack_list (module);
+		return;
+	}
+	if (p->module == module) {
+		current_call_stack_list = p;
+		return;
+	}
+	if (!p->sister) {
+		p->sister = cob_create_call_stack_list (module);
+		return;
+	}
+
+	p = p->sister;
+	for (;;) {
+		if (p->module == module) {
+			current_call_stack_list = p;
+			return;
+		}
+		if (p->sister == NULL) {
+			break;
+		}
+		p = p->sister;
+	}
+	current_call_stack_list->sister = cob_create_call_stack_list (module);
+	return;
+}
+
+void
+cob_pop_call_stack_list ()
+{
+	current_call_stack_list = current_call_stack_list->parent;
+	return;
+}
+
+static void
+cob_cancel_call_stack_list (call_stack_list *p)
+{
+	if (!p) {
+		/*No program*/
+		return;
+	}
+	//static cob_field_attr a_2 = {-33, 0, 0, 0, NULL};
+	//cob_field f = {strlen (p->name), (unsigned char *) p->name, &a_2};
+	//cob_field_cancel (&f);
+	cob_cancel ((const char *) p->module->module_name);
+	if (p->children) {
+		cob_cancel_call_stack_list (p->children);
+	}
+	call_stack_list *s = p->sister;
+	while (s != NULL) {
+		cob_cancel_call_stack_list (s);
+		s = s->sister;
+	}
+}
+
+static void
+cob_cancel_all ()
+{
+	if (!current_call_stack_list) {
+		cob_runtime_error ("Call to 'cob_cancel_all' current stack is NULL");
+		return;
+	}
+	cob_cancel_call_stack_list (current_call_stack_list->children);
+	return;
+}
+
 /** encode given name
   \param name to encode
   \param name_buff to place the encoded name to (unchanged, when no encoding necessary)
@@ -1256,6 +1356,7 @@ cob_cancel (const char *name)
 		   it also to this new list;
 		   then drop in CANCEL and use here canceling non-active COBOL
 		   and - for physical cancel only - also the "not COBOL" ones */
+		   cob_cancel_all ();
 		return;
 	}
 

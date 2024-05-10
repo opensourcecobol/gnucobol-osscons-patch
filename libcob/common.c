@@ -3255,6 +3255,9 @@ cob_module_global_enter (cob_module **module, cob_global **mglobal,
 	COB_MODULE_PTR->statement = STMT_UNKNOWN;
 
 	cobglobptr->cob_stmt_exception = 0;
+
+	cob_push_call_stack_list (*module);
+
 	return 0;
 }
 
@@ -3271,6 +3274,7 @@ cob_module_leave (cob_module *module)
 	COB_UNUSED (module);
 	/* Pop module pointer */
 	COB_MODULE_PTR = COB_MODULE_PTR->next;
+	cob_pop_call_stack_list ();
 }
 
 void
