@@ -4521,7 +4521,12 @@ dobuild:
 		}
 	}
 	if (isfd < 0) {
-		ret = fisretsts (COB_STATUS_30_PERMANENT_ERROR);
+		if (errno == ENOENT &&
+		      (mode == COB_OPEN_OUTPUT || f->flag_optional == 1)) {
+			ret = COB_STATUS_30_PERMANENT_ERROR;
+		} else {
+			ret = fisretsts (COB_STATUS_30_PERMANENT_ERROR);
+		}
 		freefh (fh);
 		return ret;
 	}
