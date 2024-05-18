@@ -6254,7 +6254,7 @@ AT_KEYWORDS([runfile])
 
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
@@ -6333,7 +6333,7 @@ AT_KEYWORDS([runfile])
 
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
@@ -6411,7 +6411,7 @@ AT_KEYWORDS([runfile])
 
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
@@ -6490,7 +6490,7 @@ AT_KEYWORDS([runfile])
 
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
@@ -6576,7 +6576,7 @@ AT_KEYWORDS([runfile])
 
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
