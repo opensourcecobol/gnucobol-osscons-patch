@@ -7008,7 +7008,7 @@ AT_CLEANUP
 AT_SETUP([INDEXED partial keys])
 AT_KEYWORDS([runfile])
 
-AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
+AT_SKIP_IF([test "$COB_HAS_ISAM" != "db"])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION DIVISION.
