@@ -796,7 +796,7 @@ cob_push_call_stack_list (cob_module *module)
 		}
 		p = p->sister;
 	}
-	current_call_stack_list->sister = cob_create_call_stack_list (module);
+	p->sister = cob_create_call_stack_list (module);
 	return;
 }
 
