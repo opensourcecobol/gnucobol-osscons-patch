@@ -4185,6 +4185,7 @@ static int
 indexed_getinfo (cob_file *f, char *filename)
 {
 	/* Note only vbisam index file */
+#ifdef	WITH_ANY_ISAM
 	size_t			k;
 	int			omode;
 	int			lmode;
@@ -4273,6 +4274,7 @@ indexed_getinfo (cob_file *f, char *filename)
 		}
 	}
 	isclose (isfd);
+#endif
 	return COB_STATUS_00_SUCCESS;
 }
 
