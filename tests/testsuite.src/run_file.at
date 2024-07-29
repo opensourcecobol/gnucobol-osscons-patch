@@ -10075,6 +10075,7 @@ AT_DATA([prog.cob], [
        PROCEDURE DIVISION.
       **************************************************************
        0000-MAIN.
+           PERFORM 0900-INFO-FILE.
            PERFORM 1000-OPEN-FILE.
            PERFORM 2000-READ-RECORD.
            DISPLAY 'AFTER READ ------> ' RECORD-AREA '.'.
@@ -10092,6 +10093,32 @@ AT_DATA([prog.cob], [
            PERFORM 5000-CLOSE-FILE.
 
            STOP RUN.
+      *
+      *--------------------------------*
+       0900-Info-File.
+      *--------------------------------*
+      *
+           MOVE 'TEST1EXTFH' TO FILE-NAME
+           MOVE 10           TO FILE-NAME-LEN
+
+      *    MOVE LOW-VALUES             TO FCD-AREA
+           MOVE FCD--VERSION-NUMBER    TO FCD-VERSION
+
+           MOVE FCD--INDEXED-ORG       TO FCD-ORGANIZATION
+           MOVE FILE-NAME-LEN          TO FCD-NAME-LENGTH
+           SET  FCD-FILENAME-ADDRESS   TO ADDRESS OF FILE-NAME
+           SET  FCD-KEY-DEF-ADDRESS    TO ADDRESS OF KEY-DEF-AREA
+           MOVE 16                     TO FCD-FS-FLAGS
+           MOVE LENGTH OF RECORD-AREA  TO FCD-CURRENT-REC-LEN
+           MOVE 1                      TO NUMBER-OF-KEYS
+           MOVE LENGTH OF PRIME-KEY    TO COMPONENT-LENGTH
+           MOVE 8                      TO FCD-ACCESS-MODE
+           MOVE 0                      TO FCD-LOCK-MODE
+           MOVE 128                    TO FCD-OPEN-MODE
+
+           MOVE SPECIAL-TYPE           TO ACTION-TYPE
+           MOVE GET-FILE-INFO          TO COBOL-OP
+           PERFORM 1100-CALL-EXTFH.
       *
       *--------------------------------*
        1000-Open-File.
