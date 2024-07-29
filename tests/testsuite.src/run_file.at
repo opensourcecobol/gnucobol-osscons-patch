@@ -8645,7 +8645,7 @@ AT_CAPTURE_FILE([prog.out])
 
 AT_CHECK([$COBCRUN_DIRECT ./prog 1>prog.out], [0], [], [])
 
-AT_DATA([reference], [Other Flags 32.
+AT_DATA([reference], [Other Flags 48.
 File has 0003 keys.
 Key def  0112 bytes.
 File assigned is 'mytstisam'
