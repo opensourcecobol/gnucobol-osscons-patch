@@ -3256,6 +3256,7 @@ cob_module_global_enter (cob_module **module, cob_global **mglobal,
 
 	cobglobptr->cob_stmt_exception = 0;
 
+	/* Push CANCEL ALL Call stack */
 	cob_push_call_stack_list (*module);
 
 	return 0;
@@ -3274,6 +3275,7 @@ cob_module_leave (cob_module *module)
 	COB_UNUSED (module);
 	/* Pop module pointer */
 	COB_MODULE_PTR = COB_MODULE_PTR->next;
+	/* Pop CANCEL ALL Call stack */
 	cob_pop_call_stack_list ();
 }
 

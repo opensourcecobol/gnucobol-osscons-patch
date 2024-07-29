@@ -814,18 +814,18 @@ cob_cancel_call_stack_list (call_stack_list *p)
 		/*No program*/
 		return;
 	}
-	//static cob_field_attr a_2 = {-33, 0, 0, 0, NULL};
-	//cob_field f = {strlen (p->name), (unsigned char *) p->name, &a_2};
-	//cob_field_cancel (&f);
-	cob_cancel ((const char *) p->module->module_name);
+
 	if (p->children) {
 		cob_cancel_call_stack_list (p->children);
+		p->children = NULL;
 	}
-	call_stack_list *s = p->sister;
-	while (s != NULL) {
-		cob_cancel_call_stack_list (s);
-		s = s->sister;
+	if (p->sister) {
+		cob_cancel_call_stack_list (p->sister);
+		p->sister = NULL;
 	}
+	cob_cancel (p->module->module_name);
+	p->module = NULL;
+	cob_free (p);
 }
 
 static void
@@ -836,6 +836,7 @@ cob_cancel_all ()
 		return;
 	}
 	cob_cancel_call_stack_list (current_call_stack_list->children);
+	current_call_stack_list->children = NULL;
 	return;
 }
 
@@ -1165,7 +1166,6 @@ void
 cob_set_cancel (cob_module *m)
 {
 	struct call_hash	*p;
-
 	p = call_table[hash ((const unsigned char *)(m->module_name))];
 	for (; p; p = p->next) {
 		if (strcmp (m->module_name, p->name) == 0) {
