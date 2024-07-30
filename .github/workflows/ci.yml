@@ -48,7 +48,7 @@ jobs:
 
       - name: Install GnuCOBOL
         run: |
-          ./configure --prefix=/usr/ --with-xml2 --with-cjson --with-vbisam
+          ./configure --prefix=/usr/ --with-xml2 --with-json=cjson --with-vbisam
           make
           sudo make install
 
