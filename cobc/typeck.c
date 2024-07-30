@@ -11459,7 +11459,7 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 				if (dst_size_mod == FIELD_SIZE_UNKNOWN) {
 					break;
 				}
-				if (size > fdst->size / COB_NATIONAL_SIZE) {
+				if (size > fdst->size) {
 					goto size_overflow_1;
 				}
 				break;
@@ -11471,6 +11471,10 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 					goto size_overflow_1;
 				}
 				break;
+			case CB_CATEGORY_ALPHANUMERIC:
+				if (size > fdst->size * COB_NATIONAL_SIZE) {
+					goto size_overflow_1;
+				}
 			case CB_CATEGORY_BOOLEAN:
 				/* TODO: add checks */
 				break;
