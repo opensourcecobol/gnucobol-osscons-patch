@@ -5773,11 +5773,15 @@ output_initialize (struct cb_initialize *p)
 	case INITIALIZE_DEFAULT:
 		c = initialize_uniform_char (f, p);
 		if (c != -1) {
-			if (p->statement == STMT_INIT_STORAGE) {
-				output_init_comment_and_source_ref (f);
+			if ((cb_tree_type (CB_TREE (f), f) == COB_TYPE_NATIONAL) && (c == ' ')) {
+				output_move (cb_space, p->var);
+			} else {
+				if (p->statement == STMT_INIT_STORAGE) {
+					output_init_comment_and_source_ref (f);
+				}
+				output_initialize_uniform (p->var, f, (unsigned char)c, f->size);
+				output_initialize_chaining (f, p);
 			}
-			output_initialize_uniform (p->var, f, (unsigned char)c, f->size);
-			output_initialize_chaining (f, p);
 			return;
 		}
 		/* Fall through */
