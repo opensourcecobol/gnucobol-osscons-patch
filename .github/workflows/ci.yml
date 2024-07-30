@@ -54,6 +54,7 @@ jobs:
 
       - name: Run custom tests
         run: |
+          export TERM=xterm
           make check
 
       - name: Run COBOL85 tests
