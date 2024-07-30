@@ -56,6 +56,18 @@ jobs:
         run: |
           make check
 
+      - name: check ci error 0798
+        run: |
+          cat tests/testsuite.dir/0798/testsuite.log
+
+      - name: check ci error 0799
+        run: |
+          cat tests/testsuite.dir/0799/testsuite.log
+
+      - name: check ci error 0800
+        run: |
+          cat tests/testsuite.dir/0800/testsuite.log
+
       - name: Run COBOL85 tests
         run: |
           make test
