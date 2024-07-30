@@ -406,7 +406,6 @@ AT_CLEANUP
 AT_SETUP([OUTPUT on INDEXED file to missing directory])
 AT_KEYWORDS([runfile OPEN ASSIGN])
 
-AT_CHECK([$SKIP_TEST_TEMPORARILY])
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
 
 AT_DATA([prog.cob], [
@@ -6253,11 +6252,9 @@ AT_CLEANUP
 AT_SETUP([INDEXED file with LOCK MODE EXCLUSIVE])
 AT_KEYWORDS([runfile])
 
-AT_CHECK([SKIP_TEST_TEMPORARILY])
-
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
@@ -6334,11 +6331,9 @@ AT_CLEANUP
 AT_SETUP([INDEXED file with OPEN WITH LOCK])
 AT_KEYWORDS([runfile])
 
-AT_CHECK([SKIP_TEST_TEMPORARILY])
-
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
@@ -6414,11 +6409,9 @@ AT_CLEANUP
 AT_SETUP([INDEXED file with SHARING NO])
 AT_KEYWORDS([runfile])
 
-AT_CHECK([SKIP_TEST_TEMPORARILY])
-
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
@@ -6495,11 +6488,9 @@ AT_CLEANUP
 AT_SETUP([INDEXED file with SHARING READ ONLY])
 AT_KEYWORDS([runfile])
 
-AT_CHECK([SKIP_TEST_TEMPORARILY])
-
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
@@ -6583,11 +6574,9 @@ AT_CLEANUP
 AT_SETUP([INDEXED file with blocked lock])
 AT_KEYWORDS([runfile])
 
-AT_CHECK([SKIP_TEST_TEMPORARILY])
-
 ## TO-DO: Support INDEXED file sharing/locking.
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
-AT_XFAIL_IF([true])
+AT_XFAIL_IF([test "$COB_HAS_ISAM" != "vbisam"])
 
 AT_DATA([prog1.cob], [
        identification division.
@@ -7019,8 +7008,7 @@ AT_CLEANUP
 AT_SETUP([INDEXED partial keys])
 AT_KEYWORDS([runfile])
 
-AT_CHECK([$SKIP_TEST_TEMPORARILY])
-AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
+AT_SKIP_IF([test "$COB_HAS_ISAM" != "db"])
 
 AT_DATA([prog.cob], [
        IDENTIFICATION DIVISION.
@@ -8657,7 +8645,7 @@ AT_CAPTURE_FILE([prog.out])
 
 AT_CHECK([$COBCRUN_DIRECT ./prog 1>prog.out], [0], [], [])
 
-AT_DATA([reference], [Other Flags 32.
+AT_DATA([reference], [Other Flags 48.
 File has 0003 keys.
 Key def  0112 bytes.
 File assigned is 'mytstisam'
@@ -9890,7 +9878,7 @@ kdblen: 00398
  Index: 01 Parts: 00001 Offset: 00062
    Pos: 0000000000   Len: 0000000008   Desc: 000 Type: 000
  Index: 02 Parts: 00001 Offset: 00072
-   Pos: 0000000109   Len: 0000000010   Desc: 032 Type: 032
+   Pos: 0000000109   Len: 0000000010   Desc: 000 Type: 000
  Index: 03 Parts: 00003 Offset: 00082
    Pos: 0000000156   Len: 0000000008   Desc: 000 Type: 000
    Pos: 0000000119   Len: 0000000025   Desc: 000 Type: 000
@@ -9907,7 +9895,6 @@ AT_CLEANUP
 AT_SETUP([EXTFH: changing record address])
 AT_KEYWORDS([runfile EXTFH])
 
-AT_CHECK([$SKIP_TEST_TEMPORARILY])
 # TODO: replace INDEXED with line sequential (or duplicate)
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
 
@@ -10088,6 +10075,7 @@ AT_DATA([prog.cob], [
        PROCEDURE DIVISION.
       **************************************************************
        0000-MAIN.
+           PERFORM 0900-INFO-FILE.
            PERFORM 1000-OPEN-FILE.
            PERFORM 2000-READ-RECORD.
            DISPLAY 'AFTER READ ------> ' RECORD-AREA '.'.
@@ -10105,6 +10093,32 @@ AT_DATA([prog.cob], [
            PERFORM 5000-CLOSE-FILE.
 
            STOP RUN.
+      *
+      *--------------------------------*
+       0900-Info-File.
+      *--------------------------------*
+      *
+           MOVE 'TEST1EXTFH' TO FILE-NAME
+           MOVE 10           TO FILE-NAME-LEN
+
+      *    MOVE LOW-VALUES             TO FCD-AREA
+           MOVE FCD--VERSION-NUMBER    TO FCD-VERSION
+
+           MOVE FCD--INDEXED-ORG       TO FCD-ORGANIZATION
+           MOVE FILE-NAME-LEN          TO FCD-NAME-LENGTH
+           SET  FCD-FILENAME-ADDRESS   TO ADDRESS OF FILE-NAME
+           SET  FCD-KEY-DEF-ADDRESS    TO ADDRESS OF KEY-DEF-AREA
+           MOVE 16                     TO FCD-FS-FLAGS
+           MOVE LENGTH OF RECORD-AREA  TO FCD-CURRENT-REC-LEN
+           MOVE 1                      TO NUMBER-OF-KEYS
+           MOVE LENGTH OF PRIME-KEY    TO COMPONENT-LENGTH
+           MOVE 8                      TO FCD-ACCESS-MODE
+           MOVE 0                      TO FCD-LOCK-MODE
+           MOVE 128                    TO FCD-OPEN-MODE
+
+           MOVE SPECIAL-TYPE           TO ACTION-TYPE
+           MOVE GET-FILE-INFO          TO COBOL-OP
+           PERFORM 1100-CALL-EXTFH.
       *
       *--------------------------------*
        1000-Open-File.
@@ -11546,7 +11560,6 @@ AT_CLEANUP
 AT_SETUP([INDEXED File READ/DELETE/READ])
 AT_KEYWORDS([runfile READ DELETE EXTFH])
 
-AT_CHECK([$SKIP_TEST_TEMPORARILY])
 AT_SKIP_IF([test "$COB_HAS_ISAM" = "no"])
 
 AT_DATA([prog.cob], [

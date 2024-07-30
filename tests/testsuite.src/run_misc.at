@@ -7278,7 +7278,6 @@ AT_CLEANUP
 
 AT_SETUP([ON EXCEPTION clause of DISPLAY])
 AT_KEYWORDS([runmisc exceptions screen])
-AT_CHECK([$SKIP_TEST_TEMPORARILY])
 
 AT_CHECK([test "$COB_HAS_CURSES" = "yes" || exit 77])
 
@@ -7305,7 +7304,6 @@ AT_CLEANUP
 AT_SETUP([EC-SCREEN-LINE-NUMBER and -STARTING-COLUMN])
 AT_KEYWORDS([runmisc exceptions screen])
 
-AT_CHECK([$SKIP_TEST_TEMPORARILY])
 AT_CHECK([test "$COB_HAS_CURSES" = "yes" || exit 77])
 
 AT_DATA([prog.cob], [
@@ -7347,7 +7345,6 @@ AT_CLEANUP
 AT_SETUP([LINE/COLUMN 0 exceptions])
 AT_KEYWORDS([LINE COLUMN runmisc exceptions extensions screen])
 
-AT_CHECK([$SKIP_TEST_TEMPORARILY])
 AT_CHECK([test "$COB_HAS_CURSES" = "yes" || exit 77])
 
 AT_DATA([prog.cob], [

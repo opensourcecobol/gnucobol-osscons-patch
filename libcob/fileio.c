@@ -4185,6 +4185,7 @@ static int
 indexed_getinfo (cob_file *f, char *filename)
 {
 	/* Note only vbisam index file */
+#ifdef	WITH_ANY_ISAM
 	size_t			k;
 	int			omode;
 	int			lmode;
@@ -4273,6 +4274,7 @@ indexed_getinfo (cob_file *f, char *filename)
 		}
 	}
 	isclose (isfd);
+#endif
 	return COB_STATUS_00_SUCCESS;
 }
 
@@ -4521,7 +4523,12 @@ dobuild:
 		}
 	}
 	if (isfd < 0) {
-		ret = fisretsts (COB_STATUS_30_PERMANENT_ERROR);
+		if (errno == ENOENT &&
+		      (mode == COB_OPEN_OUTPUT || f->flag_optional == 1)) {
+			ret = COB_STATUS_30_PERMANENT_ERROR;
+		} else {
+			ret = fisretsts (COB_STATUS_30_PERMANENT_ERROR);
+		}
 		freefh (fh);
 		return ret;
 	}
