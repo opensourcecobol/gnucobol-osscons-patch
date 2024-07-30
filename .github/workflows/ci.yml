@@ -18,7 +18,7 @@ jobs:
       - name: Install prerequisite softwares
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential libdb-dev
+          sudo apt-get install -y libncursesw5 libncursesw5-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential libdb-dev
 
       - uses: actions/checkout@v4
 
