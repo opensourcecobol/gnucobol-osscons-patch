@@ -54,6 +54,7 @@ jobs:
       - name: Run custom tests
         continue-on-error: true
         run: |
+          export TERM=xterm
           make check
 
       - name: check ci error 0798
