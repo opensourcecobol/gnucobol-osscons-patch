@@ -457,3 +457,22 @@ AT_CHECK([${COMPILE} -x prog.cob], [0])
 AT_CHECK([./prog], [0], [゜ポンデソング])
 
 AT_CLEANUP
+
+AT_SETUP([INITIALIZE PIC N.])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01 F0 PIC N(5).
+       PROCEDURE        DIVISION.
+           INITIALIZE F0.
+           DISPLAY F0 WITH NO ADVANCING.
+           STOP RUN.
+])
+
+AT_CHECK([${COMPILE} -x prog.cob], [0])
+AT_CHECK([./prog], [0], [　　　　　])
+
+AT_CLEANUP
