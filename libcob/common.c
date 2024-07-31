@@ -1,6 +1,7 @@
 /*
-   Copyright (C) 2001-2012, 2014-2023 Free Software Foundation, Inc.
-   Written by Keisuke Nishida, Roger While, Simon Sobisch, Ron Norman
+   Copyright (C) 2001-2012, 2014-2024 Free Software Foundation, Inc.
+   Written by Keisuke Nishida, Roger While, Simon Sobisch, Ron Norman,
+   OSS Consortium
 
    This file is part of GnuCOBOL.
 

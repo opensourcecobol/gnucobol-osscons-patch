@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2007-2012, 2014-2023 Free Software Foundation, Inc.
+   Copyright (C) 2007-2012, 2014-2024 Free Software Foundation, Inc.
    Written by Roger While, Simon Sobisch, Ron Norman, OSS Consortium
 
    This file is part of GnuCOBOL.
