@@ -11459,10 +11459,11 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 				if (dst_size_mod == FIELD_SIZE_UNKNOWN) {
 					break;
 				}
-				if (size > fdst->size / COB_NATIONAL_SIZE) {
+				if (size > fdst->size) {
 					goto size_overflow_1;
 				}
 				break;
+			case CB_CATEGORY_ALPHANUMERIC_EDITED:
 			case CB_CATEGORY_NATIONAL_EDITED:
 				if (dst_size_mod == FIELD_SIZE_UNKNOWN) {
 					break;
@@ -11471,11 +11472,24 @@ validate_move (cb_tree src, cb_tree dst, const unsigned int is_value, int *move_
 					goto size_overflow_1;
 				}
 				break;
+			case CB_CATEGORY_ALPHABETIC:
+			case CB_CATEGORY_ALPHANUMERIC:
+				if (size > fdst->size * COB_NATIONAL_SIZE) {
+					goto size_overflow_1;
+				}
+				break;
 			case CB_CATEGORY_BOOLEAN:
 				/* TODO: add checks */
 				break;
 			default:
-				goto invalid;
+				if (dst_size_mod == FIELD_SIZE_UNKNOWN) {
+					break;
+				}
+				if (size > fdst->size) {
+					goto size_overflow_1;
+				}
+				break;
+			// 	goto invalid;
 			}
 			break;
 		case CB_CATEGORY_NATIONAL_EDITED:
