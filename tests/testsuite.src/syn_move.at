@@ -318,11 +318,8 @@ AT_DATA([prog.cob], [
 ])
 
 # unfinished national
-AT_CHECK([$COMPILE_ONLY -Wno-unfinished prog.cob], [1], [],
-[prog.cob:15: error: invalid MOVE statement
-prog.cob:16: error: invalid MOVE statement
-prog.cob:17: error: invalid MOVE statement
-])
+AT_CHECK([$COMPILE_ONLY -Wno-unfinished prog.cob], [0], [],
+[])
 
 AT_CLEANUP
 
