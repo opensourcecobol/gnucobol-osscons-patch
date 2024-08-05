@@ -1,4 +1,31 @@
 NEWS - user visible changes				-*- outline -*-
+
+GnuCOBOL 3.2 OSSCons patch2 released (20240731) by OSS Consortium.
+
+* Update OSSCons patch for GnuCOBOL3.2.
+
+** Some features in opensource COBOL have been merged into GnuCOBOL3.2.
+
+** The modifications are as follows:
+----
+* Support for CANCEL ALL
+** CANCEL ALL cancels every subprogram that is called as child programs.
+
+* Support for EXCLUSIVE mode
+** Support for EXCLUSIVE mode on OPEN INPUT. Exclusive mode files are opened with a lock on the entire file.
+
+** This extension works only when VBISAM is used as an indexed file.
+
+* Fixed some bugs of NATIONAL items.
+
+----
+
+* Newly added CI Workflows using GitHub.
+
+** Fixed some test cases for use with VBISAM.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
  GnuCOBOL 3.2 OSSCons patch1 released  (20240116) by OSS Consortium.
 
 * Update OSSCons patch for GnuCOBOL3.2.
