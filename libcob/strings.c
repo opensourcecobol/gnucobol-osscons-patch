@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2014, 2016-2020, 2022-2023 Free Software Foundation, Inc.
+   Copyright (C) 2002-2014, 2016-2020, 2022-2024 Free Software Foundation, Inc.
    Written by Keisuke Nishida, Roger While, Edward Hart, Simon Sobisch,
    OSS Consortium
 

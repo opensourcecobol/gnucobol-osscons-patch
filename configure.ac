@@ -25,14 +25,14 @@ dnl
 AC_PREREQ([2.67])  # note: 2.67 is the one found in old msys, 2.69 is commonly available
 
 AC_INIT([GnuCOBOL OSS Consortium patch],
-	[3.2 patch1],
+	[3.2 patch2],
 	[ws-opensource-cobol-contact@osscons.jp],
 	[gnucobol],
 	[https://github.com/opensourcecobol/gnucobol-osscons-patch])
 AC_REVISION([GnuCOBOL snapshot $Revision: 5150 $])
 AC_COPYRIGHT([This file is part of GnuCOBOL.
 
-Copyright (C) 2001-2012, 2014-2023 Free Software Foundation, Inc.
+Copyright (C) 2001-2012, 2014-2024 Free Software Foundation, Inc.
 Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch,
 Edward Hart, OSS Consortium
 ])

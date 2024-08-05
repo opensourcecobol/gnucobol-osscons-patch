@@ -1,3 +1,6 @@
+2024-07-31  OSS Consortium <ws-opensource-cobol-contact@osscons.jp>
+
+	* configure.ac, NEWS:: updated for 3.2 OSS Cons patch2
 
 2023-07-28  Simon Sobisch <simonsobisch@gnu.org>
 
@@ -882,7 +885,7 @@
 
 	* configure.ac: #44 Disable optimisation with --enable-debug
 
-2014-09-09  Philipp Bï¿½hme <phi.boehme@googlemail.com>
+2014-09-09  Philipp B?¿½hme <phi.boehme@googlemail.com>
 
 	* configure.ac: new check for mp_get_memory_functions in
 	  libgmp and new preprocessor define HAVE_MP_GET_MEMORY_FUNCTIONS
@@ -895,7 +898,7 @@
 	  additional output of configuration summary to config.log;
 	  respect --quite (don't echo or printf to stdout)
 
-2014-06-20  Philipp Bï¿½hme <phi.boehme@googlemail.com>
+2014-06-20  Philipp B?¿½hme <phi.boehme@googlemail.com>
 
 	* New folder build_windows
 	* Added project files for Visual Studio 2003 and newer
@@ -904,7 +907,7 @@
 
 	* General: Win compatibility: define COB_OBJEXT in defaults.h
 
-2014-04-14  Philipp Bï¿½hme <phi.boehme@googlemail.com>
+2014-04-14  Philipp B?¿½hme <phi.boehme@googlemail.com>
 
 	* moved cobgetopt.c from lib to libcob
 	* link cobc to libcob
