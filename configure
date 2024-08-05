@@ -14,7 +14,7 @@
 #
 # This file is part of GnuCOBOL.
 #
-# Copyright (C) 2001-2012, 2014-2023 Free Software Foundation, Inc.
+# Copyright (C) 2001-2012, 2014-2024 Free Software Foundation, Inc.
 # Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch,
 # Edward Hart, OSS Consortium
 #
@@ -1747,7 +1747,7 @@ gives unlimited permission to copy, distribute and modify it.
 
 This file is part of GnuCOBOL.
 
-Copyright (C) 2001-2012, 2014-2023 Free Software Foundation, Inc.
+Copyright (C) 2001-2012, 2014-2024 Free Software Foundation, Inc.
 Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch,
 Edward Hart, OSS Consortium
 

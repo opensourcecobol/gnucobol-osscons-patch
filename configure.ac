@@ -32,7 +32,7 @@ AC_INIT([GnuCOBOL OSS Consortium patch],
 AC_REVISION([GnuCOBOL snapshot $Revision: 5150 $])
 AC_COPYRIGHT([This file is part of GnuCOBOL.
 
-Copyright (C) 2001-2012, 2014-2023 Free Software Foundation, Inc.
+Copyright (C) 2001-2012, 2014-2024 Free Software Foundation, Inc.
 Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch,
 Edward Hart, OSS Consortium
 ])
