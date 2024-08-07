@@ -824,7 +824,9 @@ cob_cancel_call_stack_list (call_stack_list *p)
 		cob_cancel_call_stack_list (p->sister);
 		p->sister = NULL;
 	}
-	cob_cancel (p->module->module_name);
+	if (!p->module->module_name) {
+		cob_cancel (p->module->module_name);
+	}
 	p->module = NULL;
 	cob_free (p);
 }
