@@ -6,7 +6,7 @@ on:
     types: [opened, reopened, review_requested, synchronize]
 
 jobs:
-  run-tests:
+  cppcheck:
     runs-on: ubuntu-latest
     steps:
 
