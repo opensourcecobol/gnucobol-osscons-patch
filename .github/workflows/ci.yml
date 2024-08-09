@@ -6,9 +6,7 @@ on:
     types: [opened, reopened, review_requested, synchronize]
 
 env:
-  CPPFLAGS: "-I/usr/include"
-  LDFLAGS: "-L/usr/lib"
-  LD_LAIBRARY_PATH: "/usr/lib"
+  LD_LIBRARY_PATH: "/usr/lib"
 
 jobs:
   run-tests:
@@ -18,7 +16,7 @@ jobs:
       - name: Install prerequisite softwares
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential libdb-dev
+          sudo apt-get install -y libncurses-dev libgmp-dev m4 libtool help2man pkg-config gettext automake libxml2-dev libcjson-dev build-essential libdb-dev
 
       - uses: actions/checkout@v4
 
