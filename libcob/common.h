@@ -1690,6 +1690,7 @@ COB_EXPIMP void	*cob_fast_malloc		(const size_t) COB_A_MALLOC;
 COB_EXPIMP void	*cob_cache_malloc		(const size_t) COB_A_MALLOC;
 COB_EXPIMP void	*cob_cache_realloc		(void *, const size_t);
 COB_EXPIMP void	cob_cache_free			(void *);
+COB_EXPIMP void	*cob_cache_check		(void *);
 
 COB_EXPIMP void	cob_set_locale			(cob_field *, const int);
 

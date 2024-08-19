@@ -2565,6 +2565,23 @@ cob_cache_free (void *ptr)
 	}
 }
 
+void *
+cob_cache_check (void *ptr)
+{
+	struct cob_alloc_cache	*cache_ptr;
+
+	if (!ptr) {
+		return NULL;
+	}
+	cache_ptr = cob_alloc_base;
+	for (; cache_ptr; cache_ptr = cache_ptr->next) {
+		if (ptr == cache_ptr->cob_pointer) {
+			return ptr;
+		}
+	}
+	return NULL;
+}
+
 static COB_INLINE int
 hash (const char *s)
 {

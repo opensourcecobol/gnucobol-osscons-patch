@@ -2375,6 +2375,103 @@ AT_CHECK([COB_PHYSICAL_CANCEL=1 ./prog], [0], [121NG], [])
 
 AT_CLEANUP
 
+AT_SETUP([CANCEL ALL test ])
+AT_KEYWORDS([fundamental CALL])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       PROCEDURE        DIVISION.
+           CALL "child".
+           CALL "sister".
+           DISPLAY "CALL1END".
+           CALL "child".
+           CALL "sister".
+           DISPLAY "CALL2END".
+           CANCEL ALL.
+           CALL "child".
+           CALL "sister".
+           DISPLAY "CALL3END".
+           STOP RUN.
+])
+
+AT_DATA([child.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      child.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77  VAR          PIC 9(01) value 1.
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING.
+           ADD  1 TO VAR.
+           CALL "grandchild1".
+           GOBACK.
+])
+
+AT_DATA([sister.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      sister.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77  VAR          PIC 9(01) value 2.
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING.
+           ADD  1 TO VAR.
+           CALL "grandchild2".
+           CALL "grandchild3".
+           GOBACK.
+])
+
+AT_DATA([grandchild1.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      grandchild1.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77  VAR          PIC 9(01) value 3.
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING.
+           ADD  1 TO VAR.
+           GOBACK.
+])
+
+AT_DATA([grandchild2.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      grandchild2.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77  VAR          PIC 9(01) value 4.
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING.
+           ADD  1 TO VAR.
+           GOBACK.
+])
+
+AT_DATA([grandchild3.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      grandchild3.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77  VAR          PIC 9(01) value 5.
+       PROCEDURE        DIVISION.
+           DISPLAY VAR NO ADVANCING.
+           ADD  1 TO VAR.
+           GOBACK.
+])
+
+AT_CHECK([$COMPILE prog.cob], [0], [], [])
+AT_CHECK([$COMPILE_MODULE child.cob], [0], [], [])
+AT_CHECK([$COMPILE_MODULE sister.cob], [0], [], [])
+AT_CHECK([$COMPILE_MODULE grandchild1.cob], [0], [], [])
+AT_CHECK([$COMPILE_MODULE grandchild2.cob], [0], [], [])
+AT_CHECK([$COMPILE_MODULE grandchild3.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [13245CALL1END
+24356CALL2END
+13245CALL3END
+], [])
+
+AT_CLEANUP
 
 AT_SETUP([Separate sign positions (1)])
 AT_KEYWORDS([fundamental])

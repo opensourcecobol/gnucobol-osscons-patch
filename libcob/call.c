@@ -824,8 +824,12 @@ cob_cancel_call_stack_list (call_stack_list *p)
 		cob_cancel_call_stack_list (p->sister);
 		p->sister = NULL;
 	}
-	cob_cancel (p->module->module_name);
-	p->module = NULL;
+	/* TODO: Consider making call_stack_list common 
+	         since the loop for checking the module pointer is doubled.
+	*/
+	if (cob_cache_check(p->module)) {
+		cob_cancel (p->module->module_name);
+	}
 	cob_free (p);
 }
 
