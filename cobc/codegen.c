@@ -4685,8 +4685,9 @@ initialize_uniform_char (const struct cb_field *f,
 		case COB_TYPE_NUMERIC_DISPLAY:
 			return '0';
 		case COB_TYPE_ALPHANUMERIC:
-		case COB_TYPE_NATIONAL:
 			return ' ';
+		case COB_TYPE_NATIONAL:
+			return 0xFF;
 		default:
 			return -1;
 		}
@@ -4889,6 +4890,18 @@ output_initialize_uniform (cb_tree x, struct cb_field *f,
 		output ("*(cob_u8_ptr)(");
 		output_data (x);
 		output_char (") = ", cc, ";");
+	} else if (cc == 0xFF) {
+		int tmp_size;
+		tmp_size = f->size;
+		f->size = size;
+
+		output ("cob_move (");
+		output_param (cb_space, 1);
+		output (", ");
+		output_param (x, 2);
+		output (");");
+
+		f->size = tmp_size;
 	} else {
 		output ("memset (");
 		output_data (x);
@@ -5773,15 +5786,11 @@ output_initialize (struct cb_initialize *p)
 	case INITIALIZE_DEFAULT:
 		c = initialize_uniform_char (f, p);
 		if (c != -1) {
-			if ((cb_tree_type (CB_TREE (f), f) == COB_TYPE_NATIONAL) && (c == ' ')) {
-				output_move (cb_space, p->var);
-			} else {
-				if (p->statement == STMT_INIT_STORAGE) {
-					output_init_comment_and_source_ref (f);
-				}
-				output_initialize_uniform (p->var, f, (unsigned char)c, f->size);
-				output_initialize_chaining (f, p);
+			if (p->statement == STMT_INIT_STORAGE) {
+				output_init_comment_and_source_ref (f);
 			}
+			output_initialize_uniform (p->var, f, (unsigned char)c, f->size);
+			output_initialize_chaining (f, p);
 			return;
 		}
 		/* Fall through */
