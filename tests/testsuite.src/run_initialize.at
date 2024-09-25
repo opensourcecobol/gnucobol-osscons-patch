@@ -816,3 +816,73 @@ Initialize VALUE inside OCCURS test
 
 AT_CLEANUP
 
+AT_SETUP([INITIALIZE NATIONAL items])
+AT_KEYWORDS([initialize])
+
+AT_DATA([prog.cob], [
+       IDENTIFICATION   DIVISION.
+       PROGRAM-ID.      prog.
+       DATA             DIVISION.
+       WORKING-STORAGE  SECTION.
+       01  N0           PIC  N(04).
+       01  G1.
+           03  X1       PIC  X(02).
+           03  N1       PIC  N(02).
+           03  P91      PIC  9(02).
+       01  G2.
+           03  G22      OCCURS 3.
+             05  X2     PIC  X(02).
+             05  N2     PIC  N(02).
+             05  P92    PIC  9(02).
+       01  G3.
+           03  X3       PIC  X(02) OCCURS 3.
+           03  N3       PIC  N(02) OCCURS 3.
+           03  P93      PIC  9(02) OCCURS 3.
+       01  N4           PIC  N(01).
+       PROCEDURE        DIVISION.
+           INITIALIZE N0.
+           IF N0 NOT = "　　　　"
+              DISPLAY N0 NO ADVANCING
+              END-DISPLAY
+           END-IF.
+           INITIALIZE G1.
+           IF G1 NOT = "  　　00"
+              DISPLAY G1 NO ADVANCING
+              END-DISPLAY
+           END-IF.
+           INITIALIZE G2.
+           IF G2 NOT =
+              "  　　00  　　00  　　00"
+              DISPLAY G2 NO ADVANCING
+              END-DISPLAY
+           END-IF.
+           INITIALIZE G3.
+           IF G3 NOT =
+              "      　　　　　　000000"
+              DISPLAY G2 NO ADVANCING
+              END-DISPLAY
+           END-IF.
+           INITIALIZE N4.
+           IF N4 NOT = "　"
+              DISPLAY N4 NO ADVANCING
+              END-DISPLAY
+           END-IF.
+           MOVE "XXああ99XXああ99XXああ99" TO G2.
+           INITIALIZE N2(2).
+           IF G2 NOT = "XXああ99XX　　99XXああ99"
+               DISPLAY G2 NO ADVANCING
+               END-DISPLAY
+           END-IF.
+           MOVE "XXXXXXああああああ999999" TO G3.
+           INITIALIZE N3(2).
+           IF G3 NOT = "XXXXXXああ　　ああ999999"
+               DISPLAY G3 NO ADVANCING
+               END-DISPLAY
+           END-IF.
+           STOP RUN.
+])
+
+AT_CHECK([$COMPILE prog.cob], [0], [], [])
+AT_CHECK([$COBCRUN_DIRECT ./prog], [0], [], [])
+
+AT_CLEANUP
