@@ -19,7 +19,6 @@
    along with GnuCOBOL.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
 #include "config.h"
 
 #include <stdio.h>
@@ -10422,6 +10421,7 @@ warning_destination (const enum cb_warn_opt warning_opt, cb_tree x)
 
 #if 1  /* FIXME: this is wrong, should be removed and register building be
 	      adjusted, for example ACU has RETURN-CODE as SIGNED-LONG, EXTERNAL */
+	// cppcheck-suppress uninitStructMember
 	if (f->flag_internal_register) {
 		usage = "BINARY-LONG";
 	} else
@@ -10454,6 +10454,7 @@ warning_destination (const enum cb_warn_opt warning_opt, cb_tree x)
 		return;
 	}
 
+	// cppcheck-suppress uninitStructMember
 	if (f->flag_internal_register) {
 		cb_note_x (warning_opt, x, _("internal register '%s' defined as USAGE %s"),
 			f->name, usage);

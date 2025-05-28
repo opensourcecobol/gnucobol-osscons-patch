@@ -62,6 +62,7 @@
 #endif
 #endif
 #if !defined(ALIGN_KNOWN) && !defined(COB_ALLOW_UNALIGNED)
+// cppcheck-suppress preprocessorErrorDirective
 #error System requires data alignment which is unknown
 #endif
 
