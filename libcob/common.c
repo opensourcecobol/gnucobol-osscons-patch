@@ -97,6 +97,7 @@
 #elif defined HAVE_MPIR_H
 #include <mpir.h>
 #else
+// cppcheck-suppress preprocessorErrorDirective
 #error either HAVE_GMP_H or HAVE_MPIR_H needs to be defined
 #endif
 
