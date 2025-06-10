@@ -1453,6 +1453,7 @@ cob_call (const char *name, const int argc, void **argv)
     MAX_CALL_FIELD_PARAMS == 192 || \
     MAX_CALL_FIELD_PARAMS == 252
 #else
+// cppcheck-suppress preprocessorErrorDirective
 #error	"Invalid MAX_CALL_FIELD_PARAMS value"
 #endif
 	i =  unifunc.funcint (pargv[0], pargv[1], pargv[2], pargv[3]

@@ -12,13 +12,27 @@ env:
 
 jobs:
   run-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest 
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu:24.04
+            install_cmd: |
+              apt-get update -y
+              apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential libdb-dev
+          - os: almalinux:9
+            install_cmd: |
+              dnf update -y
+              dnf install -y epel-release
+              dnf config-manager --set-enabled crb
+              dnf makecache
+              dnf install -y ncurses-devel gmp-devel help2man bison flex texinfo m4 libtool pkg-config gettext automake autoconf libxml2-devel gcc gcc-c++ make libdb-devel diffutils which wget
+
+    container: ${{ matrix.os }}
     steps:
 
       - name: Install prerequisite softwares
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y libncurses6 libncurses-dev ncurses-doc libgmp10 libgmp-dev m4 libtool help2man pkg-config gettext automake autoconf libxml2 libxml2-dev libxml2-utils libcjson1 libcjson-dev build-essential libdb-dev
+        run: ${{ matrix.install_cmd }}
 
       - uses: actions/checkout@v4
 
@@ -28,7 +42,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: opensource-cobol/vbisam
-          key: vbisam-key
+          key: vbisam-${{ matrix.os }}-key
 
       # Download vbisam and Build it
       - name: Download vbisam and Build it
@@ -44,13 +58,13 @@ jobs:
       - name: Install vbisam
         working-directory: opensource-cobol-1.5.2J/vbisam
         run: |
-          sudo make install
+          make install
 
       - name: Install GnuCOBOL
         run: |
           ./configure --prefix=/usr/ --with-xml2 --with-cjson --with-vbisam
           make
-          sudo make install
+          make install
 
       - name: Run custom tests
         run: |
