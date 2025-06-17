@@ -3,7 +3,7 @@ name: cppcheck
 on:
   push:
   pull_request:
-    types: [opened, reopened, review_requested, synchronize]
+    types: [opened, reopened, synchronize]
 
 env:
   CPPFLAGS: "-I/usr/include"
