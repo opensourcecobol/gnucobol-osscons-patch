@@ -36,12 +36,12 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      # Cache the directory 'opensource-cobol-1.5.2J/vbisam'
+      # Cache the directory 'vbisam'
       - name: Cache vbisam
         id: vbisam_cache_id
         uses: actions/cache@v4
         with:
-          path: opensource-cobol/vbisam
+          path: vbisam-osscons-patch-2.0patch1
           key: vbisam-${{ matrix.os }}-key
 
       # Download vbisam and Build it
