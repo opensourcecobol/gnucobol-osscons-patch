@@ -25,13 +25,12 @@ jobs:
       - name: Download vbisam
         run: |
           if [ ! -d vbisam ]; then \
-            git clone https://github.com/opensourcecobol/opensource-cobol; \
-            mv opensource-cobol/vbisam .; \
-            rm -rf opensource-cobol; \
+            git clone https://github.com/opensourcecobol/vbisam-osscons-patch.git; \
+            mv vbisam-osscons-patch .; \
           fi
 
       - name: Install vbisam
-        working-directory: vbisam
+        working-directory: vbisam-osscons-patch
         run: |
           ./configure --prefix=/usr/
           make
