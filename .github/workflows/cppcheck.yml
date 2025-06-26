@@ -24,9 +24,8 @@ jobs:
 
       - name: Download vbisam
         run: |
-          if [ ! -d vbisam ]; then \
+          if [ ! -d vbisam-osscons-patch ]; then \
             git clone https://github.com/opensourcecobol/vbisam-osscons-patch.git; \
-            mv vbisam-osscons-patch .; \
           fi
 
       - name: Install vbisam
