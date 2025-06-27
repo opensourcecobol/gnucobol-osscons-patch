@@ -1,0 +1,78 @@
+
+image: gitpod/workspace-c
+
+tasks:
+
+- name: setup coding environment on Ubuntu 22.04+ # "bear" is only packaged since this version
+  before: |
+    # note: sadly we need this to be done every time as only /workspace is kept, but linked
+    #       against those dependencies; and also we do want to recompile after adjustments
+    #       this can all be dropped as soon as we would use a prepared docker
+    sudo apt update && sudo apt upgrade -y
+    sudo apt install -y build-essential bear
+    gp sync-done system-prepare-base
+    sudo apt install -y libgmp-dev libdb-dev libjson-c-dev ncurses-dev libxml2-dev \
+         automake libtool flex bison help2man texinfo \
+         lcov
+    # sudo apt install gettext texlive-base  # for make dist (po/*, doc/gnucobol.pdf)
+    gp sync-done system-prepare
+
+- name: download vbisam, build and install it (cached)
+  init: |
+    cd /workspace
+    curl -L -o opensource-cobol-1.5.2J.tar.gz https://github.com/opensourcecobol/opensource-cobol/archive/refs/tags/v1.5.2J.tar.gz
+    gp sync-await system-prepare-base
+    tar zxf opensource-cobol-1.5.2J.tar.gz
+    cd opensource-cobol-1.5.2J/vbisam
+    ./configure --enable-debug --enable-code-coverage
+    bear -- make --jobs=$(nproc)
+  command: |
+    cd /workspace/opensource-cobol-1.5.2J/vbisam
+    sudo make install
+    gp sync-done vbisam-prepare
+
+- name: building GnuCOBOL with vbisam
+  init: |
+    mkdir -p $GITPOD_REPO_ROOTS/build
+    cd $GITPOD_REPO_ROOTS/build
+    gp sync-await system-prepare
+    gp sync-await vbisam-prepare
+    ../autogen.sh
+    ../configure --with-vbisam --enable-cobc-internal-checks --enable-debug --enable-code-coverage LIBCOB_LIBS="-L/usr/local/lib -R/usr/local/lib"
+    bear -- make --jobs=$(nproc)
+  command: |
+    cd $GITPOD_REPO_ROOTS/build
+    gp sync-done build-finish
+
+- name: running GnuCOBOL tests with coverage
+  command: |
+    gp sync-await build-finish
+    cd $GITPOD_REPO_ROOTS/build
+    half_jobs=$(( $(nproc) / 2 ))
+    nice make --jobs=${half_jobs} check-code-coverage TESTSUITEFLAGS="--jobs=${half_jobs}"
+    gp sync-done test-finish
+    nice make check TESTSUITEFLAGS="--recheck --verbose"
+
+- name: running NIST85 tests
+  command: |
+    gp sync-await build-finish
+    cd $GITPOD_REPO_ROOTS/build
+    half_jobs=$(( $(nproc) / 2 ))
+    nice make -C tests/cobol85 --jobs=${half_jobs} test
+
+- name: running GnuCOBOL distribution tests with testuite
+  command: |
+    gp sync-await test-finish
+    cd $GITPOD_REPO_ROOTS/build
+    half_jobs=$(( $(nproc) / 2 ))
+    nice make --jobs=${half_jobs} distcheck TESTSUITEFLAGS="--jobs=${half_jobs}"
+
+vscode:
+  extensions:
+    - llvm-vs-code-extensions.vscode-clangd
+    - maelvalais.autoconf
+    - Dizy.lex-flex-yacc-bison
+    - ryanluker.vscode-coverage-gutters
+    - tenninebt.vscode-koverage
+    - meronz.manpages
+    - webfreak.debug
